@@ -26,7 +26,8 @@ class NextcloudService: NSObject {
         guard !appDelegate.account.isEmpty else { return }
         
         NextcloudKit.shared.setup(account: account, user: user, userId: userId, password: password, urlBase: urlBase)
-
+        NKCommon.shared.levelLog = 0
+        
         let serverVersionMajor = DatabaseManager.shared.getCapabilitiesServerInt(account: account, elements: Global.shared.capabilitiesVersionMajor)
         if serverVersionMajor > 0 {
             NextcloudKit.shared.setup(nextcloudVersion: serverVersionMajor)
@@ -93,10 +94,8 @@ class NextcloudService: NSObject {
         
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date > %@ AND date < %@", account, startServerUrl, NKCommon.typeClassFile.image.rawValue, NKCommon.typeClassFile.video.rawValue, greaterDate as NSDate, lessDate as NSDate)
         let metadatasResult = DatabaseManager.shared.getMetadatas(predicate: predicate)
-        
-        let metadatas = DatabaseManager.shared.getMetadatasMedia(predicate: predicate)
-        
         let result = DatabaseManager.shared.processMetadatas(metadataCollection.metadatas, metadatasResult: metadatasResult, addCompareLivePhoto: false)
+        let metadatas = DatabaseManager.shared.getMetadatasMedia(predicate: predicate)
         
         return (result.ocIdAdd, result.ocIdUpdate, result.ocIdDelete, metadatas)
     }

@@ -25,18 +25,23 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
+        collectionView.register(nib, forCellWithReuseIdentifier: "CollectionViewCell")
+        
+        collectionView.collectionViewLayout = CollectionViewLayout()
+        
         dataSource = UICollectionViewDiffableDataSource<Int, String>(collectionView: collectionView) {
             (collectionView: UICollectionView, indexPath: IndexPath, ocId: String) -> UICollectionViewCell? in
             
                 guard let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
             
-                self.setImage(ocId: ocId, cell: cell, indexPath: indexPath)
+                Task {
+                    await self.setImage(ocId: ocId, cell: cell, indexPath: indexPath)
+                }
             
                 return cell
             }
-        
-        collectionView.dataSource = dataSource
         
         var snapshot = dataSource.snapshot()
         snapshot.appendSections([1])
@@ -50,10 +55,11 @@ class MainViewController: UIViewController {
         }
     }
     
-    private func setImage(ocId: String, cell: CollectionViewCell, indexPath: IndexPath) {
-        Task {
+    private func setImage(ocId: String, cell: CollectionViewCell, indexPath: IndexPath) async {
+
+            guard self.metadatas.count > 0 && indexPath.item < self.metadatas.count else { return }
             
-            let metadata = self.metadatas[indexPath.row]
+            let metadata = self.metadatas[indexPath.item]
             
             if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
                 cell.imageView.image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
@@ -64,7 +70,6 @@ class MainViewController: UIViewController {
                 //TODO: SAVE THE IMAGE
                 cell.imageView.image = result.image
             }
-        }
     }
     
     private func search() async {
@@ -73,7 +78,7 @@ class MainViewController: UIViewController {
         
         guard let activeAccount = DatabaseManager.shared.getActiveAccount() else { return }
         guard let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: Date()) else { return }
-        guard let greaterDate = Calendar.current.date(byAdding: .day, value: -30, to: Date()) else { return }
+        guard let greaterDate = Calendar.current.date(byAdding: .day, value: -365, to: Date()) else { return }
         
         let mediaPath = activeAccount.mediaPath
         let startServerUrl = appDelegate.urlBase + "/remote.php/dav/files/" + appDelegate.userId + mediaPath
@@ -81,7 +86,8 @@ class MainViewController: UIViewController {
         Self.logger.debug("search() - lessDate: \(lessDate) greaterDate: \(greaterDate)")
         let result = await NextcloudService.shared.searchMedia(account: self.appDelegate.account, mediaPath: mediaPath, startServerUrl: startServerUrl, lessDate: lessDate, greaterDate: greaterDate)
         
-        self.metadatas = result.metadatas
+        self.metadatas = result.metadatas.sorted(by: {($0.date as Date) > ($1.date as Date)} )
+        //self.metadatas = result.metadatas
         
         Self.logger.debug("search() - added: \(result.ocIdAdd.count) updated: \(result.ocIdUpdate.count) deleted: \(result.ocIdDelete.count)")
         
@@ -100,7 +106,7 @@ class MainViewController: UIViewController {
                 snapshot.deleteItems(result.ocIdDelete)
             }
             
-            await dataSource.apply(snapshot, animatingDifferences: true)
+           await dataSource.apply(snapshot, animatingDifferences: true)
         }
         
         //TODO: HIDE INDICATOR
