@@ -38,7 +38,10 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
         let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
         collectionView.register(nib, forCellWithReuseIdentifier: "CollectionViewCell")
         
-        collectionView.collectionViewLayout = CollectionViewLayout()
+        let layout = CollectionLayout()
+        layout.delegate = self
+        collectionView.collectionViewLayout = layout
+        
         collectionView.delegate = self
         
         let refreshControl = UIRefreshControl()
@@ -90,7 +93,7 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
 
         var snapshot = dataSource.snapshot()
         snapshot.deleteAllItems()
-        snapshot.appendSections([1])
+        snapshot.appendSections([0])
         
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: false)
@@ -101,30 +104,8 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
         
         Task {
             guard let resultMetadatas = await search(lessDate: lessDate, greaterDate: greaterDate) else { return }
-            //await handleSearchResult(resultMetadatas: resultMetadatas)
             await processSearchResult(resultMetadatas: resultMetadatas)
         }
-    }
-    
-    private func pageSearch() async {
-        greaterDays = -30  //loading more, so need to reset the search time span
-
-        let mediaPath = getMediaPath()
-        let startServerUrl = getStartServerUrl()
-
-        guard mediaPath != nil && startServerUrl != nil else { return }
-
-        guard let metadataLast = NextcloudService.shared.getMetadata(account: appDelegate.account, startServerUrl: startServerUrl!) else { return }
-
-        let lessDate = metadataLast.date as Date
-
-        guard let greaterDate = Calendar.current.date(byAdding: .day, value: greaterDays, to: lessDate) else { return }
-        
-        Self.logger.debug("pageSearch() - lessDate: \(lessDate.formatted(date: .abbreviated, time: .omitted)) greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .omitted))")
-        
-        guard let resultMetadatas = await search(lessDate: lessDate, greaterDate: greaterDate) else { return }
-        await processPageSearchResult(resultMetadatas: resultMetadatas)
-        //await processSearchResult(resultMetadatas: resultMetadatas)
     }
     
     private func loadMore() {
@@ -139,7 +120,6 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
             
             Task {
                 Self.logger.debug("loadMore() - call paginateResult pageIndex \(newPageIndex)")
-                //await paginateMetadataResult(pageIndex: newPageIndex)
                 await paginateResult(pageIndex: newPageIndex)
                 DispatchQueue.main.async {
                     self.loadMoreIndicator.stopAnimating()
@@ -153,24 +133,38 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
         }
     }
     
-    private func processPageSearchResult(resultMetadatas: [tableMetadata]) async {
-        Self.logger.debug("processPageSearchResult() - resultMetadatas count: \(resultMetadatas.count)")
+    private func processSearchResult(resultMetadatas: [tableMetadata]) async {
         
-        if resultMetadatas.count == 0 {
-            //TODO: GO FARTHER BACK
-            Self.logger.debug("processPageSearchResult() - SEARCH FARTHER BACK IN TIME")
-        } else {
-            metadatas = resultMetadatas.sorted(by: {($0.date as Date) > ($1.date as Date)} )
+        if resultMetadatas.count > 0 {
+            metadatas = resultMetadatas
+        }
+        
+        Self.logger.debug("processSearchResult() - new metadata count: \(self.metadatas.count) result count: \(resultMetadatas.count)")
+        
+        //let idArray = metadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
+        //Self.logger.debug("processSearchResult() - all metadata: \(idArray)")
+        
+        let page = getCurrentPage()
+        
+        if page.count < pageSize {
+            //not enough to fill a page. display what currently have.
+            await processMetadataPage(pageMetadatas: metadatas)
             
-            //Self.logger.debug("processPageSearchResult() - call paginateMetadataResult pageIndex \(self.pageIndex) metadata count: \(self.metadatas.count)")
+            //search again with different date range
+            let searchDates = calculateSearchDates()
+            
+            if (searchDates.lessDate != nil && searchDates.greaterDate != nil) {
+                guard let resultMetadatas = await search(lessDate: searchDates.lessDate!, greaterDate: searchDates.greaterDate!) else { return }
+                await processSearchResult(resultMetadatas: resultMetadatas)
+            }
 
-            //await paginateMetadataResult(pageIndex: self.pageIndex)
-            
-            //TODO: Only have a partial page. Add to that page to fill it.
-            
+        } else {
+            Self.logger.debug("processSearchResult() - call paginateResult pageIndex \(self.pageIndex) metadata count: \(self.metadatas.count)")
+
+            await paginateResult(pageIndex: self.pageIndex)
         }
     }
-
+    
     private func calculateSearchDates() -> (lessDate: Date?, greaterDate: Date?) {
         greaterDays = greaterDays - 30
         
@@ -199,40 +193,6 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
         }
         
         return (nil, nil)
-    }
-    
-    //Main handler. First time search recurse??????
-    private func processSearchResult(resultMetadatas: [tableMetadata]) async {
-        
-        if resultMetadatas.count > 0 {
-            metadatas = resultMetadatas
-        }
-        
-        Self.logger.debug("processSearchResult() - new metadata count: \(self.metadatas.count) result count: \(resultMetadatas.count)")
-        
-        //let idArray = metadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        //Self.logger.debug("processSearchResult() - all metadata: \(idArray)")
-        
-        let page = getCurrentPage()
-        
-        if page.count < pageSize {
-            //not enough to fill a page. display what currently have.
-            await processMetadataPage(pageMetadatas: metadatas)
-            
-            //search again with different date range
-            let searchDates = calculateSearchDates()
-            
-            if (searchDates.lessDate != nil && searchDates.greaterDate != nil) {
-                guard let resultMetadatas = await search(lessDate: searchDates.lessDate!, greaterDate: searchDates.greaterDate!) else { return }
-                await processSearchResult(resultMetadatas: resultMetadatas)
-            }
-
-        } else {
-            Self.logger.debug("processSearchResult() - call paginateMetadataResult pageIndex \(self.pageIndex) metadata count: \(self.metadatas.count)")
-
-            //await paginateMetadataResult(pageIndex: self.pageIndex)
-            await paginateResult(pageIndex: self.pageIndex)
-        }
     }
     
     private func getCurrentPage() -> [tableMetadata] {
@@ -281,8 +241,10 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
     }
     
     private func cleanup(result: [tableMetadata]) {
+        guard result.count > 0 else { return }
+        
         var snapshot = dataSource.snapshot()
-        let ids = snapshot.itemIdentifiers(inSection: 1)
+        let ids = snapshot.itemIdentifiers(inSection: 0)
         var deleteIds: [String] = []
         
         for id in ids {
@@ -344,49 +306,6 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
             //have enough to fill the rest of the current page
             //await processMetadataPage(pageMetadatas: Array(resultMetadatas[0...need - 1]))
             await processMetadataPage(pageMetadatas: page)
-        }
-    }
-    
-    private func paginateMetadataResult(pageIndex: Int) async {
-        var pageMetadatas: [tableMetadata]
-        //let pageOffset = pageIndex * pageSize //TODO: Page offset may need to be global based on partial pages added onto by pagination searches
-        
-        let pageOffset = pageOffsets.count == 0 ? 0 : pageOffsets[pageIndex]
-        let metadatasCount = self.metadatas.count
-        
-        guard metadatasCount > 0 else {
-            Self.logger.debug("paginateMetadataResult() - no results. nothing to page. pageOffset: \(pageOffset)")
-            return
-        }
-        
-        //var lastIndex = pageOffset + (pageSize - 1)
-        let lastIndex = min((pageOffset + pageSize) - 1, metadatasCount - 1)  //[0, 1, 2]
-        
-        guard lastIndex < metadatasCount else {
-            Self.logger.error("paginateMetadataResult() - lastIndex: \(lastIndex) metadatasCount: \(metadatasCount)")
-            return
-        }
-        
-        Self.logger.debug("paginateMetadataResult() - !!!- pageOffset: \(pageOffset) lastIndex: \(lastIndex)")
-        pageMetadatas = Array(self.metadatas[pageOffset...lastIndex])
-        
-        pageOffsets.append(pageMetadatas.count)
-        
-        let idArray = pageMetadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        Self.logger.debug("paginateMetadataResult() - pageMetadatas: \(idArray)")
-        
-        
-        Self.logger.debug("paginateMetadataResult() - page metadata count: \(pageMetadatas.count) metadata count: \(self.metadatas.count)")
-        Self.logger.debug("paginateMetadataResult() - pageIndex: \(pageIndex) pageOffset: \(pageOffset)")
-        
-        //TODO: If not full page, do a search instead??
-        await processMetadataPage(pageMetadatas: pageMetadatas)
-        
-        //TODO: Handle pagesearch different
-        if pageMetadatas.count < pageSize {
-            //not a full page of results. execute search to get more
-            //Self.logger.debug("paginateMetadataResult() - calling pageSearch with page metadata count: \(pageMetadatas.count) metadata count: \(self.metadatas.count)")
-            //await pageSearch()
         }
     }
     
@@ -455,15 +374,13 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
             }
         }
         
-        
-        
         Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd.count) ocIdUpdate: \(ocIdUpdate.count)")
         Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd)")
         
         //TODO: Handle removing elements
         
         if ocIdAdd.count > 0 {
-            snapshot.appendItems(ocIdAdd, toSection: 1)
+            snapshot.appendItems(ocIdAdd, toSection: 0)
         }
         
         if ocIdUpdate.count > 0 {
@@ -492,6 +409,23 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
     @objc func refreshDatasource(refreshControl: UIRefreshControl) {
         Self.logger.debug("refreshDatasource()")
         refreshControl.endRefreshing()
+    }
+}
+
+extension MainViewController : CollectionLayoutDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, sizeOfPhotoAtIndexPath indexPath: IndexPath) -> CGSize {
+        let metadata = self.metadatas[indexPath.item]
+        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
+            if image != nil {
+                return image!.size
+            }
+        }  else {
+            Self.logger.debug("sizeOfPhotoAtIndexPath - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata.ocId)")
+        }
+        
+        return CGSize(width: 0, height: 0)
     }
 }
 

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Ew1-jS-Bz6">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Home-->
+        <scene sceneID="Adh-Ws-GzM">
+            <objects>
+                <viewController title="Home" id="Ew1-jS-Bz6" customClass="MainViewController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="uE1-0J-IbB">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="J2a-Pd-Ybs">
+                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="G4H-dx-leu" customClass="CollectionViewLayout" customModule="CloudFeed" customModuleProvider="target">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CollectionViewCell" id="mOH-jZ-Opi" customClass="CollectionViewCell" customModule="CloudFeed" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="127.99999999999997" height="128"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="aij-cS-eKg">
+                                            <rect key="frame" x="0.0" y="0.0" width="127.99999999999997" height="128"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <color key="backgroundColor" systemColor="systemPurpleColor"/>
+                                        </collectionViewCellContentView>
+                                    </collectionViewCell>
+                                </cells>
+                            </collectionView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="yeB-rd-53C">
+                                <rect key="frame" x="0.0" y="768" width="393" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="LGN-VQ-6uJ"/>
+                                </constraints>
+                                <color key="color" systemColor="labelColor"/>
+                            </activityIndicatorView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="lJf-TF-9FZ"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="lJf-TF-9FZ" firstAttribute="bottom" secondItem="yeB-rd-53C" secondAttribute="bottom" id="7L8-ZO-fBv"/>
+                            <constraint firstItem="lJf-TF-9FZ" firstAttribute="top" secondItem="J2a-Pd-Ybs" secondAttribute="top" id="DlW-IS-MdS"/>
+                            <constraint firstItem="J2a-Pd-Ybs" firstAttribute="bottom" secondItem="lJf-TF-9FZ" secondAttribute="bottom" id="FLe-zc-NsL"/>
+                            <constraint firstItem="J2a-Pd-Ybs" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="MQm-AF-EML"/>
+                            <constraint firstItem="yeB-rd-53C" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="Mq0-yK-2CC"/>
+                            <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="yeB-rd-53C" secondAttribute="trailing" id="QiM-CX-TMT"/>
+                            <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="J2a-Pd-Ybs" secondAttribute="trailing" id="vJy-Kz-pmh"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Home" image="photo.fill" catalog="system" id="rmv-82-PyM"/>
+                    <navigationItem key="navigationItem" id="GDV-EV-RdU"/>
+                    <connections>
+                        <outlet property="collectionView" destination="J2a-Pd-Ybs" id="rzT-hd-cZr"/>
+                        <outlet property="loadMoreIndicator" destination="yeB-rd-53C" id="BS1-c3-8a3"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Xg4-Xk-39O" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-706.10687022900765" y="-12.67605633802817"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="photo.fill" catalog="system" width="128" height="93"/>
+        <systemColor name="labelColor">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemPurpleColor">
+            <color red="0.68627450980392157" green="0.32156862745098042" blue="0.87058823529411766" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
