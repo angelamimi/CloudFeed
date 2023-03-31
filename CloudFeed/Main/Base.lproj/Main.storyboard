@@ -93,12 +93,22 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="2DI-Vj-yfR">
+                                <rect key="frame" x="0.0" y="719" width="393" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="l9z-Qf-8Zj"/>
+                                </constraints>
+                                <color key="color" systemColor="labelColor"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="2DI-Vj-yfR" secondAttribute="bottom" id="3kH-NB-J90"/>
                             <constraint firstItem="wAV-xH-8C6" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="9HP-vI-Aie"/>
+                            <constraint firstItem="2DI-Vj-yfR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="FBq-Ud-YfV"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="wAV-xH-8C6" secondAttribute="trailing" id="FNX-af-Wau"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="2DI-Vj-yfR" secondAttribute="trailing" id="RZp-qg-Tx2"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="top" secondItem="wAV-xH-8C6" secondAttribute="top" id="lPf-g8-AyA"/>
                             <constraint firstItem="wAV-xH-8C6" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="qic-d2-CAO"/>
                         </constraints>
@@ -107,14 +117,18 @@
                     <navigationItem key="navigationItem" id="lSV-wj-7kW"/>
                     <connections>
                         <outlet property="collectionView" destination="wAV-xH-8C6" id="0Ob-3P-J0a"/>
+                        <outlet property="loadMoreIndicator" destination="2DI-Vj-yfR" id="zws-UE-VwJ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-706" y="-12"/>
+            <point key="canvasLocation" x="-706.10687022900765" y="-12.67605633802817"/>
         </scene>
     </scenes>
     <resources>
+        <systemColor name="labelColor">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

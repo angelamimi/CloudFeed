@@ -46,4 +46,9 @@ class Global: NSObject {
     // 4) done or error
     //
     let metadataStatusNormal: Int = 0
+    
+    
+    // MARK: - Video
+    //
+    let maxHTTPCache: Int64 = 10000000000   // 10 GB
 }

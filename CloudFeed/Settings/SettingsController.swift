@@ -25,18 +25,18 @@ class SettingsController: UIViewController {
     }
 
     override func viewWillAppear(_ animated: Bool) {
-        calculateCacheSize()
+        Task {
+            await calculateCacheSize()
+        }
     }
     
-    private func calculateCacheSize() {
+    private func calculateSize() {
         DispatchQueue.global(qos: .default).async(execute: {
             guard let directory = StoreUtility.getDirectoryProviderStorage() else { return }
             let totalSize = FileSystemUtility.shared.getDirectorySize(directory: directory)
             
             let formattedSize = ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .binary)
             Self.logger.debug("calculateSize() - \(formattedSize)")
-            
-            //sectionSize.footerTitle = "\(NSLocalizedString("_clear_cache_footer_", comment: "")). (\(NSLocalizedString("_used_space_", comment: "")) \(CCUtility.transformedSize(totalSize)))
             
             DispatchQueue.main.async(execute: { [self] in
                 
@@ -45,6 +45,20 @@ class SettingsController: UIViewController {
                 //footerView.updateText(text: StoreUtility.transformedSize(totalSize))
             })
         })
+    }
+    
+    private func calculateCacheSize() async {
+        guard let directory = StoreUtility.getDirectoryProviderStorage() else { return }
+        let totalSize = FileSystemUtility.shared.getDirectorySize(directory: directory)
+        
+        let formattedSize = ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .binary)
+        Self.logger.debug("calculateCacheSize() - \(formattedSize)")
+        
+        DispatchQueue.main.async {
+            self.cacheSizeLabel.text = formattedSize
+            //tableView.reloadData()
+            //footerView.updateText(text: StoreUtility.transformedSize(totalSize))
+        }
     }
     
     private func clearCache() {
@@ -73,11 +87,18 @@ class SettingsController: UIViewController {
         //TODO: THIS CAUSES VIDEOS TO NOT PLAY ON LONG CLICK OF COLLECTION VIEW
         //StoreUtility.removeTemporaryDirectory()
         
-        //HTTPCache.shared.deleteAllCache()
+        HTTPCache.shared.deleteAllCache()
+        
+        let controller = self.tabBarController?.viewControllers?[0] as! MainViewController
+        controller.clear()
 
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(1 * Double(NSEC_PER_SEC)) / Double(NSEC_PER_SEC), execute: { [self] in
+        /*DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(1 * Double(NSEC_PER_SEC)) / Double(NSEC_PER_SEC), execute: { [self] in
             //self.stopActivityIndicator()
             self.calculateCacheSize()
-        })
+        })*/
+        
+        Task {
+            await calculateCacheSize()
+        }
     }
 }

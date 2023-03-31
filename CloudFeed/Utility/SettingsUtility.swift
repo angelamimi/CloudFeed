@@ -7,7 +7,7 @@
 
 import UIKit
 import AVFoundation
-//import KTVHTTPCache
+import KTVHTTPCache
 import os.log
 
 class SettingsUtility: NSObject {
@@ -20,7 +20,7 @@ class SettingsUtility: NSObject {
 
         URLCache.shared.memoryCapacity = 0
         URLCache.shared.diskCapacity = 0
-        //KTVHTTPCache.cacheDeleteAllCaches()
+        KTVHTTPCache.cacheDeleteAllCaches()
 
         DatabaseManager.shared.clearDatabase(account: nil, removeAccount: true)
 

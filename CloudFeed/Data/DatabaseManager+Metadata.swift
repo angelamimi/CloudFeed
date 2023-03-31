@@ -162,6 +162,18 @@ extension DatabaseManager {
         return (metadataFolder, metadataFolders, metadataOutput)
     }
     
+    func getMetadata(predicate: NSPredicate, sorted: String, ascending: Bool) -> tableMetadata? {
+
+        let realm = try! Realm()
+        realm.refresh()
+
+        guard let result = realm.objects(tableMetadata.self).filter(predicate).sorted(byKeyPath: sorted, ascending: ascending).first else {
+            return nil
+        }
+
+        return tableMetadata.init(value: result)
+    }
+    
     func getMetadatas(predicate: NSPredicate) -> [tableMetadata] {
 
         let realm = try! Realm()
@@ -176,6 +188,14 @@ extension DatabaseManager {
 
         let realm = try! Realm()
         var metadatas: [tableMetadata] = []
+        
+        /*
+        let dirGroup = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Global.shared.groupIdentifier)
+        let databaseFileUrlPath = dirGroup?.appendingPathComponent(Global.shared.databaseDirectory + "/" + Global.shared.databaseDefault)
+        
+        var config = Realm.Configuration()
+        print("************** \(config.fileURL)")
+        print("************** \(databaseFileUrlPath)")*/
 
         do {
             try realm.write {
@@ -194,6 +214,7 @@ extension DatabaseManager {
                     }
                     if metadata.livePhoto {
                         if metadata.classFile == NKCommon.typeClassFile.image.rawValue {
+                            print("APPENDING \(metadata.ocId) \(metadata.fileNameView)")
                             metadatas.append(tableMetadata.init(value: metadata))
                         }
                         continue
@@ -209,11 +230,10 @@ extension DatabaseManager {
         return metadatas
     }
     
-    @discardableResult
-    func processMetadatas(_ metadatas: [tableMetadata], metadatasResult: [tableMetadata], addCompareLivePhoto: Bool = true, addExistsInLocal: Bool = false, addCompareEtagLocal: Bool = false, addDirectorySynchronized: Bool = false) -> (ocIdAdd: [String], ocIdUpdate: [String], ocIdDelete: [String]) {
+    //@discardableResult
+    func processMetadatas(_ metadatas: [tableMetadata], metadatasResult: [tableMetadata], addCompareLivePhoto: Bool = true, addExistsInLocal: Bool = false, addCompareEtagLocal: Bool = false, addDirectorySynchronized: Bool = false) { //-> (ocIdAdd: [String], ocIdUpdate: [String], ocIdDelete: [String]) {
 
         let realm = try! Realm()
-        //var ocIdsUdate: [String] = []
         var ocIdAdd: [String] = []
         var ocIdDelete: [String] = []
         var ocIdUpdate: [String] = []
@@ -253,6 +273,7 @@ extension DatabaseManager {
             NKCommon.shared.writeLog("Could not write to database: \(error)")
         }
 
-        return (ocIdAdd, ocIdUpdate, ocIdDelete)
+        print("!!!!!!!!! added: \(ocIdAdd.count) updated: \(ocIdUpdate.count) deleted: \(ocIdDelete.count)")
+        //return (ocIdAdd, ocIdUpdate, ocIdDelete)
     }
 }
