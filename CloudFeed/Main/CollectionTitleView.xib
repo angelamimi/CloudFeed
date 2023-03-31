@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_0" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="TitleView">
+            <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0HJ-5a-GPf" userLabel="Menu Button">
+                    <rect key="frame" x="342" y="52" width="40" height="40"/>
+                    <color key="backgroundColor" systemColor="systemFillColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="40" id="Dbr-eL-8MJ"/>
+                        <constraint firstAttribute="width" constant="40" id="Osl-hJ-cBj"/>
+                    </constraints>
+                    <color key="tintColor" systemColor="labelColor"/>
+                    <state key="normal" title="Button"/>
+                    <buttonConfiguration key="configuration" style="plain" image="ellipsis" catalog="system" cornerStyle="capsule"/>
+                    <connections>
+                        <action selector="menuButtonTouch:" destination="iN0-l3-epB" eventType="touchUpInside" id="HJT-vi-L6U"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ABi-ln-iPL" userLabel="Done Button">
+                    <rect key="frame" x="325.66666666666669" y="55" width="64.333333333333314" height="34"/>
+                    <color key="tintColor" systemColor="labelColor"/>
+                    <state key="normal" title="Button"/>
+                    <buttonConfiguration key="configuration" style="plain" title="Done"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k2S-Un-QnP" userLabel="Cancel Button">
+                    <rect key="frame" x="7" y="55" width="77" height="34"/>
+                    <color key="tintColor" systemColor="labelColor"/>
+                    <state key="normal" title="Button"/>
+                    <buttonConfiguration key="configuration" style="plain" title="Cancel"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hCV-CC-q7z">
+                    <rect key="frame" x="0.0" y="55" width="80" height="34"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="80" id="j81-PV-qBl"/>
+                    </constraints>
+                    <color key="tintColor" systemColor="labelColor"/>
+                    <state key="normal" title="Button"/>
+                    <buttonConfiguration key="configuration" style="plain" image="chevron.left" catalog="system" title="Back"/>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jPn-bk-o2e" userLabel="Title">
+                    <rect key="frame" x="80" y="72" width="262" height="0.0"/>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="hCV-CC-q7z" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="1Dh-qN-LN2"/>
+                <constraint firstItem="k2S-Un-QnP" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="7" id="3lp-22-xwr"/>
+                <constraint firstItem="jPn-bk-o2e" firstAttribute="centerY" secondItem="0HJ-5a-GPf" secondAttribute="centerY" id="9NL-H9-ntc"/>
+                <constraint firstItem="k2S-Un-QnP" firstAttribute="centerY" secondItem="ABi-ln-iPL" secondAttribute="centerY" id="CI6-V1-m1d"/>
+                <constraint firstItem="0HJ-5a-GPf" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="5" id="D9L-49-XlX"/>
+                <constraint firstItem="ABi-ln-iPL" firstAttribute="centerY" secondItem="0HJ-5a-GPf" secondAttribute="centerY" id="Gcb-be-Y3c"/>
+                <constraint firstItem="ABi-ln-iPL" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="HeG-QK-NmH"/>
+                <constraint firstItem="jPn-bk-o2e" firstAttribute="trailing" secondItem="0HJ-5a-GPf" secondAttribute="leading" id="I1Q-qK-bMM"/>
+                <constraint firstItem="jPn-bk-o2e" firstAttribute="leading" secondItem="hCV-CC-q7z" secondAttribute="trailing" id="IDJ-p7-0iZ"/>
+                <constraint firstItem="hCV-CC-q7z" firstAttribute="centerY" secondItem="0HJ-5a-GPf" secondAttribute="centerY" id="QyP-ea-6Rl"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="ABi-ln-iPL" secondAttribute="trailing" id="WkI-pA-cpd"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="0HJ-5a-GPf" secondAttribute="trailing" constant="8" id="YzA-WV-I0C"/>
+                <constraint firstItem="k2S-Un-QnP" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="j4h-NX-ExE"/>
+            </constraints>
+            <connections>
+                <outlet property="backButton" destination="hCV-CC-q7z" id="ftW-FZ-x8O"/>
+                <outlet property="backButtonConstraint" destination="j81-PV-qBl" id="Bxt-0X-2x8"/>
+                <outlet property="cancelButton" destination="k2S-Un-QnP" id="Rcp-zl-jqW"/>
+                <outlet property="doneButton" destination="ABi-ln-iPL" id="BhD-xt-pnq"/>
+                <outlet property="menuButton" destination="0HJ-5a-GPf" id="YAh-Ud-nbN"/>
+                <outlet property="title" destination="jPn-bk-o2e" id="S2m-nl-qxL"/>
+            </connections>
+            <point key="canvasLocation" x="-52" y="68"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="chevron.left" catalog="system" width="97" height="128"/>
+        <image name="ellipsis" catalog="system" width="128" height="37"/>
+        <systemColor name="labelColor">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemFillColor">
+            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

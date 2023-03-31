@@ -1,0 +1,29 @@
+{
+  "commitish" : "2.0.5",
+  "iOS" : [
+    {
+      "hash" : "2aa7009282a613c4a099837a2a9fc254e0bf52994bf67c49e7ff9ef988b49f3f",
+      "name" : "KTVCocoaHTTPServer",
+      "container" : "KTVCocoaHTTPServer.xcframework",
+      "identifier" : "ios-arm64"
+    },
+    {
+      "hash" : "556ec690af80dee49a2d3d01f4cdd3160933250e2958b61a5a2d55ff59399d2f",
+      "name" : "KTVCocoaHTTPServer",
+      "container" : "KTVCocoaHTTPServer.xcframework",
+      "identifier" : "ios-arm64_x86_64-simulator"
+    },
+    {
+      "hash" : "b0cccc893f9e3bbdfe064defeef3faaaf8a02c7ce724c6830451d40041040f5d",
+      "name" : "KTVHTTPCache",
+      "container" : "KTVHTTPCache.xcframework",
+      "identifier" : "ios-arm64"
+    },
+    {
+      "hash" : "f66f629262ce76d2587cc3a76fd005f7b450b5fe7afcbf3fbd25bec35635a148",
+      "name" : "KTVHTTPCache",
+      "container" : "KTVHTTPCache.xcframework",
+      "identifier" : "ios-arm64_x86_64-simulator"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "5E57D101-CF48-409B-8567-B595C47D8F93"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DA55BB80-160A-42AD-ABBF-308BBB616665"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CloudFeed/AppDelegate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "54"
+            endingLineNumber = "54"
+            landmarkName = "launchApp()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "DA55BB80-160A-42AD-ABBF-308BBB616665 - 18814056105adafb"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CloudFeed.AppDelegate.launchApp() -&gt; ()"
+                  moduleName = "CloudFeed"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mimi/Development/iOS/NextCloud/ios-main/CloudFeed/CloudFeed/AppDelegate.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "54"
+                  endingLineNumber = "54"
+                  offsetFromSymbolStart = "160">
+               </Location>
+               <Location
+                  uuid = "DA55BB80-160A-42AD-ABBF-308BBB616665 - 18814056105adafb"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CloudFeed.AppDelegate.launchApp() -&gt; ()"
+                  moduleName = "CloudFeed"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mimi/Development/iOS/NextCloud/ios-main/CloudFeed/CloudFeed/AppDelegate.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "54"
+                  endingLineNumber = "54"
+                  offsetFromSymbolStart = "360">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
