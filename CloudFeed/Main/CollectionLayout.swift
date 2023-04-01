@@ -21,8 +21,8 @@ class CollectionLayout: UICollectionViewFlowLayout {
     
     weak var delegate: CollectionLayoutDelegate!
     
-    var numberOfColumns = 4
-    var cellPadding: CGFloat = 1
+    var numberOfColumns: Int = 4
+    var cellPadding: CGFloat = 3
     
     private var cache = [UICollectionViewLayoutAttributes]()
     
@@ -97,7 +97,20 @@ class CollectionLayout: UICollectionViewFlowLayout {
             
             let column = shortestColumnIndex(inSection: 0)
             let frame = CGRect(x: xOffset[column], y: yOffset[column], width: cellWidth, height: cellHeight)
-            let insetFrame = frame.insetBy(dx: cellPadding, dy: cellPadding)
+            
+            var edgeInsets: UIEdgeInsets
+            
+            if column == 0 {
+               edgeInsets = UIEdgeInsets(top: 0, left: cellPadding, bottom: cellPadding, right: cellPadding)
+            } else {
+                if item == 0 {
+                    edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: cellPadding)
+                } else {
+                    edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: cellPadding, right: cellPadding)
+                }
+            }
+            
+            let insetFrame = frame.inset(by: edgeInsets)
             
             let attributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
             attributes.frame = insetFrame
@@ -132,9 +145,7 @@ class CollectionLayout: UICollectionViewFlowLayout {
     }
     
     private func shortestColumnIndex(inSection section: Int) -> Int {
-        return columnHeights[section].enumerated()
-            .min(by: { $0.element < $1.element })?
-            .offset ?? 0
+        return columnHeights[section].enumerated().min(by: { $0.element < $1.element })?.offset ?? 0
     }
 }
 

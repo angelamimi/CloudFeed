@@ -9,8 +9,8 @@ import NextcloudKit
 import os.log
 import UIKit
 
-class MainViewController: UIViewController, UICollectionViewDelegate {
-    
+class MainViewController: UIViewController, UICollectionViewDelegate, MediaController {
+
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
     
@@ -27,6 +27,9 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
     private var metadatas: [tableMetadata] = []
     private var page: [tableMetadata] = []
     
+    private var titleView: TitleView?
+    private var layout: CollectionLayout?
+    
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: MainViewController.self)
@@ -37,12 +40,10 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
         
         let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
         collectionView.register(nib, forCellWithReuseIdentifier: "CollectionViewCell")
-        
-        let layout = CollectionLayout()
-        layout.delegate = self
-        collectionView.collectionViewLayout = layout
-        
         collectionView.delegate = self
+        
+        initCollectionViewLayout()
+        initTitleView()
         
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshDatasource), for: .valueChanged)
@@ -67,12 +68,66 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
         }
     }
     
+    override func viewSafeAreaInsetsDidChange() {
+        titleView?.translatesAutoresizingMaskIntoConstraints = false
+        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        titleView?.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    }
+    
     public func clear() {
         metadatas = []
         pageOffsets = []
         
         greaterDays = -30
         pageIndex = 0
+    }
+    
+    func zoomInGrid() {
+        guard layout != nil else { return }
+        let columns = self.layout?.numberOfColumns ?? 0
+        
+        if columns - 1 > 0 {
+            self.layout?.numberOfColumns -= 1
+        }
+        
+        UIView.animate(withDuration: 0.0, animations: {
+            self.collectionView.collectionViewLayout.invalidateLayout()
+        })
+    }
+    
+    func zoomOutGrid() {
+        guard layout != nil else { return }
+        guard self.layout!.numberOfColumns + 1 <= metadatas.count else { return }
+
+        if self.layout!.numberOfColumns + 1 < 6 {
+            self.layout!.numberOfColumns += 1
+        }
+        
+        UIView.animate(withDuration: 0.0, animations: {
+            self.collectionView.collectionViewLayout.invalidateLayout()
+        })
+    }
+    
+    func edit() {}
+    func endEdit() {}
+    func cancel() {}
+    
+    private func initTitleView() {
+        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
+        self.view.addSubview(titleView!)
+        
+        titleView?.mediaView = self
+        titleView?.initMenu(allowEdit: false)
+    }
+    
+    private func initCollectionViewLayout() {
+        layout = CollectionLayout()
+        layout?.delegate = self
+        layout?.numberOfColumns = UIDevice.current.userInterfaceIdiom == .pad ? 4 : 2
+
+        collectionView.collectionViewLayout = layout!
     }
     
     private func getMediaPath() -> String? {
@@ -210,6 +265,18 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
         return page
     }
     
+    private func setTitle() {
+
+        titleView?.title.text = ""
+        
+        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+        guard let indexPath = visibleIndexes?.first else { return }
+        guard indexPath.item < metadatas.count else { return }
+        
+        let metadata = metadatas[indexPath.item]
+        titleView?.title.text = StoreUtility.getFormattedDate(metadata.date as Date)
+    }
+    
     private func search(lessDate: Date, greaterDate: Date) async -> [tableMetadata]? {
         
         //TODO: SHOW INDICATOR
@@ -323,18 +390,17 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
         
         for metadataIndex in (0...pageMetadatas.count - 1) {
             
-            Self.logger.debug("processMetadataPage() - metadataIndex: \(metadataIndex) pageMetadatas.count \(pageMetadatas.count)")
+            //Self.logger.debug("processMetadataPage() - metadataIndex: \(metadataIndex) pageMetadatas.count \(pageMetadatas.count)")
             
             if groupMetadata.count < groupSize {
-                Self.logger.debug("processMetadataPage() - appending: \(pageMetadatas[metadataIndex].ocId)")
+                //Self.logger.debug("processMetadataPage() - appending: \(pageMetadatas[metadataIndex].ocId)")
                 groupMetadata.append(pageMetadatas[metadataIndex])
             } else {
-                //Self.logger.debug("processMetadataPage() - groupMetadata: \(groupMetadata)")
                 await executeGroup(metadatas: groupMetadata)
                 applyDatasourceChanges(metadatas: groupMetadata)
                 
                 groupMetadata = []
-                Self.logger.debug("processMetadataPage() - appending: \(pageMetadatas[metadataIndex].ocId)")
+                //Self.logger.debug("processMetadataPage() - appending: \(pageMetadatas[metadataIndex].ocId)")
                 groupMetadata.append(pageMetadatas[metadataIndex])
             }
         }
@@ -350,7 +416,7 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
         await withTaskGroup(of: Void.self, returning: Void.self, body: { taskGroup in
             for metadata in metadatas {
                 taskGroup.addTask {
-                    Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+                    //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                     if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
                         await NextcloudService.shared.downloadVideoPreview(metadata: metadata)
                     } else {
@@ -389,6 +455,7 @@ class MainViewController: UIViewController, UICollectionViewDelegate {
         
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: true)
+            self.setTitle()
         }
     }
     
@@ -430,6 +497,10 @@ extension MainViewController : CollectionLayoutDelegate {
 }
 
 extension MainViewController : UIScrollViewDelegate {
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        setTitle()
+    }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 

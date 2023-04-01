@@ -25,6 +25,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
+        initNavigationBar()
+        
         StoreUtility.initStorage()
         
         return true
@@ -104,6 +106,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             Self.logger.debug("showLoginViewController() - setting root view controller")
             sceneDeleate.window?.rootViewController = viewController
         }
+    }
+    
+    private func initNavigationBar() {
+        let coloredAppearance = UINavigationBarAppearance()
+        
+        coloredAppearance.configureWithOpaqueBackground()
+        coloredAppearance.backgroundColor = .systemBackground //.systemFill
+        coloredAppearance.titleTextAttributes = [.foregroundColor: UIColor.label]
+        coloredAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+        
+        UINavigationBar.appearance().standardAppearance = coloredAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = coloredAppearance
     }
 }
 

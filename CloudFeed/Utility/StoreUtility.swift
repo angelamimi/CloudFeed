@@ -138,5 +138,34 @@ class StoreUtility {
         return fileName
     }
     
+    static func getFormattedDate(_ date: Date) -> String {
+        var title: String = ""
 
+        if date == StoreUtility.datetimeWithOutTime(Date.distantPast) {
+            title = ""
+        } else {
+            if let style = DateFormatter.Style(rawValue: 0) {
+                title = DateFormatter.localizedString(from: date, dateStyle: .long, timeStyle: style)
+            }
+        }
+        
+        return title
+    }
+    
+    static func datetimeWithOutTime(_ date: Date?) -> Date? {
+        var datDate = date
+        if datDate == nil {
+            return nil
+        }
+
+        var comps: DateComponents? = nil
+        if let datDate {
+            comps = Calendar.current.dateComponents([.year, .month, .day], from: datDate)
+        }
+        if let comps {
+            datDate = Calendar.current.date(from: comps)
+        }
+
+        return datDate
+    }
 }
