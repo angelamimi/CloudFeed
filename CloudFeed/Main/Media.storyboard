@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Ew1-jS-Bz6">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="IDo-ia-P4t">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="J2a-Pd-Ybs">
-                                <rect key="frame" x="0.0" y="109" width="393" height="709"/>
+                                <rect key="frame" x="0.0" y="153" width="393" height="665"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="G4H-dx-leu" customClass="CollectionViewLayout" customModule="CloudFeed" customModuleProvider="target">
                                     <size key="itemSize" width="128" height="128"/>
@@ -59,7 +59,6 @@
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="J2a-Pd-Ybs" secondAttribute="trailing" id="vJy-Kz-pmh"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Home" image="photo.fill" catalog="system" id="rmv-82-PyM"/>
                     <navigationItem key="navigationItem" id="GDV-EV-RdU"/>
                     <connections>
                         <outlet property="collectionView" destination="J2a-Pd-Ybs" id="rzT-hd-cZr"/>
@@ -67,6 +66,25 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Xg4-Xk-39O" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="220.61068702290075" y="-12.67605633802817"/>
+        </scene>
+        <!--Home-->
+        <scene sceneID="ehu-5t-Bpi">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="IDo-ia-P4t" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Home" image="photo.fill" catalog="system" id="rmv-82-PyM"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="zZn-Hk-aY9">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="Ew1-jS-Bz6" kind="relationship" relationship="rootViewController" id="mrw-B7-YTk"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="EpA-ly-BYD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-706.10687022900765" y="-12.67605633802817"/>
         </scene>

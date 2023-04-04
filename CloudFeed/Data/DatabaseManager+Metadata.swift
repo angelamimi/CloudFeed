@@ -120,6 +120,25 @@ extension DatabaseManager {
         return metadata
     }
     
+    @discardableResult
+    func addMetadata(_ metadata: tableMetadata) -> tableMetadata? {
+
+        let realm = try! Realm()
+        let result = tableMetadata.init(value: metadata)
+
+        do {
+            //Self.logger.debug("Realm: \(Realm.Configuration.defaultConfiguration)")
+            
+            try realm.write {
+                realm.add(result, update: .all)
+            }
+        } catch let error {
+            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            return nil
+        }
+        return tableMetadata.init(value: result)
+    }
+    
     func convertFilesToMetadatas(_ files: [NKFile], useMetadataFolder: Bool) async -> (metadataFolder: tableMetadata, metadatasFolder: [tableMetadata], metadatas: [tableMetadata]) {
 
         var counter: Int = 0
@@ -162,6 +181,18 @@ extension DatabaseManager {
         return (metadataFolder, metadataFolders, metadataOutput)
     }
     
+    func getMetadata(predicate: NSPredicate) -> tableMetadata? {
+
+        let realm = try! Realm()
+        realm.refresh()
+
+        guard let result = realm.objects(tableMetadata.self).filter(predicate).first else {
+            return nil
+        }
+
+        return tableMetadata.init(value: result)
+    }
+    
     func getMetadata(predicate: NSPredicate, sorted: String, ascending: Bool) -> tableMetadata? {
 
         let realm = try! Realm()
@@ -174,6 +205,17 @@ extension DatabaseManager {
         return tableMetadata.init(value: result)
     }
     
+    func getMetadataFromOcId(_ ocId: String?) -> tableMetadata? {
+
+        let realm = try! Realm()
+        realm.refresh()
+
+        guard let ocId = ocId else { return nil }
+        guard let result = realm.objects(tableMetadata.self).filter("ocId == %@", ocId).first else { return nil }
+
+        return tableMetadata.init(value: result)
+    }
+    
     func getMetadatas(predicate: NSPredicate) -> [tableMetadata] {
 
         let realm = try! Realm()
@@ -182,6 +224,31 @@ extension DatabaseManager {
         let results = realm.objects(tableMetadata.self).filter(predicate)
 
         return Array(results.map { tableMetadata.init(value: $0) })
+    }
+    
+    func getMetadataLivePhoto(metadata: tableMetadata) -> tableMetadata? {
+
+        let realm = try! Realm()
+        var classFile = metadata.classFile
+        var fileName = (metadata.fileNameView as NSString).deletingPathExtension
+
+        if !metadata.livePhoto {
+            return nil
+        }
+
+        if classFile == NKCommon.typeClassFile.image.rawValue {
+            classFile = NKCommon.typeClassFile.video.rawValue
+            fileName = fileName + ".mov"
+        } else {
+            classFile = NKCommon.typeClassFile.image.rawValue
+            fileName = fileName + ".jpg"
+        }
+
+        guard let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView CONTAINS[cd] %@ AND ocId != %@ AND classFile == %@", metadata.account, metadata.serverUrl, fileName, metadata.ocId, classFile)).first else {
+            return nil
+        }
+
+        return tableMetadata.init(value: result)
     }
     
     func getMetadatasMedia(predicate: NSPredicate) -> [tableMetadata] {
@@ -275,5 +342,19 @@ extension DatabaseManager {
 
         print("!!!!!!!!! added: \(ocIdAdd.count) updated: \(ocIdUpdate.count) deleted: \(ocIdDelete.count)")
         //return (ocIdAdd, ocIdUpdate, ocIdDelete)
+    }
+    
+    func setMetadataFavorite(ocId: String, favorite: Bool) {
+
+        let realm = try! Realm()
+
+        do {
+            try realm.write {
+                let result = realm.objects(tableMetadata.self).filter("ocId == %@", ocId).first
+                result?.favorite = favorite
+            }
+        } catch let error {
+            NKCommon.shared.writeLog("Could not write to database: \(error)")
+        }
     }
 }

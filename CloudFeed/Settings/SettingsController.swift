@@ -67,10 +67,6 @@ class SettingsController: UIViewController {
         //startActivityIndicator()
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        
-        //NextcloudNetworking.shared.cancelAllTransfer(account: appDelegate.account) {}
-        //NextcloudOperationQueue.shared.cancelAllQueue()
-        //NextcloudNetworking.shared.cancelAllTask()
 
         URLCache.shared.removeAllCachedResponses()
         URLCache.shared.diskCapacity = 0
@@ -81,21 +77,18 @@ class SettingsController: UIViewController {
         StoreUtility.removeGroupDirectoryProviderStorage()
         //StoreUtility.removeGroupLibraryDirectory()
 
-        //TODO: THIS LOGGED THE USER OUT
-        //StoreUtility.removeDocumentsDirectory()
+        StoreUtility.removeDocumentsDirectory()
         
         //TODO: THIS CAUSES VIDEOS TO NOT PLAY ON LONG CLICK OF COLLECTION VIEW
         //StoreUtility.removeTemporaryDirectory()
         
         HTTPCache.shared.deleteAllCache()
         
-        let controller = self.tabBarController?.viewControllers?[0] as! MainViewController
-        controller.clear()
-
-        /*DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(1 * Double(NSEC_PER_SEC)) / Double(NSEC_PER_SEC), execute: { [self] in
-            //self.stopActivityIndicator()
-            self.calculateCacheSize()
-        })*/
+        let nav = self.tabBarController?.viewControllers?[0] as! UINavigationController
+        if nav.viewControllers[0] is MainViewController {
+            let controller = nav.viewControllers[0] as! MainViewController
+            controller.clear()
+        }
         
         Task {
             await calculateCacheSize()

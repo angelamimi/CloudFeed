@@ -58,6 +58,20 @@ class StoreUtility {
         return path
     }
     
+    public static func getDirectoryProviderStorageOcId(_ ocId: String?, fileNameView: String?) -> String? {
+        
+        let fileNamePath = "\(getDirectoryProviderStorageOcId(ocId) ?? "")/\(fileNameView ?? "")"
+        
+        // if do not exists create file 0 length
+        // causes files with lenth 0 to never be downloaded, because already exist
+        // also makes it impossible to delete any file with length 0 (from cache)
+        if !FileManager.default.fileExists(atPath: fileNamePath) {
+            FileManager.default.createFile(atPath: fileNamePath, contents: nil, attributes: nil)
+        }
+        
+        return fileNamePath
+    }
+    
     static func getDirectoryProviderStorageIconOcId(_ ocId: String?, etag: String?) -> String {
         return "\(self.getDirectoryProviderStorageOcId(ocId) ?? "")/\(etag ?? "").small.\(Global.shared.extensionPreview)"
     }
@@ -167,5 +181,149 @@ class StoreUtility {
         }
 
         return datDate
+    }
+    
+    static func setExif(_ metadata: tableMetadata, withCompletionHandler completition: @escaping (_ data: NSMutableDictionary) -> Void) {
+
+        let details = NSMutableDictionary()
+        
+        if (metadata.classFile != "image") || !StoreUtility.fileProviderStorageExists(metadata) {
+            //completition(latitude, longitude, location, date, lensModel)
+            completition(details)
+            return
+        }
+        
+        let url = URL(fileURLWithPath: StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!)
+        let originalSource = CGImageSourceCreateWithURL(url as CFURL, nil)
+        if originalSource == nil {
+            completition(details)
+            return
+        }
+        
+        let fileProperties = CGImageSourceCopyProperties(originalSource!, nil)
+        if fileProperties == nil {
+            completition(details)
+            return
+        }
+        
+        // FILES PROPERTIES
+        
+        let properties = NSMutableDictionary(dictionary: fileProperties!)
+
+        if let valFileSize = properties[kCGImagePropertyFileSize] {
+            //fileSize = valFileSize as! Int
+            details[kCGImagePropertyFileSize] = valFileSize
+        }
+        
+        //Self.logger.debug("setExif() - fileSize: \(fileSize)")
+        
+        let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource!, 0, nil)
+        if imageProperties == nil {
+            completition(details)
+            return
+        }
+        
+        let imageDict = NSMutableDictionary(dictionary: imageProperties!)
+        
+        if let width = imageDict[kCGImagePropertyPixelWidth], let height = imageDict[kCGImagePropertyPixelHeight] {
+            details[kCGImagePropertyPixelWidth] = width
+            details[kCGImagePropertyPixelHeight] = height
+        }
+        
+        if let width = imageDict[kCGImagePropertyPixelWidth] {
+            details[kCGImagePropertyPixelWidth] = width
+        }
+        
+        /*for (key, value) in imageDict {
+            print(key)
+        }*/
+        
+        if let exif = imageDict[kCGImagePropertyExifDictionary] as? [NSString: AnyObject] {
+            
+            /*for (key, value) in exif {
+                print(key)
+            }*/
+            
+            if let date = exif[kCGImagePropertyExifDateTimeOriginal] {
+                details[kCGImagePropertyExifDateTimeOriginal] = date
+            }
+            
+            if let lensModel = exif[kCGImagePropertyExifLensModel] {
+                details[kCGImagePropertyExifLensModel] = lensModel
+            }
+        }
+        
+        completition(details)
+    }
+    
+    static func fileProviderStorageExists(_ tableMetadata: tableMetadata) -> Bool {
+        let fileNameViewPath: String! = StoreUtility.getDirectoryProviderStorageOcId(tableMetadata.ocId, fileNameView: tableMetadata.fileNameView)
+        let _: String! = StoreUtility.getDirectoryProviderStorageOcId(tableMetadata.ocId, fileNameView: tableMetadata.fileName)
+
+        var fileNameViewSize: UInt64
+        //var fileNameSize: UInt64
+        
+        do {
+            
+            //let attr = try FileManager.default.attributesOfItem(atPath: fileNameViewPath)[FileAttributeKey.size]
+            //let val = (attr as! NSNumber).uint64Value
+            
+            //Self.logger.debug("fileProviderStorageExists() - fileNameViewPath: \(fileNameViewPath)")
+            //Self.logger.debug("fileProviderStorageExists() - fileNamePath: \(fileNamePath)")
+            //Self.logger.debug("fileProviderStorageExists() - val: \(val) attr: \(attr.debugDescription)")
+            
+            fileNameViewSize = try FileManager.default.attributesOfItem(atPath: fileNameViewPath)[FileAttributeKey.size] as? UInt64 ?? 0
+            //fileNameSize = try FileManager.default.attributesOfItem(atPath: fileNamePath)[FileAttributeKey.size] as? UInt64 ?? 0
+            
+            //Self.logger.debug("fileProviderStorageExists() - fileNameViewSize: \(val) fileNameSize: \(attr.debugDescription)")
+            
+            return fileNameViewSize == tableMetadata.size;
+             
+        } catch { }
+        
+        return false
+    }
+    
+    static func getExtension(_ fileName: String?) -> String? {
+        let fileNameArray = fileName?.components(separatedBy: CharacterSet(charactersIn: "."))
+        var ext = "\(fileNameArray?.last ?? "")"
+        
+        ext = ext.uppercased()
+        
+        return ext
+    }
+    
+    static func fileProviderStorageSize(_ ocId: String?, fileNameView: String?) -> Int64 {
+        let fileNamePath : String = StoreUtility.getDirectoryProviderStorageOcId(ocId, fileNameView: fileNameView) ?? ""
+
+        var fileSize: Int64
+        do {
+            fileSize = Int64((try FileManager.default.attributesOfItem(atPath: fileNamePath)[FileAttributeKey.size] as? UInt64 ?? 0))
+            return fileSize
+        } catch {
+        }
+
+        return 0
+    }
+    
+    static func fileProviderStoragePreviewIconExists(_ ocId: String?, etag: String?) -> Bool {
+        let fileNamePathPreview = getDirectoryProviderStoragePreviewOcId(ocId, etag: etag)
+        let fileNamePathIcon = getDirectoryProviderStorageIconOcId(ocId, etag: etag)
+        
+        var fileSizePreview: UInt64? = nil
+        do {
+            fileSizePreview = try FileManager.default.attributesOfItem(atPath: fileNamePathPreview)[FileAttributeKey.size] as? UInt64 ?? 0
+        } catch {
+        }
+        var fileSizeIcon: UInt64? = nil
+        do {
+            fileSizeIcon = try FileManager.default.attributesOfItem(atPath: fileNamePathIcon)[FileAttributeKey.size] as? UInt64 ?? 0
+        } catch {
+        }
+        if (fileSizePreview ?? 0) > 0 && (fileSizeIcon ?? 0) > 0 {
+            return true
+        } else {
+            return false
+        }
     }
 }

@@ -14,6 +14,7 @@ protocol MediaController : AnyObject {
     func edit()
     func endEdit()
     func cancel()
+    func titleTouched()
 }
 
 class TitleView: UIView {
@@ -46,10 +47,13 @@ class TitleView: UIView {
         
         backButton.isHidden = true
         backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
+        
+        let guestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(titleTouched))
+        title.addGestureRecognizer(guestureRecognizer)
     }
     
     func initMenu(allowEdit: Bool) {
-
+        
         let zoomIn = UIAction(title: "Zoom In", image: UIImage(systemName: "plus.magnifyingglass")) { action in
             self.mediaView?.zoomInGrid()
         }
@@ -113,6 +117,11 @@ class TitleView: UIView {
     
     @objc func back() {
        self.mediaView?.cancel()
+    }
+    
+    @objc func titleTouched() {
+        Self.logger.debug("titleTouched()")
+        self.mediaView?.titleTouched()
     }
 }
 

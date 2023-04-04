@@ -141,7 +141,7 @@ class DatabaseManager: NSObject {
         //self.clearTable(tableDirectory.self, account: account)
         //self.clearTable(tableE2eEncryption.self, account: account)
         //self.clearTable(tableE2eEncryptionLock.self, account: account)
-        //self.clearTable(tableLocalFile.self, account: account)
+        self.clearTable(tableLocalFile.self, account: account)
         self.clearTable(tableMetadata.self, account: account)
         
         if removeAccount {

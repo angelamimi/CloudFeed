@@ -9,7 +9,7 @@ import NextcloudKit
 import os.log
 import UIKit
 
-class MainViewController: UIViewController, UICollectionViewDelegate, MediaController {
+class MainViewController: UIViewController, MediaController {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
@@ -30,6 +30,8 @@ class MainViewController: UIViewController, UICollectionViewDelegate, MediaContr
     private var titleView: TitleView?
     private var layout: CollectionLayout?
     
+    private var lastMetadata: tableMetadata?
+    
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: MainViewController.self)
@@ -41,6 +43,8 @@ class MainViewController: UIViewController, UICollectionViewDelegate, MediaContr
         let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
         collectionView.register(nib, forCellWithReuseIdentifier: "CollectionViewCell")
         collectionView.delegate = self
+        
+        navigationController?.isNavigationBarHidden = true
         
         initCollectionViewLayout()
         initTitleView()
@@ -84,6 +88,28 @@ class MainViewController: UIViewController, UICollectionViewDelegate, MediaContr
         pageIndex = 0
     }
     
+    func updateMetadata(metadata: tableMetadata) {
+        Self.logger.debug("updateMetadata() - favorite? \(metadata.favorite)")
+        
+        let indexCheck = metadatas.firstIndex(where: { $0.ocId == metadata.ocId })
+        if indexCheck != nil {
+            let index = Int(indexCheck!)
+            var snapshot = dataSource.snapshot()
+            
+            metadatas[index].favorite = metadata.favorite
+            
+            let snapshotIndex = snapshot.indexOfItem(metadata.ocId)
+            if snapshotIndex != nil {
+                snapshot.reconfigureItems([metadata.ocId])
+                DispatchQueue.main.async {
+                    self.dataSource.apply(snapshot, animatingDifferences: true)
+                    self.collectionView.isPagingEnabled = false
+                    self.collectionView.scrollToItem(at: IndexPath.init(item: Int(snapshotIndex!), section: 0), at: .centeredVertically, animated: false)
+                }
+            }
+        }
+    }
+    
     func zoomInGrid() {
         guard layout != nil else { return }
         let columns = self.layout?.numberOfColumns ?? 0
@@ -108,6 +134,11 @@ class MainViewController: UIViewController, UICollectionViewDelegate, MediaContr
         UIView.animate(withDuration: 0.0, animations: {
             self.collectionView.collectionViewLayout.invalidateLayout()
         })
+    }
+    
+    func titleTouched() {
+        clear()
+        initialSearch()
     }
     
     func edit() {}
@@ -151,7 +182,7 @@ class MainViewController: UIViewController, UICollectionViewDelegate, MediaContr
         snapshot.appendSections([0])
         
         DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: false)
+            self.dataSource.apply(snapshot, animatingDifferences: true)
         }
         
         guard let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: Date()) else { return }
@@ -338,6 +369,8 @@ class MainViewController: UIViewController, UICollectionViewDelegate, MediaContr
         if page.count < pageSize {
             Self.logger.debug("paginateResult() - search again??? page count: \(page.count)")
             
+            //TODO: May need to reset search days
+            
             //search again with different date range
             let searchDates = calculateSearchDates()
             
@@ -416,10 +449,14 @@ class MainViewController: UIViewController, UICollectionViewDelegate, MediaContr
         await withTaskGroup(of: Void.self, returning: Void.self, body: { taskGroup in
             for metadata in metadatas {
                 taskGroup.addTask {
+                    //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType) fileExtension: \(metadata.fileExtension)")
                     //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                     if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
                         await NextcloudService.shared.downloadVideoPreview(metadata: metadata)
+                    } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
+                        //NextcloudService.shared.downloadSVGPreview(metadata: metadata)
                     } else {
+                        //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType)")
                         await NextcloudService.shared.downloadPreview(metadata: metadata)
                     }
                 }
@@ -475,7 +512,30 @@ class MainViewController: UIViewController, UICollectionViewDelegate, MediaContr
     
     @objc func refreshDatasource(refreshControl: UIRefreshControl) {
         Self.logger.debug("refreshDatasource()")
+        
         refreshControl.endRefreshing()
+        
+        clear()
+        initialSearch()
+    }
+    
+    func openViewer(_ metadata: tableMetadata) {
+        
+        guard metadata.classFile == NKCommon.typeClassFile.image.rawValue
+                || metadata.classFile == NKCommon.typeClassFile.audio.rawValue
+                || metadata.classFile == NKCommon.typeClassFile.video.rawValue else { return }
+        
+        guard let navigationController = self.navigationController else { return }
+        
+        let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
+        
+        let metadataIndex = metadatas.firstIndex(where: { $0.ocId == metadata.ocId  })
+        if (metadataIndex != nil) {
+            viewerPager.currentIndex = metadataIndex!//Int()
+        }
+
+        viewerPager.metadatas = metadatas
+        navigationController.pushViewController(viewerPager, animated: true)
     }
 }
 
@@ -511,6 +571,17 @@ extension MainViewController : UIScrollViewDelegate {
         if difference <= loadMoreThreshold {
             loadMore()
         }
+    }
+}
+
+extension MainViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
+        
+        let metadata = metadatas[indexPath.row]
+        openViewer(metadata)
     }
 }
 

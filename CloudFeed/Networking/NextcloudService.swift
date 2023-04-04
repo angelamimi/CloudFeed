@@ -5,6 +5,7 @@
 //  Created by Angela Jarosz on 3/13/23.
 //
 
+import Alamofire
 import UIKit
 import NextcloudKit
 import os.log
@@ -38,6 +39,28 @@ class NextcloudService: NSObject {
         NextcloudKit.shared.getCapabilities(options: options) { account, data, error in
             guard error == .success, let data = data else { return }
             DatabaseManager.shared.addCapabilitiesJSon(data, account: account)
+        }
+    }
+    
+    func download(metadata: tableMetadata, selector: String, notificationCenterProgressTask: Bool = true, progressHandler: @escaping (_ progress: Progress) -> Void = { _ in }, completion: @escaping (_ afError: AFError?, _ error: NKError) -> Void) {
+        
+        let serverUrlFileName = metadata.serverUrl + "/" + metadata.fileName
+        let fileNameLocalPath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileName)!
+        
+        if DatabaseManager.shared.getMetadataFromOcId(metadata.ocId) == nil {
+            DatabaseManager.shared.addMetadata(tableMetadata.init(value: metadata))
+        }
+        
+        NextcloudKit.shared.download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, queue: NKCommon.shared.backgroundQueue, requestHandler: { request in }) { (account, etag, date, _, allHeaderFields, afError, error) in
+
+            if afError?.isExplicitlyCancelledError ?? false {
+                
+            } else if error == .success {
+                DatabaseManager.shared.addLocalFile(metadata: metadata)
+                StoreUtility.setExif(metadata) { _ in }
+            } 
+            
+            DispatchQueue.main.async { completion(afError, error) }
         }
     }
 
@@ -76,22 +99,12 @@ class NextcloudService: NSObject {
                 etag: etagResource,
                 options: options) { _, _, imageIcon, _, etag, error in
                     
-                    if error == .success, let imageIcon = imageIcon {
-                        //Self.logger.debug("downloadPreview() - SUCCESS image size: \(imageIcon.size.width), \(imageIcon.size.height)")
-                        Self.logger.debug("downloadPreview() - SUCCESS ocId: \(metadata.ocId)") //etag: \(metadata.etag)")
-                        //continuation.resume(returning: (imageIcon, etag))
-                        
-                        //let fileNamePathIcon = StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)
-                        
-                        //Self.logger.debug("downloadPreview() - SUCCESS fileNamePathIcon: \(fileNamePathIcon)")
-                        
-                        //Save the preview image
-                        //try? imageIcon.jpegData(compressionQuality: 0.9)?.write(to: URL(fileURLWithPath: fileNamePathIcon))
-                        
+                    if error == .success {
+                        Self.logger.debug("downloadPreview() - SUCCESS ocId: \(metadata.ocId)")
+
                         continuation.resume()
                     } else {
                         Self.logger.debug("downloadPreview() - FAILED")
-                        //continuation.resume(returning: (nil, etag))
                         continuation.resume()
                     }
                 }
@@ -177,14 +190,74 @@ class NextcloudService: NSObject {
         }
     }
     
-    /*
-    func processFiles(files: [NKFile], predicate: NSPredicate, lessDate: Date, greaterDate: Date) async -> (ocIdAdd: [String], ocIdUpdate: [String], ocIdDelete: [String]) {
-        
-        let metadataCollection = await DatabaseManager.shared.convertFilesToMetadatas(files, useMetadataFolder: false)
-        
-        let metadatasResult = DatabaseManager.shared.getMetadatas(predicate: predicate)
-        
-        return DatabaseManager.shared.processMetadatas(metadataCollection.metadatas, metadatasResult: metadatasResult, addCompareLivePhoto: false)
+    func favoriteMetadata(_ metadata: tableMetadata) async -> NKError {
+        if let metadataLive = DatabaseManager.shared.getMetadataLivePhoto(metadata: metadata) {
+            let error = await favoriteMetadataBase(metadataLive)
+            if error == .success {
+                return await favoriteMetadataBase(metadata)
+            } else {
+                return error
+            }
+        } else {
+            return await favoriteMetadataBase(metadata)
+        }
     }
-    */
+    
+    private func favoriteMetadataBase(_ metadata: tableMetadata) async -> NKError {
+        let fileName = StoreUtility.returnFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
+        let favorite = !metadata.favorite
+        
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.setFavorite(fileName: fileName, favorite: favorite) { account, error in
+                if error == .success && metadata.account == account {
+                    
+                    DatabaseManager.shared.setMetadataFavorite(ocId: metadata.ocId, favorite: favorite)
+                    
+                    //TODO: UPDATE METADATA TO REFLECT FAVORITE STATUS
+                    if favorite {
+                        //NextcloudOperationQueue.shared.synchronizationMetadata(metadata, selector: Global.shared.selectorReadFile)
+                    }
+                }
+                
+                continuation.resume(returning: error)
+            }
+        }
+    }
+    
+    /*
+    func favoriteMetadata(_ metadata: tableMetadata, completion: @escaping (_ error: NKError) -> Void) {
+        
+        if let metadataLive = DatabaseManager.shared.getMetadataLivePhoto(metadata: metadata) {
+            favoriteMetadataPlain(metadataLive) { error in
+                if error == .success {
+                    self.favoriteMetadataPlain(metadata, completion: completion)
+                } else {
+                    completion(error)
+                }
+            }
+        } else {
+            favoriteMetadataPlain(metadata, completion: completion)
+        }
+    }
+    
+    private func favoriteMetadataPlain(_ metadata: tableMetadata, completion: @escaping (_ error: NKError) -> Void) {
+        
+        let fileName = StoreUtility.returnFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
+        let favorite = !metadata.favorite
+        
+        NextcloudKit.shared.setFavorite(fileName: fileName, favorite: favorite) { account, error in
+            if error == .success && metadata.account == account {
+                DatabaseManager.shared.setMetadataFavorite(ocId: metadata.ocId, favorite: favorite)
+                
+                //TODO: UPDATE METADATA TO REFLECT FAVORITE STATUS
+                if favorite {
+                    //NextcloudOperationQueue.shared.synchronizationMetadata(metadata, selector: Global.shared.selectorReadFile)
+                }
+            }
+            completion(error)
+        }
+   
+    }
+     */
 }
+     

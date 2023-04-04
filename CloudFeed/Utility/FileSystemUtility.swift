@@ -43,4 +43,11 @@ class FileSystemUtility: NSObject {
         return totalSize
     }
     
+    func linkItem(atPath: String, toPath: String) {
+        
+        Self.logger.debug("linkItem() - atPath: \(atPath) toPath: \(toPath)")
+
+        try? FileManager.default.removeItem(atPath: toPath)
+        try? FileManager.default.linkItem(atPath: atPath, toPath: toPath)
+    }
 }
