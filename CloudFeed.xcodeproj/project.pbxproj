@@ -51,6 +51,11 @@
 		394BCB1529C7E82100C4F619 /* KTVHTTPCache.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */; };
 		394BCB1629C7E82100C4F619 /* KTVHTTPCache.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		394BCB1929C7E9BC00C4F619 /* NextcloudUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394BCB1829C7E9BB00C4F619 /* NextcloudUtility.swift */; };
+		3966633B29DCD10D005727D4 /* AcknowledgementsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3966633A29DCD10D005727D4 /* AcknowledgementsController.swift */; };
+		3966633D29DCD170005727D4 /* AcknowledgementCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3966633C29DCD170005727D4 /* AcknowledgementCell.swift */; };
+		3966633F29DCD24A005727D4 /* AcknowledgementCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3966633E29DCD24A005727D4 /* AcknowledgementCell.xib */; };
+		3966634129DCD4E8005727D4 /* ProfileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3966634029DCD4E8005727D4 /* ProfileCell.swift */; };
+		3966634329DE190D005727D4 /* Acknowledgements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3966634229DE190D005727D4 /* Acknowledgements.plist */; };
 		39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F0C29C53FD300704670 /* CollectionViewCell.swift */; };
 		39B03F0F29C53FD300704670 /* CollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39B03F0D29C53FD300704670 /* CollectionViewCell.xib */; };
 		39B03F1229C636B500704670 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F1129C636B500704670 /* SettingsController.swift */; };
@@ -135,6 +140,11 @@
 		394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVCocoaHTTPServer.xcframework; path = Carthage/Build/KTVCocoaHTTPServer.xcframework; sourceTree = "<group>"; };
 		394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVHTTPCache.xcframework; path = Carthage/Build/KTVHTTPCache.xcframework; sourceTree = "<group>"; };
 		394BCB1829C7E9BB00C4F619 /* NextcloudUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudUtility.swift; sourceTree = "<group>"; };
+		3966633A29DCD10D005727D4 /* AcknowledgementsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcknowledgementsController.swift; sourceTree = "<group>"; };
+		3966633C29DCD170005727D4 /* AcknowledgementCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcknowledgementCell.swift; sourceTree = "<group>"; };
+		3966633E29DCD24A005727D4 /* AcknowledgementCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AcknowledgementCell.xib; sourceTree = "<group>"; };
+		3966634029DCD4E8005727D4 /* ProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCell.swift; sourceTree = "<group>"; };
+		3966634229DE190D005727D4 /* Acknowledgements.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Acknowledgements.plist; sourceTree = "<group>"; };
 		39B03F0C29C53FD300704670 /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
 		39B03F0D29C53FD300704670 /* CollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionViewCell.xib; sourceTree = "<group>"; };
 		39B03F1129C636B500704670 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
@@ -246,6 +256,7 @@
 				392735BD29BE738F0058796A /* CloudFeed.entitlements */,
 				3927357329BD1E830058796A /* Assets.xcassets */,
 				3927357829BD1E830058796A /* Info.plist */,
+				3966634229DE190D005727D4 /* Acknowledgements.plist */,
 			);
 			path = CloudFeed;
 			sourceTree = "<group>";
@@ -330,7 +341,11 @@
 			isa = PBXGroup;
 			children = (
 				39271D4C29D7975A00522DFD /* Settings.storyboard */,
+				3966633E29DCD24A005727D4 /* AcknowledgementCell.xib */,
+				3966633C29DCD170005727D4 /* AcknowledgementCell.swift */,
+				3966633A29DCD10D005727D4 /* AcknowledgementsController.swift */,
 				39B03F1129C636B500704670 /* SettingsController.swift */,
+				3966634029DCD4E8005727D4 /* ProfileCell.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -464,10 +479,12 @@
 				392735B629BE4FE00058796A /* Login.storyboard in Resources */,
 				3927357729BD1E830058796A /* LaunchScreen.storyboard in Resources */,
 				39271D5D29D8D7DF00522DFD /* Favorites.storyboard in Resources */,
+				3966634329DE190D005727D4 /* Acknowledgements.plist in Resources */,
 				3927357429BD1E830058796A /* Assets.xcassets in Resources */,
 				39271D5729D79E7900522DFD /* TitleView.xib in Resources */,
 				39271D4A29D7922D00522DFD /* Media.storyboard in Resources */,
 				3927357229BD1E820058796A /* Main.storyboard in Resources */,
+				3966633F29DCD24A005727D4 /* AcknowledgementCell.xib in Resources */,
 				39B03F0F29C53FD300704670 /* CollectionViewCell.xib in Resources */,
 				39271D6029D905DA00522DFD /* Viewer.storyboard in Resources */,
 				39271D4D29D7975A00522DFD /* Settings.storyboard in Resources */,
@@ -497,6 +514,8 @@
 			files = (
 				392735B829BE50780058796A /* LoginWebController.swift in Sources */,
 				39271D7029DA622700522DFD /* DatabaseManager+LocalFile.swift in Sources */,
+				3966633D29DCD170005727D4 /* AcknowledgementCell.swift in Sources */,
+				3966633B29DCD10D005727D4 /* AcknowledgementsController.swift in Sources */,
 				392735BC29BE59FC0058796A /* SettingsUtility.swift in Sources */,
 				392735BA29BE52600058796A /* LoginServerController.swift in Sources */,
 				39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */,
@@ -522,6 +541,7 @@
 				3927356B29BD1E820058796A /* AppDelegate.swift in Sources */,
 				392735AD29BE3C140058796A /* Database.swift in Sources */,
 				3927356D29BD1E820058796A /* SceneDelegate.swift in Sources */,
+				3966634129DCD4E8005727D4 /* ProfileCell.swift in Sources */,
 				39271D5B29D8D7CD00522DFD /* FavoritesController.swift in Sources */,
 				39271D7529DA66D800522DFD /* UIImage+Extensions.swift in Sources */,
 			);

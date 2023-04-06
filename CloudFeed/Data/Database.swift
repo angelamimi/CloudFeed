@@ -8,6 +8,18 @@
 import RealmSwift
 import UIKit
 
+class tableAvatar: Object {
+
+    @objc dynamic var date = NSDate()
+    @objc dynamic var etag = ""
+    @objc dynamic var fileName = ""
+    @objc dynamic var loaded: Bool = false
+
+    override static func primaryKey() -> String {
+        return "fileName"
+    }
+}
+
 class tableCapabilities: Object {
 
     @objc dynamic var account = ""

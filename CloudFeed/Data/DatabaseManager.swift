@@ -78,7 +78,6 @@ class DatabaseManager: NSObject {
     
     // MARK: -
     // MARK: Capabilities
-    
     func addCapabilitiesJSon(_ data: Data, account: String) {
         
         let realm = try! Realm()
@@ -110,6 +109,56 @@ class DatabaseManager: NSObject {
         return json[elements].intValue
     }
     
+    // MARK: -
+    // MARK: Avatar
+    func addAvatar(fileName: String, etag: String) {
+        
+        let realm = try! Realm()
+        
+        do {
+            try realm.write {
+                
+                // Add new
+                let addObject = tableAvatar()
+                
+                addObject.date = NSDate()
+                addObject.etag = etag
+                addObject.fileName = fileName
+                addObject.loaded = true
+                
+                realm.add(addObject, update: .all)
+            }
+        } catch let error {
+            NKCommon.shared.writeLog("Could not write to database: \(error)")
+        }
+    }
+    
+    func getAvatar(fileName: String) -> tableAvatar? {
+        
+        let realm = try! Realm()
+        
+        guard let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first else {
+            return nil
+        }
+        
+        return tableAvatar.init(value: result)
+    }
+    
+    func getAvatarImage(fileName: String) -> UIImage? {
+        
+        let realm = try! Realm()
+        let fileNameLocalPath = String(StoreUtility.getDirectoryUserData()) + "/" + fileName
+        
+        let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first
+        if result == nil {
+            FileSystemUtility.shared.deleteFile(filePath: fileNameLocalPath)
+            return nil
+        } else if result?.loaded == false {
+            return nil
+        }
+        
+        return UIImage(contentsOfFile: fileNameLocalPath)
+    }
     
     // MARK: -
     // MARK: Database Management
@@ -136,16 +185,31 @@ class DatabaseManager: NSObject {
     
     func clearDatabase(account: String?, removeAccount: Bool) {
         
-        //self.clearTable(tableAvatar.self)
+        self.clearTable(tableAvatar.self)
         self.clearTable(tableCapabilities.self, account: account)
         //self.clearTable(tableDirectory.self, account: account)
-        //self.clearTable(tableE2eEncryption.self, account: account)
-        //self.clearTable(tableE2eEncryptionLock.self, account: account)
         self.clearTable(tableLocalFile.self, account: account)
         self.clearTable(tableMetadata.self, account: account)
         
         if removeAccount {
             self.clearTable(tableAccount.self, account: account)
+        }
+    }
+    
+    func removeDatabase() {
+        let realmURL = Realm.Configuration.defaultConfiguration.fileURL!
+        let realmURLs = [
+            realmURL,
+            realmURL.appendingPathExtension("lock"),
+            realmURL.appendingPathExtension("note"),
+            realmURL.appendingPathExtension("management")
+        ]
+        for URL in realmURLs {
+            do {
+                try FileManager.default.removeItem(at: URL)
+            } catch let error {
+                NKCommon.shared.writeLog("Could not write to database: \(error)")
+            }
         }
     }
 }

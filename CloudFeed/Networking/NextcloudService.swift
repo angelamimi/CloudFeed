@@ -51,7 +51,8 @@ class NextcloudService: NSObject {
             DatabaseManager.shared.addMetadata(tableMetadata.init(value: metadata))
         }
         
-        NextcloudKit.shared.download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, queue: NKCommon.shared.backgroundQueue, requestHandler: { request in }) { (account, etag, date, _, allHeaderFields, afError, error) in
+        NextcloudKit.shared.download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, queue: NKCommon.shared.backgroundQueue, requestHandler: { request in }) {
+            (account, etag, date, _, allHeaderFields, afError, error) in
 
             if afError?.isExplicitlyCancelledError ?? false {
                 
@@ -224,40 +225,45 @@ class NextcloudService: NSObject {
         }
     }
     
-    /*
-    func favoriteMetadata(_ metadata: tableMetadata, completion: @escaping (_ error: NKError) -> Void) {
+    func downloadAvatar(user: String, account: tableAccount) async {
         
-        if let metadataLive = DatabaseManager.shared.getMetadataLivePhoto(metadata: metadata) {
-            favoriteMetadataPlain(metadataLive) { error in
-                if error == .success {
-                    self.favoriteMetadataPlain(metadata, completion: completion)
-                } else {
-                    completion(error)
+        let userBaseUrl = NextcloudUtility.shared.getUserBaseUrl(account)
+        let fileName = userBaseUrl + "-" + user + ".png"
+        let fileNameLocalPath = String(StoreUtility.getDirectoryUserData()) + "/" + fileName
+        let etag = DatabaseManager.shared.getAvatar(fileName: fileName)?.etag
+        let options = NKRequestOptions(queue: NKCommon.shared.backgroundQueue)
+
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.downloadAvatar(user: account.userId, fileNameLocalPath: fileNameLocalPath, sizeImage: Global.shared.avatarSize, avatarSizeRounded: Global.shared.avatarSizeRounded, etag: etag, options: options) { _, _, _, etag, error in
+                guard let etag = etag, error == .success else {
+                    if error.errorCode == Global.shared.errorNotModified {
+                        //DatabaseManager.shared.setAvatarLoaded(fileName: fileName)
+                    }
+                    continuation.resume()
+                    return
                 }
+                DatabaseManager.shared.addAvatar(fileName: fileName, etag: etag)
+                continuation.resume()
             }
-        } else {
-            favoriteMetadataPlain(metadata, completion: completion)
         }
     }
     
-    private func favoriteMetadataPlain(_ metadata: tableMetadata, completion: @escaping (_ error: NKError) -> Void) {
+    func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
         
-        let fileName = StoreUtility.returnFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
-        let favorite = !metadata.favorite
+        let options = NKRequestOptions(queue: NKCommon.shared.backgroundQueue)
         
-        NextcloudKit.shared.setFavorite(fileName: fileName, favorite: favorite) { account, error in
-            if error == .success && metadata.account == account {
-                DatabaseManager.shared.setMetadataFavorite(ocId: metadata.ocId, favorite: favorite)
-                
-                //TODO: UPDATE METADATA TO REFLECT FAVORITE STATUS
-                if favorite {
-                    //NextcloudOperationQueue.shared.synchronizationMetadata(metadata, selector: Global.shared.selectorReadFile)
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.getUserProfile(options: options) { account, userProfile, data, error in
+                guard error == .success, let userProfile = userProfile else {
+                    // Ops the server has Unauthorized
+                    NKCommon.shared.writeLog("[ERROR] The server has response with Unauthorized \(error.errorCode)")
+                    continuation.resume(returning: ("", ""))
+                    return
                 }
+                
+                continuation.resume(returning: (userProfile.displayName, userProfile.email))
             }
-            completion(error)
         }
-   
     }
-     */
 }
      

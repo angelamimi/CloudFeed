@@ -63,6 +63,29 @@ extension UIImage {
         return UIImage(cgImage: downsampledImage)
     }
     
+    func image(color: UIColor, size: CGFloat) -> UIImage {
+
+        let size = CGSize(width: size, height: size)
+
+        UIGraphicsBeginImageContextWithOptions(size, false, self.scale)
+        color.setFill()
+
+        let context = UIGraphicsGetCurrentContext()
+        context?.translateBy(x: 0, y: size.height)
+        context?.scaleBy(x: 1.0, y: -1.0)
+        context?.setBlendMode(CGBlendMode.normal)
+
+        let rect = CGRect(origin: .zero, size: size)
+        guard let cgImage = self.cgImage else { return self }
+        context?.clip(to: rect, mask: cgImage)
+        context?.fill(rect)
+
+        let newImage = UIGraphicsGetImageFromCurrentImageContext() ?? self
+        UIGraphicsEndImageContext()
+
+        return newImage
+    }
+    
     func resizeImage(size: CGSize, isAspectRation: Bool = true) -> UIImage? {
 
         let originRatio = self.size.width / self.size.height

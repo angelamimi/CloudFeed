@@ -43,6 +43,17 @@ class FileSystemUtility: NSObject {
         return totalSize
     }
     
+    func deleteFile(filePath: String) {
+        
+        Self.logger.debug("deleteFile() - filePath \(filePath)")
+
+        do {
+            try FileManager.default.removeItem(atPath: filePath)
+        } catch {
+            Self.logger.error("deleteFile() - removeItem error: \(error.localizedDescription)")
+        }
+    }
+    
     func linkItem(atPath: String, toPath: String) {
         
         Self.logger.debug("linkItem() - atPath: \(atPath) toPath: \(toPath)")

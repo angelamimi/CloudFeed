@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>title</key>
+		<string>realm-swift</string>
+		<key>link</key>
+		<string>https://github.com/realm/realm-swift</string>
+		<key>license</key>
+		<string>Apache License 2.0
+http://www.apache.org/licenses/</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>KeychainAccess</string>
+		<key>link</key>
+		<string>https://github.com/kishikawakatsumi/KeychainAccess</string>
+		<key>license</key>
+		<string>The MIT License (MIT)
+
+Copyright (c) 2014 kishikawa katsumi</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>SVGKit</string>
+		<key>link</key>
+		<string>https://github.com/SVGKit/SVGKit</string>
+		<key>license</key>
+		<string>Copyright (c) 2010-2011 Matt Rajca, 2011-2015 various authors
+Parts Copyright (c) Tipbit Inc</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>NextcloudKit</string>
+		<key>link</key>
+		<string>https://github.com/Nextcloud/NextcloudKit</string>
+		<key>license</key>
+		<string></string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>Nextcloud iOS</string>
+		<key>link</key>
+		<string>https://github.com/nextcloud/ios</string>
+		<key>license</key>
+		<string>GNU General Public License v3.0</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>OpenSSL</string>
+		<key>link</key>
+		<string>https://github.com/krzyzanowskim/OpenSSL</string>
+		<key>license</key>
+		<string>Copyright OpenSSL
+Contents licensed under the terms of the OpenSSL license
+See https://www.openssl.org/source/license.html for details</string>
+	</dict>
+</array>
+</plist>

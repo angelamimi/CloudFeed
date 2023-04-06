@@ -32,9 +32,29 @@ class StoreUtility {
         Keychain(service: Global.shared.keyChain)[key] = password
     }
     
+    static func transformedSize(_ value: Int64) -> String {
+        let string = ByteCountFormatter.string(fromByteCount: value, countStyle: .binary)
+        return string
+    }
+    
     static func getDirectoryGroup() -> URL? {
         let path = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Global.shared.groupIdentifier)
         return path
+    }
+    
+    static func getDirectoryUserData() -> String {
+        if let group = StoreUtility.getDirectoryGroup() {
+            let path = group.appendingPathComponent(Global.shared.userDataDirectory).path
+            if !FileManager.default.fileExists(atPath: path) {
+                try? FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true, attributes: nil)
+            }
+            return path
+        }
+        return ""
+    }
+    
+    static func removeDirectoryUserData() {
+        try? FileManager.default.removeItem(atPath: StoreUtility.getDirectoryUserData())
     }
     
     static func getDirectoryProviderStorage() -> String? {
@@ -112,8 +132,7 @@ class StoreUtility {
             Self.logger.error("initDirectories() - path: \(path ?? "nil") error: \(error.localizedDescription)")
         }
         
-        /*
-        path = dirGroup?.appendingPathComponent(Global.shared.appUserData).path
+        path = dirGroup?.appendingPathComponent(Global.shared.userDataDirectory).path
         do {
             if !FileManager.default.fileExists(atPath: path!) {
                 try FileManager.default.createDirectory(atPath: path!, withIntermediateDirectories: true)
@@ -122,7 +141,6 @@ class StoreUtility {
             //TODO: Handle error
             Self.logger.error("initDirectories() - path: \(path ?? "nil") error: \(error.localizedDescription)")
         }
-         */
     }
     
     static func removeDocumentsDirectory() {
@@ -325,5 +343,14 @@ class StoreUtility {
         } else {
             return false
         }
+    }
+    
+    static func removeTemporaryDirectory() {
+        try? FileManager.default.removeItem(atPath: NSTemporaryDirectory())
+    }
+    
+    static func deleteAllChainStore() {
+        let keychain = Keychain(service: Global.shared.keyChain)
+        try? keychain.removeAll()
     }
 }

@@ -5,7 +5,7 @@
 //  Created by Angela Jarosz on 3/11/23.
 //
 
-import Foundation
+import UIKit
 
 class Global: NSObject {
     static let shared: Global = {
@@ -20,6 +20,7 @@ class Global: NSObject {
     //
     let providerStorage               = "File Provider Storage"
     let groupIdentifier               = "group.com.angelamimi.cloudfeed"
+    let userDataDirectory             = "Library/Application Support/UserData"
     let databaseDirectory             = "Library/Application Support/CloudFeed"
     let databaseDefault               = "cloudfeed.realm"
     
@@ -33,9 +34,11 @@ class Global: NSObject {
     
     // MARK: - Icon/Preview
     //
-    let extensionPreview    = "ico"
-    let sizePreview: Int    = 1024
-    let sizeIcon: Int       = 512
+    let extensionPreview        = "ico"
+    let sizePreview: Int        = 1024
+    let sizeIcon: Int           = 512
+    let avatarSize: Int         = 128 * Int(UIScreen.main.scale)
+    let avatarSizeRounded: Int  = 128
     
     
     // MARK: - Metadata download status
@@ -51,4 +54,8 @@ class Global: NSObject {
     // MARK: - Video
     //
     let maxHTTPCache: Int64 = 10000000000   // 10 GB
+    
+    // MARK: - Error
+    //
+    let errorNotModified: Int                 = 304
 }
