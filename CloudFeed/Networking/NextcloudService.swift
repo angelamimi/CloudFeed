@@ -265,5 +265,35 @@ class NextcloudService: NSObject {
             }
         }
     }
+    
+    func getFavorites() async -> [tableMetadata]? {
+        
+        let listingResult = await listingFavorites()
+        
+        guard listingResult.files != nil else { return nil }
+        
+        let convertResult = await DatabaseManager.shared.convertFilesToMetadatas(listingResult.files!, useMetadataFolder: false)
+        DatabaseManager.shared.updateMetadatasFavorite(account: listingResult.account, metadatas: convertResult.metadatas)
+        
+        let metadatas = DatabaseManager.shared.getMetadatas(predicate: NSPredicate(format: "account == %@ AND favorite == true", listingResult.account))
+        
+        return metadatas
+    }
+    
+    private func listingFavorites() async -> (account: String, files: [NKFile]?) {
+        
+        let options = NKRequestOptions(queue: NKCommon.shared.backgroundQueue)
+        
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.listingFavorites(showHiddenFiles: false, options: options) { account, files, data, error in
+                guard error == .success else {
+                    continuation.resume(returning: (account, nil))
+                    return
+                }
+            
+                continuation.resume(returning: (account, files))
+            }
+        }
+    }
 }
      

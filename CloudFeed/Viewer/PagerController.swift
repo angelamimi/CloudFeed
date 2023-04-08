@@ -74,7 +74,7 @@ class PagerController: UIViewController, MediaController {
     
     override func viewDidDisappear(_ animated: Bool) {
         Self.logger.debug("viewDidDisappear()")
-        metadatas.removeAll()
+        //metadatas.removeAll()
         self.titleView?.menuButton.menu = nil
     }
     
@@ -89,8 +89,11 @@ class PagerController: UIViewController, MediaController {
         
         if self.navigationController?.viewControllers[0] is MainViewController {
             let main = self.navigationController?.viewControllers[0] as! MainViewController
-            let currentMetadata = metadatas[currentIndex]
-            main.updateMetadata(metadata: currentMetadata)
+            
+            if currentIndex < metadatas.count {
+                let currentMetadata = metadatas[currentIndex]
+                main.updateMetadata(metadata: currentMetadata)
+            }
         }
         
         navigationController?.popViewController(animated: true)

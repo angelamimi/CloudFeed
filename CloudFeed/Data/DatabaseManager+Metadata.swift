@@ -74,7 +74,7 @@ extension DatabaseManager {
         return tableMetadata.init(value: metadata)
     }
 
-    private func convertFileToMetadata(_ file: NKFile) -> tableMetadata {
+    func convertFileToMetadata(_ file: NKFile) -> tableMetadata {
 
         let metadata = tableMetadata()
 
@@ -352,6 +352,25 @@ extension DatabaseManager {
             try realm.write {
                 let result = realm.objects(tableMetadata.self).filter("ocId == %@", ocId).first
                 result?.favorite = favorite
+            }
+        } catch let error {
+            NKCommon.shared.writeLog("Could not write to database: \(error)")
+        }
+    }
+    
+    func updateMetadatasFavorite(account: String, metadatas: [tableMetadata]) {
+
+        let realm = try! Realm()
+
+        do {
+            try realm.write {
+                let results = realm.objects(tableMetadata.self).filter("account == %@ AND favorite == true", account)
+                for result in results {
+                    result.favorite = false
+                }
+                for metadata in metadatas {
+                    realm.add(metadata, update: .all)
+                }
             }
         } catch let error {
             NKCommon.shared.writeLog("Could not write to database: \(error)")

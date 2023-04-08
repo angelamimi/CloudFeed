@@ -75,12 +75,18 @@ class ViewerController: UIViewController {
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        Self.logger.debug("viewDidAppear() - imageView frame: \(self.imageView.frame.width), \(self.imageView.frame.height)")
+        Self.logger.debug("viewDidAppear() - imageView image size: \(self.imageView.image?.size.width ?? -1), \(self.imageView.image?.size.height ?? -1)")
+        
+    }
+    
     override func viewDidDisappear(_ animated: Bool) {
         Self.logger.debug("viewDidDisappear()")
         clearImageContainer()
     }
     
-    func clearImageContainer() {
+    private func clearImageContainer() {
         
         self.player?.replaceCurrentItem(with: nil)
         
@@ -90,7 +96,7 @@ class ViewerController: UIViewController {
         //imageView.removeFromSuperview()
     }
     
-    @objc func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
+    @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
         if swipeGesture.direction == .up {
             setDetailTableVisibility(visible: true)
         } else if swipeGesture.direction == .down {
@@ -209,13 +215,12 @@ class ViewerController: UIViewController {
         let avpController = AVPlayerViewController()
         avpController.player = player
         avpController.view.backgroundColor = UIColor.systemBackground
-        //avpController.view.frame.size.height = imageView.frame.size.height
-        //avpController.view.frame.size.width = imageView.frame.size.width
         
-        avpController.view.frame.size.height = imageView.frame.height
-        avpController.view.frame.size.width = imageView.frame.width
+        //avpController.view.frame.size.height = imageView.frame.height
+        //avpController.view.frame.size.width = imageView.frame.width
         
-        Self.logger.debug("loadVideoFromUrl() - imageView frame \(self.imageView.frame.size.width), \(self.imageView.frame.size.height)")
+        avpController.view.frame.size.height = self.view.frame.height
+        avpController.view.frame.size.width = self.view.frame.width
         
         avpController.videoGravity = .resizeAspect
         
@@ -227,7 +232,8 @@ class ViewerController: UIViewController {
             addChild(avpController)
         }
         
-        if self.view.subviews.count == 3 {
+        //TitleView, Live photo image and label container
+        if self.view.subviews.count == 2 {
             self.view.addSubview(avpController.view)
         }
         

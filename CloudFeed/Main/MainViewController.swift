@@ -29,8 +29,7 @@ class MainViewController: UIViewController, MediaController {
     
     private var titleView: TitleView?
     private var layout: CollectionLayout?
-    
-    private var lastMetadata: tableMetadata?
+
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,

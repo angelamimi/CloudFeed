@@ -34,7 +34,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func onApplicationStart() {
         
-        // LOG Account
         if let activeAccount = DatabaseManager.shared.getActiveAccount() {
             NKCommon.shared.writeLog("Active Account: \(activeAccount.account)")
             
