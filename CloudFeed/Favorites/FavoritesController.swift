@@ -124,10 +124,6 @@ class FavoritesController: UIViewController {
         
         Self.logger.debug("setImage() - indexPath: \(indexPath)")
         
-        //let metadata = findMetadata(indexPath: indexPath)
-        
-        //guard metadata != nil else { return }
-        
         let ocId = metadata.ocId
         let etag = metadata.etag
         
@@ -139,16 +135,11 @@ class FavoritesController: UIViewController {
             cell.imageView.image = nil
         }
         
-        //collectionView.indexPathsForSelectedItems?.forEach { collectionView.deselectItem(at: $0, animated: false) }
-        
         if isEditMode {
             cell.selectMode(true)
-            //if selectOcId.contains(ocId) {
             if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
-                //Self.logger.debug("setImage() - select indexpath: \(indexPath)")
                 cell.selected(true)
             } else {
-                //Self.logger.debug("setImage() - deselect indexpath: \(indexPath)")
                 cell.selected(false)
             }
         } else {
@@ -394,7 +385,7 @@ class FavoritesController: UIViewController {
                 snapshot.deleteItems([metadata!])
             } else {
                 //TODO: Show the user a single error for all failed
-                Self.logger.error("endEdit() - ERROR: \(error.errorDescription)")
+                Self.logger.error("bulkEdit() - ERROR: \(error.errorDescription)")
             }
         }
 
