@@ -40,7 +40,7 @@ class MainViewController: UIViewController, MediaController {
         super.viewDidLoad()
         
         let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
-        collectionView.register(nib, forCellWithReuseIdentifier: "CollectionViewCell")
+        collectionView.register(nib, forCellWithReuseIdentifier: "MainCollectionViewCell")
         collectionView.delegate = self
         
         navigationController?.isNavigationBarHidden = true
@@ -55,7 +55,7 @@ class MainViewController: UIViewController, MediaController {
         loadMoreIndicator.stopAnimating()
         
         dataSource = UICollectionViewDiffableDataSource<Int, String>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, ocId: String) -> UICollectionViewCell? in
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
             Task {
                 await self.setImage(ocId: ocId, cell: cell, indexPath: indexPath)
             }

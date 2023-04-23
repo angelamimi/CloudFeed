@@ -11,7 +11,7 @@
         <!--Viewer Pager Controller-->
         <scene sceneID="nRX-ek-qgC">
             <objects>
-                <viewController storyboardIdentifier="PagerController" id="r40-jb-ixQ" userLabel="Viewer Pager Controller" customClass="PagerController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PagerController" hidesBottomBarWhenPushed="YES" id="r40-jb-ixQ" userLabel="Viewer Pager Controller" customClass="PagerController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="TjY-XO-TRA">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -108,6 +108,7 @@
                     </view>
                     <connections>
                         <outlet property="imageView" destination="gnc-Wf-rti" id="Cuh-lC-UtQ"/>
+                        <outlet property="statusContainerView" destination="JHA-Xd-uSt" id="jTu-eG-FGr"/>
                         <outlet property="statusImageView" destination="7NT-a3-48h" id="73D-6C-PQe"/>
                         <outlet property="statusLabel" destination="DLS-kx-jTd" id="qC1-Wp-OgV"/>
                     </connections>

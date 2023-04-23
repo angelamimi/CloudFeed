@@ -19,16 +19,48 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "97F97D2C-52DB-4631-AD63-D661146B0028"
-            shouldBeEnabled = "Yes"
+            uuid = "499E06A2-5943-4C49-9D45-31DA0ACA8023"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../../../../../Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SVGKit/Source/DOM classes/SVG-DOM/SVGLength.m"
+            filePath = "CloudFeed/Favorites/FavoritesController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "181"
-            endingLineNumber = "181"
-            landmarkName = "+pixelsPerInchForCurrentDevice"
+            startingLineNumber = "152"
+            endingLineNumber = "152"
+            landmarkName = "setImage(ocId:cell:indexPath:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1E9DAE6C-8FBC-4472-A9E6-5DDE0827E24E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CloudFeed/Main/CollectionViewCell.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
+            landmarkName = "selected(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FB81F608-7B8F-490A-9057-7F57A784C2B4"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CloudFeed/Favorites/FavoritesController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "218"
+            endingLineNumber = "218"
+            landmarkName = "restorePosition()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

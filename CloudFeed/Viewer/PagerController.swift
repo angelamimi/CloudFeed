@@ -10,11 +10,17 @@ import NextcloudKit
 import MediaPlayer
 import os.log
 
+protocol PagerControllerDelegate {
+    func viewerDidFinish(ocId: String)
+}
+
 class PagerController: UIViewController, MediaController {
     
     var currentIndex = 0
     var nextIndex: Int?
     var metadatas: [tableMetadata] = []
+    
+    var delegate: PagerControllerDelegate! = nil
     
     private weak var titleView: TitleView?
     
@@ -86,13 +92,16 @@ class PagerController: UIViewController, MediaController {
     
     func cancel() {
         //Self.logger.debug("is MainViewController?? \(self.navigationController?.viewControllers[0] is MainViewController)")
-        
-        if self.navigationController?.viewControllers[0] is MainViewController {
-            let main = self.navigationController?.viewControllers[0] as! MainViewController
+        if currentIndex < metadatas.count {
+            let currentMetadata = metadatas[currentIndex]
             
-            if currentIndex < metadatas.count {
-                let currentMetadata = metadatas[currentIndex]
+            if self.navigationController?.viewControllers[0] is MainViewController {
+                let main = self.navigationController?.viewControllers[0] as! MainViewController
                 main.updateMetadata(metadata: currentMetadata)
+            }
+            
+            if (delegate != nil) {
+                delegate.viewerDidFinish(ocId: currentMetadata.ocId)
             }
         }
         

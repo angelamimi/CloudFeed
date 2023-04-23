@@ -185,9 +185,16 @@ class SettingsController: UIViewController {
         
         HTTPCache.shared.deleteAllCache()
         
-        let nav = self.tabBarController?.viewControllers?[0] as! UINavigationController
+        //TODO: Better to send messages instead??
+        var nav = self.tabBarController?.viewControllers?[0] as! UINavigationController
         if nav.viewControllers[0] is MainViewController {
             let controller = nav.viewControllers[0] as! MainViewController
+            controller.clear()
+        }
+        
+        nav = self.tabBarController?.viewControllers?[1] as! UINavigationController
+        if nav.viewControllers[0] is FavoritesController {
+            let controller = nav.viewControllers[0] as! FavoritesController
             controller.clear()
         }
         

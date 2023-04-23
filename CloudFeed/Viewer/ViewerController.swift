@@ -17,6 +17,7 @@ class ViewerController: UIViewController {
     @IBOutlet weak var statusImageView: UIImageView!
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var statusContainerView: UIView!
     
     var player: AVPlayer?
     var metadata: tableMetadata = tableMetadata()
@@ -39,13 +40,33 @@ class ViewerController: UIViewController {
         if DatabaseManager.shared.getMetadataLivePhoto(metadata: metadata) != nil {
             statusImageView.image = NextcloudUtility.shared.loadImage(named: "livephoto", color: .label)
             statusLabel.text = "LIVE"
+            statusContainerView.isHidden = false
         } else {
             statusImageView.image = nil
             statusLabel.text = ""
+            statusContainerView.isHidden = true
         }
         
         imageView.isUserInteractionEnabled = true
         
+        initGestureRecognizers()
+
+        if metadata.classFile == NKCommon.typeClassFile.video.rawValue || metadata.classFile == NKCommon.typeClassFile.audio.rawValue {
+            loadVideo()
+        } else {
+            reloadImage()
+        }
+    }
+    
+    func playLivePhoto(_ url: URL) {
+        loadVideoFromUrl(url, autoPlay: true)
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+    
+    private func initGestureRecognizers() {
         let pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(pinchGesture:)))
         
         panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(panGesture:)))
@@ -67,33 +88,6 @@ class ViewerController: UIViewController {
         
         view.addGestureRecognizer(swipeUpRecognizer)
         view.addGestureRecognizer(swipeDownRecognizer)
-
-        if metadata.classFile == NKCommon.typeClassFile.video.rawValue || metadata.classFile == NKCommon.typeClassFile.audio.rawValue {
-            loadVideo()
-        } else {
-            reloadImage()
-        }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        Self.logger.debug("viewDidAppear() - imageView frame: \(self.imageView.frame.width), \(self.imageView.frame.height)")
-        Self.logger.debug("viewDidAppear() - imageView image size: \(self.imageView.image?.size.width ?? -1), \(self.imageView.image?.size.height ?? -1)")
-        
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        Self.logger.debug("viewDidDisappear()")
-        clearImageContainer()
-    }
-    
-    private func clearImageContainer() {
-        
-        self.player?.replaceCurrentItem(with: nil)
-        
-        //guard imageView != nil else { return }
-        
-        //imageView.image = nil
-        //imageView.removeFromSuperview()
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
@@ -101,15 +95,6 @@ class ViewerController: UIViewController {
             setDetailTableVisibility(visible: true)
         } else if swipeGesture.direction == .down {
             setDetailTableVisibility(visible: false)
-        }
-    }
-    
-    private func setDetailTableVisibility(visible: Bool) {
-        Self.logger.debug("setDetailTableVisibility()")
-        if (visible) {
-            let detailViewController = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailViewController") as! DetailController
-            detailViewController.metadata = metadata
-            self.present(detailViewController, animated: true, completion: nil)
         }
     }
     
@@ -184,11 +169,16 @@ class ViewerController: UIViewController {
         }
     }
     
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
+    private func setDetailTableVisibility(visible: Bool) {
+        Self.logger.debug("setDetailTableVisibility()")
+        if (visible) {
+            let detailViewController = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailViewController") as! DetailController
+            detailViewController.metadata = metadata
+            self.present(detailViewController, animated: true, completion: nil)
+        }
     }
     
-    func loadVideo() {
+    private func loadVideo() {
         let urlVideo = getVideoURL(metadata: metadata)
         
         if let url = urlVideo {
@@ -196,7 +186,7 @@ class ViewerController: UIViewController {
         }
     }
     
-    func getVideoURL(metadata: tableMetadata) -> URL? {
+    private func getVideoURL(metadata: tableMetadata) -> URL? {
         
         if StoreUtility.fileProviderStorageExists(metadata) {
             return URL(fileURLWithPath: StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!)
@@ -206,18 +196,11 @@ class ViewerController: UIViewController {
         }
     }
     
-    func playLivePhoto(_ url: URL) {
-        loadVideoFromUrl(url, autoPlay: true)
-    }
-    
-    func loadVideoFromUrl(_ url: URL, autoPlay: Bool) {
+    private func loadVideoFromUrl(_ url: URL, autoPlay: Bool) {
         player = AVPlayer(url: url)
         let avpController = AVPlayerViewController()
         avpController.player = player
         avpController.view.backgroundColor = UIColor.systemBackground
-        
-        //avpController.view.frame.size.height = imageView.frame.height
-        //avpController.view.frame.size.width = imageView.frame.width
         
         avpController.view.frame.size.height = self.view.frame.height
         avpController.view.frame.size.width = self.view.frame.width
@@ -244,14 +227,14 @@ class ViewerController: UIViewController {
         }
     }
     
-    func reloadImage() {
+    private func reloadImage() {
         if let metadata = DatabaseManager.shared.getMetadataFromOcId(metadata.ocId) {
             self.metadata = metadata
             loadImage(metadata: metadata)
         }
     }
     
-    func loadImage(metadata: tableMetadata) {
+    private func loadImage(metadata: tableMetadata) {
         
         //Self.logger.debug("loadImage() - fileNameView: \(metadata.fileNameView) livePhoto? \(metadata.livePhoto)")
         
@@ -310,7 +293,7 @@ class ViewerController: UIViewController {
         }
     }
     
-    func getImage(metadata: tableMetadata) -> UIImage? {
+    private func getImage(metadata: tableMetadata) -> UIImage? {
         
         let ext = StoreUtility.getExtension(metadata.fileNameView)
         var image: UIImage?

@@ -275,8 +275,15 @@ class NextcloudService: NSObject {
         let convertResult = await DatabaseManager.shared.convertFilesToMetadatas(listingResult.files!, useMetadataFolder: false)
         DatabaseManager.shared.updateMetadatasFavorite(account: listingResult.account, metadatas: convertResult.metadatas)
         
-        let metadatas = DatabaseManager.shared.getMetadatas(predicate: NSPredicate(format: "account == %@ AND favorite == true", listingResult.account))
+        //let metadatas = DatabaseManager.shared.getMetadatas(predicate: NSPredicate(format: "account == %@ AND favorite == true", listingResult.account))
         
+        //return metadatas
+        
+        return getFavoriteMetadatas(account: listingResult.account)
+    }
+    
+    func getFavoriteMetadatas(account: String) -> [tableMetadata]? {
+        let metadatas = DatabaseManager.shared.getMetadatas(predicate: NSPredicate(format: "account == %@ AND favorite == true", account))
         return metadatas
     }
     

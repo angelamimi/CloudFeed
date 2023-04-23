@@ -27,7 +27,6 @@
 		3927356D29BD1E820058796A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927356C29BD1E820058796A /* SceneDelegate.swift */; };
 		3927356F29BD1E820058796A /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927356E29BD1E820058796A /* MainViewController.swift */; };
 		3927357229BD1E820058796A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3927357029BD1E820058796A /* Main.storyboard */; };
-		3927357429BD1E830058796A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3927357329BD1E830058796A /* Assets.xcassets */; };
 		3927357729BD1E830058796A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3927357529BD1E830058796A /* LaunchScreen.storyboard */; };
 		3927358229BD1E830058796A /* CloudFeedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927358129BD1E830058796A /* CloudFeedTests.swift */; };
 		3927358C29BD1E830058796A /* CloudFeedUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927358B29BD1E830058796A /* CloudFeedUITests.swift */; };
@@ -45,6 +44,7 @@
 		392735B829BE50780058796A /* LoginWebController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735B729BE50780058796A /* LoginWebController.swift */; };
 		392735BA29BE52600058796A /* LoginServerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735B929BE52600058796A /* LoginServerController.swift */; };
 		392735BC29BE59FC0058796A /* SettingsUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735BB29BE59FC0058796A /* SettingsUtility.swift */; };
+		393D824229E2150A00100EAF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 393D824129E2150A00100EAF /* Assets.xcassets */; };
 		394BCB0E29C7E25000C4F619 /* HttpCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394BCB0D29C7E25000C4F619 /* HttpCache.swift */; };
 		394BCB1329C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */; };
 		394BCB1429C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -121,7 +121,6 @@
 		3927356C29BD1E820058796A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		3927356E29BD1E820058796A /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		3927357129BD1E820058796A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		3927357329BD1E830058796A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3927357629BD1E830058796A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3927357829BD1E830058796A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3927357D29BD1E830058796A /* CloudFeedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CloudFeedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -139,6 +138,7 @@
 		392735B929BE52600058796A /* LoginServerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerController.swift; sourceTree = "<group>"; };
 		392735BB29BE59FC0058796A /* SettingsUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUtility.swift; sourceTree = "<group>"; };
 		392735BD29BE738F0058796A /* CloudFeed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudFeed.entitlements; sourceTree = "<group>"; };
+		393D824129E2150A00100EAF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		394BCB0D29C7E25000C4F619 /* HttpCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpCache.swift; sourceTree = "<group>"; };
 		394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVCocoaHTTPServer.xcframework; path = Carthage/Build/KTVCocoaHTTPServer.xcframework; sourceTree = "<group>"; };
 		394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVHTTPCache.xcframework; path = Carthage/Build/KTVHTTPCache.xcframework; sourceTree = "<group>"; };
@@ -261,7 +261,7 @@
 				3927356A29BD1E820058796A /* AppDelegate.swift */,
 				3927357529BD1E830058796A /* LaunchScreen.storyboard */,
 				392735BD29BE738F0058796A /* CloudFeed.entitlements */,
-				3927357329BD1E830058796A /* Assets.xcassets */,
+				393D824129E2150A00100EAF /* Assets.xcassets */,
 				3927357829BD1E830058796A /* Info.plist */,
 				3966634229DE190D005727D4 /* Acknowledgements.plist */,
 			);
@@ -489,9 +489,9 @@
 				3927357729BD1E830058796A /* LaunchScreen.storyboard in Resources */,
 				39271D5D29D8D7DF00522DFD /* Favorites.storyboard in Resources */,
 				3966634329DE190D005727D4 /* Acknowledgements.plist in Resources */,
-				3927357429BD1E830058796A /* Assets.xcassets in Resources */,
 				39271D5729D79E7900522DFD /* TitleView.xib in Resources */,
 				39271D4A29D7922D00522DFD /* Media.storyboard in Resources */,
+				393D824229E2150A00100EAF /* Assets.xcassets in Resources */,
 				3927357229BD1E820058796A /* Main.storyboard in Resources */,
 				3966633F29DCD24A005727D4 /* AcknowledgementCell.xib in Resources */,
 				3966634529DF321F005727D4 /* EmptyView.xib in Resources */,
