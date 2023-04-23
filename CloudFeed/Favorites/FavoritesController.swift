@@ -18,13 +18,11 @@ class FavoritesController: UIViewController {
     
     private var isInitialFetch = false
     private var isEditMode = false
-    private var selectOcId: [String] = []
-    private var viewerOcId: String? //for scrolling back to correct item after viewing
     
     private var titleView: TitleView?
     private var layout: CollectionLayout?
-    private var metadatas: [tableMetadata] = []
-    private var dataSource: UICollectionViewDiffableDataSource<Int, String>!
+
+    private var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -33,31 +31,25 @@ class FavoritesController: UIViewController {
     
     override func viewDidLoad() {
         collectionView.isHidden = true
+        collectionView.delegate = self
+        collectionView.allowsMultipleSelection = false
+        
         emptyView.isHidden = false
         
         navigationController?.isNavigationBarHidden = true
-        
-        collectionView.delegate = self
         
         initEmptyView()
         initCollectionViewLayout()
         initCollectionViewCell()
         initTitleView()
         
-        dataSource = UICollectionViewDiffableDataSource<Int, String>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, ocId: String) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
             Task {
-                await self.setImage(ocId: ocId, cell: cell, indexPath: indexPath)
+                await self.setImage(metadata: metadata, cell: cell, indexPath: indexPath)
             }
             return cell
         }
-        
-        /*var snapshot = dataSource.snapshot()
-        snapshot.appendSections([0])
-        
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: false)
-        }*/
         
         initialFetch()
     }
@@ -65,7 +57,8 @@ class FavoritesController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         Self.logger.debug("viewWillAppear()")
         
-        if metadatas.count == 0 {
+        //if metadatas.count == 0 {
+        if collectionView.numberOfSections == 0 || collectionView.numberOfItems(inSection: 0) == 0 {
             initialFetch()
         } else if !isInitialFetch {
             metadataFetch()
@@ -81,7 +74,10 @@ class FavoritesController: UIViewController {
     }
     
     public func clear() {
-        metadatas = []
+        //metadatas = []
+        var snapshot = dataSource.snapshot()
+        snapshot.deleteAllItems()
+        dataSource.applySnapshotUsingReloadData(snapshot)
     }
     
     private func initCollectionViewCell() {
@@ -118,36 +114,22 @@ class FavoritesController: UIViewController {
         
         let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
         guard let indexPath = visibleIndexes?.first else { return }
-        guard indexPath.item < metadatas.count else { return }
-        
-        //let metadata = metadatas[indexPath.item]
-        let metadata = findMetadata(indexPath: indexPath)
+
+        let metadata = dataSource.itemIdentifier(for: indexPath)
         guard metadata != nil else { return }
         titleView?.title.text = StoreUtility.getFormattedDate(metadata!.date as Date)
     }
 
-    private func setImage(ocId: String, cell: CollectionViewCell, indexPath: IndexPath) async {
+    private func setImage(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath) async {
         
         Self.logger.debug("setImage() - indexPath: \(indexPath)")
         
-        /*guard self.metadatas.count > 0 && indexPath.item < self.metadatas.count else { return }
-
-        let metadata = self.metadatas[indexPath.item]
+        //let metadata = findMetadata(indexPath: indexPath)
         
-        Self.logger.debug("setImage() - indexPath: \(indexPath) ocId: \(metadata.ocId)")
+        //guard metadata != nil else { return }
         
-        //right ocid is coming through but wrong item from index path??
-        if metadata.ocId != ocId {
-            Self.logger.error("setImage() - WRONG METADATA! \(metadata.ocId) \(ocId)")
-        }*/
-        
-        let metadata = findMetadata(indexPath: indexPath)
-        
-        guard metadata != nil else { return }
-        
-        //TODO: IS OCID THE SAME????
-        //let ocid = metadata!.ocId
-        let etag = metadata!.etag
+        let ocId = metadata.ocId
+        let etag = metadata.etag
         
         if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag)) {
             cell.imageView.image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag))
@@ -157,9 +139,12 @@ class FavoritesController: UIViewController {
             cell.imageView.image = nil
         }
         
+        //collectionView.indexPathsForSelectedItems?.forEach { collectionView.deselectItem(at: $0, animated: false) }
+        
         if isEditMode {
             cell.selectMode(true)
-            if selectOcId.contains(ocId) {
+            //if selectOcId.contains(ocId) {
+            if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
                 //Self.logger.debug("setImage() - select indexpath: \(indexPath)")
                 cell.selected(true)
             } else {
@@ -197,32 +182,10 @@ class FavoritesController: UIViewController {
         
         guard resultMetadatas != nil && resultMetadatas?.count ?? 0 > 0 else { return }
         
-        processMetadata(resultMetadatas: resultMetadatas!)
-        
-        //guard metadatas.count > 0 else { return }
+        let metadatas = processMetadata(resultMetadatas: resultMetadatas!)
         
         Task {
             await refreshDatasource(metadatas: metadatas)
-        }
-    }
-    
-    private func restorePosition() {
-        guard viewerOcId != nil else { return }
-        
-        //let snapshot = dataSource.snapshot()
-        //let ids = snapshot.itemIdentifiers(inSection: 0)
-        
-        //Self.logger.debug("restorePosition() - viewerOcId: \(self.viewerOcId!)")
-        //Self.logger.debug("restorePosition() - ids: \(ids)")
-        
-        guard let indexPath = dataSource.indexPath(for: viewerOcId!) else { return }
-        
-        Self.logger.debug("restorePosition() - indexPath: \(indexPath)")
-        
-        viewerOcId = nil
-        
-        DispatchQueue.main.async {
-            self.collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
         }
     }
     
@@ -237,14 +200,16 @@ class FavoritesController: UIViewController {
     }
     
     private func processResult(resultMetadatas: [tableMetadata]) async {
-        processMetadata(resultMetadatas: resultMetadatas)
+        let metadatas = processMetadata(resultMetadatas: resultMetadatas)
         await processMetadataPage(pageMetadatas: metadatas)
     }
     
-    private func processMetadata(resultMetadatas: [tableMetadata]) {
+    private func processMetadata(resultMetadatas: [tableMetadata]) -> [tableMetadata] {
+        
+        var metadatas : [tableMetadata] = []
+        
         if resultMetadatas.count > 0 {
-            metadatas.removeAll()
-            
+
             //TODO: Allow user to sort?
             let sorted = resultMetadatas.sorted(by: {($0.date as Date) > ($1.date as Date)} )
             
@@ -257,10 +222,12 @@ class FavoritesController: UIViewController {
             }
         }
         
-        Self.logger.debug("processMetadata() - new metadata count: \(self.metadatas.count) result count: \(resultMetadatas.count)")
+        Self.logger.debug("processMetadata() - new metadata count: \(metadatas.count) result count: \(resultMetadatas.count)")
         
-        let idArray = metadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        Self.logger.debug("processMetadata() - metadatas: \(idArray)")
+        //let idArray = metadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
+        //Self.logger.debug("processMetadata() - metadatas: \(idArray)")
+        
+        return metadatas
     }
     
     /*
@@ -329,41 +296,40 @@ class FavoritesController: UIViewController {
     
     private func refreshDatasource(metadatas: [tableMetadata]) async {
         var snapshot = dataSource.snapshot()
+        var delete: [tableMetadata] = []
         
-        let ids = snapshot.itemIdentifiers(inSection: 0)
-        var ocIdDelete: [String] = []
-        
-        for id in ids {
-            let metadata = metadatas.first(where: { $0.ocId == id })
+        for currentMetadata in snapshot.itemIdentifiers(inSection: 0) {
+            let metadata = metadatas.first(where: { $0.ocId == currentMetadata.ocId })
             if (metadata == nil) {
-                ocIdDelete.append(id)
+                delete.append(currentMetadata)
             }
         }
         
-        if ocIdDelete.count > 0 {
-            Self.logger.debug("refreshDatasource() - ocIdDelete: \(ocIdDelete)")
-            snapshot.deleteItems(ocIdDelete)
+        Self.logger.debug("refreshDatasource() - delete count: \(delete.count)")
+        
+        if delete.count > 0 {
+            snapshot.deleteItems(delete)
         }
         
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: true, completion: {
                 Task {
-                    await self.applyDatasourceChanges(metadatas: self.metadatas)
+                    await self.applyDatasourceChanges(metadatas: metadatas)
                 }
             })
         }
     }
     
     private func applyDatasourceChanges(metadatas: [tableMetadata]) async {
-        var ocIdAdd : [String] = []
-        var ocIdUpdate : [String] = []
+        var ocIdAdd : [tableMetadata] = []
+        var ocIdUpdate : [tableMetadata] = []
         var snapshot = dataSource.snapshot()
         
         for metadata in metadatas {
-            if snapshot.indexOfItem(metadata.ocId) == nil {
-                ocIdAdd.append(metadata.ocId)
+            if snapshot.indexOfItem(metadata) == nil {
+                ocIdAdd.append(metadata)
             } else {
-                ocIdUpdate.append(metadata.ocId)
+                ocIdUpdate.append(metadata)
             }
         }
         
@@ -377,26 +343,10 @@ class FavoritesController: UIViewController {
         }
         
         Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd.count) ocIdUpdate: \(ocIdUpdate.count)")
-        Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd)")
-        
-        
-        Self.logger.debug("applyDatasourceChanges() - snapshot: \(snapshot.itemIdentifiers(inSection: 0))")
-        
-        let idArray = metadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        Self.logger.debug("applyDatasourceChanges() - metadatas: \(idArray)")
         
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: true, completion: {
-                
-                Self.logger.debug("applyDatasourceChanges() - snapshot count: \(snapshot.itemIdentifiers(inSection: 0).count)")
-                Self.logger.debug("applyDatasourceChanges() - metadatas count: \(self.metadatas.count)")
-                /*
-                //last batch of applying changes. put the user back to the image they just viewed details of in the collection
-                if (snapshot.itemIdentifiers(inSection: 0).count == self.metadatas.count) {
-                    self.restorePosition()
-                }
-                 */
-                if (snapshot.itemIdentifiers(inSection: 0).count == self.metadatas.count) {
+                if (snapshot.itemIdentifiers(inSection: 0).count == metadatas.count) {
                     self.isInitialFetch = false
                 }
             })
@@ -404,54 +354,58 @@ class FavoritesController: UIViewController {
         }
     }
     
-    private func openViewer(_ metadata: tableMetadata) {
+    private func openViewer(indexPath: IndexPath) {
         
-        guard metadata.classFile == NKCommon.typeClassFile.image.rawValue
-                || metadata.classFile == NKCommon.typeClassFile.audio.rawValue
-                || metadata.classFile == NKCommon.typeClassFile.video.rawValue else { return }
+        let metadata = dataSource.itemIdentifier(for: indexPath)
+        
+        guard metadata != nil && (metadata!.classFile == NKCommon.typeClassFile.image.rawValue
+                || metadata!.classFile == NKCommon.typeClassFile.audio.rawValue
+                || metadata!.classFile == NKCommon.typeClassFile.video.rawValue) else { return }
         
         guard let navigationController = self.navigationController else { return }
         
         let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
         
-        let metadataIndex = metadatas.firstIndex(where: { $0.ocId == metadata.ocId  })
-        if (metadataIndex != nil) {
-            viewerPager.currentIndex = metadataIndex!//Int()
-        }
-
+        viewerPager.currentIndex = indexPath.item
         viewerPager.delegate = self
-        viewerPager.metadatas = metadatas
+        
+        let snapshot = dataSource.snapshot()
+        
+        viewerPager.metadatas = snapshot.itemIdentifiers(inSection: 0)
         navigationController.pushViewController(viewerPager, animated: true)
     }
     
     private func bulkEdit() async {
+        let indexPaths = collectionView.indexPathsForSelectedItems
+        
+        Self.logger.debug("bulkEdit() - indexPaths: \(indexPaths ?? [])")
+        
+        guard indexPaths != nil else { return }
+        
         var snapshot = dataSource.snapshot()
         
-        for ocId in self.selectOcId {
-            let indexes = metadatas.indices.filter { metadatas[$0].ocId == ocId }
+        for indexPath in indexPaths! {
+            let metadata = dataSource.itemIdentifier(for: indexPath)
             
-            if !indexes.isEmpty {
-                let metadata = metadatas[indexes[0]]
-                Self.logger.debug("endEdit() - metadata fileNameView: \(metadata.fileNameView)")
-                
-                let error = await NextcloudService.shared.favoriteMetadata(metadata)
-                if error == .success {
-                    snapshot.deleteItems([ocId])
-                } else {
-                    //TODO: Show the user a single error for all failed
-                    Self.logger.error("endEdit() - ERROR: \(error.errorDescription)")
-                }
+            guard metadata != nil else { continue }
+            
+            let error = await NextcloudService.shared.favoriteMetadata(metadata!)
+            if error == .success {
+                snapshot.deleteItems([metadata!])
+            } else {
+                //TODO: Show the user a single error for all failed
+                Self.logger.error("endEdit() - ERROR: \(error.errorDescription)")
             }
         }
+
+        isEditMode = false
+        collectionView.allowsMultipleSelection = false
         
-        /*snapshot.reloadSections([0])
+        snapshot.reloadSections([0])
+        
         DispatchQueue.main.async {
-            self.isEditMode = false
             self.dataSource.apply(snapshot, animatingDifferences: true)
-        }*/
-        self.isEditMode = false
-        //reloadSection()
-        initialFetch()
+        }
     }
     
     private func reloadSection() {
@@ -464,11 +418,6 @@ class FavoritesController: UIViewController {
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: true)
         }
-    }
-    
-    private func findMetadata(indexPath: IndexPath) -> tableMetadata? {
-        guard let ocId = dataSource.itemIdentifier(for: indexPath) else { return nil }
-        return metadatas.first(where: { $0.ocId == ocId })
     }
 }
 
@@ -489,7 +438,11 @@ extension FavoritesController : MediaController {
     
     func zoomOutGrid() {
         guard layout != nil else { return }
-        guard self.layout!.numberOfColumns + 1 <= metadatas.count else { return }
+        
+        let snapshot = dataSource.snapshot()
+        let count = snapshot.numberOfItems(inSection: 0)
+        
+        guard self.layout!.numberOfColumns + 1 <= count else { return }
 
         if self.layout!.numberOfColumns + 1 < 6 {
             self.layout!.numberOfColumns += 1
@@ -507,12 +460,13 @@ extension FavoritesController : MediaController {
     
     func edit() {
         isEditMode = true
+        collectionView.allowsMultipleSelection = true
         reloadSection()
     }
     
     func endEdit() {
         
-        Self.logger.debug("endEdit() - selectOcId: \(self.selectOcId)")
+        //Self.logger.debug("endEdit() - selectOcId: \(self.selectOcId)")
             
         Task {
             await bulkEdit()
@@ -520,8 +474,12 @@ extension FavoritesController : MediaController {
     }
     
     func cancel() {
-        self.selectOcId = []
+        //self.selectOcId = []
+        
+        collectionView.indexPathsForSelectedItems?.forEach { collectionView.deselectItem(at: $0, animated: false) }
+
         isEditMode = false
+        collectionView.allowsMultipleSelection = false
         reloadSection()
     }
 }
@@ -529,13 +487,8 @@ extension FavoritesController : MediaController {
 extension FavoritesController : CollectionLayoutDelegate {
     
     func collectionView(_ collectionView: UICollectionView, sizeOfPhotoAtIndexPath indexPath: IndexPath) -> CGSize {
-        
-        //TODO: SHOULDN'T NEED TO DO THIS CHECK
-        //guard indexPath.item < self.metadatas.count else { return CGSize(width: 0, height: 0) }
-        
-        //let metadata = self.metadatas[indexPath.item]
-        
-        let metadata = findMetadata(indexPath: indexPath)
+
+        let metadata = dataSource.itemIdentifier(for: indexPath)
         
         guard metadata != nil else { return CGSize(width: 0, height: 0) }
         
@@ -568,57 +521,28 @@ extension FavoritesController: PagerControllerDelegate {
             self.collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
         }*/
         Self.logger.debug("viewerDidFinish() - ocId: \(ocId)")
-        viewerOcId = ocId
+        //viewerOcId = ocId
     }
 }
 
 extension FavoritesController: UICollectionViewDelegate {
-    
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
         Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
-        
-        //let metadata = metadatas[indexPath.item]
-        
-        guard let ocId = dataSource.itemIdentifier(for: indexPath) else { return }
-        
-        //Self.logger.debug("collectionView.didSelectItemAt() - ocId: \(ocId) metadata ocId: \(metadata!.ocId)")
-
         if isEditMode {
-            
-            //Self.logger.debug("collectionView.didSelectItemAt() - selectOcId: \(self.selectOcId)")
-
-            if let index = selectOcId.firstIndex(of: ocId) {
-                selectOcId.remove(at: index)
-            } else {
-                selectOcId.append(ocId)
-            }
-            if indexPath.section < collectionView.numberOfSections && indexPath.row < collectionView.numberOfItems(inSection: indexPath.section) {
-                Self.logger.debug("collectionView.didSelectItemAt() - reloadItems at indexPath: \(indexPath)")
-                Self.logger.debug("collectionView.didSelectItemAt() - selectOcId: \(self.selectOcId)")
-                
-
-                
-                var snapshot = dataSource.snapshot()
-                
-                let ids = snapshot.itemIdentifiers(inSection: 0)
-                Self.logger.debug("collectionView.didSelectItemAt() - ids1: \(ids)")
-                
-                
-                let idArray = metadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-                Self.logger.debug("collectionView.didSelectItemAt() - ids2: \(idArray)")
-
-                //snapshot.reloadItems([metadata.ocId])
-                snapshot.reconfigureItems([ocId])
-                
-                DispatchQueue.main.async {
-                    self.dataSource.apply(snapshot, animatingDifferences: true)
-                }
+            if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
+                cell.selected(true)
             }
         } else {
-            let metadata = findMetadata(indexPath: indexPath)
-            if metadata != nil {
-                openViewer(metadata!)
+            openViewer(indexPath: indexPath)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        Self.logger.debug("collectionView.didDeselectItemAt() - indexPath: \(indexPath)")
+        if isEditMode {
+            if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
+                cell.selected(false)
             }
         }
     }

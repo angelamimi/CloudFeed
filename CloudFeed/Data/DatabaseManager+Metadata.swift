@@ -14,8 +14,10 @@ class tableMetadata: Object {
     
     override func isEqual(_ object: Any?) -> Bool {
         if let object = object as? tableMetadata {
-            return self.fileId == object.fileId && self.account == object.account
-            && self.path == object.path && self.fileName == object.fileName
+            return self.fileId == object.fileId
+                    && self.account == object.account
+                    && self.path == object.path
+                    && self.fileName == object.fileName
         } else {
             return false
         }
@@ -127,8 +129,6 @@ extension DatabaseManager {
         let result = tableMetadata.init(value: metadata)
 
         do {
-            //Self.logger.debug("Realm: \(Realm.Configuration.defaultConfiguration)")
-            
             try realm.write {
                 realm.add(result, update: .all)
             }
