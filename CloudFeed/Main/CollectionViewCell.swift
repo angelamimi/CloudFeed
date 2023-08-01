@@ -25,7 +25,6 @@ class CollectionViewCell: UICollectionViewCell {
     }
     
     override func prepareForReuse() {
-        print("prepareForReuse()")
         imageView.image = nil
         initCell()
     }

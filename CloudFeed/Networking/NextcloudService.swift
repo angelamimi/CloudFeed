@@ -137,30 +137,56 @@ class NextcloudService: NSObject {
         return DatabaseManager.shared.getMetadata(predicate: predicate, sorted: "date", ascending: true)
     }
     
-    func searchMedia(account: String, mediaPath: String, startServerUrl: String, lessDate: Date, greaterDate: Date) async -> (metadatas: [tableMetadata], error: Bool) {
+    func getOldestMetadata() -> tableMetadata? {
+        return DatabaseManager.shared.getOldestMetada()
+    }
+    
+    func paginateMetadata(account: String, startServerUrl: String, greaterDate: Date, lessDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+        return DatabaseManager.shared.paginateMetadata(account: account, startServerUrl: startServerUrl, greaterDate: greaterDate, lessDate: lessDate, offsetDate: offsetDate, offsetName: offsetName)
+    }
+    
+    func searchMedia(account: String, mediaPath: String, startServerUrl: String, lessDate: Date, greaterDate: Date, limit: Int) async -> (metadatas: [tableMetadata], deleteOcIds: [String], error: Bool) {
         
-        let searchResult = await searchMedia(account: account, mediaPath: mediaPath, lessDate: lessDate, greaterDate: greaterDate)
+        let searchResult = await searchMedia(account: account, mediaPath: mediaPath, lessDate: lessDate, greaterDate: greaterDate, limit: limit)
         
         if searchResult.files.count == 0 {
-            return ([], searchResult.error)
+            return ([], [], searchResult.error)
         }
         
         let metadataCollection = await DatabaseManager.shared.convertFilesToMetadatas(searchResult.files, useMetadataFolder: false)
         
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date > %@ AND date < %@", account, startServerUrl, NKCommon.typeClassFile.image.rawValue, NKCommon.typeClassFile.video.rawValue, greaterDate as NSDate, lessDate as NSDate)
         let metadatasResult = DatabaseManager.shared.getMetadatas(predicate: predicate)
+
+        Self.logger.debug("searchMedia() - lessDate:  \(lessDate.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("searchMedia() - greaterDate:  \(greaterDate.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("searchMedia() ----------------------------------")
+        for metadata in metadataCollection.metadatas {
+            Self.logger.debug("searchMedia() - date:  \((metadata.date as Date).formatted(date: .abbreviated, time: .standard)) name: \(metadata.fileNameView)")
+        }
+        Self.logger.debug("searchMedia() ----------------------------------")
+        for metadata in metadatasResult {
+            Self.logger.debug("searchMedia() - date:  \((metadata.date as Date).formatted(date: .abbreviated, time: .standard)) name: \(metadata.fileNameView)")
+        }
         
-        DatabaseManager.shared.processMetadatas(metadataCollection.metadatas, metadatasResult: metadatasResult, addCompareLivePhoto: false)
+        
+        let deleteOcIds = DatabaseManager.shared.processMetadatas(metadataCollection.metadatas, metadatasResult: metadatasResult, addCompareLivePhoto: false)
         
         let metadataPredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", account, startServerUrl, NKCommon.typeClassFile.image.rawValue, NKCommon.typeClassFile.video.rawValue)
-        let metadatas = DatabaseManager.shared.getMetadatasMedia(predicate: metadataPredicate)
         
-        return (metadatas, false)
+        //flag live photo files
+        DatabaseManager.shared.processMetadatasMedia(predicate: metadataPredicate)
+        
+        //filters out mov of the live photo file pair
+        let pagePredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date > %@ AND date < %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false)", account, startServerUrl, NKCommon.typeClassFile.image.rawValue, NKCommon.typeClassFile.video.rawValue, greaterDate as NSDate, lessDate as NSDate, NKCommon.typeClassFile.image.rawValue)
+        let metadatas = DatabaseManager.shared.getMetadatasMediaPage(predicate: pagePredicate)
+        
+        return (metadatas, deleteOcIds, false)
     }
     
-    private func searchMedia(account: String, mediaPath: String, lessDate: Date, greaterDate: Date) async -> (files: [NKFile], error: Bool) {
+    private func searchMedia(account: String, mediaPath: String, lessDate: Date, greaterDate: Date, limit: Int) async -> (files: [NKFile], error: Bool) {
 
-        let limit: Int = 1000
+        let limit: Int = limit
         let options = NKRequestOptions(timeout: 300)
         
         return await withCheckedContinuation { continuation in
@@ -173,7 +199,7 @@ class NextcloudService: NSObject {
                 showHiddenFiles: false,
                 options: options) { responseAccount, files, data, error in
                     
-                    Self.logger.debug("searchMedia() - files count: \(files.count) lessDate: \(lessDate.formatted(date: .abbreviated, time: .omitted)) greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .omitted))")
+                    Self.logger.debug("searchMedia() - files count: \(files.count) lessDate: \(lessDate.formatted(date: .abbreviated, time: .standard)) greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
                     
                     if error == .success && responseAccount == account && files.count > 0 {
                         continuation.resume(returning: (files, false))

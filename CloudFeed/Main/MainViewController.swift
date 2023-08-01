@@ -9,22 +9,20 @@ import NextcloudKit
 import os.log
 import UIKit
 
-class MainViewController: UIViewController, MediaController {
+class MainViewController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
     
     private let loadMoreThreshold = -80.0
     private let groupSize = 2 //thumbnail fetches executed concurrently
-    private let pageSize = 20
-    private var pageIndex = 0
     private var greaterDays = -30
     
-    private var pageOffsets: [Int] = []
+    private var currentPageItemCount = 0
+    private var currentMetadataCount = 0
     
     private let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    private var dataSource: UICollectionViewDiffableDataSource<Int, String>!
-    private var metadatas: [tableMetadata] = []
+    private var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
     private var page: [tableMetadata] = []
     
     private var titleView: TitleView?
@@ -54,20 +52,30 @@ class MainViewController: UIViewController, MediaController {
         
         loadMoreIndicator.stopAnimating()
         
-        dataSource = UICollectionViewDiffableDataSource<Int, String>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, ocId: String) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
             Task {
-                await self.setImage(ocId: ocId, cell: cell, indexPath: indexPath)
+                await self.setImage(metadata: metadata, cell: cell, indexPath: indexPath)
             }
             return cell
         }
+        
+        var snapshot = dataSource.snapshot()
+        snapshot.appendSections([0])
+        dataSource.applySnapshotUsingReloadData(snapshot)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         Self.logger.debug("viewDidAppear()")
-
-        if self.metadatas.count == 0 {
-            initialSearch()
+        
+        let visibleDateRange = getVisibleDateRange()
+        
+        if visibleDateRange.lessDate == nil || visibleDateRange.greaterDate == nil {
+            metadataSearch(offsetDate: Date())
+        } else {
+            guard let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: visibleDateRange.lessDate!) else { return }
+            guard let greaterDate = Calendar.current.date(byAdding: .second, value: -1, to: visibleDateRange.greaterDate!) else { return }
+            sync(lessDate: lessDate, greaterDate: greaterDate)
         }
     }
     
@@ -80,69 +88,24 @@ class MainViewController: UIViewController, MediaController {
     }
     
     public func clear() {
-        metadatas = []
-        pageOffsets = []
+        guard dataSource != nil else { return }
+        var snapshot = dataSource.snapshot()
+        snapshot.deleteAllItems()
+        snapshot.appendSections([0])
+        dataSource.applySnapshotUsingReloadData(snapshot)
         
         greaterDays = -30
-        pageIndex = 0
+        currentPageItemCount = 0
     }
     
-    func updateMetadata(metadata: tableMetadata) {
-        Self.logger.debug("updateMetadata() - favorite? \(metadata.favorite)")
+    @objc func refreshDatasource(refreshControl: UIRefreshControl) {
+        Self.logger.debug("refreshDatasource()")
         
-        let indexCheck = metadatas.firstIndex(where: { $0.ocId == metadata.ocId })
-        if indexCheck != nil {
-            let index = Int(indexCheck!)
-            var snapshot = dataSource.snapshot()
-            
-            metadatas[index].favorite = metadata.favorite
-            
-            let snapshotIndex = snapshot.indexOfItem(metadata.ocId)
-            if snapshotIndex != nil {
-                snapshot.reconfigureItems([metadata.ocId])
-                DispatchQueue.main.async {
-                    self.dataSource.apply(snapshot, animatingDifferences: true)
-                    self.collectionView.isPagingEnabled = false
-                    self.collectionView.scrollToItem(at: IndexPath.init(item: Int(snapshotIndex!), section: 0), at: .centeredVertically, animated: false)
-                }
-            }
-        }
-    }
-    
-    func zoomInGrid() {
-        guard layout != nil else { return }
-        let columns = self.layout?.numberOfColumns ?? 0
+        refreshControl.endRefreshing()
         
-        if columns - 1 > 0 {
-            self.layout?.numberOfColumns -= 1
-        }
-        
-        UIView.animate(withDuration: 0.0, animations: {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-        })
-    }
-    
-    func zoomOutGrid() {
-        guard layout != nil else { return }
-        guard self.layout!.numberOfColumns + 1 <= metadatas.count else { return }
-
-        if self.layout!.numberOfColumns + 1 < 6 {
-            self.layout!.numberOfColumns += 1
-        }
-        
-        UIView.animate(withDuration: 0.0, animations: {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-        })
-    }
-    
-    func titleTouched() {
         clear()
-        initialSearch()
+        metadataSearch(offsetDate: Date())
     }
-    
-    func edit() {}
-    func endEdit() {}
-    func cancel() {}
     
     private func initTitleView() {
         titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
@@ -160,258 +123,269 @@ class MainViewController: UIViewController, MediaController {
         collectionView.collectionViewLayout = layout!
     }
     
-    private func getMediaPath() -> String? {
-        guard let activeAccount = DatabaseManager.shared.getActiveAccount() else { return nil }
-        return activeAccount.mediaPath
-    }
-    
-    private func getStartServerUrl() -> String? {
-        guard let mediaPath = getMediaPath() else { return nil }
-        let startServerUrl = appDelegate.urlBase + "/remote.php/dav/files/" + appDelegate.userId + mediaPath
+    private func metadataSearch(offsetDate: Date) {
+        Self.logger.debug("metadataSearch() - offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
         
-        return startServerUrl
-    }
-    
-    private func initialSearch() {
+        currentMetadataCount = 0
+        greaterDays = -30
         
-        Self.logger.debug("initialSearch()")
+        let lastMetadata = getLastItem()
 
-        var snapshot = dataSource.snapshot()
-        snapshot.deleteAllItems()
-        snapshot.appendSections([0])
-        
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true)
+        var lessDate: Date
+        if lastMetadata == nil {
+            lessDate = offsetDate
+        } else {
+            lessDate = lastMetadata!.date as Date
         }
         
-        guard let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: Date()) else { return }
+        guard let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: lessDate) else { return }
         guard let greaterDate = Calendar.current.date(byAdding: .day, value: greaterDays, to: lessDate) else { return }
         
+        Self.logger.debug("metadataSearch() - lessDate: \(lessDate.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("metadataSearch() - greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
+        
         Task {
-            guard let resultMetadatas = await search(lessDate: lessDate, greaterDate: greaterDate) else { return }
-            await processSearchResult(resultMetadatas: resultMetadatas)
+            let results = await search(lessDate: lessDate, greaterDate: greaterDate, limit: Global.shared.metadataPageSize)
+            await processMetadataSearch(results: results, greaterDate: greaterDate)
+            
+            let resultMetadatas = await paginateMetadata(lessDate: lessDate, greaterDate: greaterDate, offsetDate: nil, offsetName: nil)
+            await processPaginationResult(resultMetadatas: resultMetadatas, lastDate: greaterDate, loadMoreMetadata: false)
         }
     }
     
-    private func loadMore() {
-        loadMoreIndicator.startAnimating()
+    private func paginateMetadata(lessDate: Date, greaterDate: Date, offsetDate: Date?, offsetName: String?) async -> [tableMetadata] {
+        Self.logger.debug("paginateMetadata() - lessDate: \(lessDate.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("paginateMetadata() - greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
         
-        let newPageIndex = pageIndex + 1
+        let startServerUrl = getStartServerUrl()
         
-        if newPageIndex * pageSize < self.metadatas.count {
-            Self.logger.debug("loadMore() - going to next page of index: \(newPageIndex)")
-            
-            pageIndex = newPageIndex
-            
-            Task {
-                Self.logger.debug("loadMore() - call paginateResult pageIndex \(newPageIndex)")
-                await paginateResult(pageIndex: newPageIndex)
-                DispatchQueue.main.async {
-                    self.loadMoreIndicator.stopAnimating()
-                }
-            }
+        guard startServerUrl != nil else { return [] }
+        
+        let resultMetadatas = NextcloudService.shared.paginateMetadata(account: self.appDelegate.account, startServerUrl: startServerUrl!, greaterDate: greaterDate, lessDate: lessDate, offsetDate: offsetDate, offsetName: offsetName)
+        
+        for metadata in resultMetadatas {
+            Self.logger.debug("paginateMetadata() - date: \(metadata.date) fileNameView: \(metadata.fileNameView)")
+        }
+        
+        return resultMetadatas
+    }
+    
+    private func processPaginationResult(resultMetadatas: [tableMetadata], lastDate : Date, loadMoreMetadata: Bool) async {
+        var offsetDate: Date
+        var offsetName: String?
+        
+        currentPageItemCount += resultMetadatas.count
+        
+        if resultMetadatas.count == 0 {
+            offsetDate = lastDate
         } else {
-            Self.logger.debug("loadMore() - no more pages??")
-            let page = getCurrentPage()
-            Self.logger.debug("loadMore() - current page item count: \(page.count)")
-            loadMoreIndicator.stopAnimating()
-        }
-    }
-    
-    private func processSearchResult(resultMetadatas: [tableMetadata]) async {
-        
-        if resultMetadatas.count > 0 {
-            metadatas = resultMetadatas
+            offsetDate = resultMetadatas.last!.date as Date
+            offsetName = resultMetadatas.last!.fileNameView
         }
         
-        Self.logger.debug("processSearchResult() - new metadata count: \(self.metadatas.count) result count: \(resultMetadatas.count)")
+        Self.logger.debug("processPaginationResult() - offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("processPaginationResult() - lastDate: \(lastDate.formatted(date: .abbreviated, time: .standard))")
         
-        //let idArray = metadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        //Self.logger.debug("processSearchResult() - all metadata: \(idArray)")
+        Self.logger.debug("processPaginationResult() - resultMetadatas count: \(resultMetadatas.count) currentPageItemCount: \(self.currentPageItemCount)")
         
-        let page = getCurrentPage()
-        
-        if page.count < pageSize {
+        if currentPageItemCount < Global.shared.pageSize {
             //not enough to fill a page. display what currently have.
-            await processMetadataPage(pageMetadatas: metadatas)
+            await paginate(pageMetadatas: resultMetadatas)
             
-            //search again with different date range
-            let searchDates = calculateSearchDates()
+            let searchDates = calculateSearchDates(lessDate: offsetDate)
             
             if (searchDates.lessDate != nil && searchDates.greaterDate != nil) {
-                guard let resultMetadatas = await search(lessDate: searchDates.lessDate!, greaterDate: searchDates.greaterDate!) else { return }
-                await processSearchResult(resultMetadatas: resultMetadatas)
-            }
-
-        } else {
-            Self.logger.debug("processSearchResult() - call paginateResult pageIndex \(self.pageIndex) metadata count: \(self.metadatas.count)")
-
-            await paginateResult(pageIndex: self.pageIndex)
-        }
-    }
-    
-    private func calculateSearchDates() -> (lessDate: Date?, greaterDate: Date?) {
-        greaterDays = greaterDays - 30
-        
-        Self.logger.error("calculateSearchDates() - greaterDays: \(self.greaterDays)")
-        
-        if greaterDays >= -120 {
-            if greaterDays == -120 {
-                greaterDays = -999 //go all the way back in time
-            } else if greaterDays == -999 {
-                return (nil, nil) //gone as far back in time as possible. no more valid date ranges to return
-            }
-            
-            guard let startServerUrl = getStartServerUrl() else { return (nil, nil) }
-            let metadataLast = NextcloudService.shared.getMetadata(account: appDelegate.account, startServerUrl: startServerUrl)
-            let lessDate = metadataLast != nil ? metadataLast!.date as Date : Date()
-            var greaterDate: Date
-            
-            if (greaterDays == -999) {
-                greaterDate = Date.distantPast
+                
+                let resultMetadatas = await paginateMetadata(lessDate: searchDates.lessDate!, greaterDate: searchDates.greaterDate!, offsetDate: offsetDate, offsetName: offsetName)
+                await processPaginationResult(resultMetadatas: resultMetadatas, lastDate: searchDates.greaterDate!, loadMoreMetadata: loadMoreMetadata)
             } else {
-                greaterDate = Calendar.current.date(byAdding: .day, value: greaterDays, to:lessDate)!
+                //can't go any further back. display, reset pagination, and perform metadata search
+                currentPageItemCount = 0
+                greaterDays = 0
+                
+                await paginate(pageMetadatas: resultMetadatas)
+                
+                if loadMoreMetadata {
+                    Self.logger.debug("processPaginationResult() - GONE AS FAR BACK AS POSSIBLE. METADATA FETCH")
+                    metadataSearch(offsetDate: offsetDate)
+                }
             }
             
-            Self.logger.debug("calculateSearchDates() - lessDate: \(lessDate.formatted(date: .abbreviated, time: .omitted)) greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .omitted))")
-            return (lessDate, greaterDate)
+        } else {
+            //have a full page. display and reset pagination
+            currentPageItemCount = 0
+            greaterDays = 0
+            
+            await paginate(pageMetadatas: resultMetadatas)
+        }
+    }
+    
+    private func getLastItem() -> tableMetadata? {
+        let snapshot = dataSource.snapshot()
+        if (snapshot.numberOfItems(inSection: 0) > 0) {
+            let metadata = snapshot.itemIdentifiers(inSection: 0).last
+            Self.logger.debug("getLastItem() - date: \(metadata?.date) name: \(metadata?.fileNameView ?? "")")
+            return metadata
         }
         
-        return (nil, nil)
+        return nil
     }
     
-    private func getCurrentPage() -> [tableMetadata] {
-        
-        var page: [tableMetadata] = []
-        
-        guard metadatas.count > 0 else { return page }
-        
-        let pageStartIndex = pageIndex * pageSize
-        let pageEndIndex = min(pageStartIndex + (pageSize - 1), metadatas.count - 1)
-        
-        //grab a slice of 10 based on page index
-        page.append(contentsOf: metadatas[pageStartIndex...pageEndIndex])
-        
-        return page
-    }
-    
-    private func setTitle() {
-
-        titleView?.title.text = ""
-        
+    private func getFirstVisibleItem() -> tableMetadata? {
         let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-        guard let indexPath = visibleIndexes?.first else { return }
-        guard indexPath.item < metadatas.count else { return }
+        let first = visibleIndexes?.first
         
-        let metadata = metadatas[indexPath.item]
-        titleView?.title.text = StoreUtility.getFormattedDate(metadata.date as Date)
+        if first != nil {
+            let metadata = dataSource.itemIdentifier(for: first!)
+            Self.logger.debug("getFirstVisibleItem() - first indexpath: \(first!)")
+            Self.logger.debug("getFirstVisibleItem() - date: \(metadata?.date) name: \(metadata?.fileNameView ?? "")")
+            return metadata
+        }
+        
+        return nil
     }
     
-    private func search(lessDate: Date, greaterDate: Date) async -> [tableMetadata]? {
+    private func sync(lessDate: Date, greaterDate: Date) {
+        Task {
+            let results = await search(lessDate: lessDate, greaterDate: greaterDate, limit: Global.shared.pageSize)
+            guard results.metadatas != nil else { return }
+            processSync(metadatas: results.metadatas!, deleteOcIds: results.deleteOcIds)
+        }
+    }
+    
+    private func processSync(metadatas: [tableMetadata], deleteOcIds: [String]) {
+        var snapshot = dataSource.snapshot()
+        var delete: [tableMetadata] = []
+        
+        for currentMetadata in snapshot.itemIdentifiers(inSection: 0) {
+            if deleteOcIds.contains(currentMetadata.ocId) {
+                delete.append(currentMetadata)
+            }
+        }
+        
+        Self.logger.debug("processSync() - delete count: \(delete.count)")
+        
+        if delete.count > 0 {
+            snapshot.deleteItems(delete)
+        }
+        
+        DispatchQueue.main.async {
+            self.dataSource.apply(snapshot, animatingDifferences: true, completion: {
+                self.applyDatasourceChanges(metadatas: metadatas, sync: true)
+            })
+        }
+    }
+    
+    private func search(lessDate: Date, greaterDate: Date, limit: Int) async -> (metadatas: [tableMetadata]?, deleteOcIds: [String]) {
         
         //TODO: SHOW INDICATOR
         
         let mediaPath = getMediaPath()
         let startServerUrl = getStartServerUrl()
         
-        guard mediaPath != nil && startServerUrl != nil else { return nil }
+        guard mediaPath != nil && startServerUrl != nil else { return (nil, []) }
         
-        Self.logger.debug("search() - lessDate: \(lessDate.formatted(date: .abbreviated, time: .omitted)) greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .omitted))")
-        let result = await NextcloudService.shared.searchMedia(account: self.appDelegate.account, mediaPath: mediaPath!, startServerUrl: startServerUrl!, lessDate: lessDate, greaterDate: greaterDate)
+        Self.logger.debug("search() - greaterDays: \(self.greaterDays) lessDate: \(lessDate.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("search() - greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
+        let result = await NextcloudService.shared.searchMedia(account: self.appDelegate.account, mediaPath: mediaPath!, startServerUrl: startServerUrl!, lessDate: lessDate, greaterDate: greaterDate, limit: limit)
         
         Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
         
         guard result.error == false else {
             Self.logger.error("search() - error") //TODO: Alert user of error?
             //TODO: HIDE INDICATOR
-            return nil
+            return (nil, [])
         }
         
         let sorted = result.metadatas.sorted(by: {($0.date as Date) > ($1.date as Date)} )
         
-        cleanup(result: sorted)
-        
-        let idArray = sorted.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        Self.logger.debug("search() - sorted: \(idArray)")
-        
-        return sorted
-    }
-    
-    private func cleanup(result: [tableMetadata]) {
-        guard result.count > 0 else { return }
-        
-        var snapshot = dataSource.snapshot()
-        let ids = snapshot.itemIdentifiers(inSection: 0)
-        var deleteIds: [String] = []
-        
-        for id in ids {
-            Self.logger.debug("ID: \(id)")
-            let metadata = result.first(where: { $0.ocId == id })
-            if (metadata == nil) {
-                deleteIds.append(id)
-            }
+        for metadata in sorted {
+            Self.logger.debug("search() - date: \(metadata.date) fileNameView: \(metadata.fileNameView)")
         }
         
-        if deleteIds.count > 0 {
-            Self.logger.debug("cleanup() - deleteIds: \(deleteIds)")
-            snapshot.deleteItems(deleteIds)
-            dataSource.apply(snapshot, animatingDifferences: false)
-        }
+        //let idArray = sorted.map({ (metadata: tableMetadata) -> String in metadata.ocId })
+        //Self.logger.debug("search() - sorted: \(idArray)")
         
+        return (sorted, result.deleteOcIds)
     }
     
-    private func paginateResult(pageIndex: Int) async {
+    private func processMetadataSearch(results: (metadatas: [tableMetadata]?, deleteOcIds: [String]), greaterDate: Date) async {
         
-        let page = getCurrentPage()
-        await processMetadataPage(pageMetadatas: page)
+        var lessDate: Date
+        let resultMetadatas: [tableMetadata] = results.metadatas == nil ? [] : results.metadatas!
         
-        if page.count < pageSize {
-            Self.logger.debug("paginateResult() - search again??? page count: \(page.count)")
-            
-            //TODO: May need to reset search days
-            
-            //search again with different date range
-            let searchDates = calculateSearchDates()
-            
-            if (searchDates.lessDate != nil && searchDates.greaterDate != nil) {
-                guard let resultMetadatas = await search(lessDate: searchDates.lessDate!, greaterDate: searchDates.greaterDate!) else { return }
-                await finishPage(currentPage: page, resultMetadatas: resultMetadatas)
-                //await processSearchResult(resultMetadatas: resultMetadatas)
-            }
+        currentMetadataCount += resultMetadatas.count
+        
+        if resultMetadatas.count == 0 {
+            lessDate = Calendar.current.date(byAdding: .second, value: 1, to: greaterDate)!
         } else {
-            Self.logger.debug("paginateResult() - page count: \(page.count)")
-        }
-    }
-    
-    private func finishPage(currentPage: [tableMetadata], resultMetadatas: [tableMetadata]) async {
-        
-        if resultMetadatas.count > 0 {
-            metadatas = resultMetadatas
+            lessDate = Calendar.current.date(byAdding: .second, value: 1, to: (resultMetadatas.last!.date as Date))!
         }
         
-        let need = pageSize - currentPage.count
-        let page = getCurrentPage()
+        Self.logger.debug("processMetadataSearch() - lessDate: \(lessDate.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("processMetadataSearch() - greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
         
-        let idArray = page.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        Self.logger.debug("finishPage() - page: \(idArray)")
+        Self.logger.debug("processMetadataSearch() - resultMetadatas count: \(resultMetadatas.count) currentMetadataCount: \(self.currentMetadataCount)")
+        
+        if currentMetadataCount < Global.shared.metadataPageSize {
+            //not enough to fill a page. keep searching and collecting metadata
+            let searchDates = calculateSearchDates(lessDate: lessDate)
 
-        Self.logger.debug("finishPage() - need: \(need) current page count: \(currentPage.count) page count: \(page.count) result count: \(resultMetadatas.count)")
-        
-        if page.count < pageSize {
-            //search again
-            Self.logger.debug("finishPage() - search again??")
+            if (searchDates.lessDate != nil && searchDates.greaterDate != nil) {
+                let results = await search(lessDate: searchDates.lessDate!, greaterDate: searchDates.greaterDate!, limit: Global.shared.metadataPageSize)
+                await processMetadataSearch(results: results, greaterDate: searchDates.greaterDate!)
+            } else {
+                //gone as far back as possible. reset search
+                currentMetadataCount = 0
+                greaterDays = 0
+                
+                Self.logger.debug("processMetadataSearch() - no search dates. done.")
+            }
         } else {
-            Self.logger.debug("finishPage() - finish rest of page")
-            //have enough to fill the rest of the current page
-            //await processMetadataPage(pageMetadatas: Array(resultMetadatas[0...need - 1]))
-            await processMetadataPage(pageMetadatas: page)
+            //have enough to stop searching. reset search
+            currentMetadataCount = 0
+            greaterDays = 0
+            
+            Self.logger.debug("processMetadataSearch() - full page. done.")
         }
+    }
+    
+    private func calculateSearchDates(lessDate: Date) -> (lessDate: Date?, greaterDate: Date?) {
+        
+        greaterDays = greaterDays - 30
+        
+        Self.logger.error("calculateSearchDates() -----------------------")
+        Self.logger.error("calculateSearchDates() - greaterDays: \(self.greaterDays)")
+        
+        if greaterDays >= -120{
+            if greaterDays == -120 {
+                greaterDays = -999 //go all the way back in time
+            } else if greaterDays <= -999 {
+                return (nil, nil) //gone as far back in time as possible. no more valid date ranges to return
+            }
+            
+            var greaterDate: Date
+            
+            if (greaterDays == -999) {
+                greaterDate = Date.distantPast
+            } else {
+                //greaterDate = Calendar.current.date(byAdding: .day, value: greaterDays, to:lessDate)!
+                greaterDate = Calendar.current.date(byAdding: .day, value: greaterDays, to: lessDate)!
+            }
+            
+            Self.logger.debug("calculateSearchDates() - lessDate: \(lessDate.formatted(date: .abbreviated, time: .standard))")
+            Self.logger.debug("calculateSearchDates() - greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
+            
+            return (lessDate, greaterDate)
+        }
+        
+        return (nil, nil)
     }
     
     /*
      Divides the current page of results into groups of fetch preview tasks to be executed concurrently
      */
-    private func processMetadataPage(pageMetadatas: [tableMetadata]) async {
+    private func paginate(pageMetadatas: [tableMetadata]) async {
         
         guard pageMetadatas.count > 0 else { return }
         
@@ -463,26 +437,29 @@ class MainViewController: UIViewController, MediaController {
         })
     }
     
-    private func applyDatasourceChanges(metadatas: [tableMetadata]) {
-        var ocIdAdd : [String] = []
-        var ocIdUpdate : [String] = []
+    private func applyDatasourceChanges(metadatas: [tableMetadata], sync: Bool = false) {
+        var ocIdAdd : [tableMetadata] = []
+        var ocIdUpdate : [tableMetadata] = []
         var snapshot = dataSource.snapshot()
         
         for metadata in metadatas {
-            if snapshot.indexOfItem(metadata.ocId) == nil {
-                ocIdAdd.append(metadata.ocId)
+            if snapshot.indexOfItem(metadata) == nil {
+                ocIdAdd.append(metadata)
             } else {
-                ocIdUpdate.append(metadata.ocId)
+                ocIdUpdate.append(metadata)
             }
         }
         
         Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd.count) ocIdUpdate: \(ocIdUpdate.count)")
-        Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd)")
-        
-        //TODO: Handle removing elements
+        //Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd)")
         
         if ocIdAdd.count > 0 {
-            snapshot.appendItems(ocIdAdd, toSection: 0)
+            
+            if sync == false {
+                snapshot.appendItems(ocIdAdd, toSection: 0)
+            } else {
+                insertItems(metadatas: ocIdAdd)
+            }
         }
         
         if ocIdUpdate.count > 0 {
@@ -495,11 +472,25 @@ class MainViewController: UIViewController, MediaController {
         }
     }
     
-    private func setImage(ocId: String, cell: CollectionViewCell, indexPath: IndexPath) async {
+    private func insertItems(metadatas: [tableMetadata]) {
+        Task {
+            await executeGroup(metadatas: metadatas)
+            insertItemsAfterVisible(metadatas: metadatas)
+        }
+    }
+    
+    private func insertItemsAfterVisible(metadatas: [tableMetadata]) {
+        guard let first = getFirstVisibleItem() else { return }
         
-        guard self.metadatas.count > 0 && indexPath.item < self.metadatas.count else { return }
+        var snapshot = dataSource.snapshot()
+        snapshot.insertItems(metadatas, afterItem: first)
         
-        let metadata = self.metadatas[indexPath.item]
+        DispatchQueue.main.async {
+            self.dataSource.apply(snapshot, animatingDifferences: true)
+        }
+    }
+    
+    private func setImage(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath) async {
         
         if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
             cell.imageView.image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
@@ -509,46 +500,132 @@ class MainViewController: UIViewController, MediaController {
         }
     }
     
-    @objc func refreshDatasource(refreshControl: UIRefreshControl) {
-        Self.logger.debug("refreshDatasource()")
+    private func loadMore() {
         
-        refreshControl.endRefreshing()
+        var offsetDate: Date?
+        var offsetName: String?
         
-        clear()
-        initialSearch()
+        let snapshot = dataSource.snapshot()
+        if (snapshot.numberOfItems(inSection: 0) > 0) {
+            let metadata = snapshot.itemIdentifiers(inSection: 0).last
+            if metadata != nil {
+                offsetDate = metadata!.date as Date
+                offsetName = metadata!.fileNameView
+                
+                Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard)) offsetName: \(offsetName!)")
+            }
+        }
+        
+        guard offsetName != nil && offsetDate != nil else { return }
+        
+        loadMoreIndicator.startAnimating()
+        
+        currentPageItemCount = 0
+        greaterDays = -30
+        
+        guard let greaterDate = Calendar.current.date(byAdding: .day, value: greaterDays, to: offsetDate!) else { return }
+        
+        Self.logger.debug("loadMore() - lessDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("loadMore() - greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
+        
+        Task {
+            let resultMetadatas = await paginateMetadata(lessDate: offsetDate!, greaterDate: greaterDate, offsetDate: offsetDate, offsetName: offsetName)
+            Self.logger.debug("loadMore() - resultMetadatas count: \(resultMetadatas.count)")
+            
+            await processPaginationResult(resultMetadatas: resultMetadatas, lastDate: greaterDate, loadMoreMetadata: true)
+            
+            loadMoreIndicator.stopAnimating()
+        }
     }
     
-    func openViewer(_ metadata: tableMetadata) {
+    private func openViewer(indexPath: IndexPath) {
         
-        guard metadata.classFile == NKCommon.typeClassFile.image.rawValue
-                || metadata.classFile == NKCommon.typeClassFile.audio.rawValue
-                || metadata.classFile == NKCommon.typeClassFile.video.rawValue else { return }
+        let metadata = dataSource.itemIdentifier(for: indexPath)
+        
+        guard metadata != nil && (metadata!.classFile == NKCommon.typeClassFile.image.rawValue
+                || metadata!.classFile == NKCommon.typeClassFile.audio.rawValue
+                || metadata!.classFile == NKCommon.typeClassFile.video.rawValue) else { return }
         
         guard let navigationController = self.navigationController else { return }
         
         let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
         
-        let metadataIndex = metadatas.firstIndex(where: { $0.ocId == metadata.ocId  })
-        if (metadataIndex != nil) {
-            viewerPager.currentIndex = metadataIndex!//Int()
-        }
-
-        viewerPager.metadatas = metadatas
+        viewerPager.currentIndex = indexPath.item
+        
+        let snapshot = dataSource.snapshot()
+        
+        viewerPager.metadatas = snapshot.itemIdentifiers(inSection: 0)
         navigationController.pushViewController(viewerPager, animated: true)
+    }
+    
+    private func getMediaPath() -> String? {
+        guard let activeAccount = DatabaseManager.shared.getActiveAccount() else { return nil }
+        return activeAccount.mediaPath
+    }
+    
+    private func getStartServerUrl() -> String? {
+        guard let mediaPath = getMediaPath() else { return nil }
+        let startServerUrl = appDelegate.urlBase + "/remote.php/dav/files/" + appDelegate.userId + mediaPath
+        
+        return startServerUrl
+    }
+    
+    private func currentItemCount() -> Int {
+        let snapshot = dataSource.snapshot()
+        return snapshot.numberOfItems(inSection: 0)
+    }
+    
+    private func setTitle() {
+
+        titleView?.title.text = ""
+        
+        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+        guard let indexPath = visibleIndexes?.first else { return }
+
+        let metadata = dataSource.itemIdentifier(for: indexPath)
+        guard metadata != nil else { return }
+        titleView?.title.text = StoreUtility.getFormattedDate(metadata!.date as Date)
+    }
+    
+    private func getVisibleDateRange() -> (lessDate: Date?, greaterDate: Date?) {
+        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+        let first = visibleIndexes?.first
+        let last = visibleIndexes?.last
+        
+        if first == nil || last == nil {
+            Self.logger.debug("getVisibleDateRange() - no visible items")
+        } else {
+
+            let firstMetadata = dataSource.itemIdentifier(for: first!)
+            let lastMetadata = dataSource.itemIdentifier(for: last!)
+            
+            if firstMetadata == nil || lastMetadata == nil {
+                Self.logger.debug("getVisibleDateRange() - missing metadata")
+            } else {
+                Self.logger.debug("getVisibleDateRange() - \(firstMetadata!.date) \(lastMetadata!.date)")
+                return (firstMetadata!.date as Date, lastMetadata!.date as Date)
+            }
+        }
+        
+        return (nil, nil)
     }
 }
 
 extension MainViewController : CollectionLayoutDelegate {
     
     func collectionView(_ collectionView: UICollectionView, sizeOfPhotoAtIndexPath indexPath: IndexPath) -> CGSize {
-        let metadata = self.metadatas[indexPath.item]
-        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
-            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
+
+        let metadata = dataSource.itemIdentifier(for: indexPath)
+        
+        guard metadata != nil else { return CGSize(width: 0, height: 0) }
+        
+        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata!.ocId, etag: metadata!.etag)) {
+            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata!.ocId, etag: metadata!.etag))
             if image != nil {
                 return image!.size
             }
         }  else {
-            Self.logger.debug("sizeOfPhotoAtIndexPath - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata.ocId)")
+            Self.logger.debug("sizeOfPhotoAtIndexPath - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata!.ocId)")
         }
         
         return CGSize(width: 0, height: 0)
@@ -576,11 +653,49 @@ extension MainViewController : UIScrollViewDelegate {
 extension MainViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
         Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
-        
-        let metadata = metadatas[indexPath.row]
-        openViewer(metadata)
+        openViewer(indexPath: indexPath)
     }
 }
 
+extension MainViewController: MediaController {
+    
+    func zoomInGrid() {
+        guard layout != nil else { return }
+        let columns = self.layout?.numberOfColumns ?? 0
+        
+        if columns - 1 > 0 {
+            self.layout?.numberOfColumns -= 1
+        }
+        
+        UIView.animate(withDuration: 0.0, animations: {
+            self.collectionView.collectionViewLayout.invalidateLayout()
+        })
+    }
+    
+    func zoomOutGrid() {
+        guard layout != nil else { return }
+        
+        let snapshot = dataSource.snapshot()
+        let count = snapshot.numberOfItems(inSection: 0)
+        
+        guard self.layout!.numberOfColumns + 1 <= count else { return }
+
+        if self.layout!.numberOfColumns + 1 < 6 {
+            self.layout!.numberOfColumns += 1
+        }
+        
+        UIView.animate(withDuration: 0.0, animations: {
+            self.collectionView.collectionViewLayout.invalidateLayout()
+        })
+    }
+    
+    func titleTouched() {
+        clear()
+        metadataSearch(offsetDate: Date())
+    }
+    
+    func edit() {}
+    func endEdit() {}
+    func cancel() {}
+}

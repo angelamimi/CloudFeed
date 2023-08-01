@@ -57,5 +57,10 @@ class Global: NSObject {
     
     // MARK: - Error
     //
-    let errorNotModified: Int                 = 304
+    let errorNotModified: Int = 304
+    
+    // MARK: - Search
+    //
+    let pageSize: Int         = 20
+    let metadataPageSize: Int = 100
 }

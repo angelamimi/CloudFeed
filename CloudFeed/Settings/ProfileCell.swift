@@ -19,9 +19,13 @@ class ProfileCell: UITableViewCell {
         
         profileBackground.layer.cornerRadius = 20
         profileBackground.layer.masksToBounds = true
+        profileBackground.layer.borderColor = UIColor.label.cgColor
+        profileBackground.layer.borderWidth = 1
         
-        profileImageView.layer.cornerRadius = 20
+        profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
         profileImageView.layer.masksToBounds = true
+        profileImageView.layer.borderColor = UIColor.label.cgColor
+        profileImageView.layer.borderWidth = 1
     }
 
     func updateProfileImage(_ image: UIImage) {

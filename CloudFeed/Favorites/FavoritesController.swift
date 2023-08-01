@@ -74,7 +74,7 @@ class FavoritesController: UIViewController {
     }
     
     public func clear() {
-        //metadatas = []
+        guard dataSource != nil else { return }
         var snapshot = dataSource.snapshot()
         snapshot.deleteAllItems()
         dataSource.applySnapshotUsingReloadData(snapshot)
@@ -358,7 +358,6 @@ class FavoritesController: UIViewController {
         let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
         
         viewerPager.currentIndex = indexPath.item
-        viewerPager.delegate = self
         
         let snapshot = dataSource.snapshot()
         
@@ -500,19 +499,6 @@ extension FavoritesController : UIScrollViewDelegate {
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         setTitle()
-    }
-}
-
-extension FavoritesController: PagerControllerDelegate {
-    
-    func viewerDidFinish(ocId: String) {
-        /*guard let indexPath = dataSource.indexPath(for: ocId) else { return }
-        Self.logger.debug("viewerDidFinish() - indexPath: \(indexPath)")
-        DispatchQueue.main.async {
-            self.collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
-        }*/
-        Self.logger.debug("viewerDidFinish() - ocId: \(ocId)")
-        //viewerOcId = ocId
     }
 }
 
