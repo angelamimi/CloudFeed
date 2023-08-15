@@ -54,23 +54,24 @@ class DetailController: UIViewController {
     private func appendData(data: NSMutableDictionary) {
         guard metadata != nil else { return }
         details.append(MetadataDetail(title: "Name", detail: metadata!.fileNameView))
+        details.append(MetadataDetail(title: "Date", detail: (metadata!.date as Date).formatted(date: .abbreviated, time: .standard)))
+                       
+        //Self.logger.debug("appendData() - date: \(self.metadata?.date)")
+        //Self.logger.debug("appendData() - uploadDate: \(self.metadata?.uploadDate)")
+        //Self.logger.debug("appendData() - creationDate: \(self.metadata?.creationDate)")
         
         if let dateTaken = data[kCGImagePropertyExifDateTimeOriginal] {
             if let dateString = dateTaken as? String {
                 
-                Self.logger.debug("appendData() - \(dateString)")
+                //Self.logger.debug("appendData() - date taken: \(dateString)")
                 
                 let dateFormatterGet = DateFormatter()
-                let dateFormatterPrint = DateFormatter()
-                
                 dateFormatterGet.dateFormat = "yyyy:MM:dd:HH:mm:ss"
-                dateFormatterPrint.dateFormat = "yyyy-MM-dd HH:mm:ss"
                 
                 if let date = dateFormatterGet.date(from: dateString) {
-                    //print(dateFormatterPrint.string(from: date))
-                    details.append(MetadataDetail(title: "Date Taken", detail: dateFormatterPrint.string(from: date)))
+                    details.append(MetadataDetail(title: "Date", detail: date.formatted(date: .abbreviated, time: .standard)))
                 } else {
-                   print("There was an error decoding the string")
+                    Self.logger.error("Error decoding date taken string")
                 }
             }
         }

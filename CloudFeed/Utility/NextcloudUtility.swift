@@ -133,39 +133,7 @@ class NextcloudUtility: NSObject {
         
         return nil
     }
-    
-    func loadUserImage(for user: String, userBaseUrl: String) -> UIImage {
-        
-        let fileName = userBaseUrl + "-" + user + ".png"
-        let localFilePath = String(StoreUtility.getDirectoryUserData()) + "/" + fileName
 
-        if let localImage = UIImage(contentsOfFile: localFilePath) {
-            Self.logger.debug("loadUserImage() - \(localImage.size.width),\(localImage.size.height)")
-            return createAvatar(image: localImage, size: 150)
-        } else if let loadedAvatar = DatabaseManager.shared.getAvatarImage(fileName: fileName) {
-            Self.logger.debug("loadUserImage() - loadedAvatar")
-            return loadedAvatar
-        } else {
-            Self.logger.debug("loadUserImage() - crop circle")
-            let config = UIImage.SymbolConfiguration(pointSize: 30)
-            return NextcloudUtility.shared.loadImage(named: "person.crop.circle", symbolConfiguration: config)
-        }
-    }
-    
-    func createAvatar(image: UIImage, size: CGFloat) -> UIImage {
-
-        var avatarImage = image
-        let rect = CGRect(x: 0, y: 0, width: size, height: size)
-
-        UIGraphicsBeginImageContextWithOptions(rect.size, false, 3.0)
-        UIBezierPath(roundedRect: rect, cornerRadius: rect.size.height).addClip()
-        avatarImage.draw(in: rect)
-        avatarImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
-        UIGraphicsEndImageContext()
-
-        return avatarImage
-    }
-    
     func getUserBaseUrl(_ account: tableAccount) -> String {
         return account.user + "-" + (URL(string: account.urlBase)?.host ?? "")
     }
@@ -174,19 +142,11 @@ class NextcloudUtility: NSObject {
 
         var image: UIImage?
 
-        // see https://stackoverflow.com/questions/71764255
-        let sfSymbolName = imageName.replacingOccurrences(of: "_", with: ".")
         if let symbolConfiguration = symbolConfiguration {
-            image = UIImage(systemName: sfSymbolName, withConfiguration: symbolConfiguration as? UIImage.Configuration)?.withTintColor(color, renderingMode: .alwaysOriginal)
+            image = UIImage(systemName: imageName, withConfiguration: symbolConfiguration as? UIImage.Configuration)?.withTintColor(color, renderingMode: .alwaysOriginal)
         } else {
-            image = UIImage(systemName: sfSymbolName)?.withTintColor(color, renderingMode: .alwaysOriginal)
+            image = UIImage(systemName: imageName)?.withTintColor(color, renderingMode: .alwaysOriginal)
         }
-        /*if image == nil {
-            image = UIImage(named: imageName)?.image(color: color, size: size)
-        }
-        if let image = image {
-            return image
-        }*/
 
         if image == nil {
             return UIImage(systemName: "rectangle.slash")!.image(color: color, size: size)

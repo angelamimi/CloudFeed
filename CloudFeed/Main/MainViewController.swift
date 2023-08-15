@@ -9,10 +9,14 @@ import NextcloudKit
 import os.log
 import UIKit
 
-class MainViewController: UIViewController {
+class MainViewController: UIViewController, DataViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var emptyView: EmptyView!
+    
+    private var dataService: DataService?
     
     private let loadMoreThreshold = -80.0
     private let groupSize = 2 //thumbnail fetches executed concurrently
@@ -34,6 +38,10 @@ class MainViewController: UIViewController {
         category: String(describing: MainViewController.self)
     )
     
+    func setDataService(service: DataService) {
+        dataService = service
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -45,6 +53,7 @@ class MainViewController: UIViewController {
         
         initCollectionViewLayout()
         initTitleView()
+        initEmptyView()
         
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshDatasource), for: .valueChanged)
@@ -123,6 +132,14 @@ class MainViewController: UIViewController {
         collectionView.collectionViewLayout = layout!
     }
     
+    private func initEmptyView() {
+        let configuration = UIImage.SymbolConfiguration(pointSize: 48)
+        let image = UIImage(systemName: "photo", withConfiguration: configuration)
+        
+        emptyView.display(image: image, title: "No media yet", description: "Your photos and videos will show up here")
+    }
+    
+    
     private func metadataSearch(offsetDate: Date) {
         Self.logger.debug("metadataSearch() - offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
         
@@ -161,13 +178,13 @@ class MainViewController: UIViewController {
         
         guard startServerUrl != nil else { return [] }
         
-        let resultMetadatas = NextcloudService.shared.paginateMetadata(account: self.appDelegate.account, startServerUrl: startServerUrl!, greaterDate: greaterDate, lessDate: lessDate, offsetDate: offsetDate, offsetName: offsetName)
+        let resultMetadatas = dataService?.paginateMetadata(account: self.appDelegate.account, startServerUrl: startServerUrl!, greaterDate: greaterDate, lessDate: lessDate, offsetDate: offsetDate, offsetName: offsetName)
         
-        for metadata in resultMetadatas {
+        for metadata in resultMetadatas! {
             Self.logger.debug("paginateMetadata() - date: \(metadata.date) fileNameView: \(metadata.fileNameView)")
         }
         
-        return resultMetadatas
+        return resultMetadatas!
     }
     
     private func processPaginationResult(resultMetadatas: [tableMetadata], lastDate : Date, loadMoreMetadata: Bool) async {
@@ -278,7 +295,7 @@ class MainViewController: UIViewController {
     
     private func search(lessDate: Date, greaterDate: Date, limit: Int) async -> (metadatas: [tableMetadata]?, deleteOcIds: [String]) {
         
-        //TODO: SHOW INDICATOR
+        startActivityIndicator()
         
         let mediaPath = getMediaPath()
         let startServerUrl = getStartServerUrl()
@@ -287,13 +304,16 @@ class MainViewController: UIViewController {
         
         Self.logger.debug("search() - greaterDays: \(self.greaterDays) lessDate: \(lessDate.formatted(date: .abbreviated, time: .standard))")
         Self.logger.debug("search() - greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
-        let result = await NextcloudService.shared.searchMedia(account: self.appDelegate.account, mediaPath: mediaPath!, startServerUrl: startServerUrl!, lessDate: lessDate, greaterDate: greaterDate, limit: limit)
+        let searchResult = await dataService?.searchMedia(account: self.appDelegate.account, mediaPath: mediaPath!, startServerUrl: startServerUrl!, lessDate: lessDate, greaterDate: greaterDate, limit: limit)
+        
+        stopActivityIndicator()
+        
+        guard let result = searchResult else { return (nil, []) }
         
         Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
         
         guard result.error == false else {
             Self.logger.error("search() - error") //TODO: Alert user of error?
-            //TODO: HIDE INDICATOR
             return (nil, [])
         }
         
@@ -310,15 +330,38 @@ class MainViewController: UIViewController {
     }
     
     private func processMetadataSearch(results: (metadatas: [tableMetadata]?, deleteOcIds: [String]), greaterDate: Date) async {
+        let displayCount = collectionView.numberOfItems(inSection: 0)
+        
+        guard let resultMetadatas = results.metadatas else {
+            
+            if displayCount == 0 {
+                collectionView.isHidden = true
+                emptyView.isHidden = false
+                titleView?.hideMenu()
+                setTitle()
+            }
+            
+            showLoadfailedError()
+            return
+        }
+        
+        titleView?.showMenu()
         
         var lessDate: Date
-        let resultMetadatas: [tableMetadata] = results.metadatas == nil ? [] : results.metadatas!
+        //let resultMetadatas: [tableMetadata] = results.metadatas == nil ? [] : results.metadatas!
         
         currentMetadataCount += resultMetadatas.count
         
         if resultMetadatas.count == 0 {
+            if displayCount == 0 {
+                collectionView.isHidden = true
+                emptyView.isHidden = false
+            }
+            
             lessDate = Calendar.current.date(byAdding: .second, value: 1, to: greaterDate)!
         } else {
+            collectionView.isHidden = false
+            emptyView.isHidden = true
             lessDate = Calendar.current.date(byAdding: .second, value: 1, to: (resultMetadatas.last!.date as Date))!
         }
         
@@ -425,12 +468,12 @@ class MainViewController: UIViewController {
                     //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType) fileExtension: \(metadata.fileExtension)")
                     //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                     if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
-                        await NextcloudService.shared.downloadVideoPreview(metadata: metadata)
+                        await self.dataService?.downloadVideoPreview(metadata: metadata)
                     } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
-                        //NextcloudService.shared.downloadSVGPreview(metadata: metadata)
+                        //TODO: Implement svg fetch. Need a library that works.
                     } else {
                         //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType)")
-                        await NextcloudService.shared.downloadPreview(metadata: metadata)
+                        await self.dataService?.downloadPreview(metadata: metadata)
                     }
                 }
             }
@@ -550,6 +593,7 @@ class MainViewController: UIViewController {
         
         let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
         
+        viewerPager.setDataService(service: dataService!)
         viewerPager.currentIndex = indexPath.item
         
         let snapshot = dataSource.snapshot()
@@ -559,7 +603,7 @@ class MainViewController: UIViewController {
     }
     
     private func getMediaPath() -> String? {
-        guard let activeAccount = DatabaseManager.shared.getActiveAccount() else { return nil }
+        guard let activeAccount = dataService?.getActiveAccount() else { return nil }
         return activeAccount.mediaPath
     }
     
@@ -608,6 +652,24 @@ class MainViewController: UIViewController {
         }
         
         return (nil, nil)
+    }
+    
+    private func showLoadfailedError() {
+        let alertController = UIAlertController(title: "Error", message: "Failed to load media.", preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
+            self.navigationController?.popViewController(animated: true)
+        }))
+        
+        self.present(alertController, animated: true)
+    }
+    
+    private func startActivityIndicator() {
+        activityIndicator.startAnimating()
+    }
+    
+    private func stopActivityIndicator() {
+        activityIndicator.stopAnimating()
     }
 }
 

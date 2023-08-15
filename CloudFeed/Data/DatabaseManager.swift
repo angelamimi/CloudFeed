@@ -12,11 +12,7 @@ import SwiftyJSON
 import UIKit
 
 class DatabaseManager: NSObject {
-    static let shared: DatabaseManager = {
-        let instance = DatabaseManager()
-        return instance
-    }()
-    
+
     private static let logger = Logger(
             subsystem: Bundle.main.bundleIdentifier!,
             category: String(describing: DatabaseManager.self)
@@ -78,7 +74,7 @@ class DatabaseManager: NSObject {
     
     // MARK: -
     // MARK: Capabilities
-    func addCapabilitiesJSon(_ data: Data, account: String) {
+    func addCapabilitiesJSon(account: String, data: Data) {
         
         let realm = try! Realm()
         
@@ -187,7 +183,6 @@ class DatabaseManager: NSObject {
         
         self.clearTable(tableAvatar.self)
         self.clearTable(tableCapabilities.self, account: account)
-        //self.clearTable(tableDirectory.self, account: account)
         self.clearTable(tableLocalFile.self, account: account)
         self.clearTable(tableMetadata.self, account: account)
         

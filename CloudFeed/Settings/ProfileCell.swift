@@ -28,8 +28,16 @@ class ProfileCell: UITableViewCell {
         profileImageView.layer.borderWidth = 1
     }
 
-    func updateProfileImage(_ image: UIImage) {
-        profileImageView.image = image
+    func updateProfileImage(_ image: UIImage?) {
+        if image == nil {
+            let configuration = UIImage.SymbolConfiguration(pointSize: 40, weight: .ultraLight)
+            let sysImage = UIImage(systemName: "person.crop.circle.fill", withConfiguration: configuration)?.withTintColor(.label, renderingMode: .alwaysOriginal)
+            profileImageView.image = sysImage
+            profileImageView.layer.borderWidth = 0
+            profileImageView.layer.cornerRadius = 0
+        } else {
+            profileImageView.image = image
+        }
     }
     
     func updateProfile(_ email: String, fullName name: String) {

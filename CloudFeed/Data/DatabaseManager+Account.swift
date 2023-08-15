@@ -90,7 +90,7 @@ extension DatabaseManager {
     }
     
     @discardableResult
-    func setAccountActive(_ account: String) -> tableAccount? {
+    func setActiveAccount(_ account: String) -> tableAccount? {
 
         let realm = try! Realm()
         var accountReturn = tableAccount()

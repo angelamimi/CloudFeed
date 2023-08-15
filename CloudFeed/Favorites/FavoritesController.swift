@@ -4,19 +4,20 @@
 //
 //  Created by Angela Jarosz on 4/1/23.
 //
-
 import NextcloudKit
 import os.log
 import UIKit
 
-class FavoritesController: UIViewController {
-    
+class FavoritesController: UIViewController, DataViewController {
+
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var emptyView: EmptyView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
+    private var dataService: DataService?
     
     private let groupSize = 2 //thumbnail fetches executed concurrently
     
-    private var isInitialFetch = false
     private var isEditMode = false
     
     private var titleView: TitleView?
@@ -28,6 +29,10 @@ class FavoritesController: UIViewController {
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: FavoritesController.self)
     )
+    
+    func setDataService(service: DataService) {
+        dataService = service
+    }
     
     override func viewDidLoad() {
         collectionView.isHidden = true
@@ -50,17 +55,18 @@ class FavoritesController: UIViewController {
             }
             return cell
         }
-        
-        initialFetch()
+
+        var snapshot = dataSource.snapshot()
+        snapshot.appendSections([0])
+        dataSource.applySnapshotUsingReloadData(snapshot)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         Self.logger.debug("viewWillAppear()")
         
-        //if metadatas.count == 0 {
         if collectionView.numberOfSections == 0 || collectionView.numberOfItems(inSection: 0) == 0 {
             initialFetch()
-        } else if !isInitialFetch {
+        } else {
             metadataFetch()
         }
     }
@@ -77,6 +83,7 @@ class FavoritesController: UIViewController {
         guard dataSource != nil else { return }
         var snapshot = dataSource.snapshot()
         snapshot.deleteAllItems()
+        snapshot.appendSections([0])
         dataSource.applySnapshotUsingReloadData(snapshot)
     }
     
@@ -106,6 +113,16 @@ class FavoritesController: UIViewController {
         
         titleView?.mediaView = self
         titleView?.initMenu(allowEdit: true)
+    }
+    
+    private func startActivityIndicator() {
+        activityIndicator.startAnimating()
+        self.view.isUserInteractionEnabled = false
+    }
+    
+    private func stopActivityIndicator() {
+        activityIndicator.stopAnimating()
+        self.view.isUserInteractionEnabled = true
     }
     
     private func setTitle() {
@@ -151,25 +168,23 @@ class FavoritesController: UIViewController {
         
         Self.logger.debug("initialFetch()")
         
-        isInitialFetch = true
-        
-        var snapshot = dataSource.snapshot()
-        snapshot.deleteAllItems()
-        snapshot.appendSections([0])
-        
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: false)
-        }
+        startActivityIndicator()
         
         Task {
-            guard let resultMetadatas = await getFavorites() else { return }
+            let resultMetadatas = await getFavorites()
+            stopActivityIndicator()
             await processResult(resultMetadatas: resultMetadatas)
         }
     }
     
     private func metadataFetch() {
+        
+        startActivityIndicator()
+        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let resultMetadatas = NextcloudService.shared.getFavoriteMetadatas(account: appDelegate.account)
+        let resultMetadatas = dataService?.getFavoriteMetadatas(account: appDelegate.account)
+        
+        stopActivityIndicator()
         
         guard resultMetadatas != nil && resultMetadatas?.count ?? 0 > 0 else { return }
         
@@ -183,14 +198,21 @@ class FavoritesController: UIViewController {
     private func getFavorites() async -> [tableMetadata]? {
 
         Self.logger.debug("getFavorites()")
-        let resultMetadatas = await NextcloudService.shared.getFavorites()
+        let resultMetadatas = await dataService?.getFavorites()
         
         Self.logger.debug("getFavorites() - resultMetadatas count: \(resultMetadatas == nil ? -1 : resultMetadatas!.count)")
         
         return resultMetadatas
     }
     
-    private func processResult(resultMetadatas: [tableMetadata]) async {
+    private func processResult(resultMetadatas: [tableMetadata]?) async {
+        
+        guard let resultMetadatas = resultMetadatas else {
+            showLoadfailedError()
+            titleView?.hideMenu()
+            return
+        }
+        
         let metadatas = processMetadata(resultMetadatas: resultMetadatas)
         await processMetadataPage(pageMetadatas: metadatas)
     }
@@ -228,13 +250,15 @@ class FavoritesController: UIViewController {
         if pageMetadatas.count == 0 {
             collectionView.isHidden = true
             emptyView.isHidden = false
-            
+            setTitle()
+            titleView?.hideMenu()
             return
             
             //TODO: Clear the collectionview?
         } else {
             collectionView.isHidden = false
             emptyView.isHidden = true
+            titleView?.showMenu()
         }
         
         var groupMetadata: [tableMetadata] = []
@@ -273,12 +297,12 @@ class FavoritesController: UIViewController {
                     //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType) fileExtension: \(metadata.fileExtension)")
                     //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                     if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
-                        await NextcloudService.shared.downloadVideoPreview(metadata: metadata)
+                        await self.dataService?.downloadVideoPreview(metadata: metadata)
                     } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
-                        //NextcloudService.shared.downloadSVGPreview(metadata: metadata)
+                        //TODO: Implement svg fetch. Need a library that works.
                     } else {
                         //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType)")
-                        await NextcloudService.shared.downloadPreview(metadata: metadata)
+                        await self.dataService?.downloadPreview(metadata: metadata)
                     }
                 }
             }
@@ -336,11 +360,7 @@ class FavoritesController: UIViewController {
         Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd.count) ocIdUpdate: \(ocIdUpdate.count)")
         
         DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true, completion: {
-                if (snapshot.itemIdentifiers(inSection: 0).count == metadatas.count) {
-                    self.isInitialFetch = false
-                }
-            })
+            self.dataSource.apply(snapshot, animatingDifferences: true)
             self.setTitle()
         }
     }
@@ -357,6 +377,7 @@ class FavoritesController: UIViewController {
         
         let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
         
+        viewerPager.setDataService(service: dataService!)
         viewerPager.currentIndex = indexPath.item
         
         let snapshot = dataSource.snapshot()
@@ -379,12 +400,12 @@ class FavoritesController: UIViewController {
             
             guard metadata != nil else { continue }
             
-            let error = await NextcloudService.shared.favoriteMetadata(metadata!)
+            let error = await dataService?.favoriteMetadata(metadata!)
             if error == .success {
                 snapshot.deleteItems([metadata!])
             } else {
                 //TODO: Show the user a single error for all failed
-                Self.logger.error("bulkEdit() - ERROR: \(error.errorDescription)")
+                Self.logger.error("bulkEdit() - ERROR: \(error?.errorDescription ?? "")")
             }
         }
 
@@ -395,6 +416,11 @@ class FavoritesController: UIViewController {
         
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: true)
+            self.setTitle()
+            if self.collectionView.numberOfItems(inSection: 0) == 0 {
+                self.collectionView.isHidden = true
+                self.emptyView.isHidden = false
+            }
         }
     }
     
@@ -408,6 +434,16 @@ class FavoritesController: UIViewController {
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: true)
         }
+    }
+    
+    private func showLoadfailedError() {
+        let alertController = UIAlertController(title: "Error", message: "Failed to load Favorites.", preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
+            self.navigationController?.popViewController(animated: true)
+        }))
+        
+        self.present(alertController, animated: true)
     }
 }
 

@@ -4,7 +4,7 @@
 //
 //  Created by Angela Jarosz on 3/12/23.
 //
-
+import KTVHTTPCache
 import NextcloudKit
 import os.log
 import UIKit
@@ -12,14 +12,16 @@ import WebKit
 
 class LoginWebController: UIViewController, WKNavigationDelegate {
     
-    let webLoginAutenticationProtocol: String = "nc://"
-    var urlBase: String?// = "https://cloud.angelamimi.com"
+    private let dataService : DataService
     
-    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    private let webLoginAutenticationProtocol: String = "nc://"
+    private var urlBase: String?// = "https://cloud.angelamimi.com"
     
-    var configServerUrl: String?
-    var configUsername: String?
-    var configPassword: String?
+    private let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    
+    private var configServerUrl: String?
+    private var configUsername: String?
+    private var configPassword: String?
     
     private static let logger = Logger(
             subsystem: Bundle.main.bundleIdentifier!,
@@ -28,6 +30,16 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
     
     @IBOutlet weak var mWebKitView: WKWebView!
     
+    @available(*, unavailable, renamed: "init(dataService:coder:)")
+    required init?(coder: NSCoder) {
+      fatalError("init(coder:) is not implemented")
+    }
+
+    init?(dataService: DataService, coder: NSCoder) {
+      self.dataService = dataService
+      super.init(coder: coder)
+    }
+
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -171,26 +183,48 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
 
         let account: String = "\(username) \(urlBase)"
 
-        if DatabaseManager.shared.getAccounts() == nil {
+        if dataService.getAccounts() == nil {
             
-            SettingsUtility.shared.initSettings()
+            initSettings()
             
             Self.logger.debug("createAccount() - removeAllSettings???")
         }
 
         // Add new account
-        DatabaseManager.shared.deleteAccount(account)
-        DatabaseManager.shared.addAccount(account, urlBase: urlBase, user: username, password: password)
+        dataService.deleteAccount(account)
+        dataService.addAccount(account, urlBase: urlBase, user: username, password: password)
 
-        guard let tableAccount = DatabaseManager.shared.setAccountActive(account) else {
+        guard let tableAccount = dataService.setActiveAccount(account) else {
             showInitFailedPrompt()
             return
         }
         
-        appDelegate.activateServiceForAccount(account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
+        appDelegate.activateServiceForAccount(dataService: dataService, account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
 
-        appDelegate.launchApp()
+        appDelegate.launchApp(dataService: dataService)
      }
+    
+    private func initSettings() {
+        
+        URLCache.shared.memoryCapacity = 0
+        URLCache.shared.diskCapacity = 0
+        KTVHTTPCache.cacheDeleteAllCaches()
+
+        dataService.clearDatabase(account: nil, removeAccount: true)
+
+        //StoreUtility.removeGroupDirectoryProviderStorage()
+        //StoreUtility.removeGroupLibraryDirectory()
+
+        //TODO: Causes database to fail. account isn't found eventhough was added
+        //StoreUtility.removeDocumentsDirectory()
+        
+        
+        //StoreUtility.removeTemporaryDirectory()
+
+        StoreUtility.initStorage()
+
+        //StoreUtility.deleteAllChainStore()
+    }
     
     private func showInitFailedPrompt() {
         let alertController = UIAlertController(title: "Error", message: "Initialization failed. Please try again.", preferredStyle: .alert)

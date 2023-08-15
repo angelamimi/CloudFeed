@@ -52,6 +52,14 @@ class TitleView: UIView {
         title.addGestureRecognizer(guestureRecognizer)
     }
     
+    func hideMenu() {
+        menuButton.isHidden = true
+    }
+    
+    func showMenu() {
+        menuButton.isHidden = false
+    }
+    
     func initMenu(allowEdit: Bool) {
         
         let zoomIn = UIAction(title: "Zoom In", image: UIImage(systemName: "plus.magnifyingglass")) { action in

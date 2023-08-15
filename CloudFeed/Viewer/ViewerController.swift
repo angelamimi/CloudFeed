@@ -12,12 +12,14 @@ import NextcloudKit
 import SVGKit
 import os.log
 
-class ViewerController: UIViewController {
+class ViewerController: UIViewController, DataViewController {
     
     @IBOutlet weak var statusImageView: UIImageView!
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var statusContainerView: UIView!
+    
+    private var dataService: DataService!
     
     var player: AVPlayer?
     var metadata: tableMetadata = tableMetadata()
@@ -34,10 +36,14 @@ class ViewerController: UIViewController {
         category: String(describing: ViewerController.self)
     )
     
+    func setDataService(service: DataService) {
+        dataService = service
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if DatabaseManager.shared.getMetadataLivePhoto(metadata: metadata) != nil {
+        if dataService.getMetadataLivePhoto(metadata: metadata) != nil {
             statusImageView.image = NextcloudUtility.shared.loadImage(named: "livephoto", color: .label)
             statusLabel.text = "LIVE"
             statusContainerView.isHidden = false
@@ -228,7 +234,7 @@ class ViewerController: UIViewController {
     }
     
     private func reloadImage() {
-        if let metadata = DatabaseManager.shared.getMetadataFromOcId(metadata.ocId) {
+        if let metadata = dataService.getMetadataFromOcId(metadata.ocId) {
             self.metadata = metadata
             loadImage(metadata: metadata)
         }
@@ -243,15 +249,19 @@ class ViewerController: UIViewController {
             
             if metadata.livePhoto {
                 let fileName = (metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-                if let metadata = DatabaseManager.shared.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", metadata.account, metadata.serverUrl, fileName)), !StoreUtility.fileProviderStorageExists(metadata) {
-                    NextcloudService.shared.download(metadata: metadata, selector: "") { _, _ in }
+                if let metadata = dataService.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", metadata.account, metadata.serverUrl, fileName)), !StoreUtility.fileProviderStorageExists(metadata) {
+                    Task {
+                        await dataService.download(metadata: metadata, selector: "")
+                    }
                 }
             }
             
-            NextcloudService.shared.download(metadata: metadata, selector: "") { _, _ in
+            Task {
+                await dataService.download(metadata: metadata, selector: "")
+                
                 let image = getImageMetadata(metadata)
+                
                 if self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
-                    //self.image = image
                     self.imageView.image = image
                 }
             }
@@ -260,7 +270,6 @@ class ViewerController: UIViewController {
         // Get image
         let image = getImageMetadata(metadata)
         if self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
-            //self.image = image
             self.imageView.image = image
         }
         

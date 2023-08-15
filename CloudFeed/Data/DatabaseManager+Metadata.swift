@@ -216,20 +216,6 @@ extension DatabaseManager {
         return tableMetadata.init(value: result)
     }
     
-    func getOldestMetada() -> tableMetadata? {
-        
-        let realm = try! Realm()
-        realm.refresh()
-        
-        let sortProperties = [SortDescriptor(keyPath: "serverUrl", ascending: false),
-                              SortDescriptor(keyPath:  "date", ascending: false),
-                              SortDescriptor(keyPath:  "fileNameView", ascending: false)]
-        
-        guard let result = realm.objects(tableMetadata.self).sorted(by: sortProperties).last else { return nil }
-        
-        return tableMetadata.init(value: result)
-    }
-    
     func getMetadatas(predicate: NSPredicate) -> [tableMetadata] {
 
         let realm = try! Realm()

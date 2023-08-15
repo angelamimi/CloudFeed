@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Lm0-tT-B5g">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Lm0-tT-B5g">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -13,20 +14,22 @@
             <objects>
                 <viewController storyboardIdentifier="LoginServerController" id="l5S-b9-HY7" customClass="LoginServerController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="rAn-vz-zlk">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="749"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="5lc-xR-qdM">
-                                <rect key="frame" x="25" y="398" width="344" height="34"/>
+                                <rect key="frame" x="24.666666666666657" y="449" width="344" height="34"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="344" id="L3U-N4-DGy"/>
                                     <constraint firstAttribute="height" constant="34" id="St5-Oj-wP6"/>
                                 </constraints>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="URL" returnKeyType="go" smartDashesType="no" smartQuotesType="no" textContentType="url"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FS8-r7-fs8">
-                                <rect key="frame" x="318.66666666666669" y="439.66666666666663" width="50" height="34"/>
+                                <rect key="frame" x="318.66666666666669" y="491" width="50" height="34"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="50" id="6O0-CM-FUe"/>
                                     <constraint firstAttribute="height" constant="34" id="x53-LG-c6e"/>
@@ -38,7 +41,7 @@
                                 </connections>
                             </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchTitle" translatesAutoresizingMaskIntoConstraints="NO" id="FMb-SM-BA9">
-                                <rect key="frame" x="76.666666666666686" y="181.66666666666669" width="240" height="216"/>
+                                <rect key="frame" x="76.666666666666686" y="233" width="240" height="216"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="240" id="DPY-f3-gT5"/>
                                     <constraint firstAttribute="height" constant="216" id="M6y-Ld-ZlE"/>
@@ -114,9 +117,6 @@
                         </textAttributes>
                     </navigationBar>
                     <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="l5S-b9-HY7" kind="relationship" relationship="rootViewController" id="FXq-yx-jyE"/>
-                    </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Eta-pV-gkG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -124,7 +124,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="LaunchTitle" width="353.66665649414062" height="258.33334350585938"/>
+        <image name="LaunchTitle" width="1061" height="775"/>
         <systemColor name="labelColor">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

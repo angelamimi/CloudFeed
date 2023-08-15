@@ -10,12 +10,13 @@ import NextcloudKit
 import MediaPlayer
 import os.log
 
-class PagerController: UIViewController, MediaController {
+class PagerController: UIViewController, MediaController, DataViewController {
     
     var currentIndex = 0
     var nextIndex: Int?
     var metadatas: [tableMetadata] = []
     
+    private var dataService: DataService?
     private weak var titleView: TitleView?
     
     weak var pageViewController: UIPageViewController? {
@@ -30,6 +31,10 @@ class PagerController: UIViewController, MediaController {
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: PagerController.self)
     )
+    
+    func setDataService(service: DataService) {
+        dataService = service
+    }
     
     override func viewSafeAreaInsetsDidChange() {
         titleView?.translatesAutoresizingMaskIntoConstraints = false
@@ -111,14 +116,14 @@ class PagerController: UIViewController, MediaController {
         let metadata = metadatas[currentIndex]
         
         Task {
-            let error = await NextcloudService.shared.favoriteMetadata(metadata)
+            let error = await dataService?.favoriteMetadata(metadata)
             if error == .success {
                 Self.logger.error("toggleFavoriteNetwork() - isFavorite: \(isFavorite)")
                 metadatas[currentIndex].favorite = isFavorite
                 self.setFavoriteMenu(isFavorite: isFavorite)
             } else {
                 //TODO: Show the user an error
-                Self.logger.error("toggleFavoriteNetwork() - ERROR: \(error.errorDescription)")
+                Self.logger.error("toggleFavoriteNetwork() - ERROR: \(error?.errorDescription ?? "")")
             }
         }
     }
@@ -129,6 +134,7 @@ class PagerController: UIViewController, MediaController {
         viewerMedia.index = index
         viewerMedia.metadata = metadata
         viewerMedia.pager = self
+        viewerMedia.setDataService(service: dataService!)
         
         return viewerMedia
     }
@@ -189,7 +195,7 @@ extension PagerController: UIGestureRecognizerDelegate {
             currentViewController.updateViewConstraints()
             
             let fileName = (currentViewController.metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-            if let metadata = DatabaseManager.shared.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", currentViewController.metadata.account, currentViewController.metadata.serverUrl, fileName)), StoreUtility.fileProviderStorageExists(metadata) {
+            if let metadata = dataService?.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", currentViewController.metadata.account, currentViewController.metadata.serverUrl, fileName)), StoreUtility.fileProviderStorageExists(metadata) {
                 
                 AudioServicesPlaySystemSound(1519) // peek feedback
                 let urlVideo = getVideoURL(metadata: metadata)

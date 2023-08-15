@@ -16,7 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var urlBase: String = ""
     var user: String = ""
     var userId: String = ""
-    var password: String = ""
 
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -34,24 +33,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func onApplicationStart() {
         
-        if let activeAccount = DatabaseManager.shared.getActiveAccount() {
+        let nextcloudService = NextcloudKitService()
+        let databaseManager = DatabaseManager()
+        let dataService = DataService(nextcloudService: nextcloudService, databaseManager: databaseManager)
+        
+        if let activeAccount = dataService.getActiveAccount() {
             NKCommon.shared.writeLog("Active Account: \(activeAccount.account)")
             
             if StoreUtility.getPassword(activeAccount.account).isEmpty {
                 NKCommon.shared.writeLog("[ERROR] PASSWORD NOT FOUND for \(activeAccount.account)")
             }
             
-            activateServiceForAccount(activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId, password: StoreUtility.getPassword(activeAccount.account))
+            activateServiceForAccount(dataService: dataService, account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId, password: StoreUtility.getPassword(activeAccount.account))
+            
+            
+            guard let scene = UIApplication.shared.connectedScenes.first,
+                    let sceneDeleate = scene.delegate as? SceneDelegate else {
+                return
+            }
+            
+            let tabBarController = sceneDeleate.window?.rootViewController as! UITabBarController
+            
+            inject(dataService, tabBarController: tabBarController)
         }
         
         Self.logger.debug("onApplicationStart() - account: \(self.account)")
         
         if self.account == "" {
-            displayLogin()
+            displayLogin(dataService: dataService)
         }
     }
     
-    func launchApp() {
+    func launchApp(dataService: DataService) {
         guard let scene = UIApplication.shared.connectedScenes.first,
               let sceneDeleate = scene.delegate as? SceneDelegate else {
             return
@@ -59,13 +72,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         Self.logger.debug("launchApp()")
         
-        let viewController = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController()
+        //TODO: REFACTOR! Test casting to tab bar controller and dependency injection
+        let controller = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! UITabBarController
         
-        sceneDeleate.window?.rootViewController = viewController
+        inject(dataService, tabBarController: controller)
+        
+        sceneDeleate.window?.rootViewController = controller
         sceneDeleate.window?.makeKeyAndVisible()
     }
     
-    func activateServiceForAccount(_ account: String, urlBase: String, user: String, userId: String, password: String) {
+    private func inject(_ dataService: DataService, tabBarController : UITabBarController) {
+        if tabBarController.viewControllers != nil {
+            for tab in tabBarController.viewControllers! {
+                if tab is UINavigationController {
+                    let dataViewController = (tab as! UINavigationController).viewControllers[0] as? DataViewController
+                    dataViewController?.setDataService(service: dataService)
+                }
+            }
+        }
+    }
+    
+    func activateServiceForAccount(dataService: DataService, account: String, urlBase: String, user: String, userId: String, password: String) {
         
         let currentAccount = self.account + "/" + self.userId
         let testAccount = account +  "/" + userId
@@ -74,24 +101,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.urlBase = urlBase
         self.user = user
         self.userId = userId
-        self.password = password
         
         Self.logger.debug("activateAccount() - account: \(account) urlBase: \(urlBase) user \(user) userId \(userId)")
         
-        DispatchQueue.main.async{
-            if UIApplication.shared.applicationState != .background && currentAccount != testAccount {
-                NextcloudService.shared.initService(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
+        /*if UIApplication.shared.applicationState != .background && currentAccount != testAccount {
+            DispatchQueue.main.async{
+                dataService.initServices(account: account, user: user, userId: userId, password: password, urlBase: urlBase)
             }
+        }*/
+        
+        if currentAccount != testAccount {
+            dataService.initServices(account: account, user: user, userId: userId, password: password, urlBase: urlBase)
         }
     }
     
-    private func displayLogin() {
+    private func displayLogin(dataService: DataService) {
         
         Self.logger.debug("displayLogin()")
         
         //TODO: TEST LOGIN ON DEVICE. CLOSE AND REOPEN.
-        let loginController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController()
-        showViewController(loginController)
+        
+        let navController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController()
+        
+        let loginServerController = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(
+            identifier: "LoginServerController",
+            creator: { coder in
+                LoginServerController(dataService: dataService, coder: coder)
+            }
+        )
+        
+        showViewController(navController)
+        navController?.show(loginServerController, sender: nil)
     }
     
     private func showViewController(_ viewController: UIViewController?) {

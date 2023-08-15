@@ -22,7 +22,7 @@ class CollectionLayout: UICollectionViewFlowLayout {
     weak var delegate: CollectionLayoutDelegate!
     
     var numberOfColumns: Int = 4
-    var cellPadding: CGFloat = 3
+    var cellPadding: CGFloat = 4
     
     private var cache = [UICollectionViewLayoutAttributes]()
     

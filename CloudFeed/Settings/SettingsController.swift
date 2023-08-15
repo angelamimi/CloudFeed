@@ -4,26 +4,30 @@
 //
 //  Created by Angela Jarosz on 3/18/23.
 //
-
-import NextcloudKit
 import os.log
 import UIKit
 
-class SettingsController: UIViewController {
+class SettingsController: UIViewController, DataViewController {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
-    var profileName: String = ""
-    var profileEmail: String = ""
-    var profileImage: UIImage?
+    private var dataService: DataService?
     
-    let footerView = FooterView(frame: .zero)
+    private var profileName: String = ""
+    private var profileEmail: String = ""
+    private var profileImage: UIImage?
+    
+    private let footerView = FooterView(frame: .zero)
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: SettingsController.self)
     )
+    
+    func setDataService(service: DataService) {
+        dataService = service
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,20 +77,28 @@ class SettingsController: UIViewController {
         startActivityIndicator()
 
         Task {
-            let result = await NextcloudService.shared.getUserProfile()
-            self.profileName = result.profileDisplayName
-            self.profileEmail = result.profileEmail
+            let result = await dataService?.getUserProfile()
+            self.processProfileResult(profileName:result!.profileDisplayName, profileEmail:result!.profileEmail)
+        }
+    }
+    
+    private func processProfileResult(profileName: String, profileEmail: String) {
+        self.profileName = profileName
+        self.profileEmail = profileEmail
+        
+        DispatchQueue.main.async {
+            self.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .none)
+            self.stopActivityIndicator()
             
-            DispatchQueue.main.async {
-                self.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .none)
-                self.stopActivityIndicator()
+            if profileName == "" && profileEmail == "" {
+                self.showProfileLoadfailedError()
             }
         }
     }
     
     private func requestAvatar() {
         
-        guard let account = DatabaseManager.shared.getActiveAccount() else { return }
+        guard let account = dataService?.getActiveAccount() else { return }
         
         Task {
             await downloadAvatar(account: account)
@@ -97,7 +109,7 @@ class SettingsController: UIViewController {
     private func loadAvatar(account: tableAccount) {
 
         let userBaseUrl = NextcloudUtility.shared.getUserBaseUrl(account)
-        let image = NextcloudUtility.shared.loadUserImage(for: account.userId, userBaseUrl: userBaseUrl)
+        let image = loadUserImage(for: account.userId, userBaseUrl: userBaseUrl)
         
         Self.logger.debug("loadAvatar() - userBaseUrl: \(userBaseUrl)")
         
@@ -108,13 +120,43 @@ class SettingsController: UIViewController {
         }
     }
     
+    private func loadUserImage(for user: String, userBaseUrl: String) -> UIImage? {
+        
+        let fileName = userBaseUrl + "-" + user + ".png"
+        let localFilePath = String(StoreUtility.getDirectoryUserData()) + "/" + fileName
+
+        if let localImage = UIImage(contentsOfFile: localFilePath) {
+            Self.logger.debug("loadUserImage() - \(localImage.size.width),\(localImage.size.height)")
+            return createAvatar(image: localImage, size: 150)
+        } else if let loadedAvatar = dataService?.getAvatarImage(fileName: fileName) {
+            Self.logger.debug("loadUserImage() - loadedAvatar")
+            return loadedAvatar
+        } else {
+            return nil
+        }
+    }
+    
+    private func createAvatar(image: UIImage, size: CGFloat) -> UIImage {
+        
+        var avatarImage = image
+        let rect = CGRect(x: 0, y: 0, width: size, height: size)
+
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, 3.0)
+        UIBezierPath(roundedRect: rect, cornerRadius: rect.size.height).addClip()
+        avatarImage.draw(in: rect)
+        avatarImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
+        UIGraphicsEndImageContext()
+
+        return avatarImage
+    }
+    
     private func downloadAvatar(account: tableAccount) async {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         
         Self.logger.debug("downloadAvatar() - calling downloadAvatar")
         
-        await NextcloudService.shared.downloadAvatar(user: appDelegate.user, account: account)
+        await dataService?.downloadAvatar(user: appDelegate.user, account: account)
     }
     
     private func acknowledgements() {
@@ -144,7 +186,7 @@ class SettingsController: UIViewController {
         
         StoreUtility.deleteAllChainStore()
         
-        DatabaseManager.shared.removeDatabase()
+        dataService?.removeDatabase()
         
         exit(0)
     }
@@ -173,7 +215,7 @@ class SettingsController: UIViewController {
         URLCache.shared.diskCapacity = 0
         URLCache.shared.memoryCapacity = 0
         
-        DatabaseManager.shared.clearDatabase(account: appDelegate.account, removeAccount: false)
+        dataService?.clearDatabase(account: appDelegate.account, removeAccount: false)
         
         StoreUtility.removeGroupDirectoryProviderStorage()
         StoreUtility.removeDirectoryUserData()
@@ -201,6 +243,16 @@ class SettingsController: UIViewController {
         Task {
             await calculateCacheSize()
         }
+    }
+    
+    private func showProfileLoadfailedError() {
+        let alertController = UIAlertController(title: "Error", message: "Failed to load Profile.", preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
+            self.navigationController?.popViewController(animated: true)
+        }))
+        
+        self.present(alertController, animated: true)
     }
 }
 
@@ -241,10 +293,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             
             let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileCell", for: indexPath) as! ProfileCell
             
-            if profileImage != nil {
-                cell.updateProfileImage(profileImage!)
-            }
-            
+            cell.updateProfileImage(profileImage)
             cell.updateProfile(profileEmail, fullName: profileName)
             
             return cell
