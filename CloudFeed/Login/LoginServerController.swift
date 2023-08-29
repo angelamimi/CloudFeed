@@ -16,18 +16,6 @@ class LoginServerController: UIViewController {
         processURL()
     }
     
-    let dataService : DataService
-    
-    @available(*, unavailable, renamed: "init(dataService:coder:)")
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) is not implemented")
-    }
-    
-    init?(dataService: DataService, coder: NSCoder) {
-        self.dataService = dataService
-        super.init(coder: coder)
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(true, animated: false)
     }
@@ -43,12 +31,7 @@ class LoginServerController: UIViewController {
             url = "https://" + url
         }
         
-        let loginController = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(
-            identifier: "LoginWebController",
-            creator: { coder in
-                LoginWebController(dataService: self.dataService, coder: coder)
-            }
-        )
+        let loginController = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(identifier: "LoginWebController") as! LoginWebController
         loginController.setURL(url: url)
         self.navigationController?.pushViewController(loginController, animated: true)
     }

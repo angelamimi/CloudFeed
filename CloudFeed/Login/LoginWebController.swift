@@ -12,8 +12,6 @@ import WebKit
 
 class LoginWebController: UIViewController, WKNavigationDelegate {
     
-    private let dataService : DataService
-    
     private let webLoginAutenticationProtocol: String = "nc://"
     private var urlBase: String?// = "https://cloud.angelamimi.com"
     
@@ -29,16 +27,6 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         )
     
     @IBOutlet weak var mWebKitView: WKWebView!
-    
-    @available(*, unavailable, renamed: "init(dataService:coder:)")
-    required init?(coder: NSCoder) {
-      fatalError("init(coder:) is not implemented")
-    }
-
-    init?(dataService: DataService, coder: NSCoder) {
-      self.dataService = dataService
-      super.init(coder: coder)
-    }
 
     override func viewDidLoad() {
         
@@ -174,6 +162,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         
         Self.logger.debug("createAccount() - server: \(server) username: \(username) password: \(password)")
 
+        let dataService = Environment.current.dataService
         var urlBase = server
 
         // Normalized
@@ -199,10 +188,21 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
             return
         }
         
-        appDelegate.activateServiceForAccount(dataService: dataService, account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
-
-        appDelegate.launchApp(dataService: dataService)
+        //appDelegate.activateServiceForAccount(dataService: dataService, account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
+        Environment.current.initServicesFor(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
+        
+        launchApp()
      }
+    
+    private func launchApp() {
+        
+        guard let scene = UIApplication.shared.connectedScenes.first, let sceneDeleate = scene.delegate as? SceneDelegate else { return }
+        
+        Self.logger.debug("launchApp()")
+
+        sceneDeleate.window?.rootViewController = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController()
+        sceneDeleate.window?.makeKeyAndVisible()
+    }
     
     private func initSettings() {
         
@@ -210,7 +210,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         URLCache.shared.diskCapacity = 0
         KTVHTTPCache.cacheDeleteAllCaches()
 
-        dataService.clearDatabase(account: nil, removeAccount: true)
+        Environment.current.dataService.clearDatabase(account: nil, removeAccount: true)
 
         //StoreUtility.removeGroupDirectoryProviderStorage()
         //StoreUtility.removeGroupLibraryDirectory()

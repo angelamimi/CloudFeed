@@ -10,13 +10,12 @@ import NextcloudKit
 import MediaPlayer
 import os.log
 
-class PagerController: UIViewController, MediaController, DataViewController {
+class PagerController: UIViewController, MediaController {
     
     var currentIndex = 0
     var nextIndex: Int?
     var metadatas: [tableMetadata] = []
     
-    private var dataService: DataService?
     private weak var titleView: TitleView?
     
     weak var pageViewController: UIPageViewController? {
@@ -31,10 +30,6 @@ class PagerController: UIViewController, MediaController, DataViewController {
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: PagerController.self)
     )
-    
-    func setDataService(service: DataService) {
-        dataService = service
-    }
     
     override func viewSafeAreaInsetsDidChange() {
         titleView?.translatesAutoresizingMaskIntoConstraints = false
@@ -116,26 +111,25 @@ class PagerController: UIViewController, MediaController, DataViewController {
         let metadata = metadatas[currentIndex]
         
         Task {
-            let error = await dataService?.favoriteMetadata(metadata)
+            let error = await Environment.current.dataService.favoriteMetadata(metadata)
             if error == .success {
                 Self.logger.error("toggleFavoriteNetwork() - isFavorite: \(isFavorite)")
                 metadatas[currentIndex].favorite = isFavorite
                 self.setFavoriteMenu(isFavorite: isFavorite)
             } else {
                 //TODO: Show the user an error
-                Self.logger.error("toggleFavoriteNetwork() - ERROR: \(error?.errorDescription ?? "")")
+                Self.logger.error("toggleFavoriteNetwork() - ERROR: \(error.errorDescription)")
             }
         }
     }
     
     private func initViewer(index: Int, metadata: tableMetadata) -> ViewerController {
         
-        let viewerMedia = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "ViewerController") as! ViewerController
+        let viewerMedia = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(identifier: "ViewerController") as! ViewerController
         viewerMedia.index = index
         viewerMedia.metadata = metadata
         viewerMedia.pager = self
-        viewerMedia.setDataService(service: dataService!)
-        
+
         return viewerMedia
     }
     
@@ -195,7 +189,7 @@ extension PagerController: UIGestureRecognizerDelegate {
             currentViewController.updateViewConstraints()
             
             let fileName = (currentViewController.metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-            if let metadata = dataService?.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", currentViewController.metadata.account, currentViewController.metadata.serverUrl, fileName)), StoreUtility.fileProviderStorageExists(metadata) {
+            if let metadata = Environment.current.dataService.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", currentViewController.metadata.account, currentViewController.metadata.serverUrl, fileName)), StoreUtility.fileProviderStorageExists(metadata) {
                 
                 AudioServicesPlaySystemSound(1519) // peek feedback
                 let urlVideo = getVideoURL(metadata: metadata)

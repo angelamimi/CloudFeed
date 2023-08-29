@@ -12,14 +12,12 @@ import NextcloudKit
 import SVGKit
 import os.log
 
-class ViewerController: UIViewController, DataViewController {
+class ViewerController: UIViewController {
     
     @IBOutlet weak var statusImageView: UIImageView!
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var statusContainerView: UIView!
-    
-    private var dataService: DataService!
     
     var player: AVPlayer?
     var metadata: tableMetadata = tableMetadata()
@@ -36,14 +34,10 @@ class ViewerController: UIViewController, DataViewController {
         category: String(describing: ViewerController.self)
     )
     
-    func setDataService(service: DataService) {
-        dataService = service
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if dataService.getMetadataLivePhoto(metadata: metadata) != nil {
+        if Environment.current.dataService.getMetadataLivePhoto(metadata: metadata) != nil {
             statusImageView.image = NextcloudUtility.shared.loadImage(named: "livephoto", color: .label)
             statusLabel.text = "LIVE"
             statusContainerView.isHidden = false
@@ -234,7 +228,7 @@ class ViewerController: UIViewController, DataViewController {
     }
     
     private func reloadImage() {
-        if let metadata = dataService.getMetadataFromOcId(metadata.ocId) {
+        if let metadata = Environment.current.dataService.getMetadataFromOcId(metadata.ocId) {
             self.metadata = metadata
             loadImage(metadata: metadata)
         }
@@ -249,15 +243,15 @@ class ViewerController: UIViewController, DataViewController {
             
             if metadata.livePhoto {
                 let fileName = (metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-                if let metadata = dataService.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", metadata.account, metadata.serverUrl, fileName)), !StoreUtility.fileProviderStorageExists(metadata) {
+                if let metadata = Environment.current.dataService.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", metadata.account, metadata.serverUrl, fileName)), !StoreUtility.fileProviderStorageExists(metadata) {
                     Task {
-                        await dataService.download(metadata: metadata, selector: "")
+                        await Environment.current.dataService.download(metadata: metadata, selector: "")
                     }
                 }
             }
             
             Task {
-                await dataService.download(metadata: metadata, selector: "")
+                await Environment.current.dataService.download(metadata: metadata, selector: "")
                 
                 let image = getImageMetadata(metadata)
                 

@@ -8,13 +8,11 @@ import NextcloudKit
 import os.log
 import UIKit
 
-class FavoritesController: UIViewController, DataViewController {
+class FavoritesController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var emptyView: EmptyView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
-    private var dataService: DataService?
     
     private let groupSize = 2 //thumbnail fetches executed concurrently
     
@@ -29,10 +27,6 @@ class FavoritesController: UIViewController, DataViewController {
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: FavoritesController.self)
     )
-    
-    func setDataService(service: DataService) {
-        dataService = service
-    }
     
     override func viewDidLoad() {
         collectionView.isHidden = true
@@ -181,8 +175,8 @@ class FavoritesController: UIViewController, DataViewController {
         
         startActivityIndicator()
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let resultMetadatas = dataService?.getFavoriteMetadatas(account: appDelegate.account)
+        guard let account = Environment.current.currentUser?.account else { return }
+        let resultMetadatas = Environment.current.dataService.getFavoriteMetadatas(account: account)
         
         stopActivityIndicator()
         
@@ -198,7 +192,7 @@ class FavoritesController: UIViewController, DataViewController {
     private func getFavorites() async -> [tableMetadata]? {
 
         Self.logger.debug("getFavorites()")
-        let resultMetadatas = await dataService?.getFavorites()
+        let resultMetadatas = await Environment.current.dataService.getFavorites()
         
         Self.logger.debug("getFavorites() - resultMetadatas count: \(resultMetadatas == nil ? -1 : resultMetadatas!.count)")
         
@@ -297,12 +291,12 @@ class FavoritesController: UIViewController, DataViewController {
                     //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType) fileExtension: \(metadata.fileExtension)")
                     //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                     if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
-                        await self.dataService?.downloadVideoPreview(metadata: metadata)
+                        await Environment.current.dataService.downloadVideoPreview(metadata: metadata)
                     } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
                         //TODO: Implement svg fetch. Need a library that works.
                     } else {
                         //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType)")
-                        await self.dataService?.downloadPreview(metadata: metadata)
+                        await Environment.current.dataService.downloadPreview(metadata: metadata)
                     }
                 }
             }
@@ -377,7 +371,6 @@ class FavoritesController: UIViewController, DataViewController {
         
         let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
         
-        viewerPager.setDataService(service: dataService!)
         viewerPager.currentIndex = indexPath.item
         
         let snapshot = dataSource.snapshot()
@@ -400,12 +393,12 @@ class FavoritesController: UIViewController, DataViewController {
             
             guard metadata != nil else { continue }
             
-            let error = await dataService?.favoriteMetadata(metadata!)
+            let error = await Environment.current.dataService.favoriteMetadata(metadata!)
             if error == .success {
                 snapshot.deleteItems([metadata!])
             } else {
                 //TODO: Show the user a single error for all failed
-                Self.logger.error("bulkEdit() - ERROR: \(error?.errorDescription ?? "")")
+                Self.logger.error("bulkEdit() - ERROR: \(error.errorDescription)")
             }
         }
 

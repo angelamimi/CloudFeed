@@ -50,6 +50,8 @@
 		394BCB1529C7E82100C4F619 /* KTVHTTPCache.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */; };
 		394BCB1629C7E82100C4F619 /* KTVHTTPCache.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		394BCB1929C7E9BC00C4F619 /* NextcloudUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394BCB1829C7E9BB00C4F619 /* NextcloudUtility.swift */; };
+		395F3A1A2A9678340004FF32 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395F3A192A9678340004FF32 /* Environment.swift */; };
+		395F3A1C2A96812E0004FF32 /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395F3A1B2A96812E0004FF32 /* UserAccount.swift */; };
 		3966633B29DCD10D005727D4 /* AcknowledgementsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3966633A29DCD10D005727D4 /* AcknowledgementsController.swift */; };
 		3966633D29DCD170005727D4 /* AcknowledgementCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3966633C29DCD170005727D4 /* AcknowledgementCell.swift */; };
 		3966633F29DCD24A005727D4 /* AcknowledgementCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3966633E29DCD24A005727D4 /* AcknowledgementCell.xib */; };
@@ -67,7 +69,6 @@
 		39D73C1A29BF5FDA0096ECD3 /* NextcloudService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1929BF5FDA0096ECD3 /* NextcloudService.swift */; };
 		39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */; };
 		39EA17D529DF62E200E24A3C /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EA17D429DF62E200E24A3C /* UIView+Extensions.swift */; };
-		39F263D02A7C369C00C51DF8 /* DataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F263CF2A7C369C00C51DF8 /* DataViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -144,6 +145,8 @@
 		394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVCocoaHTTPServer.xcframework; path = Carthage/Build/KTVCocoaHTTPServer.xcframework; sourceTree = "<group>"; };
 		394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVHTTPCache.xcframework; path = Carthage/Build/KTVHTTPCache.xcframework; sourceTree = "<group>"; };
 		394BCB1829C7E9BB00C4F619 /* NextcloudUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudUtility.swift; sourceTree = "<group>"; };
+		395F3A192A9678340004FF32 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
+		395F3A1B2A96812E0004FF32 /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
 		3966633A29DCD10D005727D4 /* AcknowledgementsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcknowledgementsController.swift; sourceTree = "<group>"; };
 		3966633C29DCD170005727D4 /* AcknowledgementCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcknowledgementCell.swift; sourceTree = "<group>"; };
 		3966633E29DCD24A005727D4 /* AcknowledgementCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AcknowledgementCell.xib; sourceTree = "<group>"; };
@@ -161,7 +164,6 @@
 		39D73C1929BF5FDA0096ECD3 /* NextcloudService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudService.swift; sourceTree = "<group>"; };
 		39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Metadata.swift"; sourceTree = "<group>"; };
 		39EA17D429DF62E200E24A3C /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
-		39F263CF2A7C369C00C51DF8 /* DataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -261,6 +263,8 @@
 				392735B129BE3FB90058796A /* Utility */,
 				39271D5E29D905BF00522DFD /* Viewer */,
 				392735A129BD6A4F0058796A /* Global.swift */,
+				395F3A192A9678340004FF32 /* Environment.swift */,
+				395F3A1B2A96812E0004FF32 /* UserAccount.swift */,
 				3927356C29BD1E820058796A /* SceneDelegate.swift */,
 				3927356A29BD1E820058796A /* AppDelegate.swift */,
 				3927357529BD1E830058796A /* LaunchScreen.storyboard */,
@@ -312,7 +316,6 @@
 				39B03F0C29C53FD300704670 /* CollectionViewCell.swift */,
 				39B03F1529C68C2900704670 /* CollectionViewLayout.swift */,
 				39271D4729D7694E00522DFD /* CollectionLayout.swift */,
-				39F263CF2A7C369C00C51DF8 /* DataViewController.swift */,
 				3927356E29BD1E820058796A /* MainViewController.swift */,
 				3966634629DF34AD005727D4 /* EmptyView.swift */,
 				39271D5829D7A05100522DFD /* TitleView.swift */,
@@ -541,7 +544,6 @@
 				394BCB0E29C7E25000C4F619 /* HttpCache.swift in Sources */,
 				39B03F1229C636B500704670 /* SettingsController.swift in Sources */,
 				39D73C1A29BF5FDA0096ECD3 /* NextcloudService.swift in Sources */,
-				39F263D02A7C369C00C51DF8 /* DataViewController.swift in Sources */,
 				3966634729DF34AD005727D4 /* EmptyView.swift in Sources */,
 				392735A229BD6A4F0058796A /* Global.swift in Sources */,
 				39B03F1629C68C2900704670 /* CollectionViewLayout.swift in Sources */,
@@ -552,12 +554,14 @@
 				394BCB1929C7E9BC00C4F619 /* NextcloudUtility.swift in Sources */,
 				392735AB29BE2DAA0058796A /* DatabaseManager+Account.swift in Sources */,
 				39B03F1429C6384300704670 /* FileSystemUtility.swift in Sources */,
+				395F3A1C2A96812E0004FF32 /* UserAccount.swift in Sources */,
 				39271D6C29DA26CF00522DFD /* ViewerController.swift in Sources */,
 				39271D6E29DA274800522DFD /* PagerController.swift in Sources */,
 				39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */,
 				39271D5929D7A05100522DFD /* TitleView.swift in Sources */,
 				3927356B29BD1E820058796A /* AppDelegate.swift in Sources */,
 				39C31E8E2A7994880045DF50 /* DataService.swift in Sources */,
+				395F3A1A2A9678340004FF32 /* Environment.swift in Sources */,
 				392735AD29BE3C140058796A /* Database.swift in Sources */,
 				3927356D29BD1E820058796A /* SceneDelegate.swift in Sources */,
 				3966634129DCD4E8005727D4 /* ProfileCell.swift in Sources */,

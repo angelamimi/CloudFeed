@@ -9,14 +9,12 @@ import NextcloudKit
 import os.log
 import UIKit
 
-class MainViewController: UIViewController, DataViewController {
+class MainViewController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
     @IBOutlet weak var emptyView: EmptyView!
-    
-    private var dataService: DataService?
     
     private let loadMoreThreshold = -80.0
     private let groupSize = 2 //thumbnail fetches executed concurrently
@@ -25,22 +23,16 @@ class MainViewController: UIViewController, DataViewController {
     private var currentPageItemCount = 0
     private var currentMetadataCount = 0
     
-    private let appDelegate = UIApplication.shared.delegate as! AppDelegate
     private var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
     private var page: [tableMetadata] = []
     
     private var titleView: TitleView?
     private var layout: CollectionLayout?
 
-    
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: MainViewController.self)
     )
-    
-    func setDataService(service: DataService) {
-        dataService = service
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -177,14 +169,15 @@ class MainViewController: UIViewController, DataViewController {
         let startServerUrl = getStartServerUrl()
         
         guard startServerUrl != nil else { return [] }
+        guard let account = Environment.current.currentUser?.account else { return [] }
         
-        let resultMetadatas = dataService?.paginateMetadata(account: self.appDelegate.account, startServerUrl: startServerUrl!, greaterDate: greaterDate, lessDate: lessDate, offsetDate: offsetDate, offsetName: offsetName)
+        let resultMetadatas = Environment.current.dataService.paginateMetadata(account: account, startServerUrl: startServerUrl!, greaterDate: greaterDate, lessDate: lessDate, offsetDate: offsetDate, offsetName: offsetName)
         
-        for metadata in resultMetadatas! {
+        for metadata in resultMetadatas {
             Self.logger.debug("paginateMetadata() - date: \(metadata.date) fileNameView: \(metadata.fileNameView)")
         }
         
-        return resultMetadatas!
+        return resultMetadatas
     }
     
     private func processPaginationResult(resultMetadatas: [tableMetadata], lastDate : Date, loadMoreMetadata: Bool) async {
@@ -304,11 +297,15 @@ class MainViewController: UIViewController, DataViewController {
         
         Self.logger.debug("search() - greaterDays: \(self.greaterDays) lessDate: \(lessDate.formatted(date: .abbreviated, time: .standard))")
         Self.logger.debug("search() - greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
-        let searchResult = await dataService?.searchMedia(account: self.appDelegate.account, mediaPath: mediaPath!, startServerUrl: startServerUrl!, lessDate: lessDate, greaterDate: greaterDate, limit: limit)
+        let result = await Environment.current.dataService.searchMedia(
+            account: Environment.current.currentUser!.account!,
+            mediaPath: mediaPath!,
+            startServerUrl: startServerUrl!,
+            lessDate: lessDate,
+            greaterDate: greaterDate,
+            limit: limit)
         
         stopActivityIndicator()
-        
-        guard let result = searchResult else { return (nil, []) }
         
         Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
         
@@ -468,12 +465,12 @@ class MainViewController: UIViewController, DataViewController {
                     //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType) fileExtension: \(metadata.fileExtension)")
                     //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                     if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
-                        await self.dataService?.downloadVideoPreview(metadata: metadata)
+                        await Environment.current.dataService.downloadVideoPreview(metadata: metadata)
                     } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
                         //TODO: Implement svg fetch. Need a library that works.
                     } else {
                         //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType)")
-                        await self.dataService?.downloadPreview(metadata: metadata)
+                        await Environment.current.dataService.downloadPreview(metadata: metadata)
                     }
                 }
             }
@@ -593,7 +590,6 @@ class MainViewController: UIViewController, DataViewController {
         
         let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
         
-        viewerPager.setDataService(service: dataService!)
         viewerPager.currentIndex = indexPath.item
         
         let snapshot = dataSource.snapshot()
@@ -603,13 +599,15 @@ class MainViewController: UIViewController, DataViewController {
     }
     
     private func getMediaPath() -> String? {
-        guard let activeAccount = dataService?.getActiveAccount() else { return nil }
+        guard let activeAccount = Environment.current.dataService.getActiveAccount() else { return nil }
         return activeAccount.mediaPath
     }
     
     private func getStartServerUrl() -> String? {
         guard let mediaPath = getMediaPath() else { return nil }
-        let startServerUrl = appDelegate.urlBase + "/remote.php/dav/files/" + appDelegate.userId + mediaPath
+        let urlBase = Environment.current.currentUser!.urlBase!
+        let userId = Environment.current.currentUser!.userId!
+        let startServerUrl = urlBase + "/remote.php/dav/files/" + userId + mediaPath
         
         return startServerUrl
     }

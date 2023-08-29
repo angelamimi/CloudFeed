@@ -7,12 +7,10 @@
 import os.log
 import UIKit
 
-class SettingsController: UIViewController, DataViewController {
+class SettingsController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
-    private var dataService: DataService?
     
     private var profileName: String = ""
     private var profileEmail: String = ""
@@ -24,10 +22,6 @@ class SettingsController: UIViewController, DataViewController {
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: SettingsController.self)
     )
-    
-    func setDataService(service: DataService) {
-        dataService = service
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,8 +71,8 @@ class SettingsController: UIViewController, DataViewController {
         startActivityIndicator()
 
         Task {
-            let result = await dataService?.getUserProfile()
-            self.processProfileResult(profileName:result!.profileDisplayName, profileEmail:result!.profileEmail)
+            let result = await Environment.current.dataService.getUserProfile()
+            self.processProfileResult(profileName:result.profileDisplayName, profileEmail:result.profileEmail)
         }
     }
     
@@ -98,7 +92,7 @@ class SettingsController: UIViewController, DataViewController {
     
     private func requestAvatar() {
         
-        guard let account = dataService?.getActiveAccount() else { return }
+        guard let account = Environment.current.dataService.getActiveAccount() else { return }
         
         Task {
             await downloadAvatar(account: account)
@@ -128,7 +122,7 @@ class SettingsController: UIViewController, DataViewController {
         if let localImage = UIImage(contentsOfFile: localFilePath) {
             Self.logger.debug("loadUserImage() - \(localImage.size.width),\(localImage.size.height)")
             return createAvatar(image: localImage, size: 150)
-        } else if let loadedAvatar = dataService?.getAvatarImage(fileName: fileName) {
+        } else if let loadedAvatar = Environment.current.dataService.getAvatarImage(fileName: fileName) {
             Self.logger.debug("loadUserImage() - loadedAvatar")
             return loadedAvatar
         } else {
@@ -152,11 +146,11 @@ class SettingsController: UIViewController, DataViewController {
     
     private func downloadAvatar(account: tableAccount) async {
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        guard let user = Environment.current.currentUser?.user else { return }
         
         Self.logger.debug("downloadAvatar() - calling downloadAvatar")
         
-        await dataService?.downloadAvatar(user: appDelegate.user, account: account)
+        await Environment.current.dataService.downloadAvatar(user: user, account: account)
     }
     
     private func acknowledgements() {
@@ -186,7 +180,7 @@ class SettingsController: UIViewController, DataViewController {
         
         StoreUtility.deleteAllChainStore()
         
-        dataService?.removeDatabase()
+        Environment.current.dataService.removeDatabase()
         
         exit(0)
     }
@@ -209,13 +203,13 @@ class SettingsController: UIViewController, DataViewController {
         
         //startActivityIndicator()
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        guard let account = Environment.current.currentUser?.account else { return }
 
         URLCache.shared.removeAllCachedResponses()
         URLCache.shared.diskCapacity = 0
         URLCache.shared.memoryCapacity = 0
         
-        dataService?.clearDatabase(account: appDelegate.account, removeAccount: false)
+        Environment.current.dataService.clearDatabase(account: account, removeAccount: false)
         
         StoreUtility.removeGroupDirectoryProviderStorage()
         StoreUtility.removeDirectoryUserData()

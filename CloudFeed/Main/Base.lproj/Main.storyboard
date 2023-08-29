@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="b6L-WC-FFl">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="b6L-WC-FFl">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -41,7 +42,7 @@
         <!--Tab Bar Controller-->
         <scene sceneID="0xg-Uy-Mhm">
             <objects>
-                <tabBarController id="b6L-WC-FFl" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="DataViewTabController" id="b6L-WC-FFl" sceneMemberID="viewController">
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="v5R-eP-DIf">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -49,9 +50,9 @@
                         <color key="selectedImageTintColor" systemColor="labelColor"/>
                     </tabBar>
                     <connections>
-                        <segue destination="ET6-Yb-pwS" kind="relationship" relationship="viewControllers" id="Oc2-G2-8qL"/>
-                        <segue destination="FoW-v3-mzT" kind="relationship" relationship="viewControllers" id="utA-5z-Vge"/>
-                        <segue destination="1PP-Z7-7Hy" kind="relationship" relationship="viewControllers" id="6HB-WN-dut"/>
+                        <segue destination="ET6-Yb-pwS" kind="relationship" relationship="viewControllers" destinationCreationSelector="mediaSegue:" id="Oc2-G2-8qL"/>
+                        <segue destination="FoW-v3-mzT" kind="relationship" relationship="viewControllers" destinationCreationSelector="favoritesSeque:" id="utA-5z-Vge"/>
+                        <segue destination="1PP-Z7-7Hy" kind="relationship" relationship="viewControllers" destinationCreationSelector="settingsSegue:" id="6HB-WN-dut"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kaa-By-AUQ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
