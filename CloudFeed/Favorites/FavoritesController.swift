@@ -35,8 +35,6 @@ class FavoritesController: UIViewController {
         collectionView.delegate = self
         collectionView.allowsMultipleSelection = false
         
-        emptyView.isHidden = false
-        
         navigationController?.isNavigationBarHidden = true
         
         initEmptyView()
@@ -57,8 +55,8 @@ class FavoritesController: UIViewController {
         dataSource.applySnapshotUsingReloadData(snapshot)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        Self.logger.debug("viewWillAppear()")
+    override func viewDidAppear(_ animated: Bool) {
+        Self.logger.debug("viewDidAppear()")
         
         if collectionView.numberOfSections == 0 || collectionView.numberOfItems(inSection: 0) == 0 {
             initialFetch()
@@ -93,6 +91,7 @@ class FavoritesController: UIViewController {
         let image = UIImage(systemName: "star.fill", withConfiguration: configuration)
         
         emptyView.display(image: image, title: "No favorites yet", description: "Files you mark as favorite will show up here")
+        emptyView.isHidden = true
     }
     
     private func initCollectionViewLayout() {

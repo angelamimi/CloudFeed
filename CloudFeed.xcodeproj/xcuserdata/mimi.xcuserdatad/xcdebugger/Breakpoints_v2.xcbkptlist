@@ -3,4 +3,69 @@
    uuid = "5E57D101-CF48-409B-8567-B595C47D8F93"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1D284744-D788-4C86-B969-FA61B9AA7CE4"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CloudFeed/Favorites/FavoritesController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "170"
+            endingLineNumber = "170"
+            landmarkName = "initialFetch()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "1D284744-D788-4C86-B969-FA61B9AA7CE4 - 29b7d15ba962d3ec"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CloudFeed.FavoritesController.initialFetch() -&gt; ()"
+                  moduleName = "CloudFeed"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mimi/Development/iOS/NextCloud/ios-main/CloudFeed/CloudFeed/Favorites/FavoritesController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "170"
+                  endingLineNumber = "170"
+                  offsetFromSymbolStart = "980">
+               </Location>
+               <Location
+                  uuid = "1D284744-D788-4C86-B969-FA61B9AA7CE4 - b5df6d6dc2ab1137"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Sendable () async -&gt; () in CloudFeed.FavoritesController.initialFetch() -&gt; ()"
+                  moduleName = "CloudFeed"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mimi/Development/iOS/NextCloud/ios-main/CloudFeed/CloudFeed/Favorites/FavoritesController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "171"
+                  endingLineNumber = "171"
+                  offsetFromSymbolStart = "104">
+               </Location>
+               <Location
+                  uuid = "1D284744-D788-4C86-B969-FA61B9AA7CE4 - e6005f529db62cbe"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) suspend resume partial function for closure #1 @Sendable () async -&gt; () in CloudFeed.FavoritesController.initialFetch() -&gt; ()"
+                  moduleName = "CloudFeed"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mimi/Development/iOS/NextCloud/ios-main/CloudFeed/CloudFeed/Favorites/FavoritesController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "170"
+                  endingLineNumber = "170"
+                  offsetFromSymbolStart = "80">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>
