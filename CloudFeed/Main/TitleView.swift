@@ -8,7 +8,7 @@
 import UIKit
 import os.log
 
-protocol MediaController : AnyObject {
+protocol MediaViewController : AnyObject {
     func zoomInGrid()
     func zoomOutGrid()
     func edit()
@@ -26,7 +26,7 @@ class TitleView: UIView {
     @IBOutlet weak var backButton: UIButton!
     @IBOutlet weak var backButtonConstraint: NSLayoutConstraint!
     
-    weak var mediaView: MediaController?
+    weak var mediaView: MediaViewController?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,

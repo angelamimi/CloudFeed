@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  MediaController.swift
 //  CloudFeed
 //
 //  Created by Angela Jarosz on 3/11/23.
@@ -9,7 +9,7 @@ import NextcloudKit
 import os.log
 import UIKit
 
-class MainViewController: UIViewController {
+class MediaController: UIViewController {
     
     var coordinator: MediaCoordinator!
 
@@ -33,7 +33,7 @@ class MainViewController: UIViewController {
 
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
-        category: String(describing: MainViewController.self)
+        category: String(describing: MediaController.self)
     )
     
     override func viewDidLoad() {
@@ -655,7 +655,7 @@ class MainViewController: UIViewController {
     }
 }
 
-extension MainViewController : CollectionLayoutDelegate {
+extension MediaController : CollectionLayoutDelegate {
     
     func collectionView(_ collectionView: UICollectionView, sizeOfPhotoAtIndexPath indexPath: IndexPath) -> CGSize {
 
@@ -676,7 +676,7 @@ extension MainViewController : CollectionLayoutDelegate {
     }
 }
 
-extension MainViewController : UIScrollViewDelegate {
+extension MediaController : UIScrollViewDelegate {
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         setTitle()
@@ -694,7 +694,7 @@ extension MainViewController : UIScrollViewDelegate {
     }
 }
 
-extension MainViewController: UICollectionViewDelegate {
+extension MediaController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
@@ -702,7 +702,7 @@ extension MainViewController: UICollectionViewDelegate {
     }
 }
 
-extension MainViewController: MediaController {
+extension MediaController: MediaViewController {
     
     func zoomInGrid() {
         guard layout != nil else { return }

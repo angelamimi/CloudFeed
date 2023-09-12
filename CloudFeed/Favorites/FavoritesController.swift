@@ -423,7 +423,7 @@ class FavoritesController: UIViewController {
     }
 }
 
-extension FavoritesController : MediaController {
+extension FavoritesController : MediaViewController {
     
     func zoomInGrid() {
         guard layout != nil else { return }

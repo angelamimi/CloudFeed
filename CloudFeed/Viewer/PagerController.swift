@@ -10,7 +10,7 @@ import NextcloudKit
 import MediaPlayer
 import os.log
 
-class PagerController: UIViewController, MediaController {
+class PagerController: UIViewController, MediaViewController {
     
     var viewModel: PagerViewModel!
     

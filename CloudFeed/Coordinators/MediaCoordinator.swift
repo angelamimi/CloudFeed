@@ -1,5 +1,5 @@
 //
-//  MediaController.swift
+//  MediaCoordinator.swift
 //  CloudFeed
 //
 //  Created by Angela Jarosz on 9/5/23.

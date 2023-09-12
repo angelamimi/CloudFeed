@@ -35,7 +35,7 @@ extension MainCoordinator {
         let favoritesNavController = tabBarController.viewControllers?[1] as! UINavigationController
         let settingsNavController = tabBarController.viewControllers?[2] as! UINavigationController
         
-        let mediaViewController = mediaNavController.viewControllers[0] as! MainViewController
+        let mediaViewController = mediaNavController.viewControllers[0] as! MediaController
         let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
         let settingsViewController = settingsNavController.viewControllers[0] as! SettingsController
         

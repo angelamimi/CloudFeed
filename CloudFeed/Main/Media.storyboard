@@ -13,7 +13,7 @@
         <!--Home-->
         <scene sceneID="Adh-Ws-GzM">
             <objects>
-                <viewController title="Home" id="Ew1-jS-Bz6" customClass="MainViewController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Home" id="Ew1-jS-Bz6" customClass="MediaController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="uE1-0J-IbB">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
