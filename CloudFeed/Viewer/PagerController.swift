@@ -12,9 +12,7 @@ import os.log
 
 class PagerController: UIViewController, MediaController {
     
-    var currentIndex = 0
-    var nextIndex: Int?
-    var metadatas: [tableMetadata] = []
+    var viewModel: PagerViewModel!
     
     private weak var titleView: TitleView?
     
@@ -42,10 +40,10 @@ class PagerController: UIViewController, MediaController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        Self.logger.log("viewDidLoad() - currentIndex: \(self.currentIndex) metadata count: \(self.metadatas.count)")
+        Self.logger.log("viewDidLoad() - currentIndex: \(self.viewModel.currentIndex) metadata count: \(self.viewModel.metadatas.count)")
         
-        pageViewController?.delegate = self
-        pageViewController?.dataSource = self
+        pageViewController?.delegate = viewModel
+        pageViewController?.dataSource = viewModel
         
         let longtapGestureRecognizer = UILongPressGestureRecognizer()
         longtapGestureRecognizer.delaysTouchesBegan = true
@@ -55,8 +53,8 @@ class PagerController: UIViewController, MediaController {
         
         pageViewController?.view.addGestureRecognizer(longtapGestureRecognizer)
         
-        let metadata = metadatas[currentIndex]
-        let viewerMedia = initViewer(index: currentIndex, metadata: metadata)
+        let metadata = viewModel.currentMetadata()
+        let viewerMedia = viewModel.initViewer()
         
         pageViewController?.setViewControllers([viewerMedia], direction: .forward, animated: true, completion: nil)
         
@@ -74,7 +72,6 @@ class PagerController: UIViewController, MediaController {
     
     override func viewDidDisappear(_ animated: Bool) {
         Self.logger.debug("viewDidDisappear()")
-        //metadatas.removeAll()
         self.titleView?.menuButton.menu = nil
     }
     
@@ -102,35 +99,15 @@ class PagerController: UIViewController, MediaController {
             }
         }
         
-        let menu = UIMenu(children: [action])
-        self.titleView?.menuButton.menu = menu
+        DispatchQueue.main.async {
+            let menu = UIMenu(children: [action])
+            self.titleView?.menuButton.menu = menu
+        }
     }
     
     private func toggleFavoriteNetwork(isFavorite: Bool) {
         
-        let metadata = metadatas[currentIndex]
-        
-        Task {
-            let error = await Environment.current.dataService.favoriteMetadata(metadata)
-            if error == .success {
-                Self.logger.error("toggleFavoriteNetwork() - isFavorite: \(isFavorite)")
-                metadatas[currentIndex].favorite = isFavorite
-                self.setFavoriteMenu(isFavorite: isFavorite)
-            } else {
-                //TODO: Show the user an error
-                Self.logger.error("toggleFavoriteNetwork() - ERROR: \(error.errorDescription)")
-            }
-        }
-    }
-    
-    private func initViewer(index: Int, metadata: tableMetadata) -> ViewerController {
-        
-        let viewerMedia = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(identifier: "ViewerController") as! ViewerController
-        viewerMedia.index = index
-        viewerMedia.metadata = metadata
-        viewerMedia.pager = self
-
-        return viewerMedia
+        viewModel.toggleFavorite(isFavorite: isFavorite)
     }
     
     private func getVideoURL(metadata: tableMetadata) -> URL? {
@@ -141,38 +118,17 @@ class PagerController: UIViewController, MediaController {
     }
 }
 
-extension PagerController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        if currentIndex == 0 { return nil }
-        let viewerMedia = initViewer(index: currentIndex - 1, metadata: metadatas[currentIndex - 1])
-        return viewerMedia
+extension PagerController: PagerViewModelDelegate {
+    
+    func finishedPaging(metadata: tableMetadata) {
+        titleView?.title.text = metadata.fileNameView
+    
+        Self.logger.debug("finishedPaging() - favorite: \(metadata.favorite)")
+        setFavoriteMenu(isFavorite: metadata.favorite)
     }
     
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        guard currentIndex < metadatas.count - 1 else { return nil }
-        let viewerMedia = initViewer(index: currentIndex + 1, metadata: metadatas[currentIndex + 1])
-        return viewerMedia
-    }
-
-    func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
-        guard let nextViewController = pendingViewControllers.first as? ViewerController else { return }
-        nextIndex = nextViewController.index
-    }
-    
-    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        if completed && nextIndex != nil {
-            currentIndex = nextIndex!
-            
-            if currentIndex > 0 && currentIndex < metadatas.count {
-                let metadata = metadatas[currentIndex]
-                
-                self.titleView?.title.text = metadata.fileNameView
-            
-                Self.logger.debug("prepViewer() - favorite: \(metadata.favorite)")
-                setFavoriteMenu(isFavorite: metadata.favorite)
-            }
-        }
-        self.nextIndex = nil
+    func finishedUpdatingFavorite(isFavorite: Bool) {
+        setFavoriteMenu(isFavorite: isFavorite)
     }
 }
 

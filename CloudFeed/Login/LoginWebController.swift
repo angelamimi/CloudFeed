@@ -12,10 +12,10 @@ import WebKit
 
 class LoginWebController: UIViewController, WKNavigationDelegate {
     
+    var coordinator: LoginWebCoordinator!
+    
     private let webLoginAutenticationProtocol: String = "nc://"
     private var urlBase: String?// = "https://cloud.angelamimi.com"
-    
-    private let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     private var configServerUrl: String?
     private var configUsername: String?
@@ -53,7 +53,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         let serverURL: String = urlBase! + "/index.php/login/flow"
         
         guard let inputURL = URL(string: serverURL) else {
-            showInvalidURLPrompt()
+            coordinator.showInvalidURLPrompt()
             return
         }
         
@@ -108,7 +108,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         
         Self.logger.error("didFailProvisionalNavigation() - errorMessage: \(errorMessage)")
 
-        showInvalidURLPrompt()
+        coordinator.showInvalidURLPrompt()
     }
     
     func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
@@ -154,7 +154,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
 
             createAccount(server: server, username: username, password: password)
         } else {
-            showInitFailedPrompt()
+            coordinator.showInitFailedPrompt()
         }
     }
     
@@ -184,25 +184,14 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         dataService.addAccount(account, urlBase: urlBase, user: username, password: password)
 
         guard let tableAccount = dataService.setActiveAccount(account) else {
-            showInitFailedPrompt()
+            coordinator.showInitFailedPrompt()
             return
         }
         
-        //appDelegate.activateServiceForAccount(dataService: dataService, account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
         Environment.current.initServicesFor(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
         
-        launchApp()
+        coordinator.handleLoginSuccess()
      }
-    
-    private func launchApp() {
-        
-        guard let scene = UIApplication.shared.connectedScenes.first, let sceneDeleate = scene.delegate as? SceneDelegate else { return }
-        
-        Self.logger.debug("launchApp()")
-
-        sceneDeleate.window?.rootViewController = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController()
-        sceneDeleate.window?.makeKeyAndVisible()
-    }
     
     private func initSettings() {
         
@@ -224,25 +213,5 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         StoreUtility.initStorage()
 
         //StoreUtility.deleteAllChainStore()
-    }
-    
-    private func showInitFailedPrompt() {
-        let alertController = UIAlertController(title: "Error", message: "Initialization failed. Please try again.", preferredStyle: .alert)
-
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
-            self.navigationController?.popViewController(animated: true)
-        }))
-
-        self.present(alertController, animated: true)
-    }
-    
-    private func showInvalidURLPrompt() {
-        let alertController = UIAlertController(title: "Error", message: "Failed to load URL. Please try again.", preferredStyle: .alert)
-
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
-            self.navigationController?.popViewController(animated: true)
-        }))
-
-        self.present(alertController, animated: true)
     }
 }

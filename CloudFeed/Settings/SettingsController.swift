@@ -8,6 +8,8 @@ import os.log
 import UIKit
 
 class SettingsController: UIViewController {
+    
+    var coordinator: SettingsCoordinator!
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!

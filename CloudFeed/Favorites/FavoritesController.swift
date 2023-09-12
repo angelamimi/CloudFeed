@@ -9,6 +9,8 @@ import os.log
 import UIKit
 
 class FavoritesController: UIViewController {
+    
+    var coordinator: FavoritesCoordinator!
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var emptyView: EmptyView!
@@ -202,7 +204,7 @@ class FavoritesController: UIViewController {
     private func processResult(resultMetadatas: [tableMetadata]?) async {
         
         guard let resultMetadatas = resultMetadatas else {
-            showLoadfailedError()
+            coordinator.showLoadfailedError()
             titleView?.hideMenu()
             return
         }
@@ -367,16 +369,8 @@ class FavoritesController: UIViewController {
                 || metadata!.classFile == NKCommon.typeClassFile.audio.rawValue
                 || metadata!.classFile == NKCommon.typeClassFile.video.rawValue) else { return }
         
-        guard let navigationController = self.navigationController else { return }
-        
-        let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
-        
-        viewerPager.currentIndex = indexPath.item
-        
         let snapshot = dataSource.snapshot()
-        
-        viewerPager.metadatas = snapshot.itemIdentifiers(inSection: 0)
-        navigationController.pushViewController(viewerPager, animated: true)
+        coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: snapshot.itemIdentifiers(inSection: 0))
     }
     
     private func bulkEdit() async {
@@ -427,16 +421,6 @@ class FavoritesController: UIViewController {
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: true)
         }
-    }
-    
-    private func showLoadfailedError() {
-        let alertController = UIAlertController(title: "Error", message: "Failed to load Favorites.", preferredStyle: .alert)
-        
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
-            self.navigationController?.popViewController(animated: true)
-        }))
-        
-        self.present(alertController, animated: true)
     }
 }
 

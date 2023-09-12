@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3903CE6B2AA4D871003E7E41 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE6A2AA4D871003E7E41 /* AppCoordinator.swift */; };
+		3903CE6D2AA4DC37003E7E41 /* LoginServerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE6C2AA4DC37003E7E41 /* LoginServerCoordinator.swift */; };
+		3903CE6F2AA51468003E7E41 /* LoginWebCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE6E2AA51468003E7E41 /* LoginWebCoordinator.swift */; };
+		3903CE712AA75132003E7E41 /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE702AA75132003E7E41 /* MainCoordinator.swift */; };
+		3903CE732AA78375003E7E41 /* MediaCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE722AA78375003E7E41 /* MediaCoordinator.swift */; };
+		3903CE752AA7840B003E7E41 /* FavoritesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE742AA7840B003E7E41 /* FavoritesCoordinator.swift */; };
+		3903CE7B2AA78557003E7E41 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE7A2AA78557003E7E41 /* SettingsCoordinator.swift */; };
+		3903CE7D2AA78C72003E7E41 /* PagerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE7C2AA78C72003E7E41 /* PagerCoordinator.swift */; };
+		3903CE7F2AA7ED6D003E7E41 /* ViewerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE7E2AA7ED6D003E7E41 /* ViewerCoordinator.swift */; };
+		390C57E02A9E3BBB00D9E268 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390C57DF2A9E3BBB00D9E268 /* Coordinator.swift */; };
+		391579A32AAF4C5000DFEAB1 /* ViewerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A22AAF4C5000DFEAB1 /* ViewerViewModel.swift */; };
+		3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3916F3E02AAD1B370064002E /* PagerViewModel.swift */; };
 		39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D4729D7694E00522DFD /* CollectionLayout.swift */; };
 		39271D4A29D7922D00522DFD /* Media.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39271D4929D7922D00522DFD /* Media.storyboard */; };
 		39271D4D29D7975A00522DFD /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39271D4C29D7975A00522DFD /* Settings.storyboard */; };
@@ -104,6 +116,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3903CE6A2AA4D871003E7E41 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		3903CE6C2AA4DC37003E7E41 /* LoginServerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerCoordinator.swift; sourceTree = "<group>"; };
+		3903CE6E2AA51468003E7E41 /* LoginWebCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWebCoordinator.swift; sourceTree = "<group>"; };
+		3903CE702AA75132003E7E41 /* MainCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinator.swift; sourceTree = "<group>"; };
+		3903CE722AA78375003E7E41 /* MediaCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCoordinator.swift; sourceTree = "<group>"; };
+		3903CE742AA7840B003E7E41 /* FavoritesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesCoordinator.swift; sourceTree = "<group>"; };
+		3903CE7A2AA78557003E7E41 /* SettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCoordinator.swift; sourceTree = "<group>"; };
+		3903CE7C2AA78C72003E7E41 /* PagerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerCoordinator.swift; sourceTree = "<group>"; };
+		3903CE7E2AA7ED6D003E7E41 /* ViewerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerCoordinator.swift; sourceTree = "<group>"; };
+		390C57DF2A9E3BBB00D9E268 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		391579A22AAF4C5000DFEAB1 /* ViewerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerViewModel.swift; sourceTree = "<group>"; };
+		3916F3E02AAD1B370064002E /* PagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerViewModel.swift; sourceTree = "<group>"; };
 		39271D4729D7694E00522DFD /* CollectionLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionLayout.swift; sourceTree = "<group>"; };
 		39271D4929D7922D00522DFD /* Media.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Media.storyboard; sourceTree = "<group>"; };
 		39271D4C29D7975A00522DFD /* Settings.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Settings.storyboard; sourceTree = "<group>"; };
@@ -198,6 +222,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		390C57DE2A9E2DD900D9E268 /* Coordinators */ = {
+			isa = PBXGroup;
+			children = (
+				390C57DF2A9E3BBB00D9E268 /* Coordinator.swift */,
+				3903CE6A2AA4D871003E7E41 /* AppCoordinator.swift */,
+				3903CE6C2AA4DC37003E7E41 /* LoginServerCoordinator.swift */,
+				3903CE6E2AA51468003E7E41 /* LoginWebCoordinator.swift */,
+				3903CE702AA75132003E7E41 /* MainCoordinator.swift */,
+				3903CE722AA78375003E7E41 /* MediaCoordinator.swift */,
+				3903CE742AA7840B003E7E41 /* FavoritesCoordinator.swift */,
+				3903CE7A2AA78557003E7E41 /* SettingsCoordinator.swift */,
+				3903CE7C2AA78C72003E7E41 /* PagerCoordinator.swift */,
+				3903CE7E2AA7ED6D003E7E41 /* ViewerCoordinator.swift */,
+			);
+			path = Coordinators;
+			sourceTree = "<group>";
+		};
 		39271D4B29D7971D00522DFD /* Favorites */ = {
 			isa = PBXGroup;
 			children = (
@@ -215,6 +256,8 @@
 				39271D6129D908B100522DFD /* DetailController.swift */,
 				39271D6D29DA274800522DFD /* PagerController.swift */,
 				39271D6B29DA26CF00522DFD /* ViewerController.swift */,
+				3916F3E02AAD1B370064002E /* PagerViewModel.swift */,
+				391579A22AAF4C5000DFEAB1 /* ViewerViewModel.swift */,
 			);
 			path = Viewer;
 			sourceTree = "<group>";
@@ -253,6 +296,7 @@
 		3927356929BD1E820058796A /* CloudFeed */ = {
 			isa = PBXGroup;
 			children = (
+				390C57DE2A9E2DD900D9E268 /* Coordinators */,
 				392735A829BE2CF40058796A /* Data */,
 				39271D7129DA664100522DFD /* Extensions */,
 				39271D4B29D7971D00522DFD /* Favorites */,
@@ -532,12 +576,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				392735B829BE50780058796A /* LoginWebController.swift in Sources */,
+				3903CE712AA75132003E7E41 /* MainCoordinator.swift in Sources */,
 				39271D7029DA622700522DFD /* DatabaseManager+LocalFile.swift in Sources */,
 				3966633D29DCD170005727D4 /* AcknowledgementCell.swift in Sources */,
 				3966633B29DCD10D005727D4 /* AcknowledgementsController.swift in Sources */,
 				392735BA29BE52600058796A /* LoginServerController.swift in Sources */,
 				39EA17D529DF62E200E24A3C /* UIView+Extensions.swift in Sources */,
+				390C57E02A9E3BBB00D9E268 /* Coordinator.swift in Sources */,
+				3903CE6F2AA51468003E7E41 /* LoginWebCoordinator.swift in Sources */,
 				39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */,
+				3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */,
 				3927356F29BD1E820058796A /* MainViewController.swift in Sources */,
 				39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */,
 				392735B329BE402D0058796A /* StoreUtility.swift in Sources */,
@@ -545,16 +593,19 @@
 				39B03F1229C636B500704670 /* SettingsController.swift in Sources */,
 				39D73C1A29BF5FDA0096ECD3 /* NextcloudService.swift in Sources */,
 				3966634729DF34AD005727D4 /* EmptyView.swift in Sources */,
+				3903CE6B2AA4D871003E7E41 /* AppCoordinator.swift in Sources */,
 				392735A229BD6A4F0058796A /* Global.swift in Sources */,
 				39B03F1629C68C2900704670 /* CollectionViewLayout.swift in Sources */,
 				392735A029BD69EA0058796A /* DatabaseManager.swift in Sources */,
 				39271D7329DA667500522DFD /* UIImage+gif.swift in Sources */,
 				39271D6229D908B100522DFD /* DetailController.swift in Sources */,
 				39271D6429D9091600522DFD /* DetailCell.swift in Sources */,
+				3903CE6D2AA4DC37003E7E41 /* LoginServerCoordinator.swift in Sources */,
 				394BCB1929C7E9BC00C4F619 /* NextcloudUtility.swift in Sources */,
 				392735AB29BE2DAA0058796A /* DatabaseManager+Account.swift in Sources */,
 				39B03F1429C6384300704670 /* FileSystemUtility.swift in Sources */,
 				395F3A1C2A96812E0004FF32 /* UserAccount.swift in Sources */,
+				391579A32AAF4C5000DFEAB1 /* ViewerViewModel.swift in Sources */,
 				39271D6C29DA26CF00522DFD /* ViewerController.swift in Sources */,
 				39271D6E29DA274800522DFD /* PagerController.swift in Sources */,
 				39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */,
@@ -562,12 +613,17 @@
 				3927356B29BD1E820058796A /* AppDelegate.swift in Sources */,
 				39C31E8E2A7994880045DF50 /* DataService.swift in Sources */,
 				395F3A1A2A9678340004FF32 /* Environment.swift in Sources */,
+				3903CE7D2AA78C72003E7E41 /* PagerCoordinator.swift in Sources */,
 				392735AD29BE3C140058796A /* Database.swift in Sources */,
+				3903CE732AA78375003E7E41 /* MediaCoordinator.swift in Sources */,
 				3927356D29BD1E820058796A /* SceneDelegate.swift in Sources */,
 				3966634129DCD4E8005727D4 /* ProfileCell.swift in Sources */,
+				3903CE7F2AA7ED6D003E7E41 /* ViewerCoordinator.swift in Sources */,
+				3903CE7B2AA78557003E7E41 /* SettingsCoordinator.swift in Sources */,
 				39271D5B29D8D7CD00522DFD /* FavoritesController.swift in Sources */,
 				39271D7529DA66D800522DFD /* UIImage+Extensions.swift in Sources */,
 				39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */,
+				3903CE752AA7840B003E7E41 /* FavoritesCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

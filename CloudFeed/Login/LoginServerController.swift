@@ -9,6 +9,8 @@ import UIKit
 
 class LoginServerController: UIViewController {
     
+    var coordinator: LoginServerCoordinator!
+    
     @IBOutlet weak var serverURLTextField: UITextField!
     @IBOutlet weak var serverURLButton: UIButton!
     
@@ -21,29 +23,22 @@ class LoginServerController: UIViewController {
     }
     
     private func processURL() {
-        guard var url = serverURLTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else { return }
+        guard var url = serverURLTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
+            coordinator.showInvalidURLPrompt()
+            return
+        }
         
         if url.hasSuffix("/") { url = String(url.dropLast()) }
-        if url.count == 0 { return }
+        if url.count == 0 {
+            coordinator.showInvalidURLPrompt()
+            return
+        }
         
         // Check whether baseUrl contain protocol. If not add https:// by default.
         if url.hasPrefix("https") == false && url.hasPrefix("http") == false {
             url = "https://" + url
         }
         
-        let loginController = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(identifier: "LoginWebController") as! LoginWebController
-        loginController.setURL(url: url)
-        self.navigationController?.pushViewController(loginController, animated: true)
+        coordinator.navigateToWebLogin(url: url)
     }
-    
-    private func showInvalidURLPrompt() {
-        let alertController = UIAlertController(title: "Error", message: "Failed to load URL. Please try again.", preferredStyle: .alert)
-        
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
-            self.navigationController?.popViewController(animated: true)
-        }))
-        
-        self.present(alertController, animated: true)
-    }
-    
 }

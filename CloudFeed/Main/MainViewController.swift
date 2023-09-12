@@ -10,6 +10,8 @@ import os.log
 import UIKit
 
 class MainViewController: UIViewController {
+    
+    var coordinator: MediaCoordinator!
 
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -338,7 +340,7 @@ class MainViewController: UIViewController {
                 setTitle()
             }
             
-            showLoadfailedError()
+            coordinator.showLoadfailedError()
             return
         }
         
@@ -586,16 +588,8 @@ class MainViewController: UIViewController {
                 || metadata!.classFile == NKCommon.typeClassFile.audio.rawValue
                 || metadata!.classFile == NKCommon.typeClassFile.video.rawValue) else { return }
         
-        guard let navigationController = self.navigationController else { return }
-        
-        let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
-        
-        viewerPager.currentIndex = indexPath.item
-        
         let snapshot = dataSource.snapshot()
-        
-        viewerPager.metadatas = snapshot.itemIdentifiers(inSection: 0)
-        navigationController.pushViewController(viewerPager, animated: true)
+        coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: snapshot.itemIdentifiers(inSection: 0))
     }
     
     private func getMediaPath() -> String? {
@@ -650,16 +644,6 @@ class MainViewController: UIViewController {
         }
         
         return (nil, nil)
-    }
-    
-    private func showLoadfailedError() {
-        let alertController = UIAlertController(title: "Error", message: "Failed to load media.", preferredStyle: .alert)
-        
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
-            self.navigationController?.popViewController(animated: true)
-        }))
-        
-        self.present(alertController, animated: true)
     }
     
     private func startActivityIndicator() {
