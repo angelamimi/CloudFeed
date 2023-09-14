@@ -53,7 +53,7 @@ class CollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func setImage(image: UIImage?) {
+    func setImage(_ image: UIImage?) {
         imageView.image = image
     }
     

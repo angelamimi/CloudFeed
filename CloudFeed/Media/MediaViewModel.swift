@@ -87,7 +87,7 @@ final class MediaViewModel: NSObject {
         
         if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
             let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
-            await cell.setImage(image: image)
+            await cell.setImage(image)
             //await cell.imageView.image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
             //Self.logger.debug("CELL - image size: \(cell.imageView.image?.size.width ?? -1),\(cell.imageView.image?.size.height ?? -1)")
         }  else {
@@ -391,27 +391,27 @@ final class MediaViewModel: NSObject {
         var groupMetadata: [tableMetadata] = []
         
         //let idArray = pageMetadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        //Self.logger.debug("processMetadataPage() - pageMetadatas: \(idArray)")
+        //Self.logger.debug("paginate() - pageMetadatas: \(idArray)")
         
         for metadataIndex in (0...pageMetadatas.count - 1) {
             
-            //Self.logger.debug("processMetadataPage() - metadataIndex: \(metadataIndex) pageMetadatas.count \(pageMetadatas.count)")
+            //Self.logger.debug("paginate() - metadataIndex: \(metadataIndex) pageMetadatas.count \(pageMetadatas.count)")
             
             if groupMetadata.count < groupSize {
-                //Self.logger.debug("processMetadataPage() - appending: \(pageMetadatas[metadataIndex].ocId)")
+                //Self.logger.debug("paginate() - appending: \(pageMetadatas[metadataIndex].ocId)")
                 groupMetadata.append(pageMetadatas[metadataIndex])
             } else {
                 await executeGroup(metadatas: groupMetadata)
                 applyDatasourceChanges(metadatas: groupMetadata)
                 
                 groupMetadata = []
-                //Self.logger.debug("processMetadataPage() - appending: \(pageMetadatas[metadataIndex].ocId)")
+                //Self.logger.debug("paginate() - appending: \(pageMetadatas[metadataIndex].ocId)")
                 groupMetadata.append(pageMetadatas[metadataIndex])
             }
         }
         
         if groupMetadata.count > 0 {
-            //Self.logger.debug("processMetadataPage() - groupMetadata: \(groupMetadata)")
+            //Self.logger.debug("paginate() - groupMetadata: \(groupMetadata)")
             await executeGroup(metadatas: groupMetadata)
             applyDatasourceChanges(metadatas: groupMetadata)
         }

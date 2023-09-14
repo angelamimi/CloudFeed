@@ -19,6 +19,7 @@
 		390C57E02A9E3BBB00D9E268 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390C57DF2A9E3BBB00D9E268 /* Coordinator.swift */; };
 		391579A32AAF4C5000DFEAB1 /* ViewerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A22AAF4C5000DFEAB1 /* ViewerViewModel.swift */; };
 		391579A62AB0BF2C00DFEAB1 /* MediaViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A52AB0BF2C00DFEAB1 /* MediaViewModel.swift */; };
+		391579A82AB33F0000DFEAB1 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A72AB33F0000DFEAB1 /* FavoritesViewModel.swift */; };
 		3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3916F3E02AAD1B370064002E /* PagerViewModel.swift */; };
 		39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D4729D7694E00522DFD /* CollectionLayout.swift */; };
 		39271D4A29D7922D00522DFD /* Media.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39271D4929D7922D00522DFD /* Media.storyboard */; };
@@ -129,6 +130,7 @@
 		390C57DF2A9E3BBB00D9E268 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		391579A22AAF4C5000DFEAB1 /* ViewerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerViewModel.swift; sourceTree = "<group>"; };
 		391579A52AB0BF2C00DFEAB1 /* MediaViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaViewModel.swift; sourceTree = "<group>"; };
+		391579A72AB33F0000DFEAB1 /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
 		3916F3E02AAD1B370064002E /* PagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerViewModel.swift; sourceTree = "<group>"; };
 		39271D4729D7694E00522DFD /* CollectionLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionLayout.swift; sourceTree = "<group>"; };
 		39271D4929D7922D00522DFD /* Media.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Media.storyboard; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 			children = (
 				39271D5C29D8D7DF00522DFD /* Favorites.storyboard */,
 				39271D5A29D8D7CD00522DFD /* FavoritesController.swift */,
+				391579A72AB33F0000DFEAB1 /* FavoritesViewModel.swift */,
 			);
 			path = Favorites;
 			sourceTree = "<group>";
@@ -610,6 +613,7 @@
 				392735A029BD69EA0058796A /* DatabaseManager.swift in Sources */,
 				39271D7329DA667500522DFD /* UIImage+gif.swift in Sources */,
 				39271D6229D908B100522DFD /* DetailController.swift in Sources */,
+				391579A82AB33F0000DFEAB1 /* FavoritesViewModel.swift in Sources */,
 				39271D6429D9091600522DFD /* DetailCell.swift in Sources */,
 				3903CE6D2AA4DC37003E7E41 /* LoginServerCoordinator.swift in Sources */,
 				394BCB1929C7E9BC00C4F619 /* NextcloudUtility.swift in Sources */,
