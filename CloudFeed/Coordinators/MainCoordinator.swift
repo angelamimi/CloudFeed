@@ -42,5 +42,7 @@ extension MainCoordinator {
         mediaViewController.coordinator = MediaCoordinator(navigationController: mediaNavController)
         favoritesViewController.coordinator = FavoritesCoordinator(navigationController: favoritesNavController)
         settingsViewController.coordinator = SettingsCoordinator(navigationController: settingsNavController)
+        
+        mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController)
     }
 }

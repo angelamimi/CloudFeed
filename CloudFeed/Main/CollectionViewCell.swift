@@ -53,6 +53,10 @@ class CollectionViewCell: UICollectionViewCell {
         }
     }
     
+    func setImage(image: UIImage?) {
+        imageView.image = image
+    }
+    
     private func initCell() {
         
         //Self.logger.debug("initCell() - reuseIdentifier: \(self.reuseIdentifier ?? "NONE") width: \(self.frame.width) height \(self.frame.height)")
