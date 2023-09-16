@@ -20,6 +20,7 @@
 		391579A32AAF4C5000DFEAB1 /* ViewerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A22AAF4C5000DFEAB1 /* ViewerViewModel.swift */; };
 		391579A62AB0BF2C00DFEAB1 /* MediaViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A52AB0BF2C00DFEAB1 /* MediaViewModel.swift */; };
 		391579A82AB33F0000DFEAB1 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A72AB33F0000DFEAB1 /* FavoritesViewModel.swift */; };
+		391579AA2AB3D8B800DFEAB1 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A92AB3D8B800DFEAB1 /* SettingsViewModel.swift */; };
 		3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3916F3E02AAD1B370064002E /* PagerViewModel.swift */; };
 		39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D4729D7694E00522DFD /* CollectionLayout.swift */; };
 		39271D4A29D7922D00522DFD /* Media.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39271D4929D7922D00522DFD /* Media.storyboard */; };
@@ -131,6 +132,7 @@
 		391579A22AAF4C5000DFEAB1 /* ViewerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerViewModel.swift; sourceTree = "<group>"; };
 		391579A52AB0BF2C00DFEAB1 /* MediaViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaViewModel.swift; sourceTree = "<group>"; };
 		391579A72AB33F0000DFEAB1 /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
+		391579A92AB3D8B800DFEAB1 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		3916F3E02AAD1B370064002E /* PagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerViewModel.swift; sourceTree = "<group>"; };
 		39271D4729D7694E00522DFD /* CollectionLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionLayout.swift; sourceTree = "<group>"; };
 		39271D4929D7922D00522DFD /* Media.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Media.storyboard; sourceTree = "<group>"; };
@@ -419,6 +421,7 @@
 				3966633C29DCD170005727D4 /* AcknowledgementCell.swift */,
 				3966633A29DCD10D005727D4 /* AcknowledgementsController.swift */,
 				39B03F1129C636B500704670 /* SettingsController.swift */,
+				391579A92AB3D8B800DFEAB1 /* SettingsViewModel.swift */,
 				3966634029DCD4E8005727D4 /* ProfileCell.swift */,
 			);
 			path = Settings;
@@ -636,6 +639,7 @@
 				3903CE7F2AA7ED6D003E7E41 /* ViewerCoordinator.swift in Sources */,
 				3903CE7B2AA78557003E7E41 /* SettingsCoordinator.swift in Sources */,
 				391579A62AB0BF2C00DFEAB1 /* MediaViewModel.swift in Sources */,
+				391579AA2AB3D8B800DFEAB1 /* SettingsViewModel.swift in Sources */,
 				39271D5B29D8D7CD00522DFD /* FavoritesController.swift in Sources */,
 				39271D7529DA66D800522DFD /* UIImage+Extensions.swift in Sources */,
 				39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */,

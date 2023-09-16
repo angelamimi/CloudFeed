@@ -26,9 +26,6 @@ class MediaController: UIViewController {
     private var currentPageItemCount = 0
     private var currentMetadataCount = 0
     
-    //private var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
-    //private var page: [tableMetadata] = []
-    
     private var titleView: TitleView?
     private var layout: CollectionLayout?
 
@@ -82,6 +79,7 @@ class MediaController: UIViewController {
     }
     
     public func clear() {
+        titleView?.title.text = ""
         viewModel.resetDataSource()
         
         greaterDays = -30
@@ -205,14 +203,12 @@ extension MediaController: MediaDelegate {
                 titleView?.hideMenu()
                 setTitle()
             }
-            
+        
             coordinator.showLoadfailedError()
             return
         }
-        
         titleView?.showMenu()
     }
-    
 }
 
 extension MediaController: CollectionLayoutDelegate {

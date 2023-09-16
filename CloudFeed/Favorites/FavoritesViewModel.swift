@@ -62,6 +62,7 @@ final class FavoritesViewModel: NSObject {
     }
     
     func resetDataSource() {
+        guard dataSource != nil else { return }
         var snapshot = dataSource.snapshot()
         snapshot.deleteAllItems()
         snapshot.appendSections([0])

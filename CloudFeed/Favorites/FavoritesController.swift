@@ -62,6 +62,7 @@ class FavoritesController: UIViewController {
     }
     
     public func clear() {
+        titleView?.title.text = ""
         viewModel.resetDataSource()
     }
     

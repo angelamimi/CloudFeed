@@ -25,6 +25,23 @@ final class MainCoordinator : Coordinator {
     }
 }
 
+extension MainCoordinator: CacheDelegate {
+    
+    func cacheCleared() {
+        
+        DispatchQueue.main.async {
+            let mediaNavController = self.tabBarController.viewControllers?[0] as! UINavigationController
+            let favoritesNavController = self.tabBarController.viewControllers?[1] as! UINavigationController
+            
+            let mediaViewController = mediaNavController.viewControllers[0] as! MediaController
+            let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
+            
+            mediaViewController.clear()
+            favoritesViewController.clear()
+        }
+    }
+}
+
 extension MainCoordinator {
     
     private func initTabCoordinators() {
@@ -41,9 +58,10 @@ extension MainCoordinator {
         
         mediaViewController.coordinator = MediaCoordinator(navigationController: mediaNavController)
         favoritesViewController.coordinator = FavoritesCoordinator(navigationController: favoritesNavController)
-        settingsViewController.coordinator = SettingsCoordinator(navigationController: settingsNavController)
+        settingsViewController.coordinator = SettingsCoordinator(navigationController: settingsNavController, cacheDelegate: self)
         
         mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController)
         favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController)
+        settingsViewController.viewModel = SettingsViewModel(delegate: settingsViewController)
     }
 }
