@@ -39,9 +39,10 @@ extension LoginWebCoordinator {
     }
     
     func showInitFailedPrompt() {
-        let alertController = UIAlertController(title: "Error", message: "Initialization failed. Please try again.", preferredStyle: .alert)
+        
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.InitErrorMessage, preferredStyle: .alert)
 
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
             self.navigationController.popViewController(animated: true)
         }))
 
@@ -49,9 +50,10 @@ extension LoginWebCoordinator {
     }
     
     func showInvalidURLPrompt() {
-        let alertController = UIAlertController(title: "Error", message: "Failed to load URL. Please try again.", preferredStyle: .alert)
+        
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.UrlErrorMessage, preferredStyle: .alert)
 
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
             self.navigationController.popViewController(animated: true)
         }))
 

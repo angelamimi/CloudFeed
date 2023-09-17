@@ -24,9 +24,10 @@ extension MediaCoordinator {
     }
     
     func showLoadfailedError() {
-        let alertController = UIAlertController(title: "Error", message: "Failed to load media.", preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaErrorMessage, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
             self.navigationController.popViewController(animated: true)
         }))
         

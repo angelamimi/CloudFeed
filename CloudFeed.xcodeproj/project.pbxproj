@@ -22,6 +22,8 @@
 		391579A82AB33F0000DFEAB1 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A72AB33F0000DFEAB1 /* FavoritesViewModel.swift */; };
 		391579AA2AB3D8B800DFEAB1 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A92AB3D8B800DFEAB1 /* SettingsViewModel.swift */; };
 		391579AC2AB645B400DFEAB1 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579AB2AB645B400DFEAB1 /* LoginViewModel.swift */; };
+		391579AE2AB6825000DFEAB1 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 391579AD2AB6825000DFEAB1 /* Localizable.strings */; };
+		391579B02AB7464000DFEAB1 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579AF2AB7464000DFEAB1 /* Strings.swift */; };
 		3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3916F3E02AAD1B370064002E /* PagerViewModel.swift */; };
 		39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D4729D7694E00522DFD /* CollectionLayout.swift */; };
 		39271D4A29D7922D00522DFD /* Media.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39271D4929D7922D00522DFD /* Media.storyboard */; };
@@ -135,6 +137,8 @@
 		391579A72AB33F0000DFEAB1 /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
 		391579A92AB3D8B800DFEAB1 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		391579AB2AB645B400DFEAB1 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		391579AD2AB6825000DFEAB1 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		391579AF2AB7464000DFEAB1 /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		3916F3E02AAD1B370064002E /* PagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerViewModel.swift; sourceTree = "<group>"; };
 		39271D4729D7694E00522DFD /* CollectionLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionLayout.swift; sourceTree = "<group>"; };
 		39271D4929D7922D00522DFD /* Media.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Media.storyboard; sourceTree = "<group>"; };
@@ -336,6 +340,7 @@
 				393D824129E2150A00100EAF /* Assets.xcassets */,
 				3927357829BD1E830058796A /* Info.plist */,
 				3966634229DE190D005727D4 /* Acknowledgements.plist */,
+				391579AD2AB6825000DFEAB1 /* Localizable.strings */,
 			);
 			path = CloudFeed;
 			sourceTree = "<group>";
@@ -381,6 +386,7 @@
 				39271D4729D7694E00522DFD /* CollectionLayout.swift */,
 				3966634629DF34AD005727D4 /* EmptyView.swift */,
 				39271D5829D7A05100522DFD /* TitleView.swift */,
+				391579AF2AB7464000DFEAB1 /* Strings.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -561,6 +567,7 @@
 				392735B629BE4FE00058796A /* Login.storyboard in Resources */,
 				3927357729BD1E830058796A /* LaunchScreen.storyboard in Resources */,
 				39271D5D29D8D7DF00522DFD /* Favorites.storyboard in Resources */,
+				391579AE2AB6825000DFEAB1 /* Localizable.strings in Resources */,
 				3966634329DE190D005727D4 /* Acknowledgements.plist in Resources */,
 				39271D5729D79E7900522DFD /* TitleView.xib in Resources */,
 				39271D4A29D7922D00522DFD /* Media.storyboard in Resources */,
@@ -605,6 +612,7 @@
 				391579AC2AB645B400DFEAB1 /* LoginViewModel.swift in Sources */,
 				390C57E02A9E3BBB00D9E268 /* Coordinator.swift in Sources */,
 				3903CE6F2AA51468003E7E41 /* LoginWebCoordinator.swift in Sources */,
+				391579B02AB7464000DFEAB1 /* Strings.swift in Sources */,
 				39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */,
 				3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */,
 				3927356F29BD1E820058796A /* MediaController.swift in Sources */,

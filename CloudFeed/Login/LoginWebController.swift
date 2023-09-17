@@ -143,8 +143,6 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
             if value.contains("user:") { user = value }
             if value.contains("password:") { password = value }
         }
-        
-        Self.logger.debug("processResult() - server: \(server) user: \(user) password: \(password)")
 
         if server != "" && user != "" && password != "" {
 

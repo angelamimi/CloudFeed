@@ -30,9 +30,10 @@ final class SettingsCoordinator {
     }
     
     func showProfileLoadfailedError() {
-        let alertController = UIAlertController(title: "Error", message: "Failed to load Profile.", preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.ProfileErrorMessage, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
             self.navigationController.popViewController(animated: true)
         }))
         
@@ -40,14 +41,14 @@ final class SettingsCoordinator {
     }
     
     func checkReset(reset: @escaping () -> Void) {
-        let alert = UIAlertController(title: "Reset Application", message: "Are you sure you want to reset? This cannot be undone.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        /*alert.addAction(UIAlertAction(title: "Reset", style: .destructive, handler: { (_: UIAlertAction!) in
-            self.reset()
-        }))*/
-        alert.addAction(UIAlertAction(title: "Reset", style: .destructive, handler: { _ in
+        
+        let alert = UIAlertController(title: Strings.ResetTitle, message: Strings.ResetMessage, preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: Strings.CancelAction, style: .cancel))
+        alert.addAction(UIAlertAction(title: Strings.ResetAction, style: .destructive, handler: { _ in
             reset()
         }))
+        
         navigationController.present(alert, animated: true)
     }
 }
