@@ -23,6 +23,7 @@ final class LoginWebCoordinator : Coordinator {
         let loginController = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(identifier: "LoginWebController") as! LoginWebController
         loginController.setURL(url: url)
         loginController.coordinator = self
+        loginController.viewModel = LoginViewModel(delegate: loginController)
         self.navigationController.pushViewController(loginController, animated: true)
     }
 }

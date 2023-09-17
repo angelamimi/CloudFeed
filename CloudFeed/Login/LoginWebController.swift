@@ -4,7 +4,7 @@
 //
 //  Created by Angela Jarosz on 3/12/23.
 //
-import KTVHTTPCache
+
 import NextcloudKit
 import os.log
 import UIKit
@@ -13,9 +13,9 @@ import WebKit
 class LoginWebController: UIViewController, WKNavigationDelegate {
     
     var coordinator: LoginWebCoordinator!
+    var viewModel: LoginViewModel!
     
-    private let webLoginAutenticationProtocol: String = "nc://"
-    private var urlBase: String?// = "https://cloud.angelamimi.com"
+    private var urlBase: String?
     
     private var configServerUrl: String?
     private var configUsername: String?
@@ -84,7 +84,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
             return
         }
         
-        if urlString.hasPrefix(webLoginAutenticationProtocol) == true && urlString.contains("login") == true {
+        if urlString.hasPrefix("nc://") == true && urlString.contains("login") == true {
             mWebKitView.stopLoading()
             processResult(url: url)
         }
@@ -152,66 +152,21 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
             let username: String = user.replacingOccurrences(of: "user:", with: "").replacingOccurrences(of: "+", with: " ")
             let password: String = password.replacingOccurrences(of: "password:", with: "")
 
-            createAccount(server: server, username: username, password: password)
+            viewModel.login(server: server, username: username, password: password)
         } else {
             coordinator.showInitFailedPrompt()
         }
     }
+}
+
+extension LoginWebController: LoginDelegate {
     
-    private func createAccount(server: String, username: String, password: String) {
-        
-        Self.logger.debug("createAccount() - server: \(server) username: \(username) password: \(password)")
-
-        let dataService = Environment.current.dataService
-        var urlBase = server
-
-        // Normalized
-        if urlBase.last == "/" {
-            urlBase = String(urlBase.dropLast())
-        }
-
-        let account: String = "\(username) \(urlBase)"
-
-        if dataService.getAccounts() == nil {
-            
-            initSettings()
-            
-            Self.logger.debug("createAccount() - removeAllSettings???")
-        }
-
-        // Add new account
-        dataService.deleteAccount(account)
-        dataService.addAccount(account, urlBase: urlBase, user: username, password: password)
-
-        guard let tableAccount = dataService.setActiveAccount(account) else {
-            coordinator.showInitFailedPrompt()
-            return
-        }
-        
-        Environment.current.initServicesFor(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
-        
+    func loginSuccess() {
         coordinator.handleLoginSuccess()
-     }
+    }
     
-    private func initSettings() {
-        
-        URLCache.shared.memoryCapacity = 0
-        URLCache.shared.diskCapacity = 0
-        KTVHTTPCache.cacheDeleteAllCaches()
-
-        Environment.current.dataService.clearDatabase(account: nil, removeAccount: true)
-
-        //StoreUtility.removeGroupDirectoryProviderStorage()
-        //StoreUtility.removeGroupLibraryDirectory()
-
-        //TODO: Causes database to fail. account isn't found eventhough was added
-        //StoreUtility.removeDocumentsDirectory()
-        
-        
-        //StoreUtility.removeTemporaryDirectory()
-
-        StoreUtility.initStorage()
-
-        //StoreUtility.deleteAllChainStore()
+    func loginError() {
+        coordinator.showInitFailedPrompt()
     }
 }
+
