@@ -17,6 +17,14 @@ final class ViewerViewModel {
     init(metadata: tableMetadata) {
         self.metadata = metadata
     }
+
+    func getMetadataLivePhoto(metadata: tableMetadata) -> tableMetadata? {
+        return Environment.current.dataService.getMetadataLivePhoto(metadata: metadata)
+    }
+    
+    func getMetadataFromOcId(_ ocId: String?) -> tableMetadata? {
+        return Environment.current.dataService.getMetadataFromOcId(ocId)
+    }
     
     func loadVideo(viewWidth: CGFloat, viewHeight: CGFloat) -> AVPlayerViewController? {
         

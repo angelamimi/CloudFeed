@@ -145,7 +145,10 @@ extension PagerController: UIGestureRecognizerDelegate {
             currentViewController.updateViewConstraints()
             
             let fileName = (currentViewController.metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-            if let metadata = Environment.current.dataService.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", currentViewController.metadata.account, currentViewController.metadata.serverUrl, fileName)), StoreUtility.fileProviderStorageExists(metadata) {
+            if let metadata = viewModel.getMetadata(account: currentViewController.metadata.account,
+                                                    serverUrl: currentViewController.metadata.serverUrl,
+                                                    fileName: fileName),
+                StoreUtility.fileProviderStorageExists(metadata) {
                 
                 AudioServicesPlaySystemSound(1519) // peek feedback
                 let urlVideo = getVideoURL(metadata: metadata)

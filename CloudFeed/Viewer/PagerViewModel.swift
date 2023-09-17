@@ -61,6 +61,11 @@ final class PagerViewModel: NSObject {
             }
         }
     }
+    
+    func getMetadata(account: String, serverUrl: String, fileName: String) -> tableMetadata? {
+        let predicate = NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", account, serverUrl, fileName)
+        return Environment.current.dataService.getMetadata(predicate: predicate)
+    }
 }
 
 extension PagerViewModel {

@@ -36,7 +36,7 @@ class ViewerController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if Environment.current.dataService.getMetadataLivePhoto(metadata: metadata) != nil {
+        if viewModel.getMetadataLivePhoto(metadata: metadata) != nil {
             statusImageView.image = NextcloudUtility.shared.loadImage(named: "livephoto", color: .label)
             statusLabel.text = "LIVE"
             statusContainerView.isHidden = false
@@ -72,7 +72,7 @@ class ViewerController: UIViewController {
     }
     
     private func reloadImage() {
-        if let metadata = Environment.current.dataService.getMetadataFromOcId(metadata.ocId) {
+        if let metadata = viewModel.getMetadataFromOcId(metadata.ocId) {
             self.metadata = metadata
             loadImage(metadata: metadata)
         }
