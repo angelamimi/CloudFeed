@@ -24,6 +24,8 @@
 		391579AC2AB645B400DFEAB1 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579AB2AB645B400DFEAB1 /* LoginViewModel.swift */; };
 		391579AE2AB6825000DFEAB1 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 391579AD2AB6825000DFEAB1 /* Localizable.strings */; };
 		391579B02AB7464000DFEAB1 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579AF2AB7464000DFEAB1 /* Strings.swift */; };
+		391579C12AB8BBAB00DFEAB1 /* MockDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */; };
+		391579C22AB8BBAB00DFEAB1 /* MockNextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */; };
 		3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3916F3E02AAD1B370064002E /* PagerViewModel.swift */; };
 		39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D4729D7694E00522DFD /* CollectionLayout.swift */; };
 		39271D4A29D7922D00522DFD /* Media.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39271D4929D7922D00522DFD /* Media.storyboard */; };
@@ -77,6 +79,7 @@
 		3966634329DE190D005727D4 /* Acknowledgements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3966634229DE190D005727D4 /* Acknowledgements.plist */; };
 		3966634529DF321F005727D4 /* EmptyView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3966634429DF321F005727D4 /* EmptyView.xib */; };
 		3966634729DF34AD005727D4 /* EmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3966634629DF34AD005727D4 /* EmptyView.swift */; };
+		39680C312ABB527800A16D5B /* mock-favorites.json in Resources */ = {isa = PBXBuildFile; fileRef = 39680C302ABB527800A16D5B /* mock-favorites.json */; };
 		39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F0C29C53FD300704670 /* CollectionViewCell.swift */; };
 		39B03F0F29C53FD300704670 /* CollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39B03F0D29C53FD300704670 /* CollectionViewCell.xib */; };
 		39B03F1229C636B500704670 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F1129C636B500704670 /* SettingsController.swift */; };
@@ -84,9 +87,33 @@
 		39B03F1629C68C2900704670 /* CollectionViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F1529C68C2900704670 /* CollectionViewLayout.swift */; };
 		39C31E8E2A7994880045DF50 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8D2A7994880045DF50 /* DataService.swift */; };
 		39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */; };
-		39D73C1A29BF5FDA0096ECD3 /* NextcloudService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1929BF5FDA0096ECD3 /* NextcloudService.swift */; };
 		39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */; };
 		39EA17D529DF62E200E24A3C /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EA17D429DF62E200E24A3C /* UIView+Extensions.swift */; };
+		39F29B072AB8D28600CACC74 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 391579B32AB8A39300DFEAB1 /* Realm */; };
+		39F29B082AB8D28600CACC74 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 391579B52AB8A39300DFEAB1 /* RealmSwift */; };
+		39F29B092AB8D28600CACC74 /* SVGKit in Frameworks */ = {isa = PBXBuildFile; productRef = 391579B72AB8A3B500DFEAB1 /* SVGKit */; };
+		39F29B0A2AB8D28600CACC74 /* SVGKitSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 391579B92AB8A3B500DFEAB1 /* SVGKitSwift */; };
+		39F29B222AB8DEB600CACC74 /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735AC29BE3C140058796A /* Database.swift */; };
+		39F29B232AB8DEB600CACC74 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927359F29BD69EA0058796A /* DatabaseManager.swift */; };
+		39F29B242AB8DEB600CACC74 /* DatabaseManager+Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735AA29BE2DAA0058796A /* DatabaseManager+Account.swift */; };
+		39F29B252AB8DEB600CACC74 /* DatabaseManager+LocalFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D6F29DA622700522DFD /* DatabaseManager+LocalFile.swift */; };
+		39F29B262AB8DEB600CACC74 /* DatabaseManager+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */; };
+		39F29B272AB8DEB600CACC74 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395F3A192A9678340004FF32 /* Environment.swift */; };
+		39F29B282AB8DEB600CACC74 /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395F3A1B2A96812E0004FF32 /* UserAccount.swift */; };
+		39F29B2A2AB8DF5B00CACC74 /* NextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */; };
+		39F29B2B2AB8DF5B00CACC74 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8D2A7994880045DF50 /* DataService.swift */; };
+		39F29B2C2AB8DF6E00CACC74 /* StoreUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735B229BE402D0058796A /* StoreUtility.swift */; };
+		39F29B2D2AB8DF8300CACC74 /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735A129BD6A4F0058796A /* Global.swift */; };
+		39F29B2E2AB8DF9600CACC74 /* FileSystemUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F1329C6384300704670 /* FileSystemUtility.swift */; };
+		39F29B2F2AB8DFB900CACC74 /* HttpCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394BCB0D29C7E25000C4F619 /* HttpCache.swift */; };
+		39F29B302AB8DFB900CACC74 /* NextcloudUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394BCB1829C7E9BB00C4F619 /* NextcloudUtility.swift */; };
+		39F29B312AB8E00200CACC74 /* UIImage+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D7429DA66D800522DFD /* UIImage+Extensions.swift */; };
+		39F29B322AB8E00200CACC74 /* UIImage+gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D7229DA667500522DFD /* UIImage+gif.swift */; };
+		39F29B332AB8E00200CACC74 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EA17D429DF62E200E24A3C /* UIView+Extensions.swift */; };
+		39F29B352AB8E08F00CACC74 /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 39F29B342AB8E08F00CACC74 /* NextcloudKit */; };
+		39F29B372AB8E08F00CACC74 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 39F29B362AB8E08F00CACC74 /* KeychainAccess */; };
+		39F29B382AB8E2D800CACC74 /* MockDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */; };
+		39F29B392AB8E2D800CACC74 /* MockNextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -139,6 +166,9 @@
 		391579AB2AB645B400DFEAB1 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		391579AD2AB6825000DFEAB1 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		391579AF2AB7464000DFEAB1 /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
+		391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDatabaseManager.swift; sourceTree = "<group>"; };
+		391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNextcloudKitService.swift; sourceTree = "<group>"; };
+		391579C32AB8D18900DFEAB1 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		3916F3E02AAD1B370064002E /* PagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerViewModel.swift; sourceTree = "<group>"; };
 		39271D4729D7694E00522DFD /* CollectionLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionLayout.swift; sourceTree = "<group>"; };
 		39271D4929D7922D00522DFD /* Media.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Media.storyboard; sourceTree = "<group>"; };
@@ -190,6 +220,8 @@
 		3966634229DE190D005727D4 /* Acknowledgements.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Acknowledgements.plist; sourceTree = "<group>"; };
 		3966634429DF321F005727D4 /* EmptyView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EmptyView.xib; sourceTree = "<group>"; };
 		3966634629DF34AD005727D4 /* EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyView.swift; sourceTree = "<group>"; };
+		39680C2B2AB9D32F00A16D5B /* CloudFeed.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CloudFeed.xctestplan; sourceTree = "<group>"; };
+		39680C302ABB527800A16D5B /* mock-favorites.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-favorites.json"; sourceTree = "<group>"; };
 		39B03F0C29C53FD300704670 /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
 		39B03F0D29C53FD300704670 /* CollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionViewCell.xib; sourceTree = "<group>"; };
 		39B03F1129C636B500704670 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
@@ -197,12 +229,24 @@
 		39B03F1529C68C2900704670 /* CollectionViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewLayout.swift; sourceTree = "<group>"; };
 		39C31E8D2A7994880045DF50 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 		39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudKitService.swift; sourceTree = "<group>"; };
-		39D73C1929BF5FDA0096ECD3 /* NextcloudService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudService.swift; sourceTree = "<group>"; };
 		39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Metadata.swift"; sourceTree = "<group>"; };
 		39EA17D429DF62E200E24A3C /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		391579C52AB8D1CE00DFEAB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				39F29B0A2AB8D28600CACC74 /* SVGKitSwift in Frameworks */,
+				39F29B092AB8D28600CACC74 /* SVGKit in Frameworks */,
+				39F29B372AB8E08F00CACC74 /* KeychainAccess in Frameworks */,
+				39F29B352AB8E08F00CACC74 /* NextcloudKit in Frameworks */,
+				39F29B082AB8D28600CACC74 /* RealmSwift in Frameworks */,
+				39F29B072AB8D28600CACC74 /* Realm in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3927356429BD1E820058796A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -214,13 +258,6 @@
 				392735A529BE13590058796A /* Realm in Frameworks */,
 				394BCB1329C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Frameworks */,
 				3927359C29BD3D510058796A /* NextcloudKit in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3927357A29BD1E830058796A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -259,6 +296,15 @@
 				391579A52AB0BF2C00DFEAB1 /* MediaViewModel.swift */,
 			);
 			path = Media;
+			sourceTree = "<group>";
+		};
+		391579C02AB8B6B200DFEAB1 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */,
+				391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */,
+			);
+			path = Test;
 			sourceTree = "<group>";
 		};
 		39271D4B29D7971D00522DFD /* Favorites */ = {
@@ -301,6 +347,7 @@
 				3927356929BD1E820058796A /* CloudFeed */,
 				3927358029BD1E830058796A /* CloudFeedTests */,
 				3927358A29BD1E830058796A /* CloudFeedUITests */,
+				39680C2B2AB9D32F00A16D5B /* CloudFeed.xctestplan */,
 				3927356829BD1E820058796A /* Products */,
 				394BCB1029C7E82100C4F619 /* Frameworks */,
 			);
@@ -328,6 +375,7 @@
 				391579A42AB0BED400DFEAB1 /* Media */,
 				39D73C1829BF5F900096ECD3 /* Networking */,
 				39B03F1029C6369200704670 /* Settings */,
+				391579C02AB8B6B200DFEAB1 /* Test */,
 				392735B129BE3FB90058796A /* Utility */,
 				39271D5E29D905BF00522DFD /* Viewer */,
 				392735A129BD6A4F0058796A /* Global.swift */,
@@ -349,6 +397,7 @@
 			isa = PBXGroup;
 			children = (
 				3927358129BD1E830058796A /* CloudFeedTests.swift */,
+				39680C302ABB527800A16D5B /* mock-favorites.json */,
 			);
 			path = CloudFeedTests;
 			sourceTree = "<group>";
@@ -416,6 +465,7 @@
 		394BCB1029C7E82100C4F619 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				391579C32AB8D18900DFEAB1 /* XCTest.framework */,
 				394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */,
 				394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */,
 			);
@@ -439,7 +489,6 @@
 		39D73C1829BF5F900096ECD3 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				39D73C1929BF5FDA0096ECD3 /* NextcloudService.swift */,
 				39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */,
 				39C31E8D2A7994880045DF50 /* DataService.swift */,
 			);
@@ -479,8 +528,8 @@
 			buildConfigurationList = 3927359429BD1E830058796A /* Build configuration list for PBXNativeTarget "CloudFeedTests" */;
 			buildPhases = (
 				3927357929BD1E830058796A /* Sources */,
-				3927357A29BD1E830058796A /* Frameworks */,
 				3927357B29BD1E830058796A /* Resources */,
+				391579C52AB8D1CE00DFEAB1 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -488,6 +537,14 @@
 				3927357F29BD1E830058796A /* PBXTargetDependency */,
 			);
 			name = CloudFeedTests;
+			packageProductDependencies = (
+				391579B32AB8A39300DFEAB1 /* Realm */,
+				391579B52AB8A39300DFEAB1 /* RealmSwift */,
+				391579B72AB8A3B500DFEAB1 /* SVGKit */,
+				391579B92AB8A3B500DFEAB1 /* SVGKitSwift */,
+				39F29B342AB8E08F00CACC74 /* NextcloudKit */,
+				39F29B362AB8E08F00CACC74 /* KeychainAccess */,
+			);
 			productName = CloudFeedTests;
 			productReference = 3927357D29BD1E830058796A /* CloudFeedTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -517,7 +574,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1420;
+				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1420;
 				TargetAttributes = {
 					3927356629BD1E820058796A = {
@@ -525,7 +582,6 @@
 					};
 					3927357C29BD1E830058796A = {
 						CreatedOnToolsVersion = 14.2;
-						TestTargetID = 3927356629BD1E820058796A;
 					};
 					3927358629BD1E830058796A = {
 						CreatedOnToolsVersion = 14.2;
@@ -585,6 +641,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39680C312ABB527800A16D5B /* mock-favorites.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -602,6 +659,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				391579C12AB8BBAB00DFEAB1 /* MockDatabaseManager.swift in Sources */,
+				391579C22AB8BBAB00DFEAB1 /* MockNextcloudKitService.swift in Sources */,
 				392735B829BE50780058796A /* LoginWebController.swift in Sources */,
 				3903CE712AA75132003E7E41 /* MainCoordinator.swift in Sources */,
 				39271D7029DA622700522DFD /* DatabaseManager+LocalFile.swift in Sources */,
@@ -620,7 +679,6 @@
 				392735B329BE402D0058796A /* StoreUtility.swift in Sources */,
 				394BCB0E29C7E25000C4F619 /* HttpCache.swift in Sources */,
 				39B03F1229C636B500704670 /* SettingsController.swift in Sources */,
-				39D73C1A29BF5FDA0096ECD3 /* NextcloudService.swift in Sources */,
 				3966634729DF34AD005727D4 /* EmptyView.swift in Sources */,
 				3903CE6B2AA4D871003E7E41 /* AppCoordinator.swift in Sources */,
 				392735A229BD6A4F0058796A /* Global.swift in Sources */,
@@ -663,6 +721,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39F29B382AB8E2D800CACC74 /* MockDatabaseManager.swift in Sources */,
+				39F29B392AB8E2D800CACC74 /* MockNextcloudKitService.swift in Sources */,
+				39F29B312AB8E00200CACC74 /* UIImage+Extensions.swift in Sources */,
+				39F29B322AB8E00200CACC74 /* UIImage+gif.swift in Sources */,
+				39F29B332AB8E00200CACC74 /* UIView+Extensions.swift in Sources */,
+				39F29B2F2AB8DFB900CACC74 /* HttpCache.swift in Sources */,
+				39F29B302AB8DFB900CACC74 /* NextcloudUtility.swift in Sources */,
+				39F29B2E2AB8DF9600CACC74 /* FileSystemUtility.swift in Sources */,
+				39F29B2D2AB8DF8300CACC74 /* Global.swift in Sources */,
+				39F29B2C2AB8DF6E00CACC74 /* StoreUtility.swift in Sources */,
+				39F29B2A2AB8DF5B00CACC74 /* NextcloudKitService.swift in Sources */,
+				39F29B2B2AB8DF5B00CACC74 /* DataService.swift in Sources */,
+				39F29B222AB8DEB600CACC74 /* Database.swift in Sources */,
+				39F29B232AB8DEB600CACC74 /* DatabaseManager.swift in Sources */,
+				39F29B242AB8DEB600CACC74 /* DatabaseManager+Account.swift in Sources */,
+				39F29B252AB8DEB600CACC74 /* DatabaseManager+LocalFile.swift in Sources */,
+				39F29B262AB8DEB600CACC74 /* DatabaseManager+Metadata.swift in Sources */,
+				39F29B272AB8DEB600CACC74 /* Environment.swift in Sources */,
+				39F29B282AB8DEB600CACC74 /* UserAccount.swift in Sources */,
 				3927358229BD1E830058796A /* CloudFeedTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -887,18 +964,22 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LB7Q63276B;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.angelamimi.CloudFeedTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CloudFeed.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CloudFeed";
 			};
 			name = Debug;
 		};
@@ -906,18 +987,22 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LB7Q63276B;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.angelamimi.CloudFeedTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CloudFeed.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CloudFeed";
 			};
 			name = Release;
 		};
@@ -925,12 +1010,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LB7Q63276B;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.angelamimi.CloudFeedUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -942,12 +1030,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LB7Q63276B;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.angelamimi.CloudFeedUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1032,6 +1123,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		391579B32AB8A39300DFEAB1 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 392735A329BE13590058796A /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = Realm;
+		};
+		391579B52AB8A39300DFEAB1 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 392735A329BE13590058796A /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
+		391579B72AB8A3B500DFEAB1 /* SVGKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */;
+			productName = SVGKit;
+		};
+		391579B92AB8A3B500DFEAB1 /* SVGKitSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */;
+			productName = SVGKitSwift;
+		};
 		39271D7729DB341B00522DFD /* SVGKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */;
@@ -1053,6 +1164,16 @@
 			productName = RealmSwift;
 		};
 		392735AF29BE3DED0058796A /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+		39F29B342AB8E08F00CACC74 /* NextcloudKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3927359A29BD3D510058796A /* XCRemoteSwiftPackageReference "NextcloudKit" */;
+			productName = NextcloudKit;
+		};
+		39F29B362AB8E08F00CACC74 /* KeychainAccess */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;

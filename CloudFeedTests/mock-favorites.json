@@ -1,0 +1,38 @@
+[
+   {
+       "account": "codemistressmimi https://cloud.angelamimi.com",
+       "contentType": "image/jpeg",
+       "favorite": "true",
+       "fileName": "testfile1.jpg",
+       "ocId": "00000296oco9frygcvqs",
+       "path": "/remote.php/dav/files/codemistressmimi/Photos/"
+   },
+
+   {
+       "account": "codemistressmimi https://cloud.angelamimi.com",
+       "contentType": "image/jpeg",
+       "favorite": "true",
+       "fileName": "testfile2.jpg",
+       "ocId": "00000298oco9frygcvqs",
+       "path": "/remote.php/dav/files/codemistressmimi/Photos/"
+   },
+   
+   {
+       "account": "codemistressmimi https://cloud.angelamimi.com",
+       "contentType": "image/jpeg",
+       "favorite": "true",
+       "fileName": "IMG_0347.jpg",
+       "ocId": "00000469oco9frygcvqs",
+       "path": "/remote.php/dav/files/codemistressmimi/Photos/Olive/"
+   },
+   
+   {
+       "account": "codemistressmimi https://cloud.angelamimi.com",
+       "contentType": "video/quicktime",
+       "favorite": "true",
+       "fileName": "IMG_0347.mov",
+       "ocId": "00000470oco9frygcvqs",
+       "path": "/remote.php/dav/files/codemistressmimi/Photos/Olive/"
+   }
+]
+

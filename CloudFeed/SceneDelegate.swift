@@ -16,8 +16,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let _ = (scene as? UIWindowScene) else { return }
         guard let window = self.window else { return }
         
+        
+        let dbManager = DatabaseManager()
+        dbManager.setup()
+        
+        Environment.current.initServicesFor(nextcloudService: NextcloudKitService(), databaseManager: dbManager)
+        
         if let activeAccount = Environment.current.dataService.getActiveAccount() {
-            Environment.current.initServicesFor(account: activeAccount.account,
+            Environment.current.setupFor(account: activeAccount.account,
                                                 urlBase: activeAccount.urlBase,
                                                 user: activeAccount.user,
                                                 userId: activeAccount.userId,

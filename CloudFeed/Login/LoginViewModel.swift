@@ -29,9 +29,9 @@ final class LoginViewModel: NSObject {
     
     func login(server: String, username: String, password: String) {
         
-        Self.logger.debug("createAccount() - server: \(server) username: \(username) password: \(password)")
+        //Self.logger.debug("createAccount() - server: \(server) username: \(username) password: \(password)")
 
-        let dataService = Environment.current.dataService
+        let dataService = Environment.current.dataService!
         var urlBase = server
 
         // Normalized
@@ -57,7 +57,7 @@ final class LoginViewModel: NSObject {
             return
         }
         
-        Environment.current.initServicesFor(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
+        Environment.current.setupFor(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
         
         delegate.loginSuccess()
      }

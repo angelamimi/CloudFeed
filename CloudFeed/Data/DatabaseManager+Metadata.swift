@@ -139,7 +139,7 @@ extension DatabaseManager {
         return tableMetadata.init(value: result)
     }
     
-    func convertFilesToMetadatas(_ files: [NKFile], useMetadataFolder: Bool) async -> (metadataFolder: tableMetadata, metadatasFolder: [tableMetadata], metadatas: [tableMetadata]) {
+    func convertFilesToMetadatas(_ files: [NKFile]) async -> (metadataFolder: tableMetadata, metadatasFolder: [tableMetadata], metadatas: [tableMetadata]) {
 
         var counter: Int = 0
 
@@ -151,13 +151,9 @@ extension DatabaseManager {
 
             let metadata = convertFileToMetadata(file)
 
-            if counter == 0 && useMetadataFolder {
-                metadataFolder = tableMetadata.init(value: metadata)
-            } else {
-                metadatas.append(metadata)
-                if metadata.directory {
-                    metadataFolders.append(metadata)
-                }
+            metadatas.append(metadata)
+            if metadata.directory {
+                metadataFolders.append(metadata)
             }
 
             counter += 1

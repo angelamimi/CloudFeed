@@ -8,7 +8,8 @@ import NextcloudKit
 import os.log
 import UIKit
 
-protocol NextcloudKitServiceProtocol {
+protocol NextcloudKitServiceProtocol: AnyObject {
+    
     func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String)
     func setupVersion(serverVersionMajor: Int)
     func getCapabilities() async -> (account: String?, data: Data?)
@@ -72,13 +73,13 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                     }
                     
                     continuation.resume(returning: NKError.invalidData)
-            }
+                }
         }
     }
     
     func downloadPreview(fileNamePath: String, fileNamePreviewLocalPath: String, fileNameIconLocalPath: String, etagResource: String?) async {
         let options = NKRequestOptions(queue: NKCommon.shared.backgroundQueue)
-
+        
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.downloadPreview(
                 fileNamePathOrFileId: fileNamePath,
@@ -102,9 +103,9 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     }
     
     func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String? {
-
+        
         let options = NKRequestOptions(queue: NKCommon.shared.backgroundQueue)
-
+        
         return await withCheckedContinuation { continuation in
             
             //TODO: REFACTOR! Was account.userId
@@ -115,12 +116,12 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                 avatarSizeRounded: Global.shared.avatarSizeRounded,
                 etag: etag, options: options) { _, _, _, etag, error in
                     
-                guard let etag = etag, error == .success else {
-                    continuation.resume(returning: nil)
-                    return
+                    guard let etag = etag, error == .success else {
+                        continuation.resume(returning: nil)
+                        return
+                    }
+                    continuation.resume(returning: etag)
                 }
-                continuation.resume(returning: etag)
-            }
         }
     }
     
@@ -128,7 +129,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     // MARK: -
     // MARK: Search
     func searchMedia(account: String, mediaPath: String, lessDate: Date, greaterDate: Date, limit: Int) async -> (files: [NKFile], error: Bool) {
-
+        
         let limit: Int = limit
         let options = NKRequestOptions(timeout: 300)
         
@@ -188,7 +189,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                     continuation.resume(returning: (account, nil))
                     return
                 }
-            
+                
                 continuation.resume(returning: (account, files))
             }
         }

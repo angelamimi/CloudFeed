@@ -24,7 +24,7 @@ class DataService: NSObject {
         category: String(describing: DataService.self)
     )
     
-    func initServices(account: String, user: String, userId: String, password: String, urlBase: String) {
+    func setup(account: String, user: String, userId: String, password: String, urlBase: String) {
         
         nextcloudService.setupAccount(account: account, user: user, userId: userId, password: password, urlBase: urlBase)
         //NKCommon.shared.levelLog = 1
@@ -154,14 +154,15 @@ class DataService: NSObject {
         
         let listingResult = await nextcloudService.listingFavorites()
         
+        /*for file in listingResult.files! {
+            print("-------------------------!!")
+            print(Mirror(reflecting: file).children.compactMap { "\($0.label ?? "Unknown Label"): \($0.value)" }.joined(separator: "\n"))
+        }*/
+        
         guard listingResult.files != nil else { return nil }
         
-        let convertResult = await databaseManager.convertFilesToMetadatas(listingResult.files!, useMetadataFolder: false)
+        let convertResult = await databaseManager.convertFilesToMetadatas(listingResult.files!)
         databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: convertResult.metadatas)
-        
-        //let metadatas = DatabaseManager.shared.getMetadatas(predicate: NSPredicate(format: "account == %@ AND favorite == true", listingResult.account))
-        
-        //return metadatas
         
         return getFavoriteMetadatas(account: listingResult.account)
     }
@@ -244,7 +245,7 @@ class DataService: NSObject {
             return ([], [], searchResult.error)
         }
         
-        let metadataCollection = await databaseManager.convertFilesToMetadatas(searchResult.files, useMetadataFolder: false)
+        let metadataCollection = await databaseManager.convertFilesToMetadatas(searchResult.files)
         
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date > %@ AND date < %@", account, startServerUrl, NKCommon.typeClassFile.image.rawValue, NKCommon.typeClassFile.video.rawValue, greaterDate as NSDate, lessDate as NSDate)
         let metadatasResult = databaseManager.getMetadatas(predicate: predicate)

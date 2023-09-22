@@ -18,7 +18,8 @@ class DatabaseManager: NSObject {
             category: String(describing: DatabaseManager.self)
         )
     
-    override init() {
+    func setup() {
+        
         let dirGroup = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Global.shared.groupIdentifier)
         let databaseFileUrlPath = dirGroup?.appendingPathComponent(Global.shared.databaseDirectory + "/" + Global.shared.databaseDefault)
         

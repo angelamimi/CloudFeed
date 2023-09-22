@@ -27,16 +27,6 @@
         "identifier" : "3927358629BD1E830058796A",
         "name" : "CloudFeedUITests"
       }
-    },
-    {
-      "skippedTests" : [
-        "Tests\/testPerformanceExample()"
-      ],
-      "target" : {
-        "containerPath" : "container:CloudFeed.xcodeproj",
-        "identifier" : "39680C232AB9D1EE00A16D5B",
-        "name" : "Tests"
-      }
     }
   ],
   "version" : 1
