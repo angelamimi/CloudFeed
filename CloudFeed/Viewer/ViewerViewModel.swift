@@ -13,17 +13,19 @@ import UIKit
 final class ViewerViewModel {
     
     let metadata: tableMetadata
+    let dataService: DataService
     
-    init(metadata: tableMetadata) {
+    init(dataService: DataService, metadata: tableMetadata) {
         self.metadata = metadata
+        self.dataService = dataService
     }
 
     func getMetadataLivePhoto(metadata: tableMetadata) -> tableMetadata? {
-        return Environment.current.dataService.getMetadataLivePhoto(metadata: metadata)
+        return dataService.getMetadataLivePhoto(metadata: metadata)
     }
     
     func getMetadataFromOcId(_ ocId: String?) -> tableMetadata? {
-        return Environment.current.dataService.getMetadataFromOcId(ocId)
+        return dataService.getMetadataFromOcId(ocId)
     }
     
     func loadVideo(viewWidth: CGFloat, viewHeight: CGFloat) -> AVPlayerViewController? {
@@ -63,15 +65,15 @@ final class ViewerViewModel {
             
             if metadata.livePhoto {
                 let fileName = (metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-                if let metadata = Environment.current.dataService.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", metadata.account, metadata.serverUrl, fileName)), !StoreUtility.fileProviderStorageExists(metadata) {
+                if let metadata = dataService.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", metadata.account, metadata.serverUrl, fileName)), !StoreUtility.fileProviderStorageExists(metadata) {
                     Task {
-                        await Environment.current.dataService.download(metadata: metadata, selector: "")
+                        await dataService.download(metadata: metadata, selector: "")
                     }
                 }
             }
             
             Task {
-                await Environment.current.dataService.download(metadata: metadata, selector: "")
+                await dataService.download(metadata: metadata, selector: "")
                 
                 let image = getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
                 return image

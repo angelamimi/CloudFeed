@@ -19,7 +19,8 @@ protocol FavoritesDelegate: AnyObject {
 final class FavoritesViewModel: NSObject {
     
     var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
-    var delegate: FavoritesDelegate!
+    let delegate: FavoritesDelegate
+    let dataService: DataService
     
     private let groupSize = 2 //thumbnail fetches executed concurrently
     
@@ -28,8 +29,9 @@ final class FavoritesViewModel: NSObject {
         category: String(describing: FavoritesViewModel.self)
     )
     
-    init(delegate: FavoritesDelegate) {
+    init(delegate: FavoritesDelegate, dataService: DataService) {
         self.delegate = delegate
+        self.dataService = dataService
     }
     
     func initDataSource(collectionView: UICollectionView) {
@@ -94,7 +96,7 @@ final class FavoritesViewModel: NSObject {
     func metadataFetch() {
         
         guard let account = Environment.current.currentUser?.account else { return }
-        let resultMetadatas = Environment.current.dataService.getFavoriteMetadatas(account: account)
+        let resultMetadatas = dataService.getFavoriteMetadatas(account: account)
         
         guard resultMetadatas != nil && resultMetadatas?.count ?? 0 > 0 else { return }
         
@@ -114,7 +116,7 @@ final class FavoritesViewModel: NSObject {
             
             guard metadata != nil else { continue }
             
-            let error = await Environment.current.dataService.favoriteMetadata(metadata!)
+            let error = await dataService.favoriteMetadata(metadata!)
             if error == .success {
                 snapshot.deleteItems([metadata!])
             } else {
@@ -156,7 +158,7 @@ final class FavoritesViewModel: NSObject {
     private func getFavorites() async -> [tableMetadata]? {
 
         Self.logger.debug("getFavorites()")
-        let resultMetadatas = await Environment.current.dataService.getFavorites()
+        let resultMetadatas = await dataService.getFavorites()
         
         Self.logger.debug("getFavorites() - resultMetadatas count: \(resultMetadatas == nil ? -1 : resultMetadatas!.count)")
         
@@ -245,12 +247,12 @@ final class FavoritesViewModel: NSObject {
                     //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType) fileExtension: \(metadata.fileExtension)")
                     //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                     if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
-                        await Environment.current.dataService.downloadVideoPreview(metadata: metadata)
+                        await self.dataService.downloadVideoPreview(metadata: metadata)
                     } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
                         //TODO: Implement svg fetch. Need a library that works.
                     } else {
                         //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType)")
-                        await Environment.current.dataService.downloadPreview(metadata: metadata)
+                        await self.dataService.downloadPreview(metadata: metadata)
                     }
                 }
             }

@@ -16,22 +16,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let _ = (scene as? UIWindowScene) else { return }
         guard let window = self.window else { return }
         
-        
-        let dbManager = DatabaseManager()
-        dbManager.setup()
-        
-        Environment.current.initServicesFor(nextcloudService: NextcloudKitService(), databaseManager: dbManager)
-        
-        if let activeAccount = Environment.current.dataService.getActiveAccount() {
-            Environment.current.setupFor(account: activeAccount.account,
-                                                urlBase: activeAccount.urlBase,
-                                                user: activeAccount.user,
-                                                userId: activeAccount.userId,
-                                                password: StoreUtility.getPassword(activeAccount.account))
+        if NSClassFromString("XCTestCase") == nil {
+            let appCoordinator = AppCoordinator(window: window)
+            appCoordinator.start()
+        } else {
+            window.rootViewController = UINavigationController()
+            self.window = window
+            window.makeKeyAndVisible()
         }
-        
-        let appCoordinator = AppCoordinator(window: window)
-        appCoordinator.start()
     }
 }
 

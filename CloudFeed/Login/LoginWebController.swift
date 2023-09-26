@@ -159,8 +159,8 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
 
 extension LoginWebController: LoginDelegate {
     
-    func loginSuccess() {
-        coordinator.handleLoginSuccess()
+    func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
+        coordinator.handleLoginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
     }
     
     func loginError() {

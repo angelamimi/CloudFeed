@@ -5,4 +5,41 @@
 //  Created by Angela Jarosz on 9/26/23.
 //
 
-import Foundation
+@testable import CloudFeed
+import XCTest
+
+class BaseTest: XCTestCase {
+    
+    let account = "testuser1 https://cloud.test1.com"
+    let urlBase = "https://cloud.test1.com"
+    let username = "testuser1"
+    let password = "testpassword1"
+    
+    var dataService: DataService?
+    
+    func initEnvironment() {
+        
+        print("initEnvironment()")
+        
+        let dbman = MockDatabaseManager()
+        dbman.setup()
+        
+        dataService = DataService(nextcloudService: MockNextcloudKitService(), databaseManager: dbman)
+        XCTAssertNotNil(dataService)
+        
+        dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
+
+        let tableAccount = dataService?.setActiveAccount(account)
+        XCTAssertNotNil(tableAccount)
+        
+        let activeAccount = dataService?.getActiveAccount()
+        XCTAssertNotNil(activeAccount)
+        
+        if Environment.current.setCurrentUser(account: activeAccount!.account, urlBase: activeAccount!.urlBase, user: activeAccount!.user, userId: activeAccount!.userId) {
+            print("initEnvironment() - dataservice setup")
+            let pwd = StoreUtility.getPassword(activeAccount!.account)
+            XCTAssertNotNil(pwd)
+            dataService?.setup(account: activeAccount!.account, user: activeAccount!.user, userId: activeAccount!.userId, password: pwd!, urlBase: activeAccount!.urlBase)
+        }
+    }
+}

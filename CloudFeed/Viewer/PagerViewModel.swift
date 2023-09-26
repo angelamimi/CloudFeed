@@ -23,15 +23,18 @@ protocol PagerViewModelDelegate: AnyObject {
 
 final class PagerViewModel: NSObject {
 
-    var currentIndex: Int
-    var metadatas: [tableMetadata]
+    private let coordinator: ViewerCoordinator
+    private let dataService: DataService
     
-    var coordinator: ViewerCoordinator!
+    private var currentIndex: Int
+    private var metadatas: [tableMetadata]
     
     internal var nextIndex: Int?
     weak var delegate: PagerViewModelDelegate?
     
-    init(currentIndex: Int = 0, metadatas: [tableMetadata]) {
+    init(coordinator: ViewerCoordinator, dataService: DataService, currentIndex: Int = 0, metadatas: [tableMetadata]) {
+        self.coordinator = coordinator
+        self.dataService = dataService
         self.currentIndex = currentIndex
         self.metadatas = metadatas
     }
@@ -51,7 +54,7 @@ final class PagerViewModel: NSObject {
         let metadata = metadatas[currentIndex]
         
         Task {
-            let error = await Environment.current.dataService.favoriteMetadata(metadata)
+            let error = await dataService.favoriteMetadata(metadata)
             if error == .success {
                 metadatas[currentIndex].favorite = isFavorite
                 delegate?.finishedUpdatingFavorite(isFavorite: isFavorite)
@@ -64,21 +67,13 @@ final class PagerViewModel: NSObject {
     
     func getMetadata(account: String, serverUrl: String, fileName: String) -> tableMetadata? {
         let predicate = NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", account, serverUrl, fileName)
-        return Environment.current.dataService.getMetadata(predicate: predicate)
+        return dataService.getMetadata(predicate: predicate)
     }
 }
 
 extension PagerViewModel {
     
     private func initViewer(index: Int, metadata: tableMetadata) -> ViewerController {
-        
-        /*let viewerMedia = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(identifier: "ViewerController") as! ViewerController
-        
-        viewerMedia.index = index
-        viewerMedia.metadata = metadata
-
-        return viewerMedia*/
-        
         return coordinator.getViewerController(for: index, metadata: metadata)
     }
 }

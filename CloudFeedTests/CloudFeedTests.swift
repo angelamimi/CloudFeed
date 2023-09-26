@@ -8,42 +8,23 @@
 @testable import CloudFeed
 import XCTest
 
-final class CloudFeedTests: XCTestCase {
+final class CloudFeedTests: BaseTest {
     
-    private static let account = "Test Account 1"
-    private static let urlBase = "testurlbase1.com"
-    private static let username = "testusername1"
-    private static let password = "testpassword1"
-    
-    override class func setUp() {
-        super.setUp()
-        
-        print("CLASS SETUP")
-        
-        let dataSource = MockDatabaseManager()
-        dataSource.setup()
-        
-        Environment.current.initServicesFor(nextcloudService: MockNextcloudKitService(), databaseManager: dataSource)
-        Environment.current.dataService.addAccount(account, urlBase: urlBase, user: username, password: password)
-
-        let tableAccount = Environment.current.dataService.setActiveAccount(account)
-        XCTAssertNotNil(tableAccount)
-        
-        Environment.current.setupFor(account: account, urlBase: urlBase, user: username, userId: tableAccount!.userId, password: password)
-
+    override func setUp() {
+        initEnvironment()
     }
-
+    
     func testCurrentUser() throws {
         
         let currentUser = Environment.current.currentUser
         
         XCTAssertNotNil(currentUser)
-        XCTAssertEqual(currentUser?.account, CloudFeedTests.account)
+        XCTAssertEqual(currentUser?.account, account)
     }
     
     func testGetFavorites() async throws {
 
-        let favMetadatas = await Environment.current.dataService.getFavorites()
+        let favMetadatas = await dataService?.getFavorites()
         
         XCTAssertNotNil(favMetadatas)
         
@@ -52,6 +33,8 @@ final class CloudFeedTests: XCTestCase {
     }
     
     func testSearchMedia() async throws {
+        
+        //let result = await dataService?.searchMedia(account: account, mediaPath: <#T##String#>, startServerUrl: <#T##String#>, lessDate: <#T##Date#>, greaterDate: <#T##Date#>, limit: 5)
         
         //let result = await Environment.current.dataService.searchMedia(account: <#T##String#>, mediaPath: <#T##String#>, startServerUrl: <#T##String#>, lessDate: <#T##Date#>, greaterDate: <#T##Date#>, limit: <#T##Int#>)
     }

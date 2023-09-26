@@ -19,14 +19,6 @@
         "identifier" : "3927357C29BD1E830058796A",
         "name" : "CloudFeedTests"
       }
-    },
-    {
-      "parallelizable" : true,
-      "target" : {
-        "containerPath" : "container:CloudFeed.xcodeproj",
-        "identifier" : "3927358629BD1E830058796A",
-        "name" : "CloudFeedUITests"
-      }
     }
   ],
   "version" : 1

@@ -12,10 +12,12 @@ final class LoginWebCoordinator : Coordinator {
     private let window: UIWindow
     private let navigationController: UINavigationController
     private let url: String
+    private let dataService: DataService
     
-    init(window: UIWindow, navigationController: UINavigationController, url: String) {
+    init(window: UIWindow, navigationController: UINavigationController, dataService: DataService, url: String) {
         self.window = window
         self.navigationController = navigationController
+        self.dataService = dataService
         self.url = url
     }
     
@@ -23,18 +25,22 @@ final class LoginWebCoordinator : Coordinator {
         let loginController = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(identifier: "LoginWebController") as! LoginWebController
         loginController.setURL(url: url)
         loginController.coordinator = self
-        loginController.viewModel = LoginViewModel(delegate: loginController)
+        loginController.viewModel = LoginViewModel(delegate: loginController, dataService: dataService)
         self.navigationController.pushViewController(loginController, animated: true)
     }
 }
 
 extension LoginWebCoordinator {
     
-    func handleLoginSuccess() {
+    func handleLoginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
 
         navigationController.setViewControllers([], animated: false)
         
-        let mainCoordinator = MainCoordinator(window: window)
+        if Environment.current.setCurrentUser(account: account, urlBase: urlBase, user: user, userId: userId) {
+            dataService.setup(account: account, user: user, userId: userId, password: StoreUtility.getPassword(account), urlBase: urlBase)
+        }
+        
+        let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
         mainCoordinator.start()
     }
     

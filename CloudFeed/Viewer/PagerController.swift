@@ -40,8 +40,6 @@ class PagerController: UIViewController, MediaViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        Self.logger.log("viewDidLoad() - currentIndex: \(self.viewModel.currentIndex) metadata count: \(self.viewModel.metadatas.count)")
-        
         pageViewController?.delegate = viewModel
         pageViewController?.dataSource = viewModel
         

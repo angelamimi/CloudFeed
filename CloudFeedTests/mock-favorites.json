@@ -1,6 +1,6 @@
 [
    {
-       "account": "codemistressmimi https://cloud.angelamimi.com",
+       "account": "testuser1 https://cloud.test1.com",
        "contentType": "image/jpeg",
        "favorite": "true",
        "fileName": "testfile1.jpg",
@@ -9,7 +9,7 @@
    },
 
    {
-       "account": "codemistressmimi https://cloud.angelamimi.com",
+       "account": "testuser1 https://cloud.test1.com",
        "contentType": "image/jpeg",
        "favorite": "true",
        "fileName": "testfile2.jpg",
@@ -18,7 +18,7 @@
    },
    
    {
-       "account": "codemistressmimi https://cloud.angelamimi.com",
+       "account": "testuser1 https://cloud.test1.com",
        "contentType": "image/jpeg",
        "favorite": "true",
        "fileName": "IMG_0347.jpg",
@@ -27,7 +27,7 @@
    },
    
    {
-       "account": "codemistressmimi https://cloud.angelamimi.com",
+       "account": "testuser1 https://cloud.test1.com",
        "contentType": "video/quicktime",
        "favorite": "true",
        "fileName": "IMG_0347.mov",

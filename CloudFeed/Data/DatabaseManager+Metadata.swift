@@ -143,7 +143,7 @@ extension DatabaseManager {
 
         var counter: Int = 0
 
-        var metadataFolder = tableMetadata()
+        let metadataFolder = tableMetadata()
         var metadataFolders: [tableMetadata] = []
         var metadatas: [tableMetadata] = []
 

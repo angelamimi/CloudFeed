@@ -12,11 +12,12 @@ final class MainCoordinator : Coordinator {
     private let window: UIWindow
     private let tabBarController: UITabBarController
     
-    init(window: UIWindow) {
+    init(window: UIWindow, dataService: DataService) {
+        
         self.window = window
         self.tabBarController = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! UITabBarController
         
-        initTabCoordinators()
+        initTabCoordinators(dataService: dataService)
     }
     
     func start() {
@@ -44,7 +45,7 @@ extension MainCoordinator: CacheDelegate {
 
 extension MainCoordinator {
     
-    private func initTabCoordinators() {
+    private func initTabCoordinators(dataService: DataService) {
         
         guard tabBarController.viewControllers != nil && tabBarController.viewControllers?.count == 3 else { return }
 
@@ -56,12 +57,12 @@ extension MainCoordinator {
         let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
         let settingsViewController = settingsNavController.viewControllers[0] as! SettingsController
         
-        mediaViewController.coordinator = MediaCoordinator(navigationController: mediaNavController)
-        favoritesViewController.coordinator = FavoritesCoordinator(navigationController: favoritesNavController)
+        mediaViewController.coordinator = MediaCoordinator(navigationController: mediaNavController, dataService: dataService)
+        favoritesViewController.coordinator = FavoritesCoordinator(navigationController: favoritesNavController, dataService: dataService)
         settingsViewController.coordinator = SettingsCoordinator(navigationController: settingsNavController, cacheDelegate: self)
         
-        mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController)
-        favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController)
-        settingsViewController.viewModel = SettingsViewModel(delegate: settingsViewController)
+        mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService)
+        favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService)
+        settingsViewController.viewModel = SettingsViewModel(delegate: settingsViewController, dataService: dataService)
     }
 }

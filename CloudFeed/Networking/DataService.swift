@@ -11,18 +11,18 @@ import UIKit
 
 class DataService: NSObject {
     
-    let nextcloudService: NextcloudKitServiceProtocol
-    let databaseManager: DatabaseManager
-    
-    init(nextcloudService: NextcloudKitServiceProtocol, databaseManager: DatabaseManager) {
-        self.nextcloudService = nextcloudService
-        self.databaseManager = databaseManager
-    }
+    private let nextcloudService: NextcloudKitServiceProtocol
+    private let databaseManager: DatabaseManager
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DataService.self)
     )
+    
+    init(nextcloudService: NextcloudKitServiceProtocol, databaseManager: DatabaseManager) {
+        self.nextcloudService = nextcloudService
+        self.databaseManager = databaseManager
+    }
     
     func setup(account: String, user: String, userId: String, password: String, urlBase: String) {
         

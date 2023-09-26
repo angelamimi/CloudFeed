@@ -17,21 +17,23 @@ protocol SettingsDelegate: AnyObject {
 
 final class SettingsViewModel: NSObject {
     
-    var delegate: SettingsDelegate
+    let delegate: SettingsDelegate
+    let dataService: DataService
     
-    init(delegate: SettingsDelegate) {
+    init(delegate: SettingsDelegate, dataService: DataService) {
         self.delegate = delegate
+        self.dataService = dataService
     }
     
     func requestProfile() {
         Task {
-            let result = await Environment.current.dataService.getUserProfile()
+            let result = await dataService.getUserProfile()
             self.delegate.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail)
         }
     }
     
     func requestAvatar() {
-        guard let account = Environment.current.dataService.getActiveAccount() else { return }
+        guard let account = dataService.getActiveAccount() else { return }
         
         Task {
             await downloadAvatar(account: account)
@@ -50,7 +52,7 @@ final class SettingsViewModel: NSObject {
             URLCache.shared.diskCapacity = 0
             URLCache.shared.memoryCapacity = 0
             
-            Environment.current.dataService.clearDatabase(account: account, removeAccount: false)
+            dataService.clearDatabase(account: account, removeAccount: false)
             
             StoreUtility.removeGroupDirectoryProviderStorage()
             StoreUtility.removeDirectoryUserData()
@@ -79,7 +81,7 @@ final class SettingsViewModel: NSObject {
             
             StoreUtility.deleteAllChainStore()
             
-            Environment.current.dataService.removeDatabase()
+            dataService.removeDatabase()
             
             exit(0)
         }
@@ -102,7 +104,7 @@ final class SettingsViewModel: NSObject {
         
         guard let user = Environment.current.currentUser?.user else { return }
         
-        await Environment.current.dataService.downloadAvatar(user: user, account: account)
+        await dataService.downloadAvatar(user: user, account: account)
     }
     
     private func loadAvatar(account: tableAccount) async -> UIImage? {
@@ -120,7 +122,7 @@ final class SettingsViewModel: NSObject {
 
         if let localImage = UIImage(contentsOfFile: localFilePath) {
             return createAvatar(image: localImage, size: 150)
-        } else if let loadedAvatar = Environment.current.dataService.getAvatarImage(fileName: fileName) {
+        } else if let loadedAvatar = dataService.getAvatarImage(fileName: fileName) {
             return loadedAvatar
         } else {
             return nil

@@ -9,17 +9,19 @@ import UIKit
 
 final class MediaCoordinator {
     
-    let navigationController: UINavigationController
+    private let navigationController: UINavigationController
+    private let dataService: DataService
     
-    init(navigationController: UINavigationController) {
+    init(navigationController: UINavigationController, dataService: DataService) {
         self.navigationController = navigationController
+        self.dataService = dataService
     }
 }
 
 extension MediaCoordinator {
     
     func showViewerPager(currentIndex: Int, metadatas: [tableMetadata]) {
-        let pagerCoordinator = PagerCoordinator(navigationController: navigationController)
+        let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService)
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }
     

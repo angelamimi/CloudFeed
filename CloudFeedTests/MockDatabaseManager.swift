@@ -5,6 +5,7 @@
 //  Created by Angela Jarosz on 9/18/23.
 //
 
+@testable import CloudFeed
 import Foundation
 import RealmSwift
 

@@ -10,28 +10,29 @@ import os.log
 import UIKit
 
 protocol LoginDelegate: AnyObject {
-    func loginSuccess()
+    func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String)
     func loginError()
 }
 
 final class LoginViewModel: NSObject {
     
-    var delegate: LoginDelegate!
+    let delegate: LoginDelegate
+    let dataService: DataService
     
     private static let logger = Logger(
             subsystem: Bundle.main.bundleIdentifier!,
             category: String(describing: LoginViewModel.self)
         )
     
-    init(delegate: LoginDelegate) {
+    init(delegate: LoginDelegate, dataService: DataService) {
         self.delegate = delegate
+        self.dataService = dataService
     }
     
     func login(server: String, username: String, password: String) {
         
         //Self.logger.debug("createAccount() - server: \(server) username: \(username) password: \(password)")
 
-        let dataService = Environment.current.dataService!
         var urlBase = server
 
         // Normalized
@@ -57,9 +58,9 @@ final class LoginViewModel: NSObject {
             return
         }
         
-        Environment.current.setupFor(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
+        //Environment.current.setupFor(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
         
-        delegate.loginSuccess()
+        delegate.loginSuccess(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
      }
     
     private func initSettings() {
@@ -68,7 +69,7 @@ final class LoginViewModel: NSObject {
         URLCache.shared.diskCapacity = 0
         KTVHTTPCache.cacheDeleteAllCaches()
 
-        Environment.current.dataService.clearDatabase(account: nil, removeAccount: true)
+        dataService.clearDatabase(account: nil, removeAccount: true)
 
         //StoreUtility.removeGroupDirectoryProviderStorage()
         //StoreUtility.removeGroupLibraryDirectory()

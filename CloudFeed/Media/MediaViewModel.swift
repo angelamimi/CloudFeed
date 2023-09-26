@@ -17,7 +17,8 @@ protocol MediaDelegate: AnyObject {
 final class MediaViewModel: NSObject {
     
     var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
-    var delegate: MediaDelegate!
+    let delegate: MediaDelegate
+    let dataService: DataService
     
     private let loadMoreThreshold = -80.0
     private let groupSize = 2 //thumbnail fetches executed concurrently
@@ -31,8 +32,9 @@ final class MediaViewModel: NSObject {
         category: String(describing: MediaViewModel.self)
     )
     
-    init(delegate: MediaDelegate) {
+    init(delegate: MediaDelegate, dataService: DataService) {
         self.delegate = delegate
+        self.dataService = dataService
     }
     
     func initDataSource(collectionView: UICollectionView) {
@@ -208,7 +210,7 @@ final class MediaViewModel: NSObject {
         
         Self.logger.debug("search() - greaterDays: \(self.greaterDays) lessDate: \(lessDate.formatted(date: .abbreviated, time: .standard))")
         Self.logger.debug("search() - greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
-        let result = await Environment.current.dataService.searchMedia(
+        let result = await dataService.searchMedia(
             account: Environment.current.currentUser!.account!,
             mediaPath: mediaPath!,
             startServerUrl: startServerUrl!,
@@ -240,11 +242,11 @@ final class MediaViewModel: NSObject {
     private func processMetadataSearch(results: (metadatas: [tableMetadata]?, deleteOcIds: [String]), greaterDate: Date) async {
         
         guard let resultMetadatas = results.metadatas else {
-            delegate?.searchResultReceived(resultItemCount: nil)
+            delegate.searchResultReceived(resultItemCount: nil)
             return
         }
         
-        delegate?.searchResultReceived(resultItemCount: resultMetadatas.count)
+        delegate.searchResultReceived(resultItemCount: resultMetadatas.count)
         
         var lessDate: Date = Date()
         //let resultMetadatas: [tableMetadata] = results.metadatas == nil ? [] : results.metadatas!
@@ -322,7 +324,7 @@ final class MediaViewModel: NSObject {
         guard startServerUrl != nil else { return [] }
         guard let account = Environment.current.currentUser?.account else { return [] }
         
-        let resultMetadatas = Environment.current.dataService.paginateMetadata(account: account, startServerUrl: startServerUrl!, greaterDate: greaterDate, lessDate: lessDate, offsetDate: offsetDate, offsetName: offsetName)
+        let resultMetadatas = dataService.paginateMetadata(account: account, startServerUrl: startServerUrl!, greaterDate: greaterDate, lessDate: lessDate, offsetDate: offsetDate, offsetName: offsetName)
         
         /*for metadata in resultMetadatas {
             Self.logger.debug("paginateMetadata() - date: \(metadata.date) fileNameView: \(metadata.fileNameView)")
@@ -424,12 +426,12 @@ final class MediaViewModel: NSObject {
                     //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType) fileExtension: \(metadata.fileExtension)")
                     //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                     if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
-                        await Environment.current.dataService.downloadVideoPreview(metadata: metadata)
+                        await self.dataService.downloadVideoPreview(metadata: metadata)
                     } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
                         //TODO: Implement svg fetch. Need a library that works.
                     } else {
                         //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType)")
-                        await Environment.current.dataService.downloadPreview(metadata: metadata)
+                        await self.dataService.downloadPreview(metadata: metadata)
                     }
                 }
             }
@@ -473,7 +475,7 @@ final class MediaViewModel: NSObject {
     }
     
     private func getMediaPath() -> String? {
-        guard let activeAccount = Environment.current.dataService.getActiveAccount() else { return nil }
+        guard let activeAccount = dataService.getActiveAccount() else { return nil }
         return activeAccount.mediaPath
     }
     

@@ -11,9 +11,11 @@ final class LoginServerCoordinator : Coordinator {
     
     private let window: UIWindow
     private let navigationController: UINavigationController
+    private let dataService: DataService
     
-    init(window: UIWindow) {
+    init(window: UIWindow, dataService: DataService) {
         self.window = window
+        self.dataService = dataService
         self.navigationController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController() as! UINavigationController
     }
     
@@ -28,7 +30,8 @@ final class LoginServerCoordinator : Coordinator {
     }
     
     func navigateToWebLogin(url: String) {
-        navigate(to: LoginWebCoordinator(window: window, navigationController: navigationController, url: url))
+        let coordinator = LoginWebCoordinator(window: window, navigationController: navigationController, dataService: dataService, url: url)
+        navigate(to: coordinator)
     }
     
     func showInvalidURLPrompt() {

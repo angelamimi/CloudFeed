@@ -9,19 +9,20 @@ import UIKit
 
 final class PagerCoordinator {
     
-    let navigationController: UINavigationController
+    private let navigationController: UINavigationController
+    private let dataService: DataService
     
-    init(navigationController: UINavigationController) {
+    init(navigationController: UINavigationController, dataService: DataService) {
         self.navigationController = navigationController
+        self.dataService = dataService
     }
     
     func start(currentIndex: Int, metadatas: [tableMetadata]) {
         
+        let viewerCoordinator = ViewerCoordinator(dataService: dataService)
         let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
-        let viewModel = PagerViewModel(currentIndex: currentIndex, metadatas: metadatas)
-        let viewerCoordinator = ViewerCoordinator()
+        let viewModel = PagerViewModel(coordinator: viewerCoordinator, dataService: dataService, currentIndex: currentIndex, metadatas: metadatas)
         
-        viewModel.coordinator = viewerCoordinator
         viewModel.delegate = viewerPager
         viewerPager.viewModel = viewModel
         
