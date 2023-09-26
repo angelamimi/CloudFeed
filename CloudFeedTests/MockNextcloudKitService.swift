@@ -60,7 +60,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
             resultFiles.append(file)
         }
         
-        return (account: "codemistressmimi https://cloud.angelamimi.com", resultFiles)
+        return (account: "testuser1 https://cloud.test1.com", resultFiles)
     }
     
     func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
