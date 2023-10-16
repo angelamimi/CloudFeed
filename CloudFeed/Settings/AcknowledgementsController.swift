@@ -28,7 +28,10 @@ final class AcknowledgementsController : UITableViewController {
         navigationItem.leftBarButtonItem = item
         
         tableView.register(UINib(nibName: "AcknowledgementCell", bundle: nil), forCellReuseIdentifier: "AcknowledgementCell")
-        tableView.rowHeight = 120
+        //tableView.rowHeight = 120
+        
+        tableView.rowHeight = UITableView.automaticDimension;
+        tableView.estimatedRowHeight = 120;
         
         guard let plistURL = Bundle.main.url(forResource: "Acknowledgements", withExtension: "plist") else {
             Self.logger.error("Failed to load Acknowledgements.plist")
@@ -57,6 +60,10 @@ final class AcknowledgementsController : UITableViewController {
         cell.titleLabel.text = acknowledgement.object(forKey: "title") as? String
         cell.licenseLabel.text = acknowledgement.object(forKey: "license") as? String
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+         return UITableView.automaticDimension
     }
 }
 
