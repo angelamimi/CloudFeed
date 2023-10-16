@@ -28,6 +28,7 @@ class DataService: NSObject {
         
         nextcloudService.setupAccount(account: account, user: user, userId: userId, password: password, urlBase: urlBase)
         //NKCommon.shared.levelLog = 1
+        NextcloudKit.shared.nkCommonInstance.levelLog = 0
         
         let serverVersionMajor = databaseManager.getCapabilitiesServerInt(account: account, elements: Global.shared.capabilitiesVersionMajor)
         if serverVersionMajor > 0 {
@@ -82,7 +83,7 @@ class DataService: NSObject {
     }
     
     func getMetadata(account: String, startServerUrl: String) -> tableMetadata? {
-        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", account, startServerUrl, NKCommon.typeClassFile.image.rawValue, NKCommon.typeClassFile.video.rawValue)
+        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue)
         
         return databaseManager.getMetadata(predicate: predicate, sorted: "date", ascending: true)
     }
@@ -167,7 +168,7 @@ class DataService: NSObject {
         return getFavoriteMetadatas(account: listingResult.account)
     }
     
-    func getFavoriteMetadatas(account: String) -> [tableMetadata]? {
+    func getFavoriteMetadatas(account: String) -> [tableMetadata] {
         let metadatas = databaseManager.getMetadatas(predicate: NSPredicate(format: "account == %@ AND favorite == true", account))
         return metadatas
     }
@@ -213,7 +214,7 @@ class DataService: NSObject {
     }
     
     func downloadVideoPreview(metadata: tableMetadata) async {
-        if metadata.classFile == NKCommon.typeClassFile.video.rawValue
+        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue
             && !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
             
             if let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
@@ -233,47 +234,115 @@ class DataService: NSObject {
     
     // MARK: -
     // MARK: Search
-    func paginateMetadata(account: String, startServerUrl: String, greaterDate: Date, lessDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
-        return databaseManager.paginateMetadata(account: account, startServerUrl: startServerUrl, greaterDate: greaterDate, lessDate: lessDate, offsetDate: offsetDate, offsetName: offsetName)
+    func paginateMetadata(fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+        
+        let account = Environment.current.currentUser?.account
+        
+        guard account != nil else { return [] }
+        
+        let mediaPath = getMediaPath()
+        
+        guard mediaPath != nil else { return [] }
+        
+        let startServerUrl = getStartServerUrl(mediaPath: mediaPath)
+        
+        guard startServerUrl != nil else { return [] }
+        
+        return databaseManager.paginateMetadata(account: account!, startServerUrl: startServerUrl!, fromDate: fromDate, toDate: toDate, offsetDate: offsetDate, offsetName: offsetName)
     }
     
-    func searchMedia(account: String, mediaPath: String, startServerUrl: String, lessDate: Date, greaterDate: Date, limit: Int) async -> (metadatas: [tableMetadata], deleteOcIds: [String], error: Bool) {
+    func searchMedia(toDate: Date, fromDate: Date, limit: Int) async -> (metadatas: [tableMetadata], deleteOcIds: [String], error: Bool) {
         
-        let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath, lessDate: lessDate, greaterDate: greaterDate, limit: limit)
+        let account = Environment.current.currentUser?.account
+        
+        guard account != nil else { return ([], [], true) }
+        
+        let mediaPath = getMediaPath()
+        
+        guard mediaPath != nil else { return ([], [], true) }
+        
+        let startServerUrl = getStartServerUrl(mediaPath: mediaPath)
+        
+        guard startServerUrl != nil else { return ([], [], true) }
+        
+        //remote search
+        let searchResult = await nextcloudService.searchMedia(account: account!, mediaPath: mediaPath!, toDate: toDate, fromDate: fromDate, limit: limit)
         
         if searchResult.files.count == 0 {
             return ([], [], searchResult.error)
         }
         
+        /*for file in searchResult.files {
+            Self.logger.debug("searchMedia() - ")
+            Self.logger.debug("account:  \(file.account)")
+            Self.logger.debug("ocId:  \(file.ocId)")
+            Self.logger.debug("name:  \(file.fileName)")
+            Self.logger.debug("date:  \(file.date)")
+            Self.logger.debug("serverUrl:  \(file.serverUrl)")
+            Self.logger.debug("classFile:  \(file.classFile)")
+        }*/
+        
+        //convert to metadata
         let metadataCollection = await databaseManager.convertFilesToMetadatas(searchResult.files)
         
-        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date > %@ AND date < %@", account, startServerUrl, NKCommon.typeClassFile.image.rawValue, NKCommon.typeClassFile.video.rawValue, greaterDate as NSDate, lessDate as NSDate)
+        Self.logger.debug("searchMedia() - count: \(metadataCollection.metadatas.count)")
+        
+        //get currently stored metadata
+        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@",
+                                    account!, startServerUrl!,
+                                    NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue,
+                                    fromDate as NSDate, toDate as NSDate)
+        
         let metadatasResult = databaseManager.getMetadatas(predicate: predicate)
-
-        Self.logger.debug("searchMedia() - lessDate:  \(lessDate.formatted(date: .abbreviated, time: .standard))")
-        Self.logger.debug("searchMedia() - greaterDate:  \(greaterDate.formatted(date: .abbreviated, time: .standard))")
-        Self.logger.debug("searchMedia() ----------------------------------")
+        
+        Self.logger.debug("searchMedia() - account: \(account!)")
+        Self.logger.debug("searchMedia() - startServerUrl: \(startServerUrl!)")
+        Self.logger.debug("searchMedia() - toDate:  \(toDate.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("searchMedia() - fromDate:  \(fromDate.formatted(date: .abbreviated, time: .standard))")
+        
+        
+        /*Self.logger.debug("searchMedia() ----------------------------------")
         for metadata in metadataCollection.metadatas {
             Self.logger.debug("searchMedia() - date:  \((metadata.date as Date).formatted(date: .abbreviated, time: .standard)) name: \(metadata.fileNameView)")
         }
         Self.logger.debug("searchMedia() ----------------------------------")
         for metadata in metadatasResult {
             Self.logger.debug("searchMedia() - date:  \((metadata.date as Date).formatted(date: .abbreviated, time: .standard)) name: \(metadata.fileNameView)")
-        }
+        }*/
         
-        
+        //add, update, delete stored metadata
         let deleteOcIds = databaseManager.processMetadatas(metadataCollection.metadatas, metadatasResult: metadatasResult, addCompareLivePhoto: false)
         
-        let metadataPredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", account, startServerUrl, NKCommon.typeClassFile.image.rawValue, NKCommon.typeClassFile.video.rawValue)
+        let metadataPredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", account!, startServerUrl!, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue)
         
-        //flag live photo files
+        //flag stored live photo files
         databaseManager.processMetadatasMedia(predicate: metadataPredicate)
         
-        //filters out mov of the live photo file pair
-        let pagePredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date > %@ AND date < %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false)", account, startServerUrl, NKCommon.typeClassFile.image.rawValue, NKCommon.typeClassFile.video.rawValue, greaterDate as NSDate, lessDate as NSDate, NKCommon.typeClassFile.image.rawValue)
+        //filter out videos of the live photo file pair
+        let pagePredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false)", account!, startServerUrl!, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue, fromDate as NSDate, toDate as NSDate, NKCommon.TypeClassFile.image.rawValue)
         let metadatas = databaseManager.getMetadatasMediaPage(predicate: pagePredicate)
         
         return (metadatas, deleteOcIds, false)
+    }
+    
+    
+    private func getMediaPath() -> String? {
+        guard let activeAccount = getActiveAccount() else { return nil }
+        return activeAccount.mediaPath
+    }
+    
+    private func getStartServerUrl(mediaPath: String?) -> String? {
+
+        guard mediaPath != nil else { return nil }
+        
+        let urlBase = Environment.current.currentUser?.urlBase
+        let userId = Environment.current.currentUser?.userId
+        
+        guard urlBase != nil && userId != nil else { return nil }
+        
+        let startServerUrl = urlBase! + "/remote.php/dav/files/" + userId! + mediaPath!
+        
+        return startServerUrl
     }
     
     
@@ -282,4 +351,5 @@ class DataService: NSObject {
     func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
         return await nextcloudService.getUserProfile()
     }
+
 }

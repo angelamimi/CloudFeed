@@ -47,7 +47,8 @@ extension DatabaseManager {
                 realm.add(addObject, update: .all)
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            //NKCommon.shared.writeLog("Could not write to database: \(error)")
+            print("Could not write to database: \(error)")
         }
     }
     
@@ -61,7 +62,8 @@ extension DatabaseManager {
                 realm.delete(result)
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            //NKCommon.shared.writeLog("Could not write to database: \(error)")
+            print("Could not write to database: \(error)")
         }
     }
     
@@ -109,7 +111,8 @@ extension DatabaseManager {
                 }
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            //NKCommon.shared.writeLog("Could not write to database: \(error)")
+            print("Could not write to database: \(error)")
             return nil
         }
 

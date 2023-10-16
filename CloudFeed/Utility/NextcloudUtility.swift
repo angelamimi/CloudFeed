@@ -36,12 +36,12 @@ class NextcloudUtility: NSObject {
             return
         }
         
-        if classFile != NKCommon.typeClassFile.image.rawValue
-            && classFile != NKCommon.typeClassFile.video.rawValue {
+        if classFile != NKCommon.TypeClassFile.image.rawValue
+            && classFile != NKCommon.TypeClassFile.video.rawValue {
             return
         }
 
-        if classFile == NKCommon.typeClassFile.image.rawValue {
+        if classFile == NKCommon.TypeClassFile.image.rawValue {
             
             //print("FILE NAME PATH = \(fileNamePath)")
 
@@ -53,7 +53,7 @@ class NextcloudUtility: NSObject {
             try? scaleImagePreview?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathPreview))
             try? scaleImageIcon?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathIcon))
 
-        } else if classFile == NKCommon.typeClassFile.video.rawValue {
+        } else if classFile == NKCommon.TypeClassFile.video.rawValue {
 
             let videoPath = NSTemporaryDirectory()+"tempvideo.mp4"
             

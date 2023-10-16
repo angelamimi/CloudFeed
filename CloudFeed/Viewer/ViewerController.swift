@@ -50,7 +50,7 @@ class ViewerController: UIViewController {
         
         initGestureRecognizers()
 
-        if metadata.classFile == NKCommon.typeClassFile.video.rawValue || metadata.classFile == NKCommon.typeClassFile.audio.rawValue {
+        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue || metadata.classFile == NKCommon.TypeClassFile.audio.rawValue {
             loadVideo()
         } else {
             reloadImage()

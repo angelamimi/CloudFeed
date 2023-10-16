@@ -11,6 +11,22 @@ import UIKit
 
 final class MockNextcloudKitService: NextcloudKitServiceProtocol {
     
+    enum FavoritesMockAction: String {
+        case withData = "mock-favorites"
+        case empty = "empty"
+        case error = "error"
+    }
+    
+    enum SearchMockAction: String {
+        case withData = "mock-search"
+        case empty = "empty"
+        case error = "error"
+    }
+    
+    var listingFavoritesAction: FavoritesMockAction?
+    var searchMediaAction: SearchMockAction?
+    
+    
     func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String) {
         
     }
@@ -35,8 +51,18 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return nil
     }
     
-    func searchMedia(account: String, mediaPath: String, lessDate: Date, greaterDate: Date, limit: Int) async -> (files: [NKFile], error: Bool) {
-        return (files: [], false)
+    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool) {
+        
+        switch searchMediaAction {
+        case .error:
+            return ([], true)
+        case .empty:
+            return ([], false)
+        case .withData:
+            return mockSearchMedia(fileName: "mock-search")
+        default:
+            return ([], true)
+        }
     }
     
     func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> NKError {
@@ -45,7 +71,40 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
     
     func listingFavorites() async -> (account: String, files: [NKFile]?) {
         
-        let filesJSON = MockNextcloudKitService.mockFavorites()
+        switch listingFavoritesAction {
+        case .error:
+            return ("", nil)
+        case .empty:
+            return (account: "testuser1 https://cloud.test1.com", [])
+        case .withData:
+            return mockFavorites(fileName: "mock-favorites")
+        default:
+            return ("", nil)
+        }
+    }
+    
+    func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
+        return (profileDisplayName: "", profileEmail: "")
+    }
+}
+
+extension MockNextcloudKitService {
+    
+    func mockFavorites(fileName: String) -> (account: String, files: [NKFile]?) {
+        
+        let resultFiles = parseMetadata(fileName: fileName)
+        return (account: "testuser1 https://cloud.test1.com", resultFiles)
+    }
+    
+    func mockSearchMedia(fileName: String) -> (files: [NKFile], error: Bool) {
+        
+        let resultFiles = parseMetadata(fileName: fileName)
+        return (resultFiles, false)
+    }
+    
+    func parseMetadata(fileName: String) -> [NKFile] {
+        
+        let filesJSON = readMocks(fileName: fileName)
         var resultFiles: [NKFile] = []
         
         for fileJSON in filesJSON {
@@ -57,23 +116,23 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
             file.fileName = fileJSON["fileName"] as! String
             file.ocId = fileJSON["ocId"] as! String
             file.path = fileJSON["path"] as! String
+            file.serverUrl = fileJSON["serverUrl"] as! String
+            file.classFile = fileJSON["classFile"] as! String
+            
+            if fileJSON["date"] is String {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
+                let date = dateFormatter.date(from: fileJSON["date"] as! String)
+                file.date = (date as? NSDate)!
+            }
             
             resultFiles.append(file)
         }
         
-        return (account: "testuser1 https://cloud.test1.com", resultFiles)
+        return resultFiles
     }
     
-    func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
-        return (profileDisplayName: "", profileEmail: "")
-    }
-}
-
-extension MockNextcloudKitService {
-    
-    static func mockFavorites() -> [NSDictionary] {
-        
-        let fileName = "mock-favorites"
+    func readMocks(fileName: String) -> [NSDictionary] {
         
         guard let url = Bundle(for: MockNextcloudKitService.self).url(forResource: fileName, withExtension: "json") else {
             fatalError(fileName + " not found")

@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   s.license             = { :type => "MIT", :file => "LICENSE" }
   s.author              = { "Single" => "libobjc@gmail.com" }
   s.social_media_url    = "https://weibo.com/3118550737"
-  s.platform            = :ios, "8.0"
+  s.platform            = :ios, "11.0"
   s.source              = { :git => "https://github.com/ChangbaDevs/KTVHTTPCache.git", :tag => "#{s.version}" }
   s.source_files        = "KTVHTTPCache", "KTVHTTPCache/**/*.{h,m}"
   s.public_header_files =

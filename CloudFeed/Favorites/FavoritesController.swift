@@ -121,9 +121,9 @@ class FavoritesController: UIViewController {
         
         let metadata = viewModel.getItemAtIndexPath(indexPath)
         
-        guard metadata != nil && (metadata!.classFile == NKCommon.typeClassFile.image.rawValue
-                || metadata!.classFile == NKCommon.typeClassFile.audio.rawValue
-                || metadata!.classFile == NKCommon.typeClassFile.video.rawValue) else { return }
+        guard metadata != nil && (metadata!.classFile == NKCommon.TypeClassFile.image.rawValue
+                || metadata!.classFile == NKCommon.TypeClassFile.audio.rawValue
+                || metadata!.classFile == NKCommon.TypeClassFile.video.rawValue) else { return }
         
         let metadatas = viewModel.getItems()
         coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)

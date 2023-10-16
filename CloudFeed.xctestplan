@@ -14,6 +14,9 @@
   "testTargets" : [
     {
       "parallelizable" : true,
+      "skippedTests" : [
+        "BaseTest"
+      ],
       "target" : {
         "containerPath" : "container:CloudFeed.xcodeproj",
         "identifier" : "3927357C29BD1E830058796A",

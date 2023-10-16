@@ -79,6 +79,9 @@
 		398DA7242AC3343B00F98E7F /* BaseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398DA7232AC3343B00F98E7F /* BaseTest.swift */; };
 		398DA7252AC33F9E00F98E7F /* MockNextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */; };
 		398DA7262AC33F9E00F98E7F /* MockDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */; };
+		398DA7282AC6199500F98E7F /* mock-search.json in Resources */ = {isa = PBXBuildFile; fileRef = 398DA7272AC6199500F98E7F /* mock-search.json */; };
+		3999915A2ACCE1CB00D2A934 /* NextcloudServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399991592ACCE1CB00D2A934 /* NextcloudServiceTests.swift */; };
+		3999915C2ACE1E7D00D2A934 /* MediaViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3999915B2ACE1E7D00D2A934 /* MediaViewModelTests.swift */; };
 		39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F0C29C53FD300704670 /* CollectionViewCell.swift */; };
 		39B03F0F29C53FD300704670 /* CollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39B03F0D29C53FD300704670 /* CollectionViewCell.xib */; };
 		39B03F1229C636B500704670 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F1129C636B500704670 /* SettingsController.swift */; };
@@ -187,6 +190,9 @@
 		39680C2B2AB9D32F00A16D5B /* CloudFeed.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CloudFeed.xctestplan; sourceTree = "<group>"; };
 		39680C302ABB527800A16D5B /* mock-favorites.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-favorites.json"; sourceTree = "<group>"; };
 		398DA7232AC3343B00F98E7F /* BaseTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTest.swift; sourceTree = "<group>"; };
+		398DA7272AC6199500F98E7F /* mock-search.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-search.json"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.json; };
+		399991592ACCE1CB00D2A934 /* NextcloudServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudServiceTests.swift; sourceTree = "<group>"; };
+		3999915B2ACE1E7D00D2A934 /* MediaViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaViewModelTests.swift; sourceTree = "<group>"; };
 		39B03F0C29C53FD300704670 /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
 		39B03F0D29C53FD300704670 /* CollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionViewCell.xib; sourceTree = "<group>"; };
 		39B03F1129C636B500704670 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
@@ -294,9 +300,9 @@
 		3927355E29BD1E820058796A = {
 			isa = PBXGroup;
 			children = (
+				39680C2B2AB9D32F00A16D5B /* CloudFeed.xctestplan */,
 				3927356929BD1E820058796A /* CloudFeed */,
 				3927358029BD1E830058796A /* CloudFeedTests */,
-				39680C2B2AB9D32F00A16D5B /* CloudFeed.xctestplan */,
 				3927356829BD1E820058796A /* Products */,
 				394BCB1029C7E82100C4F619 /* Frameworks */,
 			);
@@ -348,7 +354,10 @@
 				391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */,
 				398DA7232AC3343B00F98E7F /* BaseTest.swift */,
 				3927358129BD1E830058796A /* CloudFeedTests.swift */,
+				3999915B2ACE1E7D00D2A934 /* MediaViewModelTests.swift */,
+				399991592ACCE1CB00D2A934 /* NextcloudServiceTests.swift */,
 				39680C302ABB527800A16D5B /* mock-favorites.json */,
+				398DA7272AC6199500F98E7F /* mock-search.json */,
 			);
 			path = CloudFeedTests;
 			sourceTree = "<group>";
@@ -556,6 +565,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				39680C312ABB527800A16D5B /* mock-favorites.json in Resources */,
+				398DA7282AC6199500F98E7F /* mock-search.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -626,6 +636,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3999915A2ACCE1CB00D2A934 /* NextcloudServiceTests.swift in Sources */,
+				3999915C2ACE1E7D00D2A934 /* MediaViewModelTests.swift in Sources */,
 				398DA7242AC3343B00F98E7F /* BaseTest.swift in Sources */,
 				398DA7252AC33F9E00F98E7F /* MockNextcloudKitService.swift in Sources */,
 				398DA7262AC33F9E00F98E7F /* MockDatabaseManager.swift in Sources */,
@@ -699,6 +711,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -759,6 +772,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -935,7 +949,7 @@
 			repositoryURL = "https://github.com/Nextcloud/NextcloudKit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				minimumVersion = 2.7.0;
 			};
 		};
 		392735A329BE13590058796A /* XCRemoteSwiftPackageReference "realm-swift" */ = {

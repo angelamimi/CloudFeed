@@ -15,16 +15,25 @@ class BaseTest: XCTestCase {
     let username = "testuser1"
     let password = "testpassword1"
     
+    var nextCloudService: MockNextcloudKitService?
     var dataService: DataService?
     
+    override func setUpWithError() throws {
+        initEnvironment()
+    }
+
+    override func tearDownWithError() throws {
+        clean()
+    }
+    
     func initEnvironment() {
-        
-        print("initEnvironment()")
         
         let dbman = MockDatabaseManager()
         dbman.setup()
         
-        dataService = DataService(nextcloudService: MockNextcloudKitService(), databaseManager: dbman)
+        nextCloudService = MockNextcloudKitService()
+        
+        dataService = DataService(nextcloudService: nextCloudService!, databaseManager: dbman)
         XCTAssertNotNil(dataService)
         
         dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
@@ -41,5 +50,10 @@ class BaseTest: XCTestCase {
             XCTAssertNotNil(pwd)
             dataService?.setup(account: activeAccount!.account, user: activeAccount!.user, userId: activeAccount!.userId, password: pwd!, urlBase: activeAccount!.urlBase)
         }
+    }
+    
+    func clean() {
+        dataService = nil
+        nextCloudService = nil
     }
 }

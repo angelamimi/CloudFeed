@@ -61,7 +61,7 @@ final class ViewerViewModel {
     
     func loadImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) -> UIImage? {
         
-        if !StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.typeClassFile.image.rawValue {
+        if !StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
             
             if metadata.livePhoto {
                 let fileName = (metadata.fileNameView as NSString).deletingPathExtension + ".mov"
@@ -110,7 +110,7 @@ extension ViewerViewModel {
             return image
         }
         
-        if metadata.classFile == NKCommon.typeClassFile.video.rawValue && !metadata.hasPreview {
+        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue && !metadata.hasPreview {
             NextcloudUtility.shared.createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
         }
         
@@ -135,7 +135,7 @@ extension ViewerViewModel {
         let ext = StoreUtility.getExtension(metadata.fileNameView)
         var image: UIImage?
         
-        if StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.typeClassFile.image.rawValue {
+        if StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
             
             let previewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
             let imagePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!

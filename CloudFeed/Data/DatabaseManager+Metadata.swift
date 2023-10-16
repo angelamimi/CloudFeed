@@ -133,7 +133,7 @@ extension DatabaseManager {
                 realm.add(result, update: .all)
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
             return nil
         }
         return tableMetadata.init(value: result)
@@ -167,7 +167,7 @@ extension DatabaseManager {
             let metadata = metadatas[index]
             if index < metadatas.count - 1,
                 metadata.fileNoExtension == metadatas[index+1].fileNoExtension,
-                ((metadata.classFile == NKCommon.typeClassFile.image.rawValue && metadatas[index+1].classFile == NKCommon.typeClassFile.video.rawValue) || (metadata.classFile == NKCommon.typeClassFile.video.rawValue && metadatas[index+1].classFile == NKCommon.typeClassFile.image.rawValue)){
+                ((metadata.classFile == NKCommon.TypeClassFile.image.rawValue && metadatas[index+1].classFile == NKCommon.TypeClassFile.video.rawValue) || (metadata.classFile == NKCommon.TypeClassFile.video.rawValue && metadatas[index+1].classFile == NKCommon.TypeClassFile.image.rawValue)){
                 metadata.livePhoto = true
                 metadatas[index+1].livePhoto = true
             }
@@ -232,11 +232,11 @@ extension DatabaseManager {
             return nil
         }
 
-        if classFile == NKCommon.typeClassFile.image.rawValue {
-            classFile = NKCommon.typeClassFile.video.rawValue
+        if classFile == NKCommon.TypeClassFile.image.rawValue {
+            classFile = NKCommon.TypeClassFile.video.rawValue
             fileName = fileName + ".mov"
         } else {
-            classFile = NKCommon.typeClassFile.image.rawValue
+            classFile = NKCommon.TypeClassFile.image.rawValue
             fileName = fileName + ".jpg"
         }
 
@@ -247,14 +247,14 @@ extension DatabaseManager {
         return tableMetadata.init(value: result)
     }
     
-    func paginateMetadata(account: String, startServerUrl: String, greaterDate: Date, lessDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+    func paginateMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
         
         let realm = try! Realm()
         realm.refresh()
         
-        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND date > %@ AND date < %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
-                                    account, startServerUrl, greaterDate as NSDate, lessDate as NSDate,
-                                    NKCommon.typeClassFile.image.rawValue)
+        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+                                    account, startServerUrl, fromDate as NSDate, toDate as NSDate,
+                                    NKCommon.TypeClassFile.image.rawValue)
         
         let sortProperties = [SortDescriptor(keyPath: "date", ascending: false),
                               SortDescriptor(keyPath:  "fileNameView", ascending: false)]
@@ -264,7 +264,7 @@ extension DatabaseManager {
         if offsetName == nil || offsetDate == nil {
             if results.count > 0 {
                 let resultArray = Array(results.map { tableMetadata.init(value: $0) })
-                return Array(resultArray.prefix(10))
+                return Array(resultArray.prefix(Global.shared.pageSize))
             } else {
                 return []
             }
@@ -283,7 +283,7 @@ extension DatabaseManager {
                 metadatas.append(tableMetadata.init(value: metadata))
             }
             
-            if metadatas.count == 10 {
+            if metadatas.count == Global.shared.pageSize {
                 break
             }
         }
@@ -347,7 +347,7 @@ extension DatabaseManager {
                 }
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
         }
 
         //return metadatas
@@ -395,12 +395,11 @@ extension DatabaseManager {
                 }
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
         }
 
         //print("!!!!!!!!! added: \(ocIdAdd.count) updated: \(ocIdUpdate.count) deleted: \(ocIdDelete.count)")
         //return (ocIdAdd, ocIdUpdate, ocIdDelete)
-        print("!!!!!!!!! deleted: \(ocIdDelete.count)")
         return ocIdDelete
     }
     
@@ -414,7 +413,7 @@ extension DatabaseManager {
                 result?.favorite = favorite
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
         }
     }
     
@@ -433,7 +432,7 @@ extension DatabaseManager {
                 }
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
         }
     }
 }

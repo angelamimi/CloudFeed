@@ -1,0 +1,15 @@
+{
+  "" : {
+    "const-values" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyJSON/build/SwiftyJSON.build/Release-iphoneos/SwiftyJSON.build/Objects-normal/arm64/SwiftyJSON-master.swiftconstvalues",
+    "dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyJSON/build/SwiftyJSON.build/Release-iphoneos/SwiftyJSON.build/Objects-normal/arm64/SwiftyJSON-master.d",
+    "diagnostics" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyJSON/build/SwiftyJSON.build/Release-iphoneos/SwiftyJSON.build/Objects-normal/arm64/SwiftyJSON-master.dia",
+    "emit-module-dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyJSON/build/SwiftyJSON.build/Release-iphoneos/SwiftyJSON.build/Objects-normal/arm64/SwiftyJSON-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyJSON/build/SwiftyJSON.build/Release-iphoneos/SwiftyJSON.build/Objects-normal/arm64/SwiftyJSON-master-emit-module.dia",
+    "swift-dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyJSON/build/SwiftyJSON.build/Release-iphoneos/SwiftyJSON.build/Objects-normal/arm64/SwiftyJSON-master.swiftdeps"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyJSON/Source/SwiftyJSON/SwiftyJSON.swift" : {
+    "index-unit-output-path" : "/SwiftyJSON.build/Release-iphoneos/SwiftyJSON.build/Objects-normal/arm64/SwiftyJSON.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyJSON/build/SwiftyJSON.build/Release-iphoneos/SwiftyJSON.build/Objects-normal/arm64/SwiftyJSON.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyJSON/build/SwiftyJSON.build/Release-iphoneos/SwiftyJSON.build/Objects-normal/arm64/SwiftyJSON.o"
+  }
+}

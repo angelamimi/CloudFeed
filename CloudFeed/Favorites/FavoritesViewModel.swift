@@ -98,9 +98,7 @@ final class FavoritesViewModel: NSObject {
         guard let account = Environment.current.currentUser?.account else { return }
         let resultMetadatas = dataService.getFavoriteMetadatas(account: account)
         
-        guard resultMetadatas != nil && resultMetadatas?.count ?? 0 > 0 else { return }
-        
-        let metadatas = processMetadata(resultMetadatas: resultMetadatas!)
+        let metadatas = processMetadata(resultMetadatas: resultMetadatas)
         
         Task {
             await refreshDatasource(metadatas: metadatas)
@@ -246,7 +244,7 @@ final class FavoritesViewModel: NSObject {
                 taskGroup.addTask {
                     //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType) fileExtension: \(metadata.fileExtension)")
                     //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
-                    if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
+                    if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
                         await self.dataService.downloadVideoPreview(metadata: metadata)
                     } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
                         //TODO: Implement svg fetch. Need a library that works.

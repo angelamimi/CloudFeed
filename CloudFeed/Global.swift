@@ -61,6 +61,6 @@ class Global: NSObject {
     
     // MARK: - Search
     //
-    let pageSize: Int         = 20
+    let pageSize: Int         = 100
     let metadataPageSize: Int = 100
 }

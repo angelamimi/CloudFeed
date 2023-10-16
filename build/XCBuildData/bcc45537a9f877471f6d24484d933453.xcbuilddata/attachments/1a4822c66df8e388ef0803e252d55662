@@ -1,0 +1,4 @@
+module CocoaLumberjack {
+umbrella "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/CocoaLumberjack/Sources/CocoaLumberjack/include"
+export *
+}

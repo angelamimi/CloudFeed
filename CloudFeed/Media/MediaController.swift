@@ -61,12 +61,12 @@ class MediaController: UIViewController {
         
         let visibleDateRange = getVisibleDateRange()
         
-        if visibleDateRange.lessDate == nil || visibleDateRange.greaterDate == nil {
-            viewModel.metadataSearch(offsetDate: Date())
+        if visibleDateRange.toDate == nil || visibleDateRange.fromDate == nil {
+            viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize)
         } else {
-            guard let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: visibleDateRange.lessDate!) else { return }
-            guard let greaterDate = Calendar.current.date(byAdding: .second, value: -1, to: visibleDateRange.greaterDate!) else { return }
-            viewModel.sync(lessDate: lessDate, greaterDate: greaterDate)
+            guard let toDate = Calendar.current.date(byAdding: .second, value: 1, to: visibleDateRange.toDate!) else { return }
+            guard let fromDate = Calendar.current.date(byAdding: .second, value: -1, to: visibleDateRange.fromDate!) else { return }
+            viewModel.sync(toDate: toDate, fromDate: fromDate)
         }
     }
     
@@ -92,7 +92,7 @@ class MediaController: UIViewController {
         refreshControl.endRefreshing()
         
         clear()
-        viewModel.metadataSearch(offsetDate: Date())
+        viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize)
     }
     
     private func initTitleView() {
@@ -126,9 +126,9 @@ class MediaController: UIViewController {
         
         let metadata = viewModel.getItemAtIndexPath(indexPath)
         
-        guard metadata != nil && (metadata!.classFile == NKCommon.typeClassFile.image.rawValue
-                || metadata!.classFile == NKCommon.typeClassFile.audio.rawValue
-                || metadata!.classFile == NKCommon.typeClassFile.video.rawValue) else { return }
+        guard metadata != nil && (metadata!.classFile == NKCommon.TypeClassFile.image.rawValue
+                || metadata!.classFile == NKCommon.TypeClassFile.audio.rawValue
+                || metadata!.classFile == NKCommon.TypeClassFile.video.rawValue) else { return }
         
         let metadatas = viewModel.getItems()
         coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
@@ -146,7 +146,8 @@ class MediaController: UIViewController {
         titleView?.title.text = StoreUtility.getFormattedDate(metadata!.date as Date)
     }
     
-    private func getVisibleDateRange() -> (lessDate: Date?, greaterDate: Date?) {
+    private func getVisibleDateRange() -> (toDate: Date?, fromDate: Date?) {
+        
         let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
         let first = visibleIndexes?.first
         let last = visibleIndexes?.last
@@ -256,6 +257,11 @@ extension MediaController: UICollectionViewDelegate {
         Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
         openViewer(indexPath: indexPath)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        Self.logger.debug("collectionView.willDisplay() - indexPath: \(indexPath)")
+        viewModel.loadPreview(indexPath: indexPath)
+    }
 }
 
 extension MediaController: MediaViewController {
@@ -291,7 +297,7 @@ extension MediaController: MediaViewController {
     
     func titleTouched() {
         clear()
-        viewModel.metadataSearch(offsetDate: Date())
+        viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize)
     }
     
     func edit() {}

@@ -16,7 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let _ = (scene as? UIWindowScene) else { return }
         guard let window = self.window else { return }
         
-        if NSClassFromString("XCTestCase") == nil {
+        if ProcessInfo.processInfo.environment["XCInjectBundleInto"] == nil {
             let appCoordinator = AppCoordinator(window: window)
             appCoordinator.start()
         } else {

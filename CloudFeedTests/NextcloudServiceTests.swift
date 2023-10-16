@@ -1,0 +1,101 @@
+//
+//  NextclouldServiceTests.swift
+//  CloudFeedTests
+//
+//  Created by Angela Jarosz on 10/3/23.
+//
+
+@testable import CloudFeed
+import XCTest
+
+final class NextclouldServiceTests: BaseTest {
+
+    func testFavoritesError() async throws {
+        
+        nextCloudService?.listingFavoritesAction = .error
+        
+        let favMetadatas = await dataService?.getFavorites()
+        
+        XCTAssertNil(favMetadatas)
+    }
+    
+    func testFavoritesEmpty() async throws {
+        
+        nextCloudService?.listingFavoritesAction = .empty
+        
+        let favMetadatas = await dataService?.getFavorites()
+        
+        XCTAssertNotNil(favMetadatas)
+        XCTAssertEqual(favMetadatas?.count, 0)
+    }
+    
+    func testListingFavorites() async throws {
+        
+        nextCloudService?.listingFavoritesAction = .withData
+
+        let favMetadatas = await dataService?.getFavorites()
+        
+        XCTAssertNotNil(favMetadatas)
+        
+        //3 metadata files total. 2 belong to 1 live photo
+        XCTAssertEqual(favMetadatas?.count, 3)
+    }
+    
+    func testSearchMedia() async throws {
+        
+        nextCloudService?.searchMediaAction = .withData
+
+        let toDate = Calendar.current.date(from: DateComponents.init(year: 2020, month: 7, day: 4, hour: 3, minute: 31, second: 25))
+        let fromDate = Calendar.current.date(byAdding: .day, value: -30, to: toDate!)!
+        
+        let result = await dataService?.searchMedia(toDate: toDate!, fromDate: fromDate, limit: 20)
+        
+        XCTAssertNotNil(result)
+        
+        let metadatas = result?.metadatas
+        
+        XCTAssertNotNil(metadatas)
+        
+        print(metadatas!.count)
+        
+        //XCTAssertEqual(metadatas!.count, 1)
+    }
+    
+    func testSearchMediaError() async throws {
+        
+        nextCloudService?.searchMediaAction = .error
+        
+        let toDate = Date()
+        let fromDate = Date()
+        
+        let result = await dataService?.searchMedia(toDate: toDate, fromDate: fromDate, limit: 20)
+        
+        XCTAssertNotNil(result)
+        
+        let metadatas = result?.metadatas
+        
+        XCTAssertNotNil(metadatas)
+        XCTAssertTrue(result!.metadatas.isEmpty)
+        
+        XCTAssertTrue(result!.error)
+    }
+    
+    func testSearchMediaEmpty() async throws {
+        
+        nextCloudService?.searchMediaAction = .empty
+        
+        let toDate = Date()
+        let fromDate = Date()
+        
+        let result = await dataService?.searchMedia(toDate: toDate, fromDate: fromDate, limit: 20)
+        
+        XCTAssertNotNil(result)
+        
+        let metadatas = result?.metadatas
+        
+        XCTAssertNotNil(metadatas)
+        XCTAssertTrue(result!.metadatas.isEmpty)
+        
+        XCTAssertFalse(result!.error)
+    }
+}

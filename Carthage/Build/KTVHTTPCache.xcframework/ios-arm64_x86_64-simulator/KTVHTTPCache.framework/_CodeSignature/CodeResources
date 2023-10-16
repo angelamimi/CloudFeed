@@ -38,7 +38,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		Z/GxH4V3MW/WtU+rUXXdsqcZ71M=
+		Zko4P5Q90IjtlHWarrMyARo7eek=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -49,10 +49,6 @@
 	<dict>
 		<key>Headers/KTVHCDataCacheItem.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			8ZQyjkuUN04XliE2noLiRQyvs6c=
-			</data>
 			<key>hash2</key>
 			<data>
 			1tg4MY+fh7b0KOw2/6YncXjF+Lkxvr8bHu6tEdxSH5Y=
@@ -60,10 +56,6 @@
 		</dict>
 		<key>Headers/KTVHCDataCacheItemZone.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			YhO35ENyVED6BcLts4laueqR3Wc=
-			</data>
 			<key>hash2</key>
 			<data>
 			Zi88ppSIXeIDF2Nuf8L/iwD483I4heaMzask9s/xUf4=
@@ -71,10 +63,6 @@
 		</dict>
 		<key>Headers/KTVHCDataLoader.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			MQPr5V1MVxTCaAvSkotgO0LpgXw=
-			</data>
 			<key>hash2</key>
 			<data>
 			gYW6VUjNYZvIF2yLnG/QTIp13Ne2K4knd3XNwIkAbGg=
@@ -82,10 +70,6 @@
 		</dict>
 		<key>Headers/KTVHCDataReader.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			TkbZXly07RMyDnnmWA+D1itDxdg=
-			</data>
 			<key>hash2</key>
 			<data>
 			EGhrXkAprtvGKZnQUfoCZH+JQ+RNDjgscFNOWBvhLak=
@@ -93,10 +77,6 @@
 		</dict>
 		<key>Headers/KTVHCDataRequest.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			U3FsCa21NkMavRicBdzU/IuZOQs=
-			</data>
 			<key>hash2</key>
 			<data>
 			zKsxWxu39kZu4GHnBdekZFeqp73/pw7yoL9UgBLHTkE=
@@ -104,10 +84,6 @@
 		</dict>
 		<key>Headers/KTVHCDataResponse.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			srpF3Me7Uk6CWmyed30OVWTozIU=
-			</data>
 			<key>hash2</key>
 			<data>
 			1v5bWHdggzMcFtQgWKRPiH5r241w9CT+MH5KZzz81JU=
@@ -115,10 +91,6 @@
 		</dict>
 		<key>Headers/KTVHCRange.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			VrigURWtKe1IzZR1r5BvEUgd9IA=
-			</data>
 			<key>hash2</key>
 			<data>
 			1VBui+eETvuSFzPM7LUFhWgA0Ez8nUU+6aI50Lsh6Zk=
@@ -126,10 +98,6 @@
 		</dict>
 		<key>Headers/KTVHTTPCache.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			+rZ5gKWRsy9QrE3a6rnKPTsyMqE=
-			</data>
 			<key>hash2</key>
 			<data>
 			FKbz3yzfQ89an9Xq7DvYs91Owapuo2y2S6SsWASwpmo=
@@ -137,10 +105,6 @@
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			erk0tXtUK78Yibzojp0wzAeoKEo=
-			</data>
 			<key>hash2</key>
 			<data>
 			NaPDDOG7P0J0D6jchJJZYYPN9z7+SjwVpJzJ+nlfQcw=

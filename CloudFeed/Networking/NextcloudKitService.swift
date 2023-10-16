@@ -18,7 +18,7 @@ protocol NextcloudKitServiceProtocol: AnyObject {
     func downloadPreview(fileNamePath: String, fileNamePreviewLocalPath: String, fileNameIconLocalPath: String, etagResource: String?) async
     func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String?
     
-    func searchMedia(account: String, mediaPath: String, lessDate: Date, greaterDate: Date, limit: Int) async -> (files: [NKFile], error: Bool)
+    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool)
     
     func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> NKError
     func listingFavorites() async -> (account: String, files: [NKFile]?)
@@ -45,7 +45,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     
     func getCapabilities() async -> (account: String?, data: Data?) {
         
-        let options = NKRequestOptions(queue: NKCommon.shared.backgroundQueue)
+        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.getCapabilities(options: options) { account, data, error in
@@ -58,11 +58,12 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     // MARK: -
     // MARK: Download
     func download(metadata: tableMetadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> NKError {
+        
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.download(
                 serverUrlFileName: serverUrlFileName,
                 fileNameLocalPath: fileNameLocalPath,
-                queue: NKCommon.shared.backgroundQueue,
+                queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue,
                 requestHandler: { request in }) { (account, etag, date, _, allHeaderFields, afError, error) in
                     
                     if afError?.isExplicitlyCancelledError ?? false {
@@ -78,7 +79,23 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     }
     
     func downloadPreview(fileNamePath: String, fileNamePreviewLocalPath: String, fileNameIconLocalPath: String, etagResource: String?) async {
-        let options = NKRequestOptions(queue: NKCommon.shared.backgroundQueue)
+     
+        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
+        
+        let previewResult = await NextcloudKit.shared.downloadPreview(fileNamePathOrFileId: fileNamePath,
+                                                                      fileNamePreviewLocalPath: fileNamePreviewLocalPath,
+                                                                      widthPreview: Global.shared.sizePreview,
+                                                                      heightPreview: Global.shared.sizePreview,
+                                                                      fileNameIconLocalPath: fileNameIconLocalPath,
+                                                                      sizeIcon: Global.shared.sizeIcon,
+                                                                      etag: etagResource,
+                                                                      options: options)
+        
+    }
+    
+    func downloadPreviewOLD(fileNamePath: String, fileNamePreviewLocalPath: String, fileNameIconLocalPath: String, etagResource: String?) async {
+        
+        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.downloadPreview(
@@ -104,7 +121,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     
     func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String? {
         
-        let options = NKRequestOptions(queue: NKCommon.shared.backgroundQueue)
+        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in
             
@@ -128,10 +145,13 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     
     // MARK: -
     // MARK: Search
-    func searchMedia(account: String, mediaPath: String, lessDate: Date, greaterDate: Date, limit: Int) async -> (files: [NKFile], error: Bool) {
+    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool) {
         
         let limit: Int = limit
         let options = NKRequestOptions(timeout: 300)
+        
+        let greaterDate = Calendar.current.date(byAdding: .second, value: -1, to: fromDate)!
+        let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: toDate)!
         
         Self.logger.debug("searchMedia() - mediaPath: \(mediaPath)")
         
@@ -145,7 +165,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                 showHiddenFiles: false,
                 options: options) { responseAccount, files, data, error in
                     
-                    Self.logger.debug("searchMedia() - files count: \(files.count) lessDate: \(lessDate.formatted(date: .abbreviated, time: .standard)) greaterDate: \(greaterDate.formatted(date: .abbreviated, time: .standard))")
+                    Self.logger.debug("searchMedia() - files count: \(files.count) toDate: \(toDate.formatted(date: .abbreviated, time: .standard)) fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
                     
                     if error == .success && responseAccount == account && files.count > 0 {
                         continuation.resume(returning: (files, false))
@@ -154,7 +174,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                         continuation.resume(returning: ([], false))
                     } else if error != .success {
                         //TODO: Handle error?
-                        NKCommon.shared.writeLog("[ERROR] Media search new media error code \(error.errorCode) " + error.errorDescription)
+                        NextcloudKit.shared.nkCommonInstance.writeLog("[ERROR] Media search new media error code \(error.errorCode) " + error.errorDescription)
                         continuation.resume(returning: ([], true))
                     } else {
                         continuation.resume(returning: ([], true)) //invalid state, like account mismatch
@@ -181,7 +201,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     
     func listingFavorites() async -> (account: String, files: [NKFile]?) {
         
-        let options = NKRequestOptions(queue: NKCommon.shared.backgroundQueue)
+        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.listingFavorites(showHiddenFiles: false, options: options) { account, files, data, error in
@@ -200,13 +220,13 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     // MARK: Profile
     func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
         
-        let options = NKRequestOptions(queue: NKCommon.shared.backgroundQueue)
+        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.getUserProfile(options: options) { account, userProfile, data, error in
                 guard error == .success, let userProfile = userProfile else {
                     // Ops the server has Unauthorized
-                    NKCommon.shared.writeLog("[ERROR] The server has response with Unauthorized \(error.errorCode)")
+                    NextcloudKit.shared.nkCommonInstance.writeLog("[ERROR] The server has response with Unauthorized \(error.errorCode)")
                     continuation.resume(returning: ("", ""))
                     return
                 }

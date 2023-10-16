@@ -36,7 +36,7 @@ class SettingsController: UIViewController {
         tableView.tableFooterView = footerView
         
         let backgroundColorView = UIView()
-        backgroundColorView.backgroundColor = UIColor.secondarySystemBackground
+        backgroundColorView.backgroundColor = UIColor.tertiarySystemBackground
         UITableViewCell.appearance().selectedBackgroundView = backgroundColorView
     }
 
@@ -131,6 +131,18 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         }
     }
     
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+        let verticalPadding: CGFloat = 8
+        let maskLayer = CALayer()
+        
+        maskLayer.cornerRadius = 16
+        maskLayer.backgroundColor = UIColor.black.cgColor
+        maskLayer.frame = CGRect(x: cell.bounds.origin.x, y: cell.bounds.origin.y, width: cell.bounds.width, height: cell.bounds.height).insetBy(dx: 0, dy: verticalPadding/2)
+        
+        cell.layer.mask = maskLayer
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         if indexPath.item == 0 {
@@ -145,8 +157,9 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsCell", for: indexPath)
             
-            cell.layer.cornerRadius = 20
-            cell.layer.masksToBounds = true
+            //cell.layer.cornerRadius = 20
+            //cell.layer.masksToBounds = true
+
 
             var content = cell.defaultContentConfiguration()
             
@@ -154,14 +167,20 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 content.image = UIImage(systemName: "person.wave.2")
                 content.text = "Acknowledgements"
                 cell.tintColor = UIColor.label
+                cell.backgroundColor = UIColor.secondarySystemBackground
+                cell.accessoryType = .disclosureIndicator
             } else if indexPath.item == 2 {
                 content.image = UIImage(systemName: "trash")
                 content.text = "Clear Cache"
                 cell.tintColor = UIColor.label
+                cell.backgroundColor = UIColor.secondarySystemBackground
+                cell.accessoryType = .none
             } else if indexPath.item == 3 {
                 content.image = UIImage(systemName: "xmark.octagon")
                 content.text = "Reset Application"
                 cell.tintColor = UIColor.red
+                cell.backgroundColor = UIColor.secondarySystemBackground
+                cell.accessoryType = .none
             }
             
             cell.contentConfiguration = content
