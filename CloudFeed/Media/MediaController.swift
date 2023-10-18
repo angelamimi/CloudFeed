@@ -9,25 +9,12 @@ import NextcloudKit
 import os.log
 import UIKit
 
-class MediaController: UIViewController {
+class MediaController: CollectionController {
     
     var coordinator: MediaCoordinator!
     var viewModel: MediaViewModel!
 
-    @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var emptyView: EmptyView!
-    
-    private let loadMoreThreshold = -80.0
-    private let groupSize = 2 //thumbnail fetches executed concurrently
-    private var greaterDays = -30
-    
-    private var currentPageItemCount = 0
-    private var currentMetadataCount = 0
-    
-    private var titleView: TitleView?
-    private var layout: CollectionLayout?
 
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -37,21 +24,15 @@ class MediaController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
-        collectionView.register(nib, forCellWithReuseIdentifier: "MainCollectionViewCell")
+        registerCell("MainCollectionViewCell")
         collectionView.delegate = self
         
         viewModel.initDataSource(collectionView: collectionView)
         
-        navigationController?.isNavigationBarHidden = true
-        
-        initCollectionViewLayout()
-        initTitleView()
-        initEmptyView()
-        
-        let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(refreshDatasource), for: .valueChanged)
-        collectionView.refreshControl = refreshControl
+        initCollectionViewLayout(delegate: self)
+        initTitleView(mediaView: self)
+        initEmptyView(imageSystemName: "photo", title:"No media yet", description: "Your photos and videos will show up here")
+        //initRefreshControl(action: #selector(refreshDatasource))
         
         loadMoreIndicator.stopAnimating()
     }
@@ -62,6 +43,7 @@ class MediaController: UIViewController {
         let visibleDateRange = getVisibleDateRange()
         
         if visibleDateRange.toDate == nil || visibleDateRange.fromDate == nil {
+            hideMenu()
             viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize)
         } else {
             guard let toDate = Calendar.current.date(byAdding: .second, value: 1, to: visibleDateRange.toDate!) else { return }
@@ -70,56 +52,19 @@ class MediaController: UIViewController {
         }
     }
     
-    override func viewSafeAreaInsetsDidChange() {
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-        titleView?.heightAnchor.constraint(equalToConstant: 50).isActive = true
-    }
-    
-    public func clear() {
-        titleView?.title.text = ""
-        viewModel.resetDataSource()
-        
-        greaterDays = -30
-        currentPageItemCount = 0
-    }
-    
-    @objc func refreshDatasource(refreshControl: UIRefreshControl) {
-        Self.logger.debug("refreshDatasource()")
-        
-        refreshControl.endRefreshing()
-        
+    override func refresh() {
         clear()
         viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize)
     }
     
-    private func initTitleView() {
-        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
-        self.view.addSubview(titleView!)
-        
-        titleView?.mediaView = self
-        titleView?.initMenu(allowEdit: false)
-    }
-    
-    private func initCollectionViewLayout() {
-        layout = CollectionLayout()
-        layout?.delegate = self
-        layout?.numberOfColumns = UIDevice.current.userInterfaceIdiom == .pad ? 4 : 2
-
-        collectionView.collectionViewLayout = layout!
-    }
-    
-    private func initEmptyView() {
-        let configuration = UIImage.SymbolConfiguration(pointSize: 48)
-        let image = UIImage(systemName: "photo", withConfiguration: configuration)
-        
-        emptyView.display(image: image, title: "No media yet", description: "Your photos and videos will show up here")
-    }
-    
-    private func loadMore() {
+    override func loadMore() {
         viewModel.loadMore()
+    }
+    
+    public func clear() {
+        setTitle("")
+        hideMenu()
+        viewModel.resetDataSource()
     }
     
     private func openViewer(indexPath: IndexPath) {
@@ -134,16 +79,17 @@ class MediaController: UIViewController {
         coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
     }
     
-    private func setTitle() {
+    override func setTitle() {
 
-        titleView?.title.text = ""
+        setTitle("")
         
         let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
         guard let indexPath = visibleIndexes?.first else { return }
 
         let metadata = viewModel.getItemAtIndexPath(indexPath)
         guard metadata != nil else { return }
-        titleView?.title.text = StoreUtility.getFormattedDate(metadata!.date as Date)
+        
+        setTitle(StoreUtility.getFormattedDate(metadata!.date as Date))
     }
     
     private func getVisibleDateRange() -> (toDate: Date?, fromDate: Date?) {
@@ -169,25 +115,27 @@ class MediaController: UIViewController {
         
         return (nil, nil)
     }
-    
-    private func startActivityIndicator() {
-        activityIndicator.startAnimating()
-    }
-    
-    private func stopActivityIndicator() {
-        activityIndicator.stopAnimating()
-    }
 }
 
 extension MediaController: MediaDelegate {
     
     func dataSourceUpdated() {
-        self.setTitle()
+        DispatchQueue.main.async { [weak self] in
+            self?.setTitle()
+            self?.activityIndicator.stopAnimating()
+        }
+    }
+    
+    func searching() {
+        DispatchQueue.main.async { [weak self] in
+            self?.activityIndicator.startAnimating()
+        }
     }
     
     func searchResultReceived(resultItemCount: Int?) {
-        DispatchQueue.main.async {
-            self.processMetadataSearchResult(resultItemCount: resultItemCount)
+        DispatchQueue.main.async { [weak self] in
+            self?.processMetadataSearchResult(resultItemCount: resultItemCount)
+            self?.activityIndicator.stopAnimating()
         }
     }
     
@@ -201,14 +149,14 @@ extension MediaController: MediaDelegate {
             if displayCount == 0 {
                 collectionView.isHidden = true
                 emptyView.isHidden = false
-                titleView?.hideMenu()
+                hideMenu()
                 setTitle()
             }
         
             coordinator.showLoadfailedError()
             return
         }
-        titleView?.showMenu()
+        showMenu()
     }
 }
 
@@ -233,24 +181,6 @@ extension MediaController: CollectionLayoutDelegate {
     }
 }
 
-extension MediaController : UIScrollViewDelegate {
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        setTitle()
-    }
-
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-
-        let currentOffset = scrollView.contentOffset.y
-        let maximumOffset = scrollView.contentSize.height - scrollView.frame.size.height
-        let difference = maximumOffset - currentOffset
-
-        if difference <= loadMoreThreshold {
-            loadMore()
-        }
-    }
-}
-
 extension MediaController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -267,37 +197,18 @@ extension MediaController: UICollectionViewDelegate {
 extension MediaController: MediaViewController {
     
     func zoomInGrid() {
-        guard layout != nil else { return }
-        let columns = self.layout?.numberOfColumns ?? 0
-        
-        if columns - 1 > 0 {
-            self.layout?.numberOfColumns -= 1
-        }
-        
-        UIView.animate(withDuration: 0.0, animations: {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-        })
+        zoomIn()
     }
     
     func zoomOutGrid() {
-        guard layout != nil else { return }
-        
         let count = viewModel.currentItemCount()
-        
-        guard self.layout!.numberOfColumns + 1 <= count else { return }
-
-        if self.layout!.numberOfColumns + 1 < 6 {
-            self.layout!.numberOfColumns += 1
-        }
-        
-        UIView.animate(withDuration: 0.0, animations: {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-        })
+        zoomOut(currentItemCount: count)
     }
     
     func titleTouched() {
-        clear()
-        viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize)
+        if viewModel.currentItemCount() > 0 {
+            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+        }
     }
     
     func edit() {}

@@ -246,8 +246,9 @@ extension FavoritesController: MediaViewController {
     }
     
     func titleTouched() {
-        collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-        viewModel.fetch()
+        if viewModel.currentItemCount() > 0 {
+            collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        }
     }
     
     func edit() {

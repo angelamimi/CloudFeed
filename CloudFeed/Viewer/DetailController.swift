@@ -10,10 +10,9 @@ import os.log
 
 class DetailController: UIViewController {
     
-    @IBOutlet weak var tableView: UITableView?
-    @IBOutlet weak var closeButton: UIButton?
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var closeButton: UIButton!
     
-    //var metadata : tableMetadata = tableMetadata()
     weak var metadata : tableMetadata?
     private var details = [MetadataDetail]()
     
@@ -27,15 +26,12 @@ class DetailController: UIViewController {
         
         Self.logger.debug("viewDidLoad()")
         
-        tableView?.dataSource = self
+        tableView.dataSource = self
         
-        tableView?.layer.cornerRadius = 5
-        tableView?.layer.masksToBounds = true
-
-        closeButton?.layer.cornerRadius = 10
-        closeButton?.layer.masksToBounds = true
+        tableView.rowHeight = UITableView.automaticDimension;
+        tableView.estimatedRowHeight = 70;
         
-        closeButton?.addTarget(self, action: #selector(handleClose), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(handleClose), for: .touchUpInside)
         
         buildDetailsDatasource()
     }
@@ -54,7 +50,7 @@ class DetailController: UIViewController {
     private func appendData(data: NSMutableDictionary) {
         guard metadata != nil else { return }
         details.append(MetadataDetail(title: "Name", detail: metadata!.fileNameView))
-        details.append(MetadataDetail(title: "Date", detail: (metadata!.date as Date).formatted(date: .abbreviated, time: .standard)))
+        details.append(MetadataDetail(title: "Edited", detail: (metadata!.date as Date).formatted(date: .abbreviated, time: .standard)))
                        
         //Self.logger.debug("appendData() - date: \(self.metadata?.date)")
         //Self.logger.debug("appendData() - uploadDate: \(self.metadata?.uploadDate)")
@@ -69,7 +65,7 @@ class DetailController: UIViewController {
                 dateFormatterGet.dateFormat = "yyyy:MM:dd:HH:mm:ss"
                 
                 if let date = dateFormatterGet.date(from: dateString) {
-                    details.append(MetadataDetail(title: "Date", detail: date.formatted(date: .abbreviated, time: .standard)))
+                    details.append(MetadataDetail(title: "Created", detail: date.formatted(date: .abbreviated, time: .standard)))
                 } else {
                     Self.logger.error("Error decoding date taken string")
                 }
@@ -84,7 +80,7 @@ class DetailController: UIViewController {
         }
         
         if let width = data[kCGImagePropertyPixelWidth], let height = data[kCGImagePropertyPixelHeight] {
-            details.append(MetadataDetail(title: "Size", detail: "\(width) x \(height)"))
+            details.append(MetadataDetail(title: "Dimensions", detail: "\(width) x \(height)"))
         }
         
         if let lensModel = data[kCGImagePropertyExifLensModel] {
@@ -105,7 +101,7 @@ class MetadataDetail {
     }
 }
 
-extension DetailController : UITableViewDataSource {
+extension DetailController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return details.count
     }
@@ -120,3 +116,9 @@ extension DetailController : UITableViewDataSource {
     }
 }
 
+extension DetailController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
+}

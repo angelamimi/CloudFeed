@@ -76,6 +76,7 @@
 		3966634529DF321F005727D4 /* EmptyView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3966634429DF321F005727D4 /* EmptyView.xib */; };
 		3966634729DF34AD005727D4 /* EmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3966634629DF34AD005727D4 /* EmptyView.swift */; };
 		39680C312ABB527800A16D5B /* mock-favorites.json in Resources */ = {isa = PBXBuildFile; fileRef = 39680C302ABB527800A16D5B /* mock-favorites.json */; };
+		3972EE9E2ADEC27F0020EEC7 /* CollectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3972EE9D2ADEC27F0020EEC7 /* CollectionController.swift */; };
 		398DA7242AC3343B00F98E7F /* BaseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398DA7232AC3343B00F98E7F /* BaseTest.swift */; };
 		398DA7252AC33F9E00F98E7F /* MockNextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */; };
 		398DA7262AC33F9E00F98E7F /* MockDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */; };
@@ -189,6 +190,7 @@
 		3966634629DF34AD005727D4 /* EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyView.swift; sourceTree = "<group>"; };
 		39680C2B2AB9D32F00A16D5B /* CloudFeed.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CloudFeed.xctestplan; sourceTree = "<group>"; };
 		39680C302ABB527800A16D5B /* mock-favorites.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-favorites.json"; sourceTree = "<group>"; };
+		3972EE9D2ADEC27F0020EEC7 /* CollectionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionController.swift; sourceTree = "<group>"; };
 		398DA7232AC3343B00F98E7F /* BaseTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTest.swift; sourceTree = "<group>"; };
 		398DA7272AC6199500F98E7F /* mock-search.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-search.json"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.json; };
 		399991592ACCE1CB00D2A934 /* NextcloudServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudServiceTests.swift; sourceTree = "<group>"; };
@@ -383,6 +385,7 @@
 				39B03F0D29C53FD300704670 /* CollectionViewCell.xib */,
 				39B03F0C29C53FD300704670 /* CollectionViewCell.swift */,
 				39B03F1529C68C2900704670 /* CollectionViewLayout.swift */,
+				3972EE9D2ADEC27F0020EEC7 /* CollectionController.swift */,
 				39271D4729D7694E00522DFD /* CollectionLayout.swift */,
 				3966634629DF34AD005727D4 /* EmptyView.swift */,
 				39271D5829D7A05100522DFD /* TitleView.swift */,
@@ -625,6 +628,7 @@
 				3903CE7B2AA78557003E7E41 /* SettingsCoordinator.swift in Sources */,
 				391579A62AB0BF2C00DFEAB1 /* MediaViewModel.swift in Sources */,
 				391579AA2AB3D8B800DFEAB1 /* SettingsViewModel.swift in Sources */,
+				3972EE9E2ADEC27F0020EEC7 /* CollectionController.swift in Sources */,
 				39271D5B29D8D7CD00522DFD /* FavoritesController.swift in Sources */,
 				39271D7529DA66D800522DFD /* UIImage+Extensions.swift in Sources */,
 				39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */,

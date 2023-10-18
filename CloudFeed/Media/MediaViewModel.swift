@@ -11,6 +11,8 @@ import UIKit
 
 protocol MediaDelegate: AnyObject {
     func dataSourceUpdated()
+    
+    func searching()
     func searchResultReceived(resultItemCount: Int?)
 }
 
@@ -204,6 +206,8 @@ final class MediaViewModel: NSObject {
         Self.logger.debug("search() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
         Self.logger.debug("search() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
         
+        delegate.searching()
+        
         let result = await dataService.searchMedia(toDate: toDate, fromDate: fromDate, limit: limit)
         
         Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
@@ -232,15 +236,18 @@ final class MediaViewModel: NSObject {
             return
         }
         
-        delegate.searchResultReceived(resultItemCount: resultMetadatas.count)
-        
         Self.logger.debug("processSearchResult() - resultMetadatas count: \(resultMetadatas.count)")
         
-        if resultMetadatas.count < Global.shared.metadataPageSize {
+        if resultMetadatas.count >= Global.shared.metadataPageSize {
+            delegate.searchResultReceived(resultItemCount: resultMetadatas.count)
+        } else {
             
             //not enough to fill a page. keep searching and collecting metadata by shifting the date span farther back in time
+            
             guard let span = calculateSearchDates(toDate: toDate, days: days) else {
-                return //gone as far back as possible. break out of recursive call
+                //gone as far back as possible. break out of recursive call
+                delegate.searchResultReceived(resultItemCount: resultMetadatas.count)
+                return
             }
             
             Self.logger.debug("processSearchResult() - toDate: \(span.toDate.formatted(date: .abbreviated, time: .standard))")

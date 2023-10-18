@@ -28,7 +28,6 @@ final class AcknowledgementsController : UITableViewController {
         navigationItem.leftBarButtonItem = item
         
         tableView.register(UINib(nibName: "AcknowledgementCell", bundle: nil), forCellReuseIdentifier: "AcknowledgementCell")
-        //tableView.rowHeight = 120
         
         tableView.rowHeight = UITableView.automaticDimension;
         tableView.estimatedRowHeight = 120;

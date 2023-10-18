@@ -20,6 +20,7 @@ class ViewerController: UIViewController {
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var statusContainerView: UIView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var metadata: tableMetadata = tableMetadata()
     var index: Int = 0
@@ -80,21 +81,32 @@ class ViewerController: UIViewController {
     
     private func loadImage(metadata: tableMetadata) {
         
-        let image = viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+        activityIndicator.startAnimating()
         
-        if image != nil && self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
-            self.imageView.image = image
+        Task {
+            let image = await viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+            
+            Self.logger.debug("loadImage() - have image? \(image != nil) for ocId: \(metadata.ocId)")
+            
+            if image != nil && self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
+                
+                DispatchQueue.main.async { [weak self] in
+                    Self.logger.debug("loadImage() - setting imageview image for ocId: \(metadata.ocId)")
+                    self?.imageView.image = image
+                    self?.activityIndicator.stopAnimating()
+                }
+            }
         }
     }
     
     private func handleVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
-        
+
         if self.children.count == 0 {
             addChild(avpController)
         }
         
-        //TitleView, Live photo image and label container
-        if self.view.subviews.count == 2 {
+        //titleView, live photo container, and activity indicator
+        if self.view.subviews.count == 3 {
             self.view.addSubview(avpController.view)
         }
         

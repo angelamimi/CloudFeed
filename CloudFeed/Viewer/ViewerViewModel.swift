@@ -59,7 +59,7 @@ final class ViewerViewModel {
         return avpController
     }
     
-    func loadImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) -> UIImage? {
+    func loadImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
         
         if !StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
             
@@ -72,23 +72,15 @@ final class ViewerViewModel {
                 }
             }
             
-            Task {
-                await dataService.download(metadata: metadata, selector: "")
-                
-                let image = getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
-                return image
-                /*if self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
-                 self.imageView.image = image
-                 }*/
-            }
+            await dataService.download(metadata: metadata, selector: "")
+            
+            let image = getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
+            return image
         }
         
         // Get image
         let image = getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
         return image
-        /*if self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
-         self.imageView.image = image
-         }*/
     }
 }
 
