@@ -28,10 +28,14 @@ class DetailController: UIViewController {
         
         tableView.dataSource = self
         
+        tableView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        tableView.layer.cornerRadius = 8
         tableView.rowHeight = UITableView.automaticDimension;
         tableView.estimatedRowHeight = 70;
         
         closeButton.addTarget(self, action: #selector(handleClose), for: .touchUpInside)
+        closeButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        closeButton.layer.cornerRadius = 8
         
         buildDetailsDatasource()
     }
