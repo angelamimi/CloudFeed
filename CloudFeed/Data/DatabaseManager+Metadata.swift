@@ -247,14 +247,27 @@ extension DatabaseManager {
         return tableMetadata.init(value: result)
     }
     
+    func paginateFavoriteMetadata(account: String, startServerUrl: String, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+        
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+                                    account, startServerUrl, NKCommon.TypeClassFile.image.rawValue)
+
+        return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
+    }
+    
     func paginateMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
-        
-        let realm = try! Realm()
-        realm.refresh()
-        
+
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
                                     account, startServerUrl, fromDate as NSDate, toDate as NSDate,
                                     NKCommon.TypeClassFile.image.rawValue)
+        
+        return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
+    }
+    
+    private func paginateMetadata(predicate: NSPredicate, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+    
+        let realm = try! Realm()
+        realm.refresh()
         
         let sortProperties = [SortDescriptor(keyPath: "date", ascending: false),
                               SortDescriptor(keyPath:  "fileNameView", ascending: false)]

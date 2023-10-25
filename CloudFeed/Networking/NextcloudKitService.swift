@@ -81,7 +81,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     func downloadPreview(fileNamePath: String, fileNamePreviewLocalPath: String, fileNameIconLocalPath: String, etagResource: String?) async {
      
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
-        
+
         let previewResult = await NextcloudKit.shared.downloadPreview(fileNamePathOrFileId: fileNamePath,
                                                                       fileNamePreviewLocalPath: fileNamePreviewLocalPath,
                                                                       widthPreview: Global.shared.sizePreview,
@@ -200,7 +200,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     }
     
     func listingFavorites() async -> (account: String, files: [NKFile]?) {
-        
+
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in

@@ -14,8 +14,6 @@ class MediaController: CollectionController {
     var coordinator: MediaCoordinator!
     var viewModel: MediaViewModel!
 
-    @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
-
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: MediaController.self)
@@ -25,16 +23,16 @@ class MediaController: CollectionController {
         super.viewDidLoad()
         
         registerCell("MainCollectionViewCell")
+        
         collectionView.delegate = self
         
         viewModel.initDataSource(collectionView: collectionView)
         
         initCollectionViewLayout(delegate: self)
-        initTitleView(mediaView: self)
+        initTitleView(mediaView: self, allowEdit: false)
         initEmptyView(imageSystemName: "photo", title:"No media yet", description: "Your photos and videos will show up here")
-        //initRefreshControl(action: #selector(refreshDatasource))
         
-        loadMoreIndicator.stopAnimating()
+        //loadMoreIndicator.stopAnimating()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -53,30 +51,12 @@ class MediaController: CollectionController {
     }
     
     override func refresh() {
-        clear()
+        //clear()
         viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize)
     }
     
     override func loadMore() {
         viewModel.loadMore()
-    }
-    
-    public func clear() {
-        setTitle("")
-        hideMenu()
-        viewModel.resetDataSource()
-    }
-    
-    private func openViewer(indexPath: IndexPath) {
-        
-        let metadata = viewModel.getItemAtIndexPath(indexPath)
-        
-        guard metadata != nil && (metadata!.classFile == NKCommon.TypeClassFile.image.rawValue
-                || metadata!.classFile == NKCommon.TypeClassFile.audio.rawValue
-                || metadata!.classFile == NKCommon.TypeClassFile.video.rawValue) else { return }
-        
-        let metadatas = viewModel.getItems()
-        coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
     }
     
     override func setTitle() {
@@ -90,6 +70,28 @@ class MediaController: CollectionController {
         guard metadata != nil else { return }
         
         setTitle(StoreUtility.getFormattedDate(metadata!.date as Date))
+    }
+    
+    public func clear() {
+        setTitle("")
+        hideMenu()
+        viewModel.resetDataSource()
+        
+        /*if viewModel.currentItemCount() > 0 {
+            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+        }*/
+    }
+    
+    private func openViewer(indexPath: IndexPath) {
+        
+        let metadata = viewModel.getItemAtIndexPath(indexPath)
+        
+        guard metadata != nil && (metadata!.classFile == NKCommon.TypeClassFile.image.rawValue
+                || metadata!.classFile == NKCommon.TypeClassFile.audio.rawValue
+                || metadata!.classFile == NKCommon.TypeClassFile.video.rawValue) else { return }
+        
+        let metadatas = viewModel.getItems()
+        coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
     }
     
     private func getVisibleDateRange() -> (toDate: Date?, fromDate: Date?) {
@@ -121,8 +123,7 @@ extension MediaController: MediaDelegate {
     
     func dataSourceUpdated() {
         DispatchQueue.main.async { [weak self] in
-            self?.setTitle()
-            self?.activityIndicator.stopAnimating()
+            self?.displayResults()
         }
     }
     
@@ -134,29 +135,10 @@ extension MediaController: MediaDelegate {
     
     func searchResultReceived(resultItemCount: Int?) {
         DispatchQueue.main.async { [weak self] in
-            self?.processMetadataSearchResult(resultItemCount: resultItemCount)
-            self?.activityIndicator.stopAnimating()
-        }
-    }
-    
-    private func processMetadataSearchResult(resultItemCount: Int?) {
-        
-        let displayCount = collectionView.numberOfItems(inSection: 0)
-        
-        guard resultItemCount != nil else {
-            
-            //TODO: May need to display error even if have currently displayed items. On user reload?
-            if displayCount == 0 {
-                collectionView.isHidden = true
-                emptyView.isHidden = false
-                hideMenu()
-                setTitle()
+            if resultItemCount == nil {
+                self?.coordinator.showLoadfailedError()
             }
-        
-            coordinator.showLoadfailedError()
-            return
         }
-        showMenu()
     }
 }
 
@@ -191,6 +173,11 @@ extension MediaController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         Self.logger.debug("collectionView.willDisplay() - indexPath: \(indexPath)")
         viewModel.loadPreview(indexPath: indexPath)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        Self.logger.debug("collectionView.didEndDisplaying() - indexPath: \(indexPath)")
+        viewModel.stopPreviewLoad(indexPath: indexPath)
     }
 }
 

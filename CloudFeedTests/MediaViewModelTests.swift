@@ -44,6 +44,9 @@ final class MediaViewModelTests: BaseTest {
 }
 
 extension MediaViewModelTests: MediaDelegate {
+    func searching() {
+        print("searching")
+    }
     
     func dataSourceUpdated() {
         print("dataSourceUpdated")

@@ -14,16 +14,18 @@ final class NextclouldServiceTests: BaseTest {
         
         nextCloudService?.listingFavoritesAction = .error
         
-        let favMetadatas = await dataService?.getFavorites()
+        let error = await dataService?.getFavorites()
         
-        XCTAssertNil(favMetadatas)
+        XCTAssertTrue(error == true)
     }
     
     func testFavoritesEmpty() async throws {
         
         nextCloudService?.listingFavoritesAction = .empty
         
-        let favMetadatas = await dataService?.getFavorites()
+        let error = await dataService?.getFavorites()
+        
+        let favMetadatas = dataService?.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
         
         XCTAssertNotNil(favMetadatas)
         XCTAssertEqual(favMetadatas?.count, 0)
@@ -32,13 +34,15 @@ final class NextclouldServiceTests: BaseTest {
     func testListingFavorites() async throws {
         
         nextCloudService?.listingFavoritesAction = .withData
+        
+        let error = await dataService?.getFavorites()
 
-        let favMetadatas = await dataService?.getFavorites()
+        let favMetadatas = dataService?.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
         
         XCTAssertNotNil(favMetadatas)
         
-        //3 metadata files total. 2 belong to 1 live photo
-        XCTAssertEqual(favMetadatas?.count, 3)
+        //3 metadata files total. 2 belong to 1 live photo. Live video should be filtered out
+        XCTAssertEqual(favMetadatas?.count, 2)
     }
     
     func testSearchMedia() async throws {

@@ -19,15 +19,13 @@ protocol MediaDelegate: AnyObject {
 final class MediaViewModel: NSObject {
     
     var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
+    
     let delegate: MediaDelegate
     let dataService: DataService
     
-    private let loadMoreThreshold = -80.0
-    private let groupSize = 2 //thumbnail fetches executed concurrently
-    //private var greaterDays = -30
+    private var previewTasks: [IndexPath: Task<Void, Never>] = [:]
     
-    private var currentPageItemCount = 0
-    //private var currentMetadataCount = 0
+    private let loadMoreThreshold = -80.0
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -58,7 +56,7 @@ final class MediaViewModel: NSObject {
         var snapshot = dataSource.snapshot()
         snapshot.deleteAllItems()
         snapshot.appendSections([0])
-        dataSource!.applySnapshotUsingReloadData(snapshot)
+        dataSource.applySnapshotUsingReloadData(snapshot)
     }
     
     func currentItemCount() -> Int {
@@ -141,30 +139,57 @@ final class MediaViewModel: NSObject {
         guard let metadata = dataSource.itemIdentifier(for: indexPath) else { return }
         
         if !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
-            loadPreviewImageForMetadata(metadata)
+            loadPreviewImageForMetadata(metadata, indexPath: indexPath)
         }
     }
     
-    private func loadPreviewImageForMetadata(_ metadata: tableMetadata) {
+    func stopPreviewLoad(indexPath: IndexPath) {
         
-        Task {
-            
-            Self.logger.debug("loadImageForMetadata() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+        Self.logger.debug("stopPreviewLoad() - indexPath: \(indexPath)")
+        
+        guard let previewLoadTask = previewTasks[indexPath] else {
+            return
+        }
+        previewLoadTask.cancel()
+        previewTasks[indexPath] = nil
+    }
+    
+    private func clearTask(indexPath: IndexPath) {
+        Self.logger.debug("stopPreviewLoad() - indexPath: \(indexPath)")
+        
+        if previewTasks[indexPath] != nil {
+            previewTasks[indexPath] = nil
+        }
+    }
+    
+    private func loadPreviewImageForMetadata(_ metadata: tableMetadata, indexPath: IndexPath) {
+        
+        previewTasks[indexPath] = Task {
+        
+            defer { clearTask(indexPath: indexPath) }
             
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
+                
+                Self.logger.debug("loadPreviewImageForMetadata() - download video preview for ocId: \(metadata.ocId)")
+                
                 await self.dataService.downloadVideoPreview(metadata: metadata)
             } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
-                //TODO: Implement svg fetch. Need a library that works.
+                //TODO: Implement svg processing. Need a library that works.
             } else {
+                
+                Self.logger.debug("loadPreviewImageForMetadata() - download image preview for ocId: \(metadata.ocId)")
+                
                 await self.dataService.downloadPreview(metadata: metadata)
             }
             
+            if Task.isCancelled { return }
+            
             guard FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) else {
-                Self.logger.debug("loadImageForMetadata() - NO IMAGE ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+                Self.logger.debug("loadPreviewImageForMetadata() - NO IMAGE ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                 return
             }
             
-            Self.logger.debug("loadImageForMetadata() - GOT IMAGE REFRESH CELL ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+            Self.logger.debug("loadPreviewImageForMetadata() - GOT IMAGE REFRESH CELL ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
             
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }

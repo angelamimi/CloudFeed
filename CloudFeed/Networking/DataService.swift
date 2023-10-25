@@ -151,7 +151,7 @@ class DataService: NSObject {
         return error
     }
     
-    func getFavorites() async -> [tableMetadata]? {
+    func getFavorites() async -> Bool {
         
         let listingResult = await nextcloudService.listingFavorites()
         
@@ -160,17 +160,26 @@ class DataService: NSObject {
             print(Mirror(reflecting: file).children.compactMap { "\($0.label ?? "Unknown Label"): \($0.value)" }.joined(separator: "\n"))
         }*/
         
-        guard listingResult.files != nil else { return nil }
+        guard listingResult.files != nil else { return true }
         
         let convertResult = await databaseManager.convertFilesToMetadatas(listingResult.files!)
         databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: convertResult.metadatas)
         
-        return getFavoriteMetadatas(account: listingResult.account)
+        return false
     }
     
-    func getFavoriteMetadatas(account: String) -> [tableMetadata] {
-        let metadatas = databaseManager.getMetadatas(predicate: NSPredicate(format: "account == %@ AND favorite == true", account))
-        return metadatas
+    func paginateFavoriteMetadata(offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+        
+        let account = Environment.current.currentUser?.account
+        guard account != nil else { return [] }
+        
+        let mediaPath = getMediaPath()
+        guard mediaPath != nil else { return [] }
+        
+        let startServerUrl = getStartServerUrl(mediaPath: mediaPath)
+        guard startServerUrl != nil else { return [] }
+        
+        return databaseManager.paginateFavoriteMetadata(account: account!, startServerUrl: startServerUrl!, offsetDate: offsetDate, offsetName: offsetName)
     }
 
     
@@ -237,32 +246,27 @@ class DataService: NSObject {
     func paginateMetadata(fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
         
         let account = Environment.current.currentUser?.account
-        
         guard account != nil else { return [] }
         
         let mediaPath = getMediaPath()
-        
         guard mediaPath != nil else { return [] }
         
         let startServerUrl = getStartServerUrl(mediaPath: mediaPath)
-        
         guard startServerUrl != nil else { return [] }
         
-        return databaseManager.paginateMetadata(account: account!, startServerUrl: startServerUrl!, fromDate: fromDate, toDate: toDate, offsetDate: offsetDate, offsetName: offsetName)
+        return databaseManager.paginateMetadata(account: account!, startServerUrl: startServerUrl!, fromDate: fromDate, toDate: toDate,
+                                                offsetDate: offsetDate, offsetName: offsetName)
     }
     
     func searchMedia(toDate: Date, fromDate: Date, limit: Int) async -> (metadatas: [tableMetadata], deleteOcIds: [String], error: Bool) {
         
         let account = Environment.current.currentUser?.account
-        
         guard account != nil else { return ([], [], true) }
         
         let mediaPath = getMediaPath()
-        
         guard mediaPath != nil else { return ([], [], true) }
         
-        let startServerUrl = getStartServerUrl(mediaPath: mediaPath)
-        
+        let startServerUrl = getStartServerUrl(mediaPath: mediaPath)        
         guard startServerUrl != nil else { return ([], [], true) }
         
         //remote search

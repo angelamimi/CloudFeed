@@ -13,7 +13,7 @@ class CollectionController: UIViewController {
     
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    //@IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
     @IBOutlet weak var emptyView: EmptyView!
     
     private var titleView: TitleView?
@@ -31,6 +31,18 @@ class CollectionController: UIViewController {
         
         navigationController?.isNavigationBarHidden = true
     }
+    
+    override func viewSafeAreaInsetsDidChange() {
+        titleView?.translatesAutoresizingMaskIntoConstraints = false
+        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        titleView?.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    }
+    
+    func setTitle() {}
+    func loadMore() {}
+    func refresh() {}
     
     func registerCell(_ cellIdentifier: String) {
         let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
@@ -93,12 +105,12 @@ class CollectionController: UIViewController {
         collectionView.collectionViewLayout = layout!
     }
     
-    func initTitleView(mediaView: MediaViewController) {
+    func initTitleView(mediaView: MediaViewController, allowEdit: Bool) {
         titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
         self.view.addSubview(titleView!)
         
         titleView?.mediaView = mediaView
-        titleView?.initMenu(allowEdit: false)
+        titleView?.initMenu(allowEdit: allowEdit)
     }
     
     func initEmptyView(imageSystemName: String, title: String, description: String) {
@@ -108,16 +120,24 @@ class CollectionController: UIViewController {
         emptyView.display(image: image, title: title, description: description)
     }
     
-    func setTitle() {}
-    func loadMore() {}
-    func refresh() {}
-    
-    override func viewSafeAreaInsetsDidChange() {
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-        titleView?.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    func displayResults() {
+        
+        let displayCount = collectionView.numberOfItems(inSection: 0)
+        
+        activityIndicator.stopAnimating()
+        loadMoreIndicator.stopAnimating()
+        
+        if displayCount == 0 {
+            collectionView.isHidden = true
+            emptyView.isHidden = false
+            hideMenu()
+            setTitle("")
+        } else {
+            collectionView.isHidden = false
+            emptyView.isHidden = true
+            showMenu()
+            setTitle()
+        }
     }
 }
 
@@ -133,6 +153,8 @@ extension CollectionController : UIScrollViewDelegate {
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 
+        guard isEditing == false else { return }
+        
         if scrollView.contentOffset.y <= scrollThreshold {
             refresh()
         } else {
@@ -141,6 +163,7 @@ extension CollectionController : UIScrollViewDelegate {
             let difference = maximumOffset - currentOffset
             
             if difference <= scrollThreshold {
+                loadMoreIndicator.startAnimating()
                 loadMore()
             }
         }

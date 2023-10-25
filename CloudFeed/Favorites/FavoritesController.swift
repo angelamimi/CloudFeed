@@ -8,19 +8,12 @@ import NextcloudKit
 import os.log
 import UIKit
 
-class FavoritesController: UIViewController {
+class FavoritesController: CollectionController {
     
     var coordinator: FavoritesCoordinator!
     var viewModel: FavoritesViewModel!
-
-    @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var emptyView: EmptyView!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
-    private var titleView: TitleView?
     private var layout: CollectionLayout?
-    
-    private var isEditMode = false
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -28,93 +21,57 @@ class FavoritesController: UIViewController {
     )
     
     override func viewDidLoad() {
+        super.viewDidLoad()
         
-        collectionView.isHidden = true
+        registerCell("CollectionViewCell")
+        
         collectionView.delegate = self
         collectionView.allowsMultipleSelection = false
         
         viewModel.initDataSource(collectionView: collectionView)
-        
-        navigationController?.isNavigationBarHidden = true
-        
-        initEmptyView()
-        initCollectionViewLayout()
-        initCollectionViewCell()
-        initTitleView()
+
+        initCollectionViewLayout(delegate: self)
+        initTitleView(mediaView: self, allowEdit: true)
+        initEmptyView(imageSystemName: "star.fill", title:"No favorites yet", description: "Files you mark as favorite will show up here")
     }
     
     override func viewDidAppear(_ animated: Bool) {
         Self.logger.debug("viewDidAppear()")
         
-        if collectionView.numberOfSections == 0 || collectionView.numberOfItems(inSection: 0) == 0 {
+        let visibleDateRange = getVisibleItemData()
+        
+        if visibleDateRange.toDate == nil || visibleDateRange.name == nil {
             viewModel.fetch()
         } else {
-            viewModel.metadataFetch()
+            viewModel.sync(offsetDate: visibleDateRange.toDate!, offsetName:visibleDateRange.name!)
         }
     }
     
-    override func viewSafeAreaInsetsDidChange() {
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-        titleView?.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    override func refresh() {
+        //clear()
+        viewModel.fetch()
     }
     
-    public func clear() {
-        titleView?.title.text = ""
-        viewModel.resetDataSource()
+    override func loadMore() {
+        viewModel.loadMore()
     }
     
-    private func initCollectionViewCell() {
-        let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
-        collectionView.register(nib, forCellWithReuseIdentifier: "CollectionViewCell")
-    }
-    
-    private func initEmptyView() {
-        let configuration = UIImage.SymbolConfiguration(pointSize: 48)
-        let image = UIImage(systemName: "star.fill", withConfiguration: configuration)
+    override func setTitle() {
         
-        emptyView.display(image: image, title: "No favorites yet", description: "Files you mark as favorite will show up here")
-        emptyView.isHidden = true
-    }
-    
-    private func initCollectionViewLayout() {
-        layout = CollectionLayout()
-        layout?.delegate = self
-        layout?.numberOfColumns = UIDevice.current.userInterfaceIdiom == .pad ? 4 : 2
-        
-        collectionView.collectionViewLayout = layout!
-    }
-    
-    private func initTitleView() {
-        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
-        self.view.addSubview(titleView!)
-        
-        titleView?.mediaView = self
-        titleView?.initMenu(allowEdit: true)
-    }
-    
-    private func startActivityIndicator() {
-        activityIndicator.startAnimating()
-        self.view.isUserInteractionEnabled = false
-    }
-    
-    private func stopActivityIndicator() {
-        activityIndicator.stopAnimating()
-        self.view.isUserInteractionEnabled = true
-    }
-    
-    private func setTitle() {
-
-        titleView?.title.text = ""
+        setTitle("")
         
         let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
         guard let indexPath = visibleIndexes?.first else { return }
-
+        
         let metadata = viewModel.getItemAtIndexPath(indexPath)
         guard metadata != nil else { return }
-        titleView?.title.text = StoreUtility.getFormattedDate(metadata!.date as Date)
+
+        setTitle(StoreUtility.getFormattedDate(metadata!.date as Date))
+    }
+    
+    public func clear() {
+        setTitle("")
+        viewModel.resetDataSource()
     }
     
     private func openViewer(indexPath: IndexPath) {
@@ -142,15 +99,38 @@ class FavoritesController: UIViewController {
     private func reloadSection() {
         viewModel.reload()
     }
+    
+    private func getVisibleItemData() -> (toDate: Date?, name: String?) {
+        
+        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+        let first = visibleIndexes?.first
+
+        if first == nil {
+            Self.logger.debug("getVisibleItemData() - no visible items")
+        } else {
+
+            let firstMetadata = viewModel.getItemAtIndexPath(first!)
+
+            if firstMetadata == nil {
+                Self.logger.debug("getVisibleItemData() - missing metadata")
+            } else {
+                Self.logger.debug("getVisibleItemData() - \(firstMetadata!.date) \(firstMetadata!.fileNameView)")
+                return (firstMetadata!.date as Date, firstMetadata!.fileNameView)
+            }
+        }
+        
+        return (nil, nil)
+    }
 }
 
 extension FavoritesController: FavoritesDelegate {
     
     func bulkEditFinished() {
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
             
-            self.isEditMode = false
+            self.isEditing = false
             self.collectionView.allowsMultipleSelection = false
         
             self.setTitle()
@@ -162,46 +142,33 @@ extension FavoritesController: FavoritesDelegate {
         }
     }
     
+    func fetching() {
+        DispatchQueue.main.async { [weak self] in
+            self?.activityIndicator.startAnimating()
+        }
+    }
+    
     func fetchResultReceived(resultItemCount: Int?) {
-        
-        DispatchQueue.main.async {
-            
+        DispatchQueue.main.async { [weak self] in
             if resultItemCount == nil {
-                self.coordinator.showLoadfailedError()
-                self.titleView?.hideMenu()
-                return
-            }
-            
-            if resultItemCount == 0 {
-                self.collectionView.isHidden = true
-                self.emptyView.isHidden = false
-                self.setTitle()
-                self.titleView?.hideMenu()
-                return
-                
-                //TODO: Clear the collectionview?
-            } else {
-                self.collectionView.isHidden = false
-                self.emptyView.isHidden = true
-                self.titleView?.showMenu()
+                self?.coordinator.showLoadfailedError()
             }
         }
     }
     
     func dataSourceUpdated() {
-        DispatchQueue.main.async {
-            self.setTitle()
+        DispatchQueue.main.async { [weak self] in
+            self?.displayResults()
         }
     }
     
     func editCellUpdated(cell: CollectionViewCell, indexPath: IndexPath) {
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
             
-            if self.isEditMode {
-                
+            if self.isEditing {
                 cell.selectMode(true)
-                
                 if self.collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
                     cell.selected(true)
                 } else {
@@ -217,32 +184,12 @@ extension FavoritesController: FavoritesDelegate {
 extension FavoritesController: MediaViewController {
     
     func zoomInGrid() {
-        guard layout != nil else { return }
-        let columns = self.layout?.numberOfColumns ?? 0
-        
-        if columns - 1 > 0 {
-            self.layout?.numberOfColumns -= 1
-        }
-        
-        UIView.animate(withDuration: 0.0, animations: {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-        })
+        zoomIn()
     }
     
     func zoomOutGrid() {
-        guard layout != nil else { return }
-        
         let count = viewModel.currentItemCount()
-        
-        guard self.layout!.numberOfColumns + 1 <= count else { return }
-
-        if self.layout!.numberOfColumns + 1 < 6 {
-            self.layout!.numberOfColumns += 1
-        }
-        
-        UIView.animate(withDuration: 0.0, animations: {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-        })
+        zoomOut(currentItemCount: count)
     }
     
     func titleTouched() {
@@ -252,7 +199,7 @@ extension FavoritesController: MediaViewController {
     }
     
     func edit() {
-        isEditMode = true
+        isEditing = true
         collectionView.allowsMultipleSelection = true
         reloadSection()
     }
@@ -267,11 +214,10 @@ extension FavoritesController: MediaViewController {
     }
     
     func cancel() {
-        //self.selectOcId = []
-        
+
         collectionView.indexPathsForSelectedItems?.forEach { collectionView.deselectItem(at: $0, animated: false) }
 
-        isEditMode = false
+        isEditing = false
         collectionView.allowsMultipleSelection = false
         reloadSection()
     }
@@ -298,18 +244,17 @@ extension FavoritesController : CollectionLayoutDelegate {
     }
 }
 
-extension FavoritesController : UIScrollViewDelegate {
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        setTitle()
-    }
-}
-
 extension FavoritesController: UICollectionViewDelegate {
+    
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        Self.logger.debug("collectionView.willDisplay() - indexPath: \(indexPath)")
+        viewModel.loadPreview(indexPath: indexPath)
+    }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
-        if isEditMode {
+        if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
                 cell.selected(true)
             }
@@ -320,7 +265,7 @@ extension FavoritesController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         Self.logger.debug("collectionView.didDeselectItemAt() - indexPath: \(indexPath)")
-        if isEditMode {
+        if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
                 cell.selected(false)
             }

@@ -10,6 +10,7 @@ import os.log
 import UIKit
 
 protocol FavoritesDelegate: AnyObject {
+    func fetching()
     func dataSourceUpdated()
     func bulkEditFinished()
     func fetchResultReceived(resultItemCount: Int?)
@@ -21,8 +22,6 @@ final class FavoritesViewModel: NSObject {
     var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
     let delegate: FavoritesDelegate
     let dataService: DataService
-    
-    private let groupSize = 2 //thumbnail fetches executed concurrently
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -71,6 +70,31 @@ final class FavoritesViewModel: NSObject {
         dataSource!.applySnapshotUsingReloadData(snapshot)
     }
     
+    func loadMore() {
+        var offsetDate: Date?
+        var offsetName: String?
+
+        let snapshot = dataSource.snapshot()
+        
+        if (snapshot.numberOfItems(inSection: 0) > 0) {
+            let metadata = snapshot.itemIdentifiers(inSection: 0).last
+            if metadata != nil {
+                offsetName = metadata?.fileNameView
+                offsetDate = metadata!.date as Date
+                /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
+                    but might lose new results from files with dates in the same second */
+                Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
+            }
+        }
+
+        guard let offsetDate = offsetDate else { return }
+        guard let offsetName = offsetName else { return }
+        
+        Self.logger.debug("loadMore() - offsetName: \(offsetName) offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
+        
+        sync(offsetDate: offsetDate, offsetName: offsetName)
+    }
+    
     func reload() {
         
         var snapshot = dataSource.snapshot()
@@ -86,22 +110,44 @@ final class FavoritesViewModel: NSObject {
     func fetch() {
         
         Self.logger.debug("fetch()")
+        
+        delegate.fetching()
                 
         Task {
-            let resultMetadatas = await getFavorites()
-            await processResult(resultMetadatas: resultMetadatas)
+            let error = await dataService.getFavorites()
+            processFavoriteResult(error: error)
+            
+            let resultMetadatas = dataService.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
+            await applyDatasourceChanges(metadatas: resultMetadatas)
         }
     }
     
-    func metadataFetch() {
+    private func processFavoriteResult(error: Bool) {
+        if error {
+            delegate.fetchResultReceived(resultItemCount: nil)
+        }
+    }
+    
+    func sync(offsetDate: Date, offsetName: String) {
         
-        guard let account = Environment.current.currentUser?.account else { return }
-        let resultMetadatas = dataService.getFavoriteMetadatas(account: account)
+        Self.logger.debug("sync()")
         
-        let metadatas = processMetadata(resultMetadatas: resultMetadatas)
+        delegate.fetching()
         
         Task {
-            await refreshDatasource(metadatas: metadatas)
+            _ = await dataService.getFavorites() //TODO: Show user a sync error?
+            
+            let resultMetadatas = dataService.paginateFavoriteMetadata(offsetDate: offsetDate, offsetName: offsetName)
+            await applyDatasourceChanges(metadatas: resultMetadatas)
+        }
+    }
+    
+    func loadPreview(indexPath: IndexPath) {
+        
+        guard let metadata = dataSource.itemIdentifier(for: indexPath) else { return }
+        
+        if !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+            loadPreviewImageForMetadata(metadata)
         }
     }
     
@@ -134,6 +180,37 @@ final class FavoritesViewModel: NSObject {
         delegate.bulkEditFinished()
     }
     
+    private func loadPreviewImageForMetadata(_ metadata: tableMetadata) {
+        
+        Task {
+            
+            Self.logger.debug("loadImageForMetadata() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+            
+            if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
+                await self.dataService.downloadVideoPreview(metadata: metadata)
+            } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
+                //TODO: Implement svg fetch. Need a library that works.
+            } else {
+                await self.dataService.downloadPreview(metadata: metadata)
+            }
+            
+            guard FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) else {
+                Self.logger.debug("loadImageForMetadata() - NO IMAGE ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+                return
+            }
+            
+            Self.logger.debug("loadImageForMetadata() - GOT IMAGE REFRESH CELL ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                
+                var snapshot = self.dataSource.snapshot()
+                snapshot.reloadItems([metadata])
+                self.dataSource.apply(snapshot, animatingDifferences: false)
+            }
+        }
+    }
+    
     private func setImage(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath) async {
         
         Self.logger.debug("setImage() - indexPath: \(indexPath)")
@@ -151,29 +228,6 @@ final class FavoritesViewModel: NSObject {
         }
         
         delegate.editCellUpdated(cell: cell, indexPath: indexPath)
-    }
-    
-    private func getFavorites() async -> [tableMetadata]? {
-
-        Self.logger.debug("getFavorites()")
-        let resultMetadatas = await dataService.getFavorites()
-        
-        Self.logger.debug("getFavorites() - resultMetadatas count: \(resultMetadatas == nil ? -1 : resultMetadatas!.count)")
-        
-        return resultMetadatas
-    }
-    
-    private func processResult(resultMetadatas: [tableMetadata]?) async {
-        
-        guard let resultMetadatas = resultMetadatas else {
-            delegate.fetchResultReceived(resultItemCount: nil)
-            /*coordinator.showLoadfailedError()
-            titleView?.hideMenu()*/
-            return
-        }
-        
-        let metadatas = processMetadata(resultMetadatas: resultMetadatas)
-        await processMetadataPage(pageMetadatas: metadatas)
     }
     
     private func processMetadata(resultMetadatas: [tableMetadata]) -> [tableMetadata] {
@@ -200,61 +254,6 @@ final class FavoritesViewModel: NSObject {
         //Self.logger.debug("processMetadata() - metadatas: \(idArray)")
         
         return metadatas
-    }
-    
-    /*
-     Divides the current page of results into groups of fetch preview tasks to be executed concurrently
-     */
-    private func processMetadataPage(pageMetadatas: [tableMetadata]) async {
-        
-        delegate.fetchResultReceived(resultItemCount: pageMetadatas.count)
-        
-        var groupMetadata: [tableMetadata] = []
-        
-        //let idArray = pageMetadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        //Self.logger.debug("processMetadataPage() - pageMetadatas: \(idArray)")
-        
-        for metadataIndex in (0...pageMetadatas.count - 1) {
-            
-            //Self.logger.debug("processMetadataPage() - metadataIndex: \(metadataIndex) pageMetadatas.count \(pageMetadatas.count)")
-            
-            if groupMetadata.count < groupSize {
-                //Self.logger.debug("processMetadataPage() - appending: \(pageMetadatas[metadataIndex].ocId)")
-                groupMetadata.append(pageMetadatas[metadataIndex])
-            } else {
-                await executeGroup(metadatas: groupMetadata)
-                await applyDatasourceChanges(metadatas: groupMetadata)
-                
-                groupMetadata = []
-                //Self.logger.debug("processMetadataPage() - appending: \(pageMetadatas[metadataIndex].ocId)")
-                groupMetadata.append(pageMetadatas[metadataIndex])
-            }
-        }
-        
-        if groupMetadata.count > 0 {
-            //Self.logger.debug("processMetadataPage() - groupMetadata: \(groupMetadata)")
-            await executeGroup(metadatas: groupMetadata)
-            await applyDatasourceChanges(metadatas: groupMetadata)
-        }
-    }
-    
-    private func executeGroup(metadatas: [tableMetadata]) async {
-        await withTaskGroup(of: Void.self, returning: Void.self, body: { taskGroup in
-            for metadata in metadatas {
-                taskGroup.addTask {
-                    //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType) fileExtension: \(metadata.fileExtension)")
-                    //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
-                    if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
-                        await self.dataService.downloadVideoPreview(metadata: metadata)
-                    } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
-                        //TODO: Implement svg fetch. Need a library that works.
-                    } else {
-                        //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType)")
-                        await self.dataService.downloadPreview(metadata: metadata)
-                    }
-                }
-            }
-        })
     }
     
     private func refreshDatasource(metadatas: [tableMetadata]) async {
@@ -311,7 +310,8 @@ final class FavoritesViewModel: NSObject {
         
         let applySnapshot = snapshot
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async {[weak self] in
+            guard let self else { return }
             self.dataSource.apply(applySnapshot, animatingDifferences: true)
             self.delegate.dataSourceUpdated()
         }
