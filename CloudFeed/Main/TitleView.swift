@@ -34,6 +34,7 @@ class TitleView: UIView {
     )
 
     override func awakeFromNib() {
+
         menuButton.showsMenuAsPrimaryAction = true
         
         menuButton.layer.cornerRadius = 20

@@ -156,12 +156,10 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsCell", for: indexPath)
-            
-            //cell.layer.cornerRadius = 20
-            //cell.layer.masksToBounds = true
-
 
             var content = cell.defaultContentConfiguration()
+            
+            content.textProperties.font = UIFont.systemFont(ofSize: 18)
             
             if indexPath.item == 1 {
                 content.image = UIImage(systemName: "person.wave.2")
