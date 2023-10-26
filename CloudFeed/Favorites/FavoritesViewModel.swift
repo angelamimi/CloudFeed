@@ -219,11 +219,21 @@ final class FavoritesViewModel: NSObject {
         let etag = metadata.etag
         
         if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag)) {
-            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag))
-            await cell.setImage(image)
+            
+            if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
+                await cell.showVideoIcon()
+            } else if metadata.livePhoto {
+                await cell.showLivePhotoIcon()
+            } else {
+                await cell.resetStatusIcon()
+            }
+            
+            await cell.setImage(UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag)))
             //Self.logger.debug("CELL - image size: \(cell.imageView.image?.size.width ?? -1),\(cell.imageView.image?.size.height ?? -1)")
+            
         }  else {
             Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(ocId)")
+            await cell.resetStatusIcon()
             await cell.setImage(nil)
         }
         

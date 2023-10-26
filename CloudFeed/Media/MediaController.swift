@@ -179,6 +179,28 @@ extension MediaController: UICollectionViewDelegate {
         Self.logger.debug("collectionView.didEndDisplaying() - indexPath: \(indexPath)")
         viewModel.stopPreviewLoad(indexPath: indexPath)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        guard let indexPath = indexPaths.first, let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return nil }
+        guard let image = cell.imageView.image else { return nil }
+        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return nil}
+        
+        let imageSize = image.size
+        let width = self.view.bounds.width
+        let height = imageSize.height * (width / imageSize.width)
+        
+        return .init(identifier: indexPath as NSCopying) {
+            let vc = self.coordinator.getPreviewController(metadata: metadata, image: image)
+            vc.preferredContentSize = CGSize(width: width, height: height)
+            return vc
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+        guard let indexPath = configuration.identifier as? IndexPath else { return }
+        openViewer(indexPath: indexPath)
+    }
 }
 
 extension MediaController: MediaViewController {

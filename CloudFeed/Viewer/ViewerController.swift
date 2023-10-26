@@ -51,7 +51,7 @@ class ViewerController: UIViewController {
         
         initGestureRecognizers()
 
-        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue || metadata.classFile == NKCommon.TypeClassFile.audio.rawValue {
+        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             loadVideo()
         } else {
             reloadImage()
@@ -64,12 +64,12 @@ class ViewerController: UIViewController {
     
     func playLivePhoto(_ url: URL) {
         let avpController = viewModel.loadVideoFromUrl(url, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
-        handleVideoController(avpController: avpController, autoPlay: true)
+        setupVideoController(avpController: avpController, autoPlay: true)
     }
     
     private func loadVideo() {
         guard let avpController = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height) else { return }
-        handleVideoController(avpController: avpController, autoPlay: false)
+        setupVideoController(avpController: avpController, autoPlay: false)
     }
     
     private func reloadImage() {
@@ -99,7 +99,7 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func handleVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
+    private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
 
         if self.children.count == 0 {
             addChild(avpController)

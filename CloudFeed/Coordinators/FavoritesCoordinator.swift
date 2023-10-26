@@ -20,6 +20,12 @@ final class FavoritesCoordinator {
 
 extension FavoritesCoordinator {
     
+    func getPreviewController(metadata: tableMetadata, image: UIImage) -> PreviewController {
+        let previewController = PreviewController(metadata: metadata, image: image)
+        previewController.viewModel = ViewerViewModel(dataService: dataService, metadata: metadata)
+        return previewController
+    }
+    
     func showViewerPager(currentIndex: Int, metadatas: [tableMetadata]) {
         let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService)
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)

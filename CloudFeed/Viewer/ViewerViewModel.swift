@@ -28,6 +28,11 @@ final class ViewerViewModel {
         return dataService.getMetadataFromOcId(ocId)
     }
     
+    func getMetadata(account: String, serverUrl: String, fileName: String) -> tableMetadata? {
+        let predicate = NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", account, serverUrl, fileName)
+        return dataService.getMetadata(predicate: predicate)
+    }
+    
     func loadVideo(viewWidth: CGFloat, viewHeight: CGFloat) -> AVPlayerViewController? {
         
         let urlVideo = getVideoURL(metadata: metadata)
@@ -54,8 +59,6 @@ final class ViewerViewModel {
         
         avpController.showsPlaybackControls = true
         
-        //Self.logger.debug("loadImage() - child count: \(self.children.count) subview count: \(self.view.subviews.count)")
-        
         return avpController
     }
     
@@ -65,11 +68,7 @@ final class ViewerViewModel {
             
             if metadata.livePhoto {
                 let fileName = (metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-                if let metadata = dataService.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", metadata.account, metadata.serverUrl, fileName)), !StoreUtility.fileProviderStorageExists(metadata) {
-                    Task {
-                        await dataService.download(metadata: metadata, selector: "")
-                    }
-                }
+                await downloadLivePhotoVideo(fileName: fileName, metadata: metadata)
             }
             
             await dataService.download(metadata: metadata, selector: "")
@@ -81,6 +80,15 @@ final class ViewerViewModel {
         // Get image
         let image = getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
         return image
+    }
+    
+    func downloadLivePhotoVideo(fileName: String, metadata: tableMetadata) async {
+        
+        if let metadata = dataService.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", 
+                                                                         metadata.account, metadata.serverUrl, fileName)), !StoreUtility.fileProviderStorageExists(metadata) {
+
+            await dataService.download(metadata: metadata, selector: "")
+        }
     }
 }
 
@@ -113,11 +121,8 @@ extension ViewerViewModel {
         
         //TODO: Show generic image by type if missing a preview image
         /*if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
-            return UIImage(named: "missingVideo")?.image(color: .gray, size: view.frame.width)
         } else if metadata.classFile == NKCommon.typeClassFile.audio.rawValue {
-            return UIImage(named: "missingAudio")?.image(color: .gray, size: view.frame.width)
         } else {
-            return UIImage(named: "missingMedia")?.image(color: .gray, size: view.frame.width)
         }*/
         return nil
     }

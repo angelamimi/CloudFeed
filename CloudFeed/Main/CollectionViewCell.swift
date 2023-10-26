@@ -29,6 +29,18 @@ class CollectionViewCell: UICollectionViewCell {
         initCell()
     }
     
+    func resetStatusIcon() {
+        imageStatus.image = nil
+    }
+    
+    func showVideoIcon() {
+        imageStatus.image = UIImage(systemName: "video.fill")
+    }
+    
+    func showLivePhotoIcon() {
+        imageStatus.image = UIImage(systemName: "livephoto")
+    }
+    
     func showFavorite() {
         imageFavorite.isHidden = false
     }

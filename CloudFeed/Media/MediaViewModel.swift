@@ -385,7 +385,20 @@ final class MediaViewModel: NSObject {
     private func setImage(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath) async {
         
         if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+            
+            if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
+                await cell.showVideoIcon()
+            } else if metadata.livePhoto {
+                await cell.showLivePhotoIcon()
+            } else {
+                await cell.resetStatusIcon()
+            }
+            
             await cell.setImage(UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)))
+        } else {
+            Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata.ocId)")
+            await cell.resetStatusIcon()
+            await cell.setImage(nil)
         }
     }
 }

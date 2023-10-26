@@ -47,7 +47,7 @@ class TitleView: UIView {
         cancelButton.addTarget(self, action: #selector(cancelEdit), for: .touchUpInside)
         
         backButton.isHidden = true
-        backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
+        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         
         let guestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(titleTouched))
         title.addGestureRecognizer(guestureRecognizer)
@@ -124,7 +124,7 @@ class TitleView: UIView {
         self.mediaView?.cancel()
     }
     
-    @objc func back() {
+    @objc func goBack() {
        self.mediaView?.cancel()
     }
     
