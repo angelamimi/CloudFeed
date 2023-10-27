@@ -97,9 +97,10 @@ class PagerController: UIViewController, MediaViewController {
             }
         }
         
-        DispatchQueue.main.async {
-            let menu = UIMenu(children: [action])
-            self.titleView?.menuButton.menu = menu
+        let menu = UIMenu(children: [action])
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.titleView?.menuButton.menu = menu
         }
     }
     

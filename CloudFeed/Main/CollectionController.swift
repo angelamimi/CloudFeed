@@ -144,14 +144,18 @@ class CollectionController: UIViewController {
 extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        Self.logger.debug("scrollViewDidEndScrollingAnimation()")
         setTitle()
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        Self.logger.debug("scrollViewDidEndDecelerating()")
         setTitle()
     }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        
+        Self.logger.debug("scrollViewDidEndDragging()")
 
         guard isEditing == false else { return }
         

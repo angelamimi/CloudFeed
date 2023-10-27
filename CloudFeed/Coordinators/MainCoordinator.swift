@@ -30,7 +30,9 @@ extension MainCoordinator: CacheDelegate {
     
     func cacheCleared() {
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
             let mediaNavController = self.tabBarController.viewControllers?[0] as! UINavigationController
             let favoritesNavController = self.tabBarController.viewControllers?[1] as! UINavigationController
             

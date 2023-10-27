@@ -24,6 +24,7 @@ final class MediaViewModel: NSObject {
     let dataService: DataService
     
     private var previewTasks: [IndexPath: Task<Void, Never>] = [:]
+    private let queue = DispatchQueue(label: String(describing: MediaViewModel.self))
     
     private let loadMoreThreshold = -80.0
     
@@ -138,8 +139,10 @@ final class MediaViewModel: NSObject {
         
         guard let metadata = dataSource.itemIdentifier(for: indexPath) else { return }
         
-        if !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
-            loadPreviewImageForMetadata(metadata, indexPath: indexPath)
+        queue.async {
+            if !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+                self.loadPreviewImageForMetadata(metadata, indexPath: indexPath)
+            }
         }
     }
     
@@ -147,38 +150,38 @@ final class MediaViewModel: NSObject {
         
         Self.logger.debug("stopPreviewLoad() - indexPath: \(indexPath)")
         
-        guard let previewLoadTask = previewTasks[indexPath] else {
-            return
+        queue.async {
+            
+            guard let previewLoadTask = self.previewTasks[indexPath] else {
+                return
+            }
+            previewLoadTask.cancel()
+            self.previewTasks[indexPath] = nil
         }
-        previewLoadTask.cancel()
-        previewTasks[indexPath] = nil
     }
     
     private func clearTask(indexPath: IndexPath) {
-        Self.logger.debug("stopPreviewLoad() - indexPath: \(indexPath)")
+        Self.logger.debug("clearTask() - indexPath: \(indexPath)")
         
-        if previewTasks[indexPath] != nil {
-            previewTasks[indexPath] = nil
+        queue.async {
+            if self.previewTasks[indexPath] != nil {
+                self.previewTasks[indexPath] = nil
+            }
         }
     }
     
     private func loadPreviewImageForMetadata(_ metadata: tableMetadata, indexPath: IndexPath) {
         
-        previewTasks[indexPath] = Task {
+        previewTasks[indexPath] = Task { [weak self] in
+            guard let self else { return }
         
-            defer { clearTask(indexPath: indexPath) }
+            defer { self.clearTask(indexPath: indexPath) }
             
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
-                
-                Self.logger.debug("loadPreviewImageForMetadata() - download video preview for ocId: \(metadata.ocId)")
-                
                 await self.dataService.downloadVideoPreview(metadata: metadata)
             } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
                 //TODO: Implement svg processing. Need a library that works.
             } else {
-                
-                Self.logger.debug("loadPreviewImageForMetadata() - download image preview for ocId: \(metadata.ocId)")
-                
                 await self.dataService.downloadPreview(metadata: metadata)
             }
             

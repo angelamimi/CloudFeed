@@ -181,6 +181,22 @@ class DataService: NSObject {
         
         return databaseManager.paginateFavoriteMetadata(account: account!, startServerUrl: startServerUrl!, offsetDate: offsetDate, offsetName: offsetName)
     }
+    
+    func processFavorites(displayedMetadatas: [tableMetadata]) -> [tableMetadata] {
+        
+        let savedMetadatas = paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
+        var delete: [tableMetadata] = []
+        
+        Self.logger.debug("savedMetadatas count: \(savedMetadatas.count) displayedMetadatas count: \(displayedMetadatas.count)")
+        
+        for displayedMetadata in displayedMetadatas {
+            if savedMetadatas.firstIndex(where: { $0.ocId == displayedMetadata.ocId }) == nil {
+                delete.append(displayedMetadata)
+            }
+        }
+        
+        return delete
+    }
 
     
     // MARK: -

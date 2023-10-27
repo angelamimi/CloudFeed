@@ -23,6 +23,9 @@ final class FavoritesViewModel: NSObject {
     let delegate: FavoritesDelegate
     let dataService: DataService
     
+    private var previewTasks: [IndexPath: Task<Void, Never>] = [:]
+    private let queue = DispatchQueue(label: String(describing: FavoritesViewModel.self))
+    
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: FavoritesViewModel.self)
@@ -102,8 +105,8 @@ final class FavoritesViewModel: NSObject {
         guard snapshot.numberOfSections > 0 else { return }
         snapshot.reloadSections([0])
         
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true)
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSource.apply(snapshot, animatingDifferences: true)
         }
     }
     
@@ -135,10 +138,40 @@ final class FavoritesViewModel: NSObject {
         delegate.fetching()
         
         Task {
-            _ = await dataService.getFavorites() //TODO: Show user a sync error?
+            _ = await dataService.getFavorites()
             
             let resultMetadatas = dataService.paginateFavoriteMetadata(offsetDate: offsetDate, offsetName: offsetName)
             await applyDatasourceChanges(metadatas: resultMetadatas)
+        }
+    }
+    
+    func syncFavs() {
+        
+        Self.logger.debug("syncFavs()")
+        
+        delegate.fetching()
+                
+        Task {
+            let error = await dataService.getFavorites()
+            processFavoriteResult(error: error)
+            
+            var snapshot = dataSource.snapshot()
+            let delete = dataService.processFavorites(displayedMetadatas: snapshot.itemIdentifiers(inSection: 0))
+            
+            guard delete.count > 0 else {
+                delegate.dataSourceUpdated()
+                return
+            }
+            
+            snapshot.deleteItems(delete)
+            
+            let applySnapshot = snapshot
+            
+            DispatchQueue.main.async { [weak self] in
+                self?.dataSource.apply(applySnapshot, animatingDifferences: true, completion: {
+                    self?.delegate.dataSourceUpdated()
+                })
+            }
         }
     }
     
@@ -146,8 +179,34 @@ final class FavoritesViewModel: NSObject {
         
         guard let metadata = dataSource.itemIdentifier(for: indexPath) else { return }
         
-        if !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
-            loadPreviewImageForMetadata(metadata)
+        queue.async { [weak self] in
+            if !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+                self?.loadPreviewImageForMetadata(metadata, indexPath: indexPath)
+            }
+        }
+    }
+    
+    func stopPreviewLoad(indexPath: IndexPath) {
+        
+        Self.logger.debug("stopPreviewLoad() - indexPath: \(indexPath)")
+        
+        queue.async { [weak self] in
+            
+            guard let previewLoadTask = self?.previewTasks[indexPath] else {
+                return
+            }
+            previewLoadTask.cancel()
+            self?.previewTasks[indexPath] = nil
+        }
+    }
+    
+    private func clearTask(indexPath: IndexPath) {
+        Self.logger.debug("clearTask() - indexPath: \(indexPath)")
+        
+        queue.async { [weak self] in
+            if self?.previewTasks[indexPath] != nil {
+                self?.previewTasks[indexPath] = nil
+            }
         }
     }
     
@@ -173,18 +232,20 @@ final class FavoritesViewModel: NSObject {
         
         let applySnapshot = snapshot
         
-        DispatchQueue.main.async {
-            self.dataSource.apply(applySnapshot, animatingDifferences: true)
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSource.apply(applySnapshot, animatingDifferences: true)
+            self?.delegate.bulkEditFinished()
         }
-        
-        delegate.bulkEditFinished()
     }
     
-    private func loadPreviewImageForMetadata(_ metadata: tableMetadata) {
+    private func loadPreviewImageForMetadata(_ metadata: tableMetadata, indexPath: IndexPath) {
         
-        Task {
+        previewTasks[indexPath] = Task { [weak self] in
+            guard let self else { return }
+        
+            defer { self.clearTask(indexPath: indexPath) }
             
-            Self.logger.debug("loadImageForMetadata() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+            //Self.logger.debug("loadPreviewImageForMetadata() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
             
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
                 await self.dataService.downloadVideoPreview(metadata: metadata)
@@ -194,12 +255,14 @@ final class FavoritesViewModel: NSObject {
                 await self.dataService.downloadPreview(metadata: metadata)
             }
             
+            if Task.isCancelled { return }
+            
             guard FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) else {
-                Self.logger.debug("loadImageForMetadata() - NO IMAGE ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+                //Self.logger.debug("loadPreviewImageForMetadata() - NO IMAGE ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                 return
             }
             
-            Self.logger.debug("loadImageForMetadata() - GOT IMAGE REFRESH CELL ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+            //Self.logger.debug("loadPreviewImageForMetadata() - GOT IMAGE REFRESH CELL ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
             
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
@@ -266,7 +329,7 @@ final class FavoritesViewModel: NSObject {
         return metadatas
     }
     
-    private func refreshDatasource(metadatas: [tableMetadata]) async {
+    private func refreshDatasourceOLD(metadatas: [tableMetadata]) async {
         var snapshot = dataSource.snapshot()
         var delete: [tableMetadata] = []
         
@@ -285,10 +348,10 @@ final class FavoritesViewModel: NSObject {
         
         let applySnapshot = snapshot
         
-        DispatchQueue.main.async {
-            self.dataSource.apply(applySnapshot, animatingDifferences: true, completion: {
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSource.apply(applySnapshot, animatingDifferences: true, completion: {
                 Task {
-                    await self.applyDatasourceChanges(metadatas: metadatas)
+                    await self?.applyDatasourceChanges(metadatas: metadatas)
                 }
             })
         }

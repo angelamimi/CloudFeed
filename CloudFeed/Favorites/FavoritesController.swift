@@ -43,12 +43,11 @@ class FavoritesController: CollectionController {
         if visibleDateRange.toDate == nil || visibleDateRange.name == nil {
             viewModel.fetch()
         } else {
-            viewModel.sync(offsetDate: visibleDateRange.toDate!, offsetName:visibleDateRange.name!)
+            viewModel.syncFavs()
         }
     }
     
     override func refresh() {
-        //clear()
         viewModel.fetch()
     }
     
@@ -205,9 +204,6 @@ extension FavoritesController: MediaViewController {
     }
     
     func endEdit() {
-        
-        //Self.logger.debug("endEdit() - selectOcId: \(self.selectOcId)")
-            
         Task {
             await bulkEdit()
         }

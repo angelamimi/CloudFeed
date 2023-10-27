@@ -221,8 +221,8 @@ extension SettingsController: SettingsDelegate {
     func avatarLoaded(image: UIImage?) {
         self.profileImage = image
         
-        DispatchQueue.main.async {
-            self.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .none)
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .none)
         }
     }
     
@@ -230,15 +230,15 @@ extension SettingsController: SettingsDelegate {
         coordinator.cacheCleared()
         calculateCacheSize()
         
-        DispatchQueue.main.async {
-            self.stopActivityIndicator()
+        DispatchQueue.main.async { [weak self] in
+            self?.stopActivityIndicator()
         }
     }
     
     func cacheCalculated(cacheSize: Int64) {
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-            self.footerView.updateText(text: StoreUtility.transformedSize(cacheSize))
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadData()
+            self?.footerView.updateText(text: StoreUtility.transformedSize(cacheSize))
         }
     }
     
@@ -247,12 +247,12 @@ extension SettingsController: SettingsDelegate {
         self.profileName = profileName
         self.profileEmail = profileEmail
         
-        DispatchQueue.main.async {
-            self.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .none)
-            self.stopActivityIndicator()
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .none)
+            self?.stopActivityIndicator()
             
             if profileName == "" && profileEmail == "" {
-                self.showProfileLoadfailedError()
+                self?.showProfileLoadfailedError()
             }
         }
     }
