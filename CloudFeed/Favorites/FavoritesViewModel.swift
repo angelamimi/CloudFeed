@@ -40,8 +40,8 @@ final class FavoritesViewModel: NSObject {
         
         dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            Task {
-                await self.setImage(metadata: metadata, cell: cell, indexPath: indexPath)
+            Task { [weak self] in
+                await self?.setImage(metadata: metadata, cell: cell, indexPath: indexPath)
             }
             return cell
         }
@@ -116,8 +116,10 @@ final class FavoritesViewModel: NSObject {
         
         delegate.fetching()
                 
-        Task {
-            let error = await dataService.getFavorites()
+        Task { [weak self] in
+            guard let self else { return }
+            
+            let error = await self.dataService.getFavorites()
             processFavoriteResult(error: error)
             
             let resultMetadatas = dataService.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
@@ -137,10 +139,12 @@ final class FavoritesViewModel: NSObject {
         
         delegate.fetching()
         
-        Task {
-            _ = await dataService.getFavorites()
+        Task { [weak self] in
+            guard let self else { return }
+
+            _ = await self.dataService.getFavorites()
             
-            let resultMetadatas = dataService.paginateFavoriteMetadata(offsetDate: offsetDate, offsetName: offsetName)
+            let resultMetadatas = self.dataService.paginateFavoriteMetadata(offsetDate: offsetDate, offsetName: offsetName)
             await applyDatasourceChanges(metadatas: resultMetadatas)
         }
     }
@@ -151,7 +155,9 @@ final class FavoritesViewModel: NSObject {
         
         delegate.fetching()
                 
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            
             let error = await dataService.getFavorites()
             processFavoriteResult(error: error)
             
@@ -350,7 +356,7 @@ final class FavoritesViewModel: NSObject {
         
         DispatchQueue.main.async { [weak self] in
             self?.dataSource.apply(applySnapshot, animatingDifferences: true, completion: {
-                Task {
+                Task { [weak self] in
                     await self?.applyDatasourceChanges(metadatas: metadatas)
                 }
             })

@@ -26,16 +26,22 @@ final class SettingsViewModel: NSObject {
     }
     
     func requestProfile() {
-        Task {
+        
+        Task { [weak self] in
+            guard let self else { return }
+            
             let result = await dataService.getUserProfile()
-            self.delegate.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail)
+            delegate.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail)
         }
     }
     
     func requestAvatar() {
+        
         guard let account = dataService.getActiveAccount() else { return }
         
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            
             await downloadAvatar(account: account)
             let image = await loadAvatar(account: account)
             
@@ -45,7 +51,8 @@ final class SettingsViewModel: NSObject {
     
     func clearCache() {
         
-        Task {
+        Task {[weak self] in
+            guard let self else { return }
             guard let account = Environment.current.currentUser?.account else { return }
             
             URLCache.shared.removeAllCachedResponses()
@@ -70,7 +77,9 @@ final class SettingsViewModel: NSObject {
     
     func reset() {
         
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            
             URLCache.shared.diskCapacity = 0
             URLCache.shared.memoryCapacity = 0
             
@@ -89,8 +98,10 @@ final class SettingsViewModel: NSObject {
     
     func calculateCacheSize() {
         
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             guard let directory = StoreUtility.getDirectoryProviderStorage() else { return }
+            
             let totalSize = FileSystemUtility.shared.getDirectorySize(directory: directory)
             
             //let formattedSize = ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .binary)

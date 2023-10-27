@@ -35,7 +35,9 @@ class DataService: NSObject {
             nextcloudService.setupVersion(serverVersionMajor: serverVersionMajor)
         }
         
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            
             let (account, data) = await nextcloudService.getCapabilities()
             guard account != nil && data != nil else { return }
             databaseManager.addCapabilitiesJSon(account: account!, data: data!)

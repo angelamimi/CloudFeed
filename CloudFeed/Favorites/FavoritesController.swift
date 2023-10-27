@@ -204,8 +204,8 @@ extension FavoritesController: MediaViewController {
     }
     
     func endEdit() {
-        Task {
-            await bulkEdit()
+        Task { [weak self] in
+            await self?.bulkEdit()
         }
     }
     

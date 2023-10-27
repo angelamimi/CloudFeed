@@ -42,8 +42,8 @@ final class MediaViewModel: NSObject {
         
         dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            Task {
-                await self.setImage(metadata: metadata, cell: cell, indexPath: indexPath)
+            Task { [weak self] in
+                await self?.setImage(metadata: metadata, cell: cell, indexPath: indexPath)
             }
             return cell
         }
@@ -95,7 +95,9 @@ final class MediaViewModel: NSObject {
         
         Self.logger.debug("metadataSearch() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
         
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            
             let results = await search(toDate: offsetDate, fromDate: fromDate, limit: limit) //saves metadata to be paginated
             await processSearchResult(results: results, toDate: offsetDate, fromDate: fromDate, days: days) //recursive call until enough results received or gone all the way back in time
 
@@ -105,7 +107,10 @@ final class MediaViewModel: NSObject {
     }
     
     func sync(toDate: Date, fromDate: Date) {
-        Task {
+        
+        Task { [weak self] in
+            guard let self else { return }
+            
             let results = await search(toDate: toDate, fromDate: fromDate, limit: Global.shared.pageSize)
             guard results.metadatas != nil else { return }
             processSync(metadatas: results.metadatas!, deleteOcIds: results.deleteOcIds)

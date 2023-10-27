@@ -70,9 +70,9 @@ class PreviewController: UIViewController {
             if StoreUtility.fileProviderStorageExists(metadata) {
                 playLiveVideoFromMetadata(metadata)
             } else {
-                Task {
-                    await viewModel.downloadLivePhotoVideo(fileName: fileName, metadata: metadata)
-                    playLiveVideoFromMetadata(metadata)
+                Task { [weak self] in
+                    await self?.viewModel.downloadLivePhotoVideo(fileName: fileName, metadata: metadata)
+                    self?.playLiveVideoFromMetadata(metadata)
                 }
             }
         }

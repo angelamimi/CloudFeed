@@ -83,7 +83,9 @@ class ViewerController: UIViewController {
         
         activityIndicator.startAnimating()
         
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            
             let image = await viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
             
             Self.logger.debug("loadImage() - have image? \(image != nil) for ocId: \(metadata.ocId)")

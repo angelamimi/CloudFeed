@@ -7,15 +7,6 @@
 
 import UIKit
 
-/*protocol PagerViewModelProtocol: AnyObject {
-    var currentIndex: Int { get }
-    var metadatas: [tableMetadata] { get }
-    
-    func currentMetadata() -> tableMetadata
-    func toggleFavorite(isFavorite: Bool)
-    func initViewer() -> ViewerController
-}*/
-
 protocol PagerViewModelDelegate: AnyObject {
     func finishedPaging(metadata: tableMetadata)
     func finishedUpdatingFavorite(isFavorite: Bool)
@@ -53,7 +44,9 @@ final class PagerViewModel: NSObject {
     func toggleFavorite(isFavorite: Bool) {
         let metadata = metadatas[currentIndex]
         
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            
             let error = await dataService.favoriteMetadata(metadata)
             if error == .success {
                 metadatas[currentIndex].favorite = isFavorite
