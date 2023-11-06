@@ -82,7 +82,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
      
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
 
-        let previewResult = await NextcloudKit.shared.downloadPreview(fileNamePathOrFileId: fileNamePath,
+        let _ = await NextcloudKit.shared.downloadPreview(fileNamePathOrFileId: fileNamePath,
                                                                       fileNamePreviewLocalPath: fileNamePreviewLocalPath,
                                                                       widthPreview: Global.shared.sizePreview,
                                                                       heightPreview: Global.shared.sizePreview,
@@ -91,32 +91,6 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                                                                       etag: etagResource,
                                                                       options: options)
         
-    }
-    
-    func downloadPreviewOLD(fileNamePath: String, fileNamePreviewLocalPath: String, fileNameIconLocalPath: String, etagResource: String?) async {
-        
-        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
-        
-        return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.downloadPreview(
-                fileNamePathOrFileId: fileNamePath,
-                fileNamePreviewLocalPath: fileNamePreviewLocalPath,
-                widthPreview: Global.shared.sizePreview,
-                heightPreview: Global.shared.sizePreview,
-                fileNameIconLocalPath: fileNameIconLocalPath,
-                sizeIcon: Global.shared.sizeIcon,
-                etag: etagResource,
-                options: options) { _, _, imageIcon, _, etag, error in
-                    
-                    if error == .success {
-                        //TODO: REFACTOR! This just kicks off download and does nothing else. make sure this does something
-                        continuation.resume()
-                    } else {
-                        Self.logger.debug("downloadPreview() - FAILED")
-                        continuation.resume()
-                    }
-                }
-        }
     }
     
     func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String? {
@@ -152,8 +126,6 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
         
         let greaterDate = Calendar.current.date(byAdding: .second, value: -1, to: fromDate)!
         let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: toDate)!
-        
-        Self.logger.debug("searchMedia() - mediaPath: \(mediaPath)")
         
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.searchMedia(

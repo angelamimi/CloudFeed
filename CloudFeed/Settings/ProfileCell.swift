@@ -9,7 +9,6 @@ import UIKit
 
 class ProfileCell: UITableViewCell {
     
-    @IBOutlet weak var profileBackground: UIView!
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var profileEmailLabel: UILabel!
     @IBOutlet weak var profileNameLabel: UILabel!
@@ -17,11 +16,11 @@ class ProfileCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        profileBackground.layer.cornerRadius = 20
-        profileBackground.layer.masksToBounds = true
-        
         profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
         profileImageView.layer.masksToBounds = true
+        
+        profileNameLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        profileEmailLabel.font = UIFont.preferredFont(forTextStyle: .body)
     }
 
     func updateProfileImage(_ image: UIImage?) {

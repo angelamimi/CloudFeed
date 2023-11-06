@@ -264,6 +264,23 @@ extension DatabaseManager {
         return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
     }
     
+    func fetchFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [tableMetadata] {
+        
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+                                    account, startServerUrl, fromDate as NSDate, toDate as NSDate,
+                                    NKCommon.TypeClassFile.image.rawValue)
+        
+        let sortProperties = [SortDescriptor(keyPath: "date", ascending: false),
+                              SortDescriptor(keyPath:  "fileNameView", ascending: false)]
+        
+        let realm = try! Realm()
+        realm.refresh()
+        
+        let results = realm.objects(tableMetadata.self).filter(predicate).sorted(by: sortProperties)
+        
+        return Array(results.map { tableMetadata.init(value: $0) })
+    }
+    
     private func paginateMetadata(predicate: NSPredicate, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
     
         let realm = try! Realm()
@@ -366,54 +383,67 @@ extension DatabaseManager {
         //return metadatas
     }
     
-    //@discardableResult
-    func processMetadatas(_ metadatas: [tableMetadata], metadatasResult: [tableMetadata], addCompareLivePhoto: Bool = true, addExistsInLocal: Bool = false, addCompareEtagLocal: Bool = false, addDirectorySynchronized: Bool = false) -> [String] { //-> (ocIdAdd: [String], ocIdUpdate: [String], ocIdDelete: [String]) {
-
-        let realm = try! Realm()
-        //var ocIdAdd: [String] = []
-        var ocIdDelete: [String] = []
-        //var ocIdUpdate: [String] = []
+    func processMetadatas(_ metadatas: [tableMetadata], metadatasResult: [tableMetadata]) -> (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
+        
+        var updatedOcIds: [String] = []
+        var addedOcIds: [String] = []
+        
+        var added: [tableMetadata] = []
+        var updated: [tableMetadata] = []
+        var deleted: [tableMetadata] = []
         
         do {
-            try realm.write {
 
-                // DELETE
+            let realm = try Realm()
+            try realm.write {
+                
+                //delete
                 for metadataResult in metadatasResult {
                     if metadatas.firstIndex(where: { $0.ocId == metadataResult.ocId }) == nil {
                         if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", metadataResult.ocId)).first {
-                            let deleteId = result.ocId
+                            deleted.append(tableMetadata.init(value: result))
                             realm.delete(result)
-                            //ocIdDelete.append(result.ocId)
-                            ocIdDelete.append(deleteId)
                         }
                     }
                 }
-
-                // UPDATE/NEW
+                
+                //add and update
                 for metadata in metadatas {
 
                     if let result = metadatasResult.first(where: { $0.ocId == metadata.ocId }) {
                         if result.status == Global.shared.metadataStatusNormal && (result.etag != metadata.etag || result.fileNameView != metadata.fileNameView || result.date != metadata.date || result.hasPreview != metadata.hasPreview || result.note != metadata.note || result.favorite != metadata.favorite) {
-                            //ocIdUpdate.append(metadata.ocId)
-                            realm.add(tableMetadata.init(value: metadata), update: .all)
-                        } else if result.status == Global.shared.metadataStatusNormal && addCompareLivePhoto && result.livePhoto != metadata.livePhoto {
-                            //ocIdUpdate.append(metadata.ocId)
+                            updatedOcIds.append(metadata.ocId)
                             realm.add(tableMetadata.init(value: metadata), update: .all)
                         }
                     } else {
-                        // new
-                        //ocIdAdd.append(metadata.ocId)
+                        // add new
+                        addedOcIds.append(metadata.ocId)
                         realm.add(tableMetadata.init(value: metadata), update: .all)
                     }
                 }
             }
+            
+            for ocId in addedOcIds {
+                if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", ocId)).first {
+                    added.append(tableMetadata.init(value: result))
+                }
+            }
+            
+            for ocId in updatedOcIds {
+                if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", ocId)).first {
+                    updated.append(tableMetadata.init(value: result))
+                }
+            }
+            
+            print("processMetadatas() - added: \(added.count) updated: \(updated.count) deleted: \(deleted.count)")
+            
+            return (added, updated, deleted)
+    
         } catch let error {
             NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
         }
 
-        //print("!!!!!!!!! added: \(ocIdAdd.count) updated: \(ocIdUpdate.count) deleted: \(ocIdDelete.count)")
-        //return (ocIdAdd, ocIdUpdate, ocIdDelete)
-        return ocIdDelete
+        return ([], [], [])
     }
     
     func setMetadataFavorite(ocId: String, favorite: Bool) {

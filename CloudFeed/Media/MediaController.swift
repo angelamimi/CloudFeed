@@ -28,31 +28,25 @@ class MediaController: CollectionController {
         
         viewModel.initDataSource(collectionView: collectionView)
         
-        initCollectionViewLayout(delegate: self)
+        initCollectionView(delegate: self)
         initTitleView(mediaView: self, allowEdit: false)
         initEmptyView(imageSystemName: "photo", title:"No media yet", description: "Your photos and videos will show up here")
-        
-        //loadMoreIndicator.stopAnimating()
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        Self.logger.debug("viewDidAppear()")
-        
+
         let visibleDateRange = getVisibleDateRange()
         
         if visibleDateRange.toDate == nil || visibleDateRange.fromDate == nil {
             hideMenu()
-            viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize)
+            viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize, refresh: false)
         } else {
-            guard let toDate = Calendar.current.date(byAdding: .second, value: 1, to: visibleDateRange.toDate!) else { return }
-            guard let fromDate = Calendar.current.date(byAdding: .second, value: -1, to: visibleDateRange.fromDate!) else { return }
-            viewModel.sync(toDate: toDate, fromDate: fromDate)
+            viewModel.sync(visibleToDate: visibleDateRange.toDate!, visibleFromDate: visibleDateRange.fromDate!)
         }
     }
     
     override func refresh() {
-        //clear()
-        viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize)
+        viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize, refresh: true)
     }
     
     override func loadMore() {
@@ -76,10 +70,6 @@ class MediaController: CollectionController {
         setTitle("")
         hideMenu()
         viewModel.resetDataSource()
-        
-        /*if viewModel.currentItemCount() > 0 {
-            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
-        }*/
     }
     
     private func openViewer(indexPath: IndexPath) {
@@ -101,16 +91,16 @@ class MediaController: CollectionController {
         let last = visibleIndexes?.last
         
         if first == nil || last == nil {
-            Self.logger.debug("getVisibleDateRange() - no visible items")
+            //Self.logger.debug("getVisibleDateRange() - no visible items")
         } else {
 
             let firstMetadata = viewModel.getItemAtIndexPath(first!)
             let lastMetadata = viewModel.getItemAtIndexPath(last!)
             
             if firstMetadata == nil || lastMetadata == nil {
-                Self.logger.debug("getVisibleDateRange() - missing metadata")
+                //Self.logger.debug("getVisibleDateRange() - missing metadata")
             } else {
-                Self.logger.debug("getVisibleDateRange() - \(firstMetadata!.date) \(lastMetadata!.date)")
+                //Self.logger.debug("getVisibleDateRange() - \(firstMetadata!.date) \(lastMetadata!.date)")
                 return (firstMetadata!.date as Date, lastMetadata!.date as Date)
             }
         }
@@ -129,7 +119,10 @@ extension MediaController: MediaDelegate {
     
     func searching() {
         DispatchQueue.main.async { [weak self] in
-            self?.activityIndicator.startAnimating()
+            guard let self else { return }
+            if !self.isRefreshing() && !self.isLoadingMore() {
+                self.activityIndicator.startAnimating()
+            }
         }
     }
     
@@ -156,7 +149,7 @@ extension MediaController: CollectionLayoutDelegate {
                 return image!.size
             }
         }  else {
-            Self.logger.debug("sizeOfPhotoAtIndexPath - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata!.ocId)")
+            //Self.logger.debug("sizeOfPhotoAtIndexPath - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata!.ocId)")
         }
         
         return CGSize(width: 0, height: 0)
@@ -166,17 +159,17 @@ extension MediaController: CollectionLayoutDelegate {
 extension MediaController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
+        //Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
         openViewer(indexPath: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        Self.logger.debug("collectionView.willDisplay() - indexPath: \(indexPath)")
+        //Self.logger.debug("collectionView.willDisplay() - indexPath: \(indexPath)")
         viewModel.loadPreview(indexPath: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        Self.logger.debug("collectionView.didEndDisplaying() - indexPath: \(indexPath)")
+        //Self.logger.debug("collectionView.didEndDisplaying() - indexPath: \(indexPath)")
         viewModel.stopPreviewLoad(indexPath: indexPath)
     }
     

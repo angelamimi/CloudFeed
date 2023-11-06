@@ -16,6 +16,8 @@ class CollectionController: UIViewController {
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
     @IBOutlet weak var emptyView: EmptyView!
     
+    var refreshControl = UIRefreshControl()
+    
     private var titleView: TitleView?
     private var layout: CollectionLayout?
     
@@ -61,6 +63,14 @@ class CollectionController: UIViewController {
         titleView?.hideMenu()
     }
     
+    func isRefreshing() -> Bool {
+        return refreshControl.isRefreshing
+    }
+    
+    func isLoadingMore() -> Bool {
+        return loadMoreIndicator.isAnimating
+    }
+    
     func startActivityIndicator() {
         activityIndicator.startAnimating()
     }
@@ -97,12 +107,15 @@ class CollectionController: UIViewController {
         })
     }
     
-    func initCollectionViewLayout(delegate: CollectionLayoutDelegate) {
+    func initCollectionView(delegate: CollectionLayoutDelegate) {
         layout = CollectionLayout()
         layout?.delegate = delegate
         layout?.numberOfColumns = UIDevice.current.userInterfaceIdiom == .pad ? 4 : 2
         
         collectionView.collectionViewLayout = layout!
+        
+        refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
+        collectionView.refreshControl = refreshControl
     }
     
     func initTitleView(mediaView: MediaViewController, allowEdit: Bool) {
@@ -126,6 +139,7 @@ class CollectionController: UIViewController {
         
         activityIndicator.stopAnimating()
         loadMoreIndicator.stopAnimating()
+        refreshControl.endRefreshing()
         
         if displayCount == 0 {
             collectionView.isHidden = true
@@ -139,28 +153,28 @@ class CollectionController: UIViewController {
             setTitle()
         }
     }
+    
+    @objc private func refresh(_ sender: Any) {
+        refresh()
+    }
 }
 
 extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        Self.logger.debug("scrollViewDidEndScrollingAnimation()")
         setTitle()
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        Self.logger.debug("scrollViewDidEndDecelerating()")
         setTitle()
     }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        
-        Self.logger.debug("scrollViewDidEndDragging()")
 
         guard isEditing == false else { return }
         
         if scrollView.contentOffset.y <= scrollThreshold {
-            refresh()
+            //refresh()
         } else {
             let currentOffset = scrollView.contentOffset.y
             let maximumOffset = scrollView.contentSize.height - scrollView.frame.size.height

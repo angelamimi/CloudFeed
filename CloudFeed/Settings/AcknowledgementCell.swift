@@ -14,5 +14,8 @@ class AcknowledgementCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+        licenseLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        titleLabel.font = UIFont.preferredFont(forTextStyle: .body)
     }
 }

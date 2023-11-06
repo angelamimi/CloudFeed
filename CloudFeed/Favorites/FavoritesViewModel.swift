@@ -86,14 +86,14 @@ final class FavoritesViewModel: NSObject {
                 offsetDate = metadata!.date as Date
                 /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
                     but might lose new results from files with dates in the same second */
-                Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
+                //Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
             }
         }
 
         guard let offsetDate = offsetDate else { return }
         guard let offsetName = offsetName else { return }
         
-        Self.logger.debug("loadMore() - offsetName: \(offsetName) offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
+        //Self.logger.debug("loadMore() - offsetName: \(offsetName) offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
         
         sync(offsetDate: offsetDate, offsetName: offsetName)
     }
@@ -110,9 +110,9 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    func fetch() {
+    func fetch(refresh: Bool) {
         
-        Self.logger.debug("fetch()")
+        //Self.logger.debug("fetch()")
         
         delegate.fetching()
                 
@@ -123,7 +123,7 @@ final class FavoritesViewModel: NSObject {
             processFavoriteResult(error: error)
             
             let resultMetadatas = dataService.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
-            await applyDatasourceChanges(metadatas: resultMetadatas)
+            await applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
         }
     }
     
@@ -135,8 +135,6 @@ final class FavoritesViewModel: NSObject {
     
     func sync(offsetDate: Date, offsetName: String) {
         
-        Self.logger.debug("sync()")
-        
         delegate.fetching()
         
         Task { [weak self] in
@@ -145,13 +143,11 @@ final class FavoritesViewModel: NSObject {
             _ = await self.dataService.getFavorites()
             
             let resultMetadatas = self.dataService.paginateFavoriteMetadata(offsetDate: offsetDate, offsetName: offsetName)
-            await applyDatasourceChanges(metadatas: resultMetadatas)
+            await applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
         }
     }
     
     func syncFavs() {
-        
-        Self.logger.debug("syncFavs()")
         
         delegate.fetching()
                 
@@ -162,14 +158,27 @@ final class FavoritesViewModel: NSObject {
             processFavoriteResult(error: error)
             
             var snapshot = dataSource.snapshot()
-            let delete = dataService.processFavorites(displayedMetadatas: snapshot.itemIdentifiers(inSection: 0))
+            let displayed = snapshot.itemIdentifiers(inSection: 0)
             
-            guard delete.count > 0 else {
+            //Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
+            
+            guard let result = dataService.processFavorites(displayedMetadatas: displayed) else {
                 delegate.dataSourceUpdated()
                 return
             }
             
-            snapshot.deleteItems(delete)
+            //Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
+            
+            guard result.delete.count > 0 || result.add.count > 0 else {
+                delegate.dataSourceUpdated()
+                return
+            }
+            
+            if result.delete.count > 0 { snapshot.deleteItems(result.delete) }
+            
+            if result.add.count > 0 && snapshot.itemIdentifiers.first != nil {
+                snapshot.insertItems(result.add, beforeItem: snapshot.itemIdentifiers.first!)
+            }
             
             let applySnapshot = snapshot
             
@@ -194,7 +203,7 @@ final class FavoritesViewModel: NSObject {
     
     func stopPreviewLoad(indexPath: IndexPath) {
         
-        Self.logger.debug("stopPreviewLoad() - indexPath: \(indexPath)")
+        //Self.logger.debug("stopPreviewLoad() - indexPath: \(indexPath)")
         
         queue.async { [weak self] in
             
@@ -207,7 +216,7 @@ final class FavoritesViewModel: NSObject {
     }
     
     private func clearTask(indexPath: IndexPath) {
-        Self.logger.debug("clearTask() - indexPath: \(indexPath)")
+        //Self.logger.debug("clearTask() - indexPath: \(indexPath)")
         
         queue.async { [weak self] in
             if self?.previewTasks[indexPath] != nil {
@@ -282,7 +291,7 @@ final class FavoritesViewModel: NSObject {
     
     private func setImage(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath) async {
         
-        Self.logger.debug("setImage() - indexPath: \(indexPath)")
+        //Self.logger.debug("setImage() - indexPath: \(indexPath)")
         
         let ocId = metadata.ocId
         let etag = metadata.etag
@@ -301,7 +310,7 @@ final class FavoritesViewModel: NSObject {
             //Self.logger.debug("CELL - image size: \(cell.imageView.image?.size.width ?? -1),\(cell.imageView.image?.size.height ?? -1)")
             
         }  else {
-            Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(ocId)")
+            //Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(ocId)")
             await cell.resetStatusIcon()
             await cell.setImage(nil)
         }
@@ -327,7 +336,7 @@ final class FavoritesViewModel: NSObject {
             }
         }
         
-        Self.logger.debug("processMetadata() - new metadata count: \(metadatas.count) result count: \(resultMetadatas.count)")
+        //Self.logger.debug("processMetadata() - new metadata count: \(metadatas.count) result count: \(resultMetadatas.count)")
         
         //let idArray = metadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
         //Self.logger.debug("processMetadata() - metadatas: \(idArray)")
@@ -335,38 +344,16 @@ final class FavoritesViewModel: NSObject {
         return metadatas
     }
     
-    private func refreshDatasourceOLD(metadatas: [tableMetadata]) async {
-        var snapshot = dataSource.snapshot()
-        var delete: [tableMetadata] = []
+    private func applyDatasourceChanges(metadatas: [tableMetadata], refresh: Bool) async {
         
-        for currentMetadata in snapshot.itemIdentifiers(inSection: 0) {
-            let metadata = metadatas.first(where: { $0.ocId == currentMetadata.ocId })
-            if (metadata == nil) {
-                delete.append(currentMetadata)
-            }
-        }
-        
-        Self.logger.debug("refreshDatasource() - delete count: \(delete.count)")
-        
-        if delete.count > 0 {
-            snapshot.deleteItems(delete)
-        }
-        
-        let applySnapshot = snapshot
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.dataSource.apply(applySnapshot, animatingDifferences: true, completion: {
-                Task { [weak self] in
-                    await self?.applyDatasourceChanges(metadatas: metadatas)
-                }
-            })
-        }
-    }
-    
-    private func applyDatasourceChanges(metadatas: [tableMetadata]) async {
         var ocIdAdd : [tableMetadata] = []
         var ocIdUpdate : [tableMetadata] = []
         var snapshot = dataSource.snapshot()
+        
+        if refresh {
+            snapshot.deleteAllItems()
+            snapshot.appendSections([0])
+        }
         
         for metadata in metadatas {
             if snapshot.indexOfItem(metadata) == nil {
@@ -385,7 +372,7 @@ final class FavoritesViewModel: NSObject {
             snapshot.reloadItems(ocIdUpdate)
         }
         
-        Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd.count) ocIdUpdate: \(ocIdUpdate.count)")
+        //Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd.count) ocIdUpdate: \(ocIdUpdate.count)")
         
         let applySnapshot = snapshot
         

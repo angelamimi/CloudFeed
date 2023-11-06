@@ -19,7 +19,7 @@ class SettingsController: UIViewController {
     private var profileEmail: String = ""
     private var profileImage: UIImage?
     
-    private let footerView = FooterView(frame: .zero)
+    private var cacheSizeDescription: String = ""
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -32,8 +32,8 @@ class SettingsController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         
-        footerView.updateText(text: " ")
-        tableView.tableFooterView = footerView
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 60
         
         let backgroundColorView = UIView()
         backgroundColorView.backgroundColor = UIColor.tertiarySystemBackground
@@ -46,17 +46,6 @@ class SettingsController: UIViewController {
         calculateCacheSize()
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        Self.logger.debug("viewWillLayoutSubviews() - updating footer view height")
-        updateViewHeight(for: tableView.tableFooterView)
-    }
-
-    private func updateViewHeight(for footerView: UIView?) {
-        guard let footerView = footerView else { return }
-        footerView.frame.size.height = footerView.systemLayoutSizeFitting(CGSize(width: view.bounds.width - 32.0, height: 0)).height
-    }
-
     private func startActivityIndicator() {
         activityIndicator.startAnimating()
         self.view.isUserInteractionEnabled = false
@@ -103,12 +92,12 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        if indexPath.item == 1 {
+        if indexPath.section == 1 && indexPath.item == 0 {
             acknowledgements()
-        } else if indexPath.item == 2 {
+        } else if indexPath.section == 1 && indexPath.item == 1 {
             startActivityIndicator()
             viewModel.clearCache()
-        } else if indexPath.item == 3 {
+        } else if indexPath.section == 1 && indexPath.item == 2 {
             checkReset()
         }
         
@@ -116,36 +105,25 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return 2
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 4
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.item == 0 {
-            return 320
+        
+        if section == 0 {
+            return 1
         } else {
-            return 60
+            return 3
         }
     }
     
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        
-        let verticalPadding: CGFloat = 8
-        let maskLayer = CALayer()
-        
-        maskLayer.cornerRadius = 16
-        maskLayer.backgroundColor = UIColor.black.cgColor
-        maskLayer.frame = CGRect(x: cell.bounds.origin.x, y: cell.bounds.origin.y, width: cell.bounds.width, height: cell.bounds.height).insetBy(dx: 0, dy: verticalPadding/2)
-        
-        cell.layer.mask = maskLayer
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        if indexPath.item == 0 {
+        if indexPath.section == 0 && indexPath.item == 0 {
             
             let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileCell", for: indexPath) as! ProfileCell
             
@@ -159,21 +137,25 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
 
             var content = cell.defaultContentConfiguration()
             
-            content.textProperties.font = UIFont.systemFont(ofSize: 18)
+            content.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
+            content.textProperties.lineBreakMode = .byWordWrapping
             
-            if indexPath.item == 1 {
+            content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 24.0, leading: 0, bottom: 24.0, trailing: 0)
+            
+            if indexPath.item == 0 {
                 content.image = UIImage(systemName: "person.wave.2")
                 content.text = "Acknowledgements"
                 cell.tintColor = UIColor.label
                 cell.backgroundColor = UIColor.secondarySystemBackground
                 cell.accessoryType = .disclosureIndicator
-            } else if indexPath.item == 2 {
+            } else if indexPath.item == 1 {
                 content.image = UIImage(systemName: "trash")
                 content.text = "Clear Cache"
+                content.secondaryText = "Cache size: " + cacheSizeDescription
                 cell.tintColor = UIColor.label
                 cell.backgroundColor = UIColor.secondarySystemBackground
                 cell.accessoryType = .none
-            } else if indexPath.item == 3 {
+            } else if indexPath.item == 2 {
                 content.image = UIImage(systemName: "xmark.octagon")
                 content.text = "Reset Application"
                 cell.tintColor = UIColor.red
@@ -181,38 +163,16 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 cell.accessoryType = .none
             }
             
+            if let dictionary = Bundle.main.infoDictionary,
+                let ver = dictionary["CFBundleShortVersionString"] as? String,
+                let build = dictionary["CFBundleVersion"] as? String {
+                    print("Version \(ver) (\(build))")
+            }
+            
             cell.contentConfiguration = content
             
             return cell
         }
-    }
-}
-
-class FooterView: UIView {
-
-    let label = UILabel(frame: .zero)
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        addSubview(label)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
-        NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16.0),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16.0),
-            label.topAnchor.constraint(equalTo: topAnchor, constant: 50.0),
-            label.bottomAnchor.constraint(equalTo: bottomAnchor),
-            ])
-        label.textColor = UIColor.secondaryLabel
-        label.textAlignment = .right
-    }
-
-    func updateText(text: String) {
-        label.text = "Cache size: \(text)"
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }
 
@@ -236,9 +196,12 @@ extension SettingsController: SettingsDelegate {
     }
     
     func cacheCalculated(cacheSize: Int64) {
+        
+        cacheSizeDescription = StoreUtility.transformedSize(cacheSize)
+        
         DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadRows(at: [IndexPath(item: 1, section: 0)], with: .none)
             self?.tableView.reloadData()
-            self?.footerView.updateText(text: StoreUtility.transformedSize(cacheSize))
         }
     }
     
@@ -257,3 +220,4 @@ extension SettingsController: SettingsDelegate {
         }
     }
 }
+

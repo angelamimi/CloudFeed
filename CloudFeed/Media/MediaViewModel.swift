@@ -86,34 +86,50 @@ final class MediaViewModel: NSObject {
         return nil
     }
     
-    func metadataSearch(offsetDate: Date, limit: Int) {
+    func metadataSearch(offsetDate: Date, limit: Int, refresh: Bool) {
         
-        Self.logger.debug("metadataSearch() - offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
+        //Self.logger.debug("metadataSearch() - offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
         
         let days = -30
         guard let fromDate = Calendar.current.date(byAdding: .day, value: days, to: offsetDate) else { return }
         
-        Self.logger.debug("metadataSearch() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
+        //Self.logger.debug("metadataSearch() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
         
         Task { [weak self] in
             guard let self else { return }
             
             let results = await search(toDate: offsetDate, fromDate: fromDate, limit: limit) //saves metadata to be paginated
-            await processSearchResult(results: results, toDate: offsetDate, fromDate: fromDate, days: days) //recursive call until enough results received or gone all the way back in time
+            
+            //Self.logger.debug("metadataSearch() - added: \(results.added.count) updated: \(results.updated.count) deleted: \(results.deleted.count)")
+            
+            await processSearchResult(metadatas: results.metadatas, toDate: offsetDate, fromDate: fromDate, days: days) //recursive call until enough results received or gone all the way back in time
 
-            let resultMetadatas = await paginateMetadata(toDate: offsetDate, fromDate: fromDate, offsetDate: nil, offsetName: nil)
-            await processPaginationResult(resultMetadatas: resultMetadatas, toDate: offsetDate, fromDate: fromDate, days: days, loadMoreMetadata: false)
+            let resultMetadatas = await paginateMetadata(toDate: offsetDate, fromDate: fromDate, offsetDate: nil, offsetName: nil) //chunks results to be displayed in pages
+            await processPaginationResult(resultMetadatas: resultMetadatas, toDate: offsetDate, fromDate: fromDate, days: days, refresh: refresh) //updates the datasource
         }
     }
     
-    func sync(toDate: Date, fromDate: Date) {
+    func sync(visibleToDate: Date, visibleFromDate: Date) {
         
         Task { [weak self] in
             guard let self else { return }
+
+            let snapshot = dataSource.snapshot()
+            let metadata = snapshot.itemIdentifiers(inSection: 0).first
+            var toDate = visibleToDate
             
-            let results = await search(toDate: toDate, fromDate: fromDate, limit: Global.shared.pageSize)
+            if toDate == metadata!.date as Date {
+                toDate = Date()
+            }
+            
+            //Self.logger.debug("sync() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
+            //Self.logger.debug("sync() - visibleFromDate: \(visibleFromDate.formatted(date: .abbreviated, time: .standard))")
+            
+            let results = await search(toDate: toDate, fromDate: visibleFromDate, limit: Global.shared.pageSize)
+
             guard results.metadatas != nil else { return }
-            processSync(metadatas: results.metadatas!, deleteOcIds: results.deleteOcIds)
+            //Self.logger.debug("sync() - added: \(results.added.count) updated: \(results.updated.count) deleted: \(results.deleted.count)")
+            processSync(added: results.added, updated: results.updated, deleted: results.deleted)
         }
     }
     
@@ -129,15 +145,15 @@ final class MediaViewModel: NSObject {
                 offsetDate = metadata!.date as Date
                 /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
                     but might lose new results from files with dates in the same second */
-                Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
+                //Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
             }
         }
 
         guard let offsetDate = offsetDate else { return }
         
-        Self.logger.debug("loadMore() - offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
+        //Self.logger.debug("loadMore() - offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
         
-        metadataSearch(offsetDate: offsetDate, limit: 300)
+        metadataSearch(offsetDate: offsetDate, limit: 300, refresh: false)
     }
     
     func loadPreview(indexPath: IndexPath) {
@@ -153,7 +169,7 @@ final class MediaViewModel: NSObject {
     
     func stopPreviewLoad(indexPath: IndexPath) {
         
-        Self.logger.debug("stopPreviewLoad() - indexPath: \(indexPath)")
+        //Self.logger.debug("stopPreviewLoad() - indexPath: \(indexPath)")
         
         queue.async {
             
@@ -166,7 +182,7 @@ final class MediaViewModel: NSObject {
     }
     
     private func clearTask(indexPath: IndexPath) {
-        Self.logger.debug("clearTask() - indexPath: \(indexPath)")
+        //Self.logger.debug("clearTask() - indexPath: \(indexPath)")
         
         queue.async {
             if self.previewTasks[indexPath] != nil {
@@ -193,11 +209,11 @@ final class MediaViewModel: NSObject {
             if Task.isCancelled { return }
             
             guard FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) else {
-                Self.logger.debug("loadPreviewImageForMetadata() - NO IMAGE ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+                //Self.logger.debug("loadPreviewImageForMetadata() - NO IMAGE ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                 return
             }
             
-            Self.logger.debug("loadPreviewImageForMetadata() - GOT IMAGE REFRESH CELL ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
+            //Self.logger.debug("loadPreviewImageForMetadata() - GOT IMAGE REFRESH CELL ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
             
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
@@ -209,45 +225,70 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    private func processSync(metadatas: [tableMetadata], deleteOcIds: [String]) {
+    private func processSync(added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
         
         var snapshot = dataSource.snapshot()
-        var delete: [tableMetadata] = []
+        let displayedMetadata = snapshot.itemIdentifiers(inSection: 0)
         
-        for currentMetadata in snapshot.itemIdentifiers(inSection: 0) {
-            if deleteOcIds.contains(currentMetadata.ocId) {
-                delete.append(currentMetadata)
+        for delete in deleted {
+            if displayedMetadata.contains(delete) {
+                snapshot.deleteItems([delete])
             }
         }
         
-        Self.logger.debug("processSync() - delete count: \(delete.count)")
-        
-        if delete.count > 0 {
-            snapshot.deleteItems(delete)
-        }
+        let applySnapshot = snapshot
         
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            self.dataSource.apply(snapshot, animatingDifferences: true, completion: {
-                self.applyDatasourceChanges(metadatas: metadatas)
+            self.dataSource.apply(applySnapshot, animatingDifferences: true, completion: {
+                self.applyAddedUpdated(added: added, updated: updated)
             })
         }
     }
     
-    private func search(toDate: Date, fromDate: Date, limit: Int) async -> (metadatas: [tableMetadata]?, deleteOcIds: [String]) {
+    private func applyAddedUpdated(added: [tableMetadata], updated: [tableMetadata]) {
         
-        Self.logger.debug("search() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
-        Self.logger.debug("search() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
+        var snapshot = dataSource.snapshot()
+        let displayedMetadata = snapshot.itemIdentifiers(inSection: 0)
+        
+        if added.count > 0 && displayedMetadata.count > 0 {
+            
+            let firstItem = displayedMetadata.first!
+            
+            for add in added {
+                if !displayedMetadata.contains(add) {
+                    snapshot.insertItems([add], beforeItem: firstItem)
+                }
+            }
+        }
+
+        for update in updated {
+            if displayedMetadata.contains(update) {
+                snapshot.reloadItems([update])
+            }
+        }
+            
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.dataSource.apply(snapshot, animatingDifferences: true)
+            self.delegate.dataSourceUpdated()
+        }
+    }
+    
+    private func search(toDate: Date, fromDate: Date, limit: Int) async -> (metadatas: [tableMetadata]?, added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
+        
+        //Self.logger.debug("search() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
+        //Self.logger.debug("search() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
         
         delegate.searching()
         
         let result = await dataService.searchMedia(toDate: toDate, fromDate: fromDate, limit: limit)
         
-        Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
+        //Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
         
         guard result.error == false else {
             Self.logger.error("search() - error") //TODO: Alert user of error?
-            return (nil, [])
+            return (nil, [], [], [])
         }
         
         let sorted = result.metadatas.sorted(by: {($0.date as Date) > ($1.date as Date)} )
@@ -259,17 +300,17 @@ final class MediaViewModel: NSObject {
         //let idArray = sorted.map({ (metadata: tableMetadata) -> String in metadata.ocId })
         //Self.logger.debug("search() - sorted: \(idArray)")
         
-        return (sorted, result.deleteOcIds)
+        return (sorted, result.added, result.updated, result.deleted)
     }
     
-    private func processSearchResult(results: (metadatas: [tableMetadata]?, deleteOcIds: [String]), toDate: Date, fromDate: Date, days: Int) async {
+    private func processSearchResult(metadatas: [tableMetadata]?, toDate: Date, fromDate: Date, days: Int) async {
         
-        guard let resultMetadatas = results.metadatas else {
+        guard let resultMetadatas = metadatas else {
             delegate.searchResultReceived(resultItemCount: nil)
             return
         }
         
-        Self.logger.debug("processSearchResult() - resultMetadatas count: \(resultMetadatas.count)")
+        //Self.logger.debug("processSearchResult() - resultMetadatas count: \(resultMetadatas.count)")
         
         if resultMetadatas.count >= Global.shared.metadataPageSize {
             delegate.searchResultReceived(resultItemCount: resultMetadatas.count)
@@ -283,12 +324,12 @@ final class MediaViewModel: NSObject {
                 return
             }
             
-            Self.logger.debug("processSearchResult() - toDate: \(span.toDate.formatted(date: .abbreviated, time: .standard))")
+            /*Self.logger.debug("processSearchResult() - toDate: \(span.toDate.formatted(date: .abbreviated, time: .standard))")
             Self.logger.debug("processSearchResult() - fromDate: \(span.fromDate.formatted(date: .abbreviated, time: .standard))")
-            Self.logger.debug("processSearchResult() - spanDays: \(span.spanDays)")
+            print("processSearchResult() - spanDays: \(span.spanDays)")*/
 
             let results = await search(toDate: span.toDate, fromDate: span.fromDate, limit: Global.shared.metadataPageSize)
-            await processSearchResult(results: results, toDate: span.toDate, fromDate: span.fromDate, days: span.spanDays)
+            await processSearchResult(metadatas: results.metadatas, toDate: span.toDate, fromDate: span.fromDate, days: span.spanDays)
         }
     }
     
@@ -306,22 +347,22 @@ final class MediaViewModel: NSObject {
         return resultMetadatas
     }
     
-    private func processPaginationResult(resultMetadatas: [tableMetadata], toDate: Date, fromDate: Date, days: Int, loadMoreMetadata: Bool) async {
+    private func processPaginationResult(resultMetadatas: [tableMetadata], toDate: Date, fromDate: Date, days: Int, refresh: Bool) async {
         
-        Self.logger.debug("processPaginationResult() - resultMetadatas count: \(resultMetadatas.count) days: \(days)")
+        print("processPaginationResult() - resultMetadatas count: \(resultMetadatas.count) days: \(days)")
         
         if resultMetadatas.count >= Global.shared.pageSize {
             //have a full page. display all
-            applyDatasourceChanges(metadatas: resultMetadatas)
+            applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
         } else {
             //not enough for a full page. adjust time span, and fetch again
             guard let span = calculateSearchDates(toDate: toDate, days: days) else {
-                applyDatasourceChanges(metadatas: resultMetadatas)
+                applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
                 return //gone back as far as possible. break out of recursive call
             }
             
             let resultMetadatas = await paginateMetadata(toDate: span.toDate, fromDate: span.fromDate, offsetDate: nil, offsetName: nil)
-            await processPaginationResult(resultMetadatas: resultMetadatas, toDate: span.toDate, fromDate: span.fromDate, days: span.spanDays, loadMoreMetadata: loadMoreMetadata)
+            await processPaginationResult(resultMetadatas: resultMetadatas, toDate: span.toDate, fromDate: span.fromDate, days: span.spanDays, refresh: refresh)
         }
     }
     
@@ -341,7 +382,7 @@ final class MediaViewModel: NSObject {
             return nil
         }
         
-        Self.logger.error("calculateSearchDates() - days: \(days) newDays: \(newDays)")
+        print("calculateSearchDates() - days: \(days) newDays: \(newDays)")
         
         var fromDate: Date
         
@@ -351,21 +392,25 @@ final class MediaViewModel: NSObject {
             fromDate = Calendar.current.date(byAdding: .day, value: newDays, to: toDate)!
         }
         
-        Self.logger.debug("calculateSearchDates() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
-        Self.logger.debug("calculateSearchDates() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
+        //Self.logger.debug("calculateSearchDates() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
+        //Self.logger.debug("calculateSearchDates() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
         
         return (toDate, fromDate, newDays)
     }
     
-    private func applyDatasourceChanges(metadatas: [tableMetadata]) {
+    private func applyDatasourceChanges(metadatas: [tableMetadata], refresh: Bool) {
 
         var snapshot = dataSource.snapshot()
         var ocIdAdd : [tableMetadata] = []
         var ocIdUpdate : [tableMetadata] = []
         
+        if refresh {
+            snapshot.deleteAllItems()
+            snapshot.appendSections([0])
+        }
+        
         for metadata in metadatas {
-            Self.logger.debug("ocid: \(metadata.ocId) filename: \(metadata.fileName)")
-            
+
             if snapshot.indexOfItem(metadata) == nil {
                 ocIdAdd.append(metadata)
             } else {
@@ -374,18 +419,16 @@ final class MediaViewModel: NSObject {
         }
         
         if ocIdAdd.count > 0 {
-            snapshot.appendItems(ocIdAdd, toSection: 0)
+            snapshot.appendItems(ocIdAdd)
         }
         
         if ocIdUpdate.count > 0 {
             snapshot.reconfigureItems(ocIdUpdate)
         }
-        
-        let pageSnaphot = snapshot
             
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            self.dataSource.apply(pageSnaphot, animatingDifferences: true)
+            self.dataSource.apply(snapshot, animatingDifferences: true)
             self.delegate.dataSourceUpdated()
         }
     }
@@ -404,7 +447,7 @@ final class MediaViewModel: NSObject {
             
             await cell.setImage(UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)))
         } else {
-            Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata.ocId)")
+            //Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata.ocId)")
             await cell.resetStatusIcon()
             await cell.setImage(nil)
         }

@@ -30,25 +30,24 @@ class FavoritesController: CollectionController {
         
         viewModel.initDataSource(collectionView: collectionView)
 
-        initCollectionViewLayout(delegate: self)
+        initCollectionView(delegate: self)
         initTitleView(mediaView: self, allowEdit: true)
         initEmptyView(imageSystemName: "star.fill", title:"No favorites yet", description: "Files you mark as favorite will show up here")
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        Self.logger.debug("viewDidAppear()")
         
         let visibleDateRange = getVisibleItemData()
         
         if visibleDateRange.toDate == nil || visibleDateRange.name == nil {
-            viewModel.fetch()
+            viewModel.fetch(refresh: false)
         } else {
             viewModel.syncFavs()
         }
     }
     
     override func refresh() {
-        viewModel.fetch()
+        viewModel.fetch(refresh: true)
     }
     
     override func loadMore() {
@@ -88,7 +87,7 @@ class FavoritesController: CollectionController {
     private func bulkEdit() async {
         let indexPaths = collectionView.indexPathsForSelectedItems
         
-        Self.logger.debug("bulkEdit() - indexPaths: \(indexPaths ?? [])")
+        //Self.logger.debug("bulkEdit() - indexPaths: \(indexPaths ?? [])")
         
         guard indexPaths != nil else { return }
         
@@ -105,15 +104,15 @@ class FavoritesController: CollectionController {
         let first = visibleIndexes?.first
 
         if first == nil {
-            Self.logger.debug("getVisibleItemData() - no visible items")
+            //Self.logger.debug("getVisibleItemData() - no visible items")
         } else {
 
             let firstMetadata = viewModel.getItemAtIndexPath(first!)
 
             if firstMetadata == nil {
-                Self.logger.debug("getVisibleItemData() - missing metadata")
+                //Self.logger.debug("getVisibleItemData() - missing metadata")
             } else {
-                Self.logger.debug("getVisibleItemData() - \(firstMetadata!.date) \(firstMetadata!.fileNameView)")
+                //Self.logger.debug("getVisibleItemData() - \(firstMetadata!.date) \(firstMetadata!.fileNameView)")
                 return (firstMetadata!.date as Date, firstMetadata!.fileNameView)
             }
         }
@@ -143,7 +142,10 @@ extension FavoritesController: FavoritesDelegate {
     
     func fetching() {
         DispatchQueue.main.async { [weak self] in
-            self?.activityIndicator.startAnimating()
+            guard let self else { return }
+            if !self.isRefreshing() && !self.isLoadingMore() {
+                self.activityIndicator.startAnimating()
+            }
         }
     }
     
@@ -233,7 +235,7 @@ extension FavoritesController : CollectionLayoutDelegate {
                 return image!.size
             }
         }  else {
-            Self.logger.debug("sizeOfPhotoAtIndexPath - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata!.ocId)")
+            //Self.logger.debug("sizeOfPhotoAtIndexPath - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata!.ocId)")
         }
         
         return CGSize(width: 0, height: 0)
@@ -243,12 +245,12 @@ extension FavoritesController : CollectionLayoutDelegate {
 extension FavoritesController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        Self.logger.debug("collectionView.willDisplay() - indexPath: \(indexPath)")
+        //Self.logger.debug("collectionView.willDisplay() - indexPath: \(indexPath)")
         viewModel.loadPreview(indexPath: indexPath)
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
+        //Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
                 cell.selected(true)
@@ -259,7 +261,7 @@ extension FavoritesController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        Self.logger.debug("collectionView.didDeselectItemAt() - indexPath: \(indexPath)")
+        //Self.logger.debug("collectionView.didDeselectItemAt() - indexPath: \(indexPath)")
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
                 cell.selected(false)
