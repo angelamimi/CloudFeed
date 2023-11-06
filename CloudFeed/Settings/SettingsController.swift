@@ -4,6 +4,7 @@
 //
 //  Created by Angela Jarosz on 3/18/23.
 //
+
 import os.log
 import UIKit
 
@@ -36,7 +37,7 @@ class SettingsController: UIViewController {
         tableView.estimatedRowHeight = 60
         
         let backgroundColorView = UIView()
-        backgroundColorView.backgroundColor = UIColor.tertiarySystemBackground
+        backgroundColorView.backgroundColor = UIColor.systemGroupedBackground
         UITableViewCell.appearance().selectedBackgroundView = backgroundColorView
     }
 
@@ -94,10 +95,10 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         
         if indexPath.section == 1 && indexPath.item == 0 {
             acknowledgements()
-        } else if indexPath.section == 1 && indexPath.item == 1 {
+        } else if indexPath.section == 2 && indexPath.item == 0 {
             startActivityIndicator()
             viewModel.clearCache()
-        } else if indexPath.section == 1 && indexPath.item == 2 {
+        } else if indexPath.section == 2 && indexPath.item == 1 {
             checkReset()
         }
         
@@ -105,7 +106,16 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 3
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if section == 1 {
+            return "Information"
+        } else if section == 2 {
+            return "Data"
+        }
+        return ""
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -113,7 +123,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         if section == 0 {
             return 1
         } else {
-            return 3
+            return 2
         }
     }
     
@@ -142,31 +152,33 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             
             content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 24.0, leading: 0, bottom: 24.0, trailing: 0)
             
-            if indexPath.item == 0 {
+            if indexPath.section == 1 && indexPath.item == 0 {
                 content.image = UIImage(systemName: "person.wave.2")
                 content.text = "Acknowledgements"
                 cell.tintColor = UIColor.label
-                cell.backgroundColor = UIColor.secondarySystemBackground
                 cell.accessoryType = .disclosureIndicator
-            } else if indexPath.item == 1 {
+            } else if indexPath.section == 1 && indexPath.item == 1 {
+                content.image = UIImage(systemName: "info.circle")
+                cell.accessoryType = .none
+                
+                if let dictionary = Bundle.main.infoDictionary,
+                    let version = dictionary["CFBundleShortVersionString"] as? String,
+                    let build = dictionary["CFBundleVersion"] as? String {
+                    content.text = "Version \(version) (\(build))"
+                } else {
+                    content.text = "Version (unknown)"
+                }
+            } else if indexPath.section == 2 && indexPath.item == 0 {
                 content.image = UIImage(systemName: "trash")
                 content.text = "Clear Cache"
                 content.secondaryText = "Cache size: " + cacheSizeDescription
                 cell.tintColor = UIColor.label
-                cell.backgroundColor = UIColor.secondarySystemBackground
                 cell.accessoryType = .none
-            } else if indexPath.item == 2 {
+            } else if indexPath.section == 2 && indexPath.item == 1 {
                 content.image = UIImage(systemName: "xmark.octagon")
                 content.text = "Reset Application"
                 cell.tintColor = UIColor.red
-                cell.backgroundColor = UIColor.secondarySystemBackground
                 cell.accessoryType = .none
-            }
-            
-            if let dictionary = Bundle.main.infoDictionary,
-                let ver = dictionary["CFBundleShortVersionString"] as? String,
-                let build = dictionary["CFBundleVersion"] as? String {
-                    print("Version \(ver) (\(build))")
             }
             
             cell.contentConfiguration = content
