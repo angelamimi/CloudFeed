@@ -33,4 +33,5 @@ extension Strings {
     
     //Favorites
     public static let FavErrorMessage = NSLocalizedString("Fav.Error.Message", comment: "")
+    public static let FavUpdateErrorMessage = NSLocalizedString("Fav.Update.Error.Message", comment: "")
 }

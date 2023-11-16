@@ -107,6 +107,29 @@ class MediaController: CollectionController {
         
         return (nil, nil)
     }
+    
+    private func favoriteMenuAction(metadata: tableMetadata) -> UIAction {
+        
+        if metadata.favorite {
+            return UIAction(title: "Remove from favorites", image: UIImage(systemName: "star.fill")) { [weak self] _ in
+                self?.toggleFavorite(metadata: metadata)
+            }
+        } else {
+            return UIAction(title: "Add to favorites", image: UIImage(systemName: "star")) { [weak self] _ in
+                self?.toggleFavorite(metadata: metadata)
+            }
+        }
+    }
+    
+    private func toggleFavorite(metadata: tableMetadata) {
+        print("favoriteMenuAction() - metadata ocid: \(metadata.ocId)")
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.activityIndicator.startAnimating()
+        }
+        
+        self.viewModel.toggleFavorite(metadata: metadata)
+    }
 }
 
 extension MediaController: MediaDelegate {
@@ -114,6 +137,18 @@ extension MediaController: MediaDelegate {
     func dataSourceUpdated() {
         DispatchQueue.main.async { [weak self] in
             self?.displayResults()
+        }
+    }
+    
+    func favoriteUpdated(error: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.activityIndicator.stopAnimating()
+            if error {
+                self.coordinator.showFavoriteUpdateFailedError()
+            } else {
+                print("favoriteUpdated() - error: \(error)")
+            }
         }
     }
     
@@ -139,37 +174,31 @@ extension MediaController: CollectionLayoutDelegate {
     
     func collectionView(_ collectionView: UICollectionView, sizeOfPhotoAtIndexPath indexPath: IndexPath) -> CGSize {
 
-        let metadata = viewModel.getItemAtIndexPath(indexPath)
+        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return CGSize(width: 0, height: 0) }
+        var imageSize: CGSize?
         
-        guard metadata != nil else { return CGSize(width: 0, height: 0) }
-        
-        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata!.ocId, etag: metadata!.etag)) {
-            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata!.ocId, etag: metadata!.etag))
+        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
             if image != nil {
-                return image!.size
+                imageSize = image!.size
             }
-        }  else {
-            //Self.logger.debug("sizeOfPhotoAtIndexPath - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata!.ocId)")
         }
         
-        return CGSize(width: 0, height: 0)
+        return NextcloudUtility.shared.adjustSize(imageSize: imageSize)
     }
 }
 
 extension MediaController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
         openViewer(indexPath: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        //Self.logger.debug("collectionView.willDisplay() - indexPath: \(indexPath)")
         viewModel.loadPreview(indexPath: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        //Self.logger.debug("collectionView.didEndDisplaying() - indexPath: \(indexPath)")
         viewModel.stopPreviewLoad(indexPath: indexPath)
     }
     
@@ -177,22 +206,29 @@ extension MediaController: UICollectionViewDelegate {
         
         guard let indexPath = indexPaths.first, let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return nil }
         guard let image = cell.imageView.image else { return nil }
-        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return nil}
+        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return nil }
         
         let imageSize = image.size
         let width = self.view.bounds.width
         let height = imageSize.height * (width / imageSize.width)
+        let previewController = self.coordinator.getPreviewController(metadata: metadata)
         
-        return .init(identifier: indexPath as NSCopying) {
-            let vc = self.coordinator.getPreviewController(metadata: metadata, image: image)
-            vc.preferredContentSize = CGSize(width: width, height: height)
-            return vc
-        }
+        previewController.preferredContentSize = CGSize(width: width, height: height)
+
+        let config = UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: { previewController }, actionProvider: { [weak self] _ in
+            guard let self else { return .init(children: []) }
+            return UIMenu(title: "", options: .displayInline, children: [self.favoriteMenuAction(metadata: metadata)])
+        })
+        
+        return config
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
-        guard let indexPath = configuration.identifier as? IndexPath else { return }
-        openViewer(indexPath: indexPath)
+        
+        animator.addCompletion {
+            guard let indexPath = configuration.identifier as? IndexPath else { return }
+            self.openViewer(indexPath: indexPath)
+        }
     }
 }
 

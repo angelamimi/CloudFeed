@@ -9,7 +9,6 @@ import AVFoundation
 import AVKit
 import UIKit
 import NextcloudKit
-import SVGKit
 import os.log
 
 class ViewerController: UIViewController {

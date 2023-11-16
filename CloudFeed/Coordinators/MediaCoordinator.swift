@@ -20,8 +20,8 @@ final class MediaCoordinator {
 
 extension MediaCoordinator {
     
-    func getPreviewController(metadata: tableMetadata, image: UIImage) -> PreviewController {
-        let previewController = PreviewController(metadata: metadata, image: image)
+    func getPreviewController(metadata: tableMetadata) -> PreviewController {
+        let previewController = PreviewController(metadata: metadata)
         previewController.viewModel = ViewerViewModel(dataService: dataService, metadata: metadata)
         return previewController
     }
@@ -34,6 +34,17 @@ extension MediaCoordinator {
     func showLoadfailedError() {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaErrorMessage, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
+            self.navigationController.popViewController(animated: true)
+        }))
+        
+        navigationController.present(alertController, animated: true)
+    }
+    
+    func showFavoriteUpdateFailedError() {
+        
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.FavUpdateErrorMessage, preferredStyle: .alert)
         
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
             self.navigationController.popViewController(animated: true)

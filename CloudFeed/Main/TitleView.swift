@@ -90,7 +90,7 @@ class TitleView: UIView {
         doneButton.isHidden = true
         cancelButton.isHidden = true
     
-        title.font = .boldSystemFont(ofSize: 22)
+        //title.font = .boldSystemFont(ofSize: 22)
     }
     
     func beginEdit() {

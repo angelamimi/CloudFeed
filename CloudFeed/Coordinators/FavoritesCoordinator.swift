@@ -20,8 +20,8 @@ final class FavoritesCoordinator {
 
 extension FavoritesCoordinator {
     
-    func getPreviewController(metadata: tableMetadata, image: UIImage) -> PreviewController {
-        let previewController = PreviewController(metadata: metadata, image: image)
+    func getPreviewController(metadata: tableMetadata) -> PreviewController {
+        let previewController = PreviewController(metadata: metadata)
         previewController.viewModel = ViewerViewModel(dataService: dataService, metadata: metadata)
         return previewController
     }

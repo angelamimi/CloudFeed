@@ -119,6 +119,19 @@ class FavoritesController: CollectionController {
         
         return (nil, nil)
     }
+    
+    private func favoriteMenuAction(indexPath: IndexPath) -> UIAction {
+        return UIAction(title: "Remove from favorites", image: UIImage(systemName: "star.fill")) { [weak self] _ in
+            self?.removeFavorite(indexPath: indexPath)
+        }
+    }
+    
+    private func removeFavorite(indexPath: IndexPath) {
+        print("removeFavorite() - indexPath: \(indexPath)")
+        Task { [weak self] in
+            await self?.viewModel.bulkEdit(indexPaths: [indexPath])
+        }
+    }
 }
 
 extension FavoritesController: FavoritesDelegate {
@@ -225,27 +238,23 @@ extension FavoritesController : CollectionLayoutDelegate {
     
     func collectionView(_ collectionView: UICollectionView, sizeOfPhotoAtIndexPath indexPath: IndexPath) -> CGSize {
 
-        let metadata = viewModel.getItemAtIndexPath(indexPath)
+        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return CGSize(width: 0, height: 0) }
+        var imageSize: CGSize?
         
-        guard metadata != nil else { return CGSize(width: 0, height: 0) }
-        
-        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata!.ocId, etag: metadata!.etag)) {
-            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata!.ocId, etag: metadata!.etag))
+        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
             if image != nil {
-                return image!.size
+                imageSize = image!.size
             }
-        }  else {
-            //Self.logger.debug("sizeOfPhotoAtIndexPath - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata!.ocId)")
         }
-        
-        return CGSize(width: 0, height: 0)
+        print("sizeOfPhotoAtIndexPath() - name: \(metadata.fileNameView)")
+        return NextcloudUtility.shared.adjustSize(imageSize: imageSize)
     }
 }
 
 extension FavoritesController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        //Self.logger.debug("collectionView.willDisplay() - indexPath: \(indexPath)")
         viewModel.loadPreview(indexPath: indexPath)
     }
 
@@ -278,12 +287,16 @@ extension FavoritesController: UICollectionViewDelegate {
         let imageSize = image.size
         let width = self.view.bounds.width
         let height = imageSize.height * (width / imageSize.width)
+        let previewController = self.coordinator.getPreviewController(metadata: metadata)
         
-        return .init(identifier: indexPath as NSCopying) {
-            let previewController = self.coordinator.getPreviewController(metadata: metadata, image: image)
-            previewController.preferredContentSize = CGSize(width: width, height: height)
-            return previewController
-        }
+        previewController.preferredContentSize = CGSize(width: width, height: height)
+
+        let config = UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: { previewController }, actionProvider: { [weak self] _ in
+            guard let self else { return .init(children: []) }
+            return UIMenu(title: "", options: .displayInline, children: [self.favoriteMenuAction(indexPath: indexPath)])
+        })
+        
+        return config
     }
     
     func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {

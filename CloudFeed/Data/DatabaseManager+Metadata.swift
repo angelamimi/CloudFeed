@@ -66,8 +66,12 @@ class tableMetadata: Object {
 }
 
 extension tableMetadata {
+    
     var fileExtension: String { (fileNameView as NSString).pathExtension }
     var fileNoExtension: String { (fileNameView as NSString).deletingPathExtension }
+    
+    var isSVG: Bool { fileExtension == "svg" || contentType == "image/svg+xml" }
+    var isGIF: Bool { fileExtension == "gif" || contentType == "image/gif" }
 }
 
 extension DatabaseManager {
@@ -446,7 +450,7 @@ extension DatabaseManager {
         return ([], [], [])
     }
     
-    func setMetadataFavorite(ocId: String, favorite: Bool) {
+    func setMetadataFavorite(ocId: String, favorite: Bool) -> tableMetadata? {
 
         let realm = try! Realm()
 
@@ -458,6 +462,8 @@ extension DatabaseManager {
         } catch let error {
             NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
         }
+        
+        return getMetadataFromOcId(ocId)
     }
     
     func updateMetadatasFavorite(account: String, metadatas: [tableMetadata]) {

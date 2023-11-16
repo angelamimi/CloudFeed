@@ -69,10 +69,18 @@ class CollectionViewCell: UICollectionViewCell {
         imageView.image = image
     }
     
+    func setContentMode(isLongImage: Bool) {
+        if isLongImage {
+            imageView.contentMode = .scaleAspectFit
+        } else {
+            imageView.contentMode = .scaleAspectFill
+        }
+    }
+    
     private func initCell() {
         
         //Self.logger.debug("initCell() - reuseIdentifier: \(self.reuseIdentifier ?? "NONE") width: \(self.frame.width) height \(self.frame.height)")
-        imageView.backgroundColor = .secondarySystemBackground
+        //imageView.backgroundColor = .secondarySystemBackground
         imageStatus.image = nil
         imageView.image = nil
         imageFavorite.image = nil

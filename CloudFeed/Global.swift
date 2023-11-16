@@ -34,7 +34,7 @@ class Global: NSObject {
     
     // MARK: - Icon/Preview
     //
-    let extensionPreview        = "ico"
+    let extensionPreview        = "jpeg"
     let sizePreview: Int        = 1024
     let sizeIcon: Int           = 512
     let avatarSize: Int         = 128 * Int(UIScreen.main.scale)

@@ -7,10 +7,12 @@
 
 import NextcloudKit
 import os.log
+import SVGKit
 import UIKit
 
 protocol MediaDelegate: AnyObject {
     func dataSourceUpdated()
+    func favoriteUpdated(error: Bool)
     
     func searching()
     func searchResultReceived(resultItemCount: Int?)
@@ -77,8 +79,10 @@ final class MediaViewModel: NSObject {
     func getLastItem() -> tableMetadata? {
         
         let snapshot = dataSource.snapshot()
+
         if (snapshot.numberOfItems(inSection: 0) > 0) {
             let metadata = snapshot.itemIdentifiers(inSection: 0).last
+            
             //Self.logger.debug("getLastItem() - date: \(metadata?.date) name: \(metadata?.fileNameView ?? "")")
             return metadata
         }
@@ -142,9 +146,9 @@ final class MediaViewModel: NSObject {
         if (snapshot.numberOfItems(inSection: 0) > 0) {
             let metadata = snapshot.itemIdentifiers(inSection: 0).last
             if metadata != nil {
-                offsetDate = metadata!.date as Date
                 /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
-                    but might lose new results from files with dates in the same second */
+                    but might lose items with dates in the same second */
+                offsetDate = metadata!.date as Date
                 //Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
             }
         }
@@ -181,6 +185,32 @@ final class MediaViewModel: NSObject {
         }
     }
     
+    func toggleFavorite(metadata: tableMetadata) {
+        
+        Task { [weak self] in
+            guard let self else { return }
+            
+            let result = await dataService.toggleFavoriteMetadata(metadata)
+            
+            if result == nil {
+                self.delegate.favoriteUpdated(error: true)
+            } else {
+
+                metadata.favorite = result!.favorite
+                
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    
+                    var snapshot = self.dataSource.snapshot()
+                    snapshot.reconfigureItems([metadata])
+                    
+                    self.dataSource.apply(snapshot, animatingDifferences: false)
+                    self.delegate.favoriteUpdated(error: false)
+                }
+            }
+        }
+    }
+    
     private func clearTask(indexPath: IndexPath) {
         //Self.logger.debug("clearTask() - indexPath: \(indexPath)")
         
@@ -195,13 +225,13 @@ final class MediaViewModel: NSObject {
         
         previewTasks[indexPath] = Task { [weak self] in
             guard let self else { return }
-        
+            
             defer { self.clearTask(indexPath: indexPath) }
             
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
                 await self.dataService.downloadVideoPreview(metadata: metadata)
-            } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
-                //TODO: Implement svg processing. Need a library that works.
+            } else if metadata.isSVG {
+                await loadSVG(metadata: metadata)
             } else {
                 await self.dataService.downloadPreview(metadata: metadata)
             }
@@ -209,11 +239,8 @@ final class MediaViewModel: NSObject {
             if Task.isCancelled { return }
             
             guard FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) else {
-                //Self.logger.debug("loadPreviewImageForMetadata() - NO IMAGE ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                 return
             }
-            
-            //Self.logger.debug("loadPreviewImageForMetadata() - GOT IMAGE REFRESH CELL ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
             
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
@@ -445,11 +472,28 @@ final class MediaViewModel: NSObject {
                 await cell.resetStatusIcon()
             }
             
-            await cell.setImage(UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)))
+            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
+            
+            if image != nil {
+                //too wide or tall and the preview appears to shrink. allow image to be cut off
+                await cell.setContentMode(isLongImage: NextcloudUtility.shared.isLongImage(imageSize: image!.size))
+            }
+            
+            await cell.setImage(image)
         } else {
             //Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata.ocId)")
             await cell.resetStatusIcon()
             await cell.setImage(nil)
+        }
+    }
+    
+    private func loadSVG(metadata: tableMetadata) async {
+        
+        if !StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
+            
+            await dataService.download(metadata: metadata, selector: "")
+            
+            NextcloudUtility.shared.loadSVGPreview(metadata: metadata)
         }
     }
 }

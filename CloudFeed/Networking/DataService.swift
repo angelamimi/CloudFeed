@@ -125,21 +125,32 @@ class DataService: NSObject {
     
     // MARK: -
     // MARK: Favorites
-    func favoriteMetadata(_ metadata: tableMetadata) async -> NKError {
+    func toggleFavoriteMetadata(_ metadata: tableMetadata) async -> tableMetadata? {
         
-        if let metadataLive = databaseManager.getMetadataLivePhoto(metadata: metadata) {
-            let error = await setFavorite(metadata: metadataLive)
+        /*if let metadataLive = databaseManager.getMetadataLivePhoto(metadata: metadata) {
+            let error = await toggleFavorite(metadata: metadataLive)
             if error == .success {
-                return await setFavorite(metadata: metadata)
+                return await toggleFavorite(metadata: metadata)
             } else {
                 return error
             }
         } else {
-            return await setFavorite(metadata: metadata)
+            return await toggleFavorite(metadata: metadata)
+        }*/
+        
+        if let metadataLive = databaseManager.getMetadataLivePhoto(metadata: metadata) {
+            let result = await toggleFavorite(metadata: metadataLive)
+            if result == nil {
+                return nil
+            } else {
+                return await toggleFavorite(metadata: metadata)
+            }
+        } else {
+            return await toggleFavorite(metadata: metadata)
         }
     }
     
-    private func setFavorite(metadata: tableMetadata) async -> NKError {
+    private func toggleFavorite(metadata: tableMetadata) async -> tableMetadata? {
         let fileName = StoreUtility.returnFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
         let favorite = !metadata.favorite
         let ocId = metadata.ocId
@@ -147,10 +158,10 @@ class DataService: NSObject {
         let error = await nextcloudService.setFavorite(fileName: fileName, favorite: favorite, ocId: ocId, account: metadata.account)
         
         if error == .success {
-            databaseManager.setMetadataFavorite(ocId: ocId, favorite: favorite)
+            return databaseManager.setMetadataFavorite(ocId: ocId, favorite: favorite)
         }
         
-        return error
+        return nil
     }
     
     func getFavorites() async -> Bool {
@@ -248,6 +259,9 @@ class DataService: NSObject {
         fileNameIconLocalPath = StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)
         
         Self.logger.debug("downloadPreview() - ocId: \(metadata.ocId)")
+        
+        Self.logger.debug("downloadPreview() - fileNamePreviewLocalPath: \(fileNamePreviewLocalPath)")
+        Self.logger.debug("downloadPreview() - fileNameIconLocalPath: \(fileNameIconLocalPath)")
         
         var etagResource: String?
         if FileManager.default.fileExists(atPath: fileNameIconLocalPath) && FileManager.default.fileExists(atPath: fileNamePreviewLocalPath) {

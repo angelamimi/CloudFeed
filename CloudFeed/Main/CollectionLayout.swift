@@ -64,6 +64,7 @@ class CollectionLayout: UICollectionViewFlowLayout {
             return sectionColumnHeights
         }
         
+        //let maxCellHeight = collectionView.bounds.height / 2
         let columnWidth = contentWidth / CGFloat(numberOfColumns)
         var xOffset = [CGFloat]()
         
@@ -84,8 +85,6 @@ class CollectionLayout: UICollectionViewFlowLayout {
 
             var photoSize = delegate.collectionView(collectionView, sizeOfPhotoAtIndexPath: indexPath)
             
-            //Self.logger.debug("prepare() - photoSize: \(photoSize.width), \(photoSize.height)")
-            
             if (photoSize.width == 0 || photoSize.height == 0) {
                 photoSize = CGSize(width: 100, height: 100)
             }
@@ -97,6 +96,8 @@ class CollectionLayout: UICollectionViewFlowLayout {
             
             let column = shortestColumnIndex(inSection: 0)
             let frame = CGRect(x: xOffset[column], y: yOffset[column], width: cellWidth, height: cellHeight)
+            
+            print("prepare() - cellWidth: \(cellWidth) cellHeight: \(cellHeight)")
             
             var edgeInsets: UIEdgeInsets
             

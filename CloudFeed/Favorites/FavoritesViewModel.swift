@@ -234,12 +234,12 @@ final class FavoritesViewModel: NSObject {
             
             guard metadata != nil else { continue }
             
-            let error = await dataService.favoriteMetadata(metadata!)
-            if error == .success {
-                snapshot.deleteItems([metadata!])
-            } else {
+            let result = await dataService.toggleFavoriteMetadata(metadata!)
+            if result == nil{
                 //TODO: Show the user a single error for all failed
-                Self.logger.error("bulkEdit() - ERROR: \(error.errorDescription)")
+                Self.logger.error("bulkEdit() - ERROR")
+            } else {
+                snapshot.deleteItems([result!])
             }
         }
         
@@ -260,12 +260,10 @@ final class FavoritesViewModel: NSObject {
         
             defer { self.clearTask(indexPath: indexPath) }
             
-            //Self.logger.debug("loadPreviewImageForMetadata() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
-            
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
                 await self.dataService.downloadVideoPreview(metadata: metadata)
-            } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
-                //TODO: Implement svg fetch. Need a library that works.
+            } else if metadata.isSVG {
+                await loadSVG(metadata: metadata)
             } else {
                 await self.dataService.downloadPreview(metadata: metadata)
             }
@@ -273,11 +271,8 @@ final class FavoritesViewModel: NSObject {
             if Task.isCancelled { return }
             
             guard FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) else {
-                //Self.logger.debug("loadPreviewImageForMetadata() - NO IMAGE ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
                 return
             }
-            
-            //Self.logger.debug("loadPreviewImageForMetadata() - GOT IMAGE REFRESH CELL ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
             
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
@@ -306,8 +301,15 @@ final class FavoritesViewModel: NSObject {
                 await cell.resetStatusIcon()
             }
             
-            await cell.setImage(UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag)))
+            //await cell.setImage(UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag)))
             //Self.logger.debug("CELL - image size: \(cell.imageView.image?.size.width ?? -1),\(cell.imageView.image?.size.height ?? -1)")
+            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
+            
+            if image != nil {
+                await cell.setContentMode(isLongImage: NextcloudUtility.shared.isLongImage(imageSize: image!.size))
+            }
+            
+            await cell.setImage(image)
             
         }  else {
             //Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(ocId)")
@@ -380,6 +382,16 @@ final class FavoritesViewModel: NSObject {
             guard let self else { return }
             self.dataSource.apply(applySnapshot, animatingDifferences: true)
             self.delegate.dataSourceUpdated()
+        }
+    }
+    
+    private func loadSVG(metadata: tableMetadata) async {
+        
+        if !StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
+            
+            await dataService.download(metadata: metadata, selector: "")
+            
+            NextcloudUtility.shared.loadSVGPreview(metadata: metadata)
         }
     }
 }

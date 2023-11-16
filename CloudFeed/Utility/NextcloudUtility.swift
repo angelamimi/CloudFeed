@@ -105,33 +105,52 @@ class NextcloudUtility: NSObject {
     }
     
     @discardableResult
-    func downloadSVGPreview(metadata: tableMetadata) -> UIImage? {
-        Self.logger.debug("downloadSVGPreview()")
+    func loadSVGPreview(metadata: tableMetadata) -> UIImage? {
         
-        guard metadata.fileExtension == "svg" else { return nil }
+        guard metadata.isSVG else { return nil }
 
         let imagePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
         let previewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
+        let iconPath = StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)
         
-        let svgImage = SVGKImage(contentsOfFile: imagePath)
+        guard let svgImage = SVGKImage(contentsOfFile: imagePath) else { return nil }
         
-        guard svgImage != nil else { return nil }
-        
-        svgImage!.size = CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)
-        
-        if let image = svgImage!.uiImage {
+        if let image = svgImage.uiImage {
+            
+            print("loadSVGPreview() - size: \(svgImage.size)")
+            
+            if !FileManager().fileExists(atPath: iconPath) {
+                do {
+                    Self.logger.debug("loadSVGPreview() - iconPath: \(iconPath)")
+                    try image.jpegData(compressionQuality: 0.5)?.write(to: URL(fileURLWithPath: iconPath))
+                } catch { }
+            }
+            
             if !FileManager().fileExists(atPath: previewPath) {
                 do {
-                    Self.logger.debug("downloadSVGPreview() - previewPath: \(previewPath)")
-                    try image.pngData()?.write(to: URL(fileURLWithPath: previewPath), options: .atomic)
+                    Self.logger.debug("loadSVGPreview() - previewPath: \(previewPath)")
+                    try image.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
                 } catch { }
-            } else {
-                Self.logger.debug("downloadSVGPreview() - exists at previewPath: \(previewPath)")
             }
+            
             return image
         }
         
         return nil
+    }
+    
+    private func scale(imageSize: CGSize, targetSize: CGSize) -> CGSize {
+        
+        // Compute the scaling ratio for the width and height separately
+        let widthScaleRatio = targetSize.width / imageSize.width
+        let heightScaleRatio = targetSize.height / imageSize.height
+
+        // To keep the aspect ratio, scale by the smaller scaling ratio
+        let scaleFactor = min(widthScaleRatio, heightScaleRatio)
+
+        // Multiply the original image’s dimensions by the scale factor
+        // to determine the scaled image size that preserves aspect ratio
+        return CGSize(width: imageSize.width * scaleFactor, height: imageSize.height * scaleFactor)
     }
 
     func getUserBaseUrl(_ account: tableAccount) -> String {
@@ -153,5 +172,29 @@ class NextcloudUtility: NSObject {
         } else {
             return image!
         }
+    }
+    
+    func adjustSize(imageSize: CGSize?) -> CGSize {
+        if imageSize != nil {
+            let ratio = imageSize!.width < imageSize!.height ? imageSize!.width / imageSize!.height : imageSize!.height / imageSize!.width
+            
+            if ratio < 0.5 {
+                //too tall or too wide. adjust size so full image is visible
+                return imageSize!.width < imageSize!.height ? CGSize(width: 250, height: 400) : CGSize(width: 400, height: 250)
+            } else {
+                return imageSize!
+            }
+        }
+        
+        return CGSize(width: 0, height: 0)
+    }
+    
+    func isLongImage(imageSize: CGSize) -> Bool {
+        
+        let ratio = imageSize.width < imageSize.height ? imageSize.width / imageSize.height : imageSize.height / imageSize.width
+        
+        //print("isLongImage() - ratio: \(ratio) image size: \(imageSize)")
+        
+        return ratio < 0.5
     }
 }

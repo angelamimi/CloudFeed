@@ -104,7 +104,7 @@ extension ViewerViewModel {
         }
     }
     
-    func getImageFromMetadata(_ metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) -> UIImage? {
+    private func getImageFromMetadata(_ metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) -> UIImage? {
         
         if let image = getImage(metadata: metadata, viewWidth: viewWidth, viewHeight: viewHeight) {
             return image
@@ -129,7 +129,6 @@ extension ViewerViewModel {
     
     private func getImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) -> UIImage? {
         
-        let ext = StoreUtility.getExtension(metadata.fileNameView)
         var image: UIImage?
         
         if StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
@@ -137,7 +136,7 @@ extension ViewerViewModel {
             let previewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
             let imagePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
             
-            if ext == "GIF" {
+            if metadata.isGIF {
                 if !FileManager().fileExists(atPath: previewPath) {
                     NextcloudUtility.shared.createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
                 }
@@ -147,9 +146,9 @@ extension ViewerViewModel {
                 } else {
                     image = UIImage(contentsOfFile: imagePath)
                 }
-            } else if ext == "SVG" {
+            } else if metadata.isSVG {
                 
-                return NextcloudUtility.shared.downloadSVGPreview(metadata: metadata)
+                return NextcloudUtility.shared.loadSVGPreview(metadata: metadata)
                 
             } else {
                 NextcloudUtility.shared.createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
@@ -163,6 +162,9 @@ extension ViewerViewModel {
                     //TODO: Large images spike memory. Have to downsample in some way.
                     let filePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
                     let fileData = FileManager().contents(atPath: filePath)
+                    
+                    print("getImage() - filePath: \(filePath)")
+                    print("getImage() - imagePath: \(imagePath)")
                     
                     if fileData != nil {
                         var newSize : CGSize?

@@ -27,4 +27,5 @@
 "Media.Error.Message" = "Failed to load media.";
 
 /* Favorites */
-"Fav.Error.Message" = "Failed to load Favorites.";
+"Fav.Error.Message" = "Failed to load favorites.";
+"Fav.Update.Error.Message" = "Failed to save favorite.";
