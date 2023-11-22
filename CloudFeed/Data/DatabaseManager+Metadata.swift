@@ -415,7 +415,9 @@ extension DatabaseManager {
                 for metadata in metadatas {
 
                     if let result = metadatasResult.first(where: { $0.ocId == metadata.ocId }) {
+                        
                         if result.status == Global.shared.metadataStatusNormal && (result.etag != metadata.etag || result.fileNameView != metadata.fileNameView || result.date != metadata.date || result.hasPreview != metadata.hasPreview || result.note != metadata.note || result.favorite != metadata.favorite) {
+                            
                             updatedOcIds.append(metadata.ocId)
                             realm.add(tableMetadata.init(value: metadata), update: .all)
                         }
@@ -438,8 +440,6 @@ extension DatabaseManager {
                     updated.append(tableMetadata.init(value: result))
                 }
             }
-            
-            print("processMetadatas() - added: \(added.count) updated: \(updated.count) deleted: \(deleted.count)")
             
             return (added, updated, deleted)
     

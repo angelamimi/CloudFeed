@@ -81,8 +81,8 @@ class NextcloudUtility: NSObject {
         let thumbnailImageRef: CGImage
         do {
             thumbnailImageRef = try assetIG.copyCGImage(at: cmTime, actualTime: nil)
-        } catch {//let error {
-            //Self.logger.error("imageFromVideo() - Error: \(error) url: \(url)")
+        } catch let error {
+            Self.logger.error("imageFromVideo() - Error: \(error) url: \(url)")
             return nil
         }
         

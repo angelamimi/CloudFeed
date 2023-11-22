@@ -63,6 +63,7 @@
                     <connections>
                         <outlet property="activityIndicator" destination="DdN-52-ltZ" id="dhy-Av-osZ"/>
                         <outlet property="collectionView" destination="a9G-dO-ziM" id="8Uc-cH-Iag"/>
+                        <outlet property="collectionViewTopConstraint" destination="ZEf-Pq-neZ" id="nxu-Ot-T2M"/>
                         <outlet property="emptyView" destination="JeB-gU-3iL" id="TG6-dc-QxX"/>
                         <outlet property="loadMoreIndicator" destination="U1v-Hu-l3P" id="L4g-K5-coT"/>
                     </connections>

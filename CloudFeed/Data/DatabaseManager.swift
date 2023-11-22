@@ -42,7 +42,7 @@ class DatabaseManager: NSObject {
             }
         }
         
-        Self.logger.debug("init() - databaseFileUrlPath: \(databaseFileUrlPath?.path ?? "NIL PATH")")
+        //Self.logger.debug("init() - databaseFileUrlPath: \(databaseFileUrlPath?.path ?? "NIL PATH")")
         
         let config = Realm.Configuration(
             fileURL: databaseFileUrlPath,
@@ -51,25 +51,22 @@ class DatabaseManager: NSObject {
 
         Realm.Configuration.defaultConfiguration = config
         
-        Self.logger.debug("init() - Realm configuration: \(Realm.Configuration.defaultConfiguration)")
+        //Self.logger.debug("init() - Realm configuration: \(Realm.Configuration.defaultConfiguration)")
         
-        // Verify Database, if corrupt remove it
+        // Verify db. if corrupt, remove it
         do {
             _ = try Realm()
         } catch {
             if let databaseFileUrlPath = databaseFileUrlPath {
                 do {
-                    //TODO: Present error
-                    //let error = NKError(errorCode: NCGlobal.shared.errorInternalError, errorDescription: "_database_corrupt_")
-                    //NCContentPresenter.shared.showError(error: error, priority: .max)
-
+                    //TODO: Show error?
                     NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE CORRUPT: removed")
                     try FileManager.default.removeItem(at: databaseFileUrlPath)
                 } catch {}
             }
         }
 
-        // Open Real
+        //Open
         _ = try! Realm()
     }
     

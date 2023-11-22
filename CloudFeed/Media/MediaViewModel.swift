@@ -130,10 +130,14 @@ final class MediaViewModel: NSObject {
             //Self.logger.debug("sync() - visibleFromDate: \(visibleFromDate.formatted(date: .abbreviated, time: .standard))")
             
             let results = await search(toDate: toDate, fromDate: visibleFromDate, limit: Global.shared.pageSize)
-
+            
             guard results.metadatas != nil else { return }
+            var updatedFavorites = getUpdatedFavorites(metadatas: results.metadatas!)
+            
+            updatedFavorites.append(contentsOf: results.updated)
+            
             //Self.logger.debug("sync() - added: \(results.added.count) updated: \(results.updated.count) deleted: \(results.deleted.count)")
-            processSync(added: results.added, updated: results.updated, deleted: results.deleted)
+            processSync(added: results.added, updated: updatedFavorites, deleted: results.deleted)
         }
     }
     
@@ -250,6 +254,24 @@ final class MediaViewModel: NSObject {
                 self.dataSource.apply(snapshot, animatingDifferences: false)
             }
         }
+    }
+    
+    private func getUpdatedFavorites(metadatas: [tableMetadata]) -> [tableMetadata] {
+        
+        let snapshot = dataSource.snapshot()
+        let currentMetadatas = snapshot.itemIdentifiers(inSection: 0)
+        var upadatedFavorites: [tableMetadata] = []
+        
+        for currentMetadata in currentMetadatas {
+            if let result = metadatas.first(where: { $0.ocId == currentMetadata.ocId }) {
+                if result.favorite != currentMetadata.favorite {
+                    currentMetadata.favorite = result.favorite
+                    upadatedFavorites.append(currentMetadata)
+                }
+                    
+            }
+        }
+        return upadatedFavorites
     }
     
     private func processSync(added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {

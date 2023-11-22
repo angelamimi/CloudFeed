@@ -15,6 +15,7 @@ class CollectionController: UIViewController {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
     @IBOutlet weak var emptyView: EmptyView!
+    @IBOutlet weak var collectionViewTopConstraint: NSLayoutConstraint!
     
     var refreshControl = UIRefreshControl()
     
@@ -32,14 +33,6 @@ class CollectionController: UIViewController {
         super.viewDidLoad()
         
         navigationController?.isNavigationBarHidden = true
-    }
-    
-    override func viewSafeAreaInsetsDidChange() {
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-        titleView?.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
     
     func setTitle() {}
@@ -79,6 +72,22 @@ class CollectionController: UIViewController {
         activityIndicator.stopAnimating()
     }
     
+    func initConstraints() {
+
+        titleView?.translatesAutoresizingMaskIntoConstraints = false
+        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            titleView?.heightAnchor.constraint(equalToConstant: 70).isActive = true
+            collectionViewTopConstraint?.constant = 70
+        } else {
+            titleView?.heightAnchor.constraint(equalToConstant: 50).isActive = true
+            collectionViewTopConstraint?.constant = 50
+        }
+    }
+    
     func zoomIn() {
         guard layout != nil else { return }
         let columns = self.layout?.numberOfColumns ?? 0
@@ -102,9 +111,9 @@ class CollectionController: UIViewController {
             self.layout!.numberOfColumns += 1
         }
         
-        UIView.animate(withDuration: 0.0, animations: {
+        /*UIView.animate(withDuration: 0.0, animations: {
             self.collectionView.collectionViewLayout.invalidateLayout()
-        })
+        })*/
     }
     
     func initCollectionView(delegate: CollectionLayoutDelegate) {
@@ -151,6 +160,15 @@ class CollectionController: UIViewController {
             emptyView.isHidden = true
             showMenu()
             setTitle()
+        }
+    }
+    
+    func scrollToTop() {
+        
+        guard collectionView != nil else { return }
+        
+        if collectionView.numberOfItems(inSection: 0) > 0 {
+            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
         }
     }
     

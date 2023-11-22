@@ -27,10 +27,10 @@ class MediaController: CollectionController {
         collectionView.delegate = self
         
         viewModel.initDataSource(collectionView: collectionView)
-        
-        initCollectionView(delegate: self)
         initTitleView(mediaView: self, allowEdit: false)
+        initCollectionView(delegate: self)
         initEmptyView(imageSystemName: "photo", title:"No media yet", description: "Your photos and videos will show up here")
+        initConstraints()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -67,9 +67,13 @@ class MediaController: CollectionController {
     }
     
     public func clear() {
-        setTitle("")
-        hideMenu()
-        viewModel.resetDataSource()
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.scrollToTop()
+            self.hideMenu()
+            self.setTitle("")
+            self.viewModel?.resetDataSource()
+        }
     }
     
     private func openViewer(indexPath: IndexPath) {

@@ -278,12 +278,15 @@ class DataService: NSObject {
             
             if let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
                 
-                Self.logger.debug("downloadVideoPreview() - ocId: \(metadata.ocId)")
+                Self.logger.debug("downloadVideoPreview() - fileNameView: \(metadata.fileNameView)")
+                Self.logger.debug("downloadVideoPreview() - stringURL: \(stringURL)")
                 
                 let url = HTTPCache.shared.getProxyURL(stringURL: stringURL)
                 let image = NextcloudUtility.shared.imageFromVideo(url: url, at: 1)
                 
                 let fileNamePathIcon = StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)
+                
+                print("downloadVideoPreview() - fileNameView: \(metadata.fileNameView) image? \(image != nil)")
                 
                 //Save the preview image
                 try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathIcon))
@@ -321,16 +324,6 @@ class DataService: NSObject {
             return ([], [], [], [], searchResult.error)
         }
         
-        /*for file in searchResult.files {
-            Self.logger.debug("searchMedia() - ")
-            Self.logger.debug("account:  \(file.account)")
-            Self.logger.debug("ocId:  \(file.ocId)")
-            Self.logger.debug("name:  \(file.fileName)")
-            Self.logger.debug("date:  \(file.date)")
-            Self.logger.debug("serverUrl:  \(file.serverUrl)")
-            Self.logger.debug("classFile:  \(file.classFile)")
-        }*/
-        
         //convert to metadata
         let metadataCollection = await databaseManager.convertFilesToMetadatas(searchResult.files)
         
@@ -341,19 +334,6 @@ class DataService: NSObject {
                                     fromDate as NSDate, toDate as NSDate)
         
         let metadatasResult = databaseManager.getMetadatas(predicate: predicate)
-        
-        //Self.logger.debug("searchMedia() - toDate:  \(toDate.formatted(date: .abbreviated, time: .standard))")
-        //Self.logger.debug("searchMedia() - fromDate:  \(fromDate.formatted(date: .abbreviated, time: .standard))")
-        
-        
-        /*Self.logger.debug("searchMedia() ----------------------------------")
-        for metadata in metadataCollection.metadatas {
-            Self.logger.debug("searchMedia() - date:  \((metadata.date as Date).formatted(date: .abbreviated, time: .standard)) name: \(metadata.fileNameView)")
-        }
-        Self.logger.debug("searchMedia() ----------------------------------")
-        for metadata in metadatasResult {
-            Self.logger.debug("searchMedia() - date:  \((metadata.date as Date).formatted(date: .abbreviated, time: .standard)) name: \(metadata.fileNameView)")
-        }*/
         
         //add, update, delete stored metadata
         let processResult = databaseManager.processMetadatas(metadataCollection.metadatas, metadatasResult: metadatasResult)

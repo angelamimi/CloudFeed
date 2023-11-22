@@ -29,10 +29,11 @@ class FavoritesController: CollectionController {
         collectionView.allowsMultipleSelection = false
         
         viewModel.initDataSource(collectionView: collectionView)
-
+        
         initCollectionView(delegate: self)
         initTitleView(mediaView: self, allowEdit: true)
         initEmptyView(imageSystemName: "star.fill", title:"No favorites yet", description: "Files you mark as favorite will show up here")
+        initConstraints()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -40,6 +41,7 @@ class FavoritesController: CollectionController {
         let visibleDateRange = getVisibleItemData()
         
         if visibleDateRange.toDate == nil || visibleDateRange.name == nil {
+            hideMenu()
             viewModel.fetch(refresh: false)
         } else {
             viewModel.syncFavs()
@@ -68,8 +70,13 @@ class FavoritesController: CollectionController {
     }
     
     public func clear() {
-        setTitle("")
-        viewModel.resetDataSource()
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.scrollToTop()
+            self.hideMenu()
+            self.setTitle("")
+            self.viewModel?.resetDataSource()
+        }
     }
     
     private func openViewer(indexPath: IndexPath) {
@@ -247,7 +254,6 @@ extension FavoritesController : CollectionLayoutDelegate {
                 imageSize = image!.size
             }
         }
-        print("sizeOfPhotoAtIndexPath() - name: \(metadata.fileNameView)")
         return NextcloudUtility.shared.adjustSize(imageSize: imageSize)
     }
 }

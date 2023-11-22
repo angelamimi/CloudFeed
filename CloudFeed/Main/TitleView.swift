@@ -26,6 +26,9 @@ class TitleView: UIView {
     @IBOutlet weak var backButton: UIButton!
     @IBOutlet weak var backButtonConstraint: NSLayoutConstraint!
     
+    @IBOutlet weak var menuButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var menuButtonHeightConstraint: NSLayoutConstraint!
+    
     weak var mediaView: MediaViewController?
     
     private static let logger = Logger(
@@ -35,10 +38,8 @@ class TitleView: UIView {
 
     override func awakeFromNib() {
 
-        menuButton.showsMenuAsPrimaryAction = true
-        
-        menuButton.layer.cornerRadius = 20
-        menuButton.layer.masksToBounds = true
+        initMenuButton()
+        initTitle()
         
         doneButton.isHidden = true
         doneButton.addTarget(self, action: #selector(endEdit), for: .touchUpInside)
@@ -89,8 +90,6 @@ class TitleView: UIView {
         backButton.isHidden = false
         doneButton.isHidden = true
         cancelButton.isHidden = true
-    
-        //title.font = .boldSystemFont(ofSize: 22)
     }
     
     func beginEdit() {
@@ -131,6 +130,38 @@ class TitleView: UIView {
     @objc func titleTouched() {
         Self.logger.debug("titleTouched()")
         self.mediaView?.titleTouched()
+    }
+    
+    private func initMenuButton() {
+        menuButton.showsMenuAsPrimaryAction = true
+        menuButton.layer.masksToBounds = true
+        
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            initMenuButtonWithSize(30)
+        } else {
+            initMenuButtonWithSize(20)
+        }
+    }
+    
+    private func initMenuButtonWithSize(_ size: CGFloat) {
+        
+        let configuration = UIImage.SymbolConfiguration(pointSize: size, weight: .bold)
+        let image = UIImage(systemName: "ellipsis", withConfiguration: configuration)
+        let double = size * 2
+        
+        menuButton.setImage(image, for: .normal)
+        menuButton.layer.cornerRadius = size
+        
+        menuButtonWidthConstraint.constant = double
+        menuButtonHeightConstraint.constant = double
+    }
+    
+    private func initTitle() {
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            title.font = .boldSystemFont(ofSize: 36)
+        } else {
+            title.font = .boldSystemFont(ofSize: 24)
+        }
     }
 }
 

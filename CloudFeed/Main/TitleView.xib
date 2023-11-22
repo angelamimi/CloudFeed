@@ -24,7 +24,7 @@
                     </constraints>
                     <color key="tintColor" systemColor="labelColor"/>
                     <state key="normal" title="Button"/>
-                    <buttonConfiguration key="configuration" style="plain" image="ellipsis" catalog="system" cornerStyle="capsule"/>
+                    <buttonConfiguration key="configuration" style="plain" cornerStyle="capsule"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ABi-ln-iPL" userLabel="Done Button">
                     <rect key="frame" x="325.66666666666669" y="55" width="64.333333333333314" height="34"/>
@@ -76,6 +76,8 @@
                 <outlet property="cancelButton" destination="k2S-Un-QnP" id="azh-6h-sPE"/>
                 <outlet property="doneButton" destination="ABi-ln-iPL" id="qZD-hb-MEJ"/>
                 <outlet property="menuButton" destination="0HJ-5a-GPf" id="2I9-vC-mHd"/>
+                <outlet property="menuButtonHeightConstraint" destination="Dbr-eL-8MJ" id="TxH-dT-GCL"/>
+                <outlet property="menuButtonWidthConstraint" destination="Osl-hJ-cBj" id="WV3-uS-qnx"/>
                 <outlet property="title" destination="jPn-bk-o2e" id="LOL-N5-U61"/>
             </connections>
             <point key="canvasLocation" x="-52" y="68"/>
@@ -83,7 +85,6 @@
     </objects>
     <resources>
         <image name="chevron.left" catalog="system" width="97" height="128"/>
-        <image name="ellipsis" catalog="system" width="128" height="37"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
