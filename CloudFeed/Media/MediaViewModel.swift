@@ -374,8 +374,7 @@ final class MediaViewModel: NSObject {
             }
             
             /*Self.logger.debug("processSearchResult() - toDate: \(span.toDate.formatted(date: .abbreviated, time: .standard))")
-            Self.logger.debug("processSearchResult() - fromDate: \(span.fromDate.formatted(date: .abbreviated, time: .standard))")
-            print("processSearchResult() - spanDays: \(span.spanDays)")*/
+            Self.logger.debug("processSearchResult() - fromDate: \(span.fromDate.formatted(date: .abbreviated, time: .standard))")*/
 
             let results = await search(toDate: span.toDate, fromDate: span.fromDate, limit: Global.shared.metadataPageSize)
             await processSearchResult(metadatas: results.metadatas, toDate: span.toDate, fromDate: span.fromDate, days: span.spanDays)
@@ -398,7 +397,7 @@ final class MediaViewModel: NSObject {
     
     private func processPaginationResult(resultMetadatas: [tableMetadata], toDate: Date, fromDate: Date, days: Int, refresh: Bool) async {
         
-        print("processPaginationResult() - resultMetadatas count: \(resultMetadatas.count) days: \(days)")
+        //Self.logger.debug("processPaginationResult() - resultMetadatas count: \(resultMetadatas.count) days: \(days)")
         
         if resultMetadatas.count >= Global.shared.pageSize {
             //have a full page. display all
@@ -431,7 +430,7 @@ final class MediaViewModel: NSObject {
             return nil
         }
         
-        print("calculateSearchDates() - days: \(days) newDays: \(newDays)")
+        Self.logger.debug("calculateSearchDates() - newDays: \(String(newDays)) days: \(String(days))")
         
         var fromDate: Date
         

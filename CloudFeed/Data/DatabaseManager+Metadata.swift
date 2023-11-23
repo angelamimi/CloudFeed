@@ -76,6 +76,9 @@ extension tableMetadata {
 
 extension DatabaseManager {
     
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
+                                       category: String(describing: DatabaseManager.self) + "Metadata")
+    
     private func copyObject(metadata: tableMetadata) -> tableMetadata {
         return tableMetadata.init(value: metadata)
     }
@@ -137,7 +140,7 @@ extension DatabaseManager {
                 realm.add(result, update: .all)
             }
         } catch let error {
-            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
+            Self.logger.error("Could not write to database: \(error)")
             return nil
         }
         return tableMetadata.init(value: result)
@@ -339,18 +342,9 @@ extension DatabaseManager {
     }
 
     func processMetadatasMedia(predicate: NSPredicate) {
+        
         //pull all metadata in order to flag live photos. the 2 file dates do not have to be the same or even near each other
-        
         let realm = try! Realm()
-        //var metadatas: [tableMetadata] = []
-        
-        /*
-        let dirGroup = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Global.shared.groupIdentifier)
-        let databaseFileUrlPath = dirGroup?.appendingPathComponent(Global.shared.databaseDirectory + "/" + Global.shared.databaseDefault)
-        
-        var config = Realm.Configuration()
-        print("************** \(config.fileURL)")
-        print("************** \(databaseFileUrlPath)")*/
 
         do {
             try realm.write {
@@ -368,23 +362,11 @@ extension DatabaseManager {
                             results[index+1].livePhoto = true
                         }
                     }
-                    /*if metadata.livePhoto {
-                        if metadata.classFile == NKCommon.typeClassFile.image.rawValue {
-                            //print("APPENDING \(metadata.ocId) \(metadata.fileNameView)")
-                            //metadatas.append(tableMetadata.init(value: metadata))
-                        }
-                        continue
-                    } else {
-                        //print("APPENDING \(metadata.ocId) \(metadata.fileNameView)")
-                        //metadatas.append(tableMetadata.init(value: metadata))
-                    }*/
                 }
             }
         } catch let error {
-            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
+            Self.logger.error("Could not write to database: \(error)")
         }
-
-        //return metadatas
     }
     
     func processMetadatas(_ metadatas: [tableMetadata], metadatasResult: [tableMetadata]) -> (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
@@ -444,7 +426,7 @@ extension DatabaseManager {
             return (added, updated, deleted)
     
         } catch let error {
-            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
+            Self.logger.error("Could not write to database: \(error)")
         }
 
         return ([], [], [])
@@ -460,7 +442,7 @@ extension DatabaseManager {
                 result?.favorite = favorite
             }
         } catch let error {
-            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
+            Self.logger.error("Could not write to database: \(error)")
         }
         
         return getMetadataFromOcId(ocId)
@@ -481,7 +463,7 @@ extension DatabaseManager {
                 }
             }
         } catch let error {
-            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
+            Self.logger.error("Could not write to database: \(error)")
         }
     }
 }

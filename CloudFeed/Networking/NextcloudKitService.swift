@@ -82,7 +82,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
      
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
 
-        let result = await NextcloudKit.shared.downloadPreview(fileNamePathOrFileId: fileNamePath,
+        let _ = await NextcloudKit.shared.downloadPreview(fileNamePathOrFileId: fileNamePath,
                                                                       fileNamePreviewLocalPath: fileNamePreviewLocalPath,
                                                                       widthPreview: Global.shared.sizePreview,
                                                                       heightPreview: Global.shared.sizePreview,
@@ -90,11 +90,6 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                                                                       sizeIcon: Global.shared.sizeIcon,
                                                                       etag: etagResource,
                                                                       options: options)
-        
-        print("downloadPreview() - fileNamePath: \(fileNamePath)")
-        print("downloadPreview() - icon size: \(result.imageIcon?.size ?? CGSize(width: 0, height: 0))")
-        print("downloadPreview() - preview size: \(result.imagePreview?.size ?? CGSize(width: 0, height: 0))")
-        print("downloadPreview() - original size: \(result.imageOriginal?.size ?? CGSize(width: 0, height: 0))")
     }
     
     func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String? {
@@ -103,7 +98,6 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
         
         return await withCheckedContinuation { continuation in
             
-            //TODO: REFACTOR! Was account.userId
             NextcloudKit.shared.downloadAvatar(
                 user: userId,
                 fileNameLocalPath: fileNameLocalPath,
@@ -141,7 +135,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                 showHiddenFiles: false,
                 options: options) { responseAccount, files, data, error in
                     
-                    Self.logger.debug("searchMedia() - files count: \(files.count) toDate: \(toDate.formatted(date: .abbreviated, time: .standard)) fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
+                    //Self.logger.debug("searchMedia() - files count: \(files.count) toDate: \(toDate.formatted(date: .abbreviated, time: .standard)) fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
                     
                     if error == .success && responseAccount == account && files.count > 0 {
                         continuation.resume(returning: (files, false))
@@ -149,8 +143,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                         //TODO: Nothing found for valid search. Do another search with a different time frame?
                         continuation.resume(returning: ([], false))
                     } else if error != .success {
-                        //TODO: Handle error?
-                        NextcloudKit.shared.nkCommonInstance.writeLog("[ERROR] Media search new media error code \(error.errorCode) " + error.errorDescription)
+                        Self.logger.error("[ERROR] Media search new media error code \(error.errorCode) \(error.errorDescription)")
                         continuation.resume(returning: ([], true))
                     } else {
                         continuation.resume(returning: ([], true)) //invalid state, like account mismatch
@@ -202,7 +195,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
             NextcloudKit.shared.getUserProfile(options: options) { account, userProfile, data, error in
                 guard error == .success, let userProfile = userProfile else {
                     // Ops the server has Unauthorized
-                    NextcloudKit.shared.nkCommonInstance.writeLog("[ERROR] The server has response with Unauthorized \(error.errorCode)")
+                    Self.logger.error("[ERROR] The server has response with Unauthorized \(error.errorCode)")
                     continuation.resume(returning: ("", ""))
                     return
                 }

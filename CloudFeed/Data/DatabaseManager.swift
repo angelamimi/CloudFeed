@@ -13,10 +13,8 @@ import UIKit
 
 class DatabaseManager: NSObject {
 
-    private static let logger = Logger(
-            subsystem: Bundle.main.bundleIdentifier!,
-            category: String(describing: DatabaseManager.self)
-        )
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
+                                       category: String(describing: DatabaseManager.self))
     
     func setup() {
         

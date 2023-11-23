@@ -116,12 +116,10 @@ class PreviewController: UIViewController {
             guard let self else { return }
 
             if self.children.count == 0 {
-                print("setupVideoController() - adding child")
                 self.addChild(avpController)
             }
             
             if self.view.subviews.count == 1 {
-                print("setupVideoController() - adding subview")
                 self.view.addSubview(avpController.view)
             }
             
@@ -134,8 +132,6 @@ class PreviewController: UIViewController {
     }
     
     private func viewImage(metadata: tableMetadata) {
-        
-        print("viewImage() - name: \(metadata.fileNameView) contentType: \(metadata.contentType)")
         
         if metadata.isGIF {
             processGIF(metadata: metadata)

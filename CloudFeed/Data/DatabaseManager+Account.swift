@@ -6,8 +6,8 @@
 //
 
 import Foundation
+import os.log
 import RealmSwift
-import NextcloudKit
 
 class tableAccount: Object {
     
@@ -28,6 +28,9 @@ class tableAccount: Object {
 
 extension DatabaseManager {
     
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
+                                       category: String(describing: DatabaseManager.self) + "Account")
+    
     func addAccount(_ account: String, urlBase: String, user: String, password: String) {
 
         let realm = try! Realm()
@@ -47,8 +50,7 @@ extension DatabaseManager {
                 realm.add(addObject, update: .all)
             }
         } catch let error {
-            //NKCommon.shared.writeLog("Could not write to database: \(error)")
-            print("Could not write to database: \(error)")
+            Self.logger.error("Could not write to database: \(error)")
         }
     }
     
@@ -62,8 +64,7 @@ extension DatabaseManager {
                 realm.delete(result)
             }
         } catch let error {
-            //NKCommon.shared.writeLog("Could not write to database: \(error)")
-            print("Could not write to database: \(error)")
+            Self.logger.error("Could not write to database: \(error)")
         }
     }
     
@@ -111,8 +112,7 @@ extension DatabaseManager {
                 }
             }
         } catch let error {
-            //NKCommon.shared.writeLog("Could not write to database: \(error)")
-            print("Could not write to database: \(error)")
+            Self.logger.error("Could not write to database: \(error)")
             return nil
         }
 

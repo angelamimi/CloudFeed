@@ -126,7 +126,6 @@ class MediaController: CollectionController {
     }
     
     private func toggleFavorite(metadata: tableMetadata) {
-        print("favoriteMenuAction() - metadata ocid: \(metadata.ocId)")
         
         DispatchQueue.main.async { [weak self] in
             self?.activityIndicator.startAnimating()
@@ -150,8 +149,6 @@ extension MediaController: MediaDelegate {
             self.activityIndicator.stopAnimating()
             if error {
                 self.coordinator.showFavoriteUpdateFailedError()
-            } else {
-                print("favoriteUpdated() - error: \(error)")
             }
         }
     }

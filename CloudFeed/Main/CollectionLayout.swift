@@ -97,8 +97,6 @@ class CollectionLayout: UICollectionViewFlowLayout {
             let column = shortestColumnIndex(inSection: 0)
             let frame = CGRect(x: xOffset[column], y: yOffset[column], width: cellWidth, height: cellHeight)
             
-            //print("prepare() - cellWidth: \(cellWidth) cellHeight: \(cellHeight)")
-            
             var edgeInsets: UIEdgeInsets
             
             if column == 0 {

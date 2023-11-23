@@ -163,9 +163,6 @@ extension ViewerViewModel {
                     let filePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
                     let fileData = FileManager().contents(atPath: filePath)
                     
-                    print("getImage() - filePath: \(filePath)")
-                    print("getImage() - imagePath: \(imagePath)")
-                    
                     if fileData != nil {
                         var newSize : CGSize?
                         if imageWidth > imageHeight {

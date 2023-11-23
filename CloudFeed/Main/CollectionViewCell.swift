@@ -54,10 +54,6 @@ class CollectionViewCell: UICollectionViewCell {
     }
     
     func selected(_ status: Bool) {
-        //imageFavorite.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-        //imageFavorite.layer.cornerRadius = 10
-        //imageFavorite.layer.masksToBounds = true
-        Self.logger.debug("selected() - ?: \(status)")
         if status {
             imageFavorite.image = UIImage(systemName: "star")
         } else {
@@ -79,13 +75,9 @@ class CollectionViewCell: UICollectionViewCell {
     
     private func initCell() {
         
-        //Self.logger.debug("initCell() - reuseIdentifier: \(self.reuseIdentifier ?? "NONE") width: \(self.frame.width) height \(self.frame.height)")
-        //imageView.backgroundColor = .secondarySystemBackground
         imageStatus.image = nil
         imageView.image = nil
         imageFavorite.image = nil
-        
-        //Self.logger.debug("initCell()")
         
         if (self.reuseIdentifier == "MainCollectionViewCell") {
             imageFavorite.image = UIImage(systemName: "star.fill")

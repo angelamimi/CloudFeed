@@ -25,6 +25,8 @@ final class NextclouldServiceTests: BaseTest {
         
         let error = await dataService?.getFavorites()
         
+        XCTAssertTrue(error == false)
+        
         let favMetadatas = dataService?.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
         
         XCTAssertNotNil(favMetadatas)
@@ -36,6 +38,8 @@ final class NextclouldServiceTests: BaseTest {
         nextCloudService?.listingFavoritesAction = .withData
         
         let error = await dataService?.getFavorites()
+        
+        XCTAssertTrue(error == false)
 
         let favMetadatas = dataService?.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
         
@@ -59,10 +63,7 @@ final class NextclouldServiceTests: BaseTest {
         let metadatas = result?.metadatas
         
         XCTAssertNotNil(metadatas)
-        
-        print(metadatas!.count)
-        
-        //XCTAssertEqual(metadatas!.count, 1)
+        XCTAssertEqual(metadatas!.count, 23)
     }
     
     func testSearchMediaError() async throws {

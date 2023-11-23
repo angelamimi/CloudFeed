@@ -44,17 +44,21 @@ final class MediaViewModelTests: BaseTest {
 }
 
 extension MediaViewModelTests: MediaDelegate {
+    func favoriteUpdated(error: Bool) {
+        
+    }
+    
     func searching() {
-        print("searching")
+
     }
     
     func dataSourceUpdated() {
-        print("dataSourceUpdated")
+
     }
     
     func searchResultReceived(resultItemCount: Int?) {
         self.resultItemCount = resultItemCount
-        print("searchResultReceived() - \(resultItemCount ?? -1)")
+
         expectation?.fulfill()
         expectation = nil
     }

@@ -134,7 +134,6 @@ class FavoritesController: CollectionController {
     }
     
     private func removeFavorite(indexPath: IndexPath) {
-        print("removeFavorite() - indexPath: \(indexPath)")
         Task { [weak self] in
             await self?.viewModel.bulkEdit(indexPaths: [indexPath])
         }

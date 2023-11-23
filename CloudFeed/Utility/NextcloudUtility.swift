@@ -42,8 +42,6 @@ class NextcloudUtility: NSObject {
         }
 
         if classFile == NKCommon.TypeClassFile.image.rawValue {
-            
-            //print("FILE NAME PATH = \(fileNamePath)")
 
             originalImage = UIImage(contentsOfFile: fileNamePath)
 
@@ -117,18 +115,14 @@ class NextcloudUtility: NSObject {
         
         if let image = svgImage.uiImage {
             
-            print("loadSVGPreview() - size: \(svgImage.size)")
-            
             if !FileManager().fileExists(atPath: iconPath) {
                 do {
-                    Self.logger.debug("loadSVGPreview() - iconPath: \(iconPath)")
                     try image.jpegData(compressionQuality: 0.5)?.write(to: URL(fileURLWithPath: iconPath))
                 } catch { }
             }
             
             if !FileManager().fileExists(atPath: previewPath) {
                 do {
-                    Self.logger.debug("loadSVGPreview() - previewPath: \(previewPath)")
                     try image.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
                 } catch { }
             }
@@ -192,9 +186,6 @@ class NextcloudUtility: NSObject {
     func isLongImage(imageSize: CGSize) -> Bool {
         
         let ratio = imageSize.width < imageSize.height ? imageSize.width / imageSize.height : imageSize.height / imageSize.width
-        
-        //print("isLongImage() - ratio: \(ratio) image size: \(imageSize)")
-        
         return ratio < 0.5
     }
 }
