@@ -6,21 +6,14 @@
 //
 
 import NextcloudKit
-import os.log
 import UIKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-    private static let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier!,
-        category: String(describing: AppDelegate.self)
-    )
-
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         initNavigationBar()
-        
         StoreUtility.initStorage()
         
         return true
@@ -30,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let coloredAppearance = UINavigationBarAppearance()
         
         coloredAppearance.configureWithOpaqueBackground()
-        coloredAppearance.backgroundColor = .systemBackground //.systemFill
+        coloredAppearance.backgroundColor = .systemBackground
         coloredAppearance.titleTextAttributes = [.foregroundColor: UIColor.label]
         coloredAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
         

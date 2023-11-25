@@ -34,18 +34,15 @@ class FavoritesController: CollectionController {
         initTitleView(mediaView: self, allowEdit: true)
         initEmptyView(imageSystemName: "star.fill", title:"No favorites yet", description: "Files you mark as favorite will show up here")
         initConstraints()
+        initObservers()
+    }
+    
+    deinit {
+        cleanup()
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        
-        let visibleDateRange = getVisibleItemData()
-        
-        if visibleDateRange.toDate == nil || visibleDateRange.name == nil {
-            hideMenu()
-            viewModel.fetch(refresh: false)
-        } else {
-            viewModel.syncFavs()
-        }
+        fetchFavorites()
     }
     
     override func refresh() {
@@ -79,6 +76,18 @@ class FavoritesController: CollectionController {
         }
     }
     
+    private func fetchFavorites() {
+        
+        let visibleDateRange = getVisibleItemData()
+        
+        if visibleDateRange.toDate == nil || visibleDateRange.name == nil {
+            hideMenu()
+            viewModel.fetch(refresh: false)
+        } else {
+            viewModel.syncFavs()
+        }
+    }
+    
     private func openViewer(indexPath: IndexPath) {
         
         let metadata = viewModel.getItemAtIndexPath(indexPath)
@@ -92,13 +101,8 @@ class FavoritesController: CollectionController {
     }
     
     private func bulkEdit() async {
-        let indexPaths = collectionView.indexPathsForSelectedItems
-        
-        //Self.logger.debug("bulkEdit() - indexPaths: \(indexPaths ?? [])")
-        
-        guard indexPaths != nil else { return }
-        
-        await viewModel.bulkEdit(indexPaths: indexPaths!)
+        guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
+        await viewModel.bulkEdit(indexPaths: indexPaths)
     }
     
     private func reloadSection() {
@@ -137,6 +141,23 @@ class FavoritesController: CollectionController {
         Task { [weak self] in
             await self?.viewModel.bulkEdit(indexPaths: [indexPath])
         }
+    }
+    
+    private func enteringForeground() {
+        if isViewLoaded && view.window != nil {
+            Self.logger.debug("enteringForeground() - executing refresh")
+            refresh()
+        }
+    }
+    
+    private func initObservers() {
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
+            self?.enteringForeground()
+        }
+    }
+    
+    private func cleanup() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
 }
 

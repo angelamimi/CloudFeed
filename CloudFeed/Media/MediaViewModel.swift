@@ -81,10 +81,7 @@ final class MediaViewModel: NSObject {
         let snapshot = dataSource.snapshot()
 
         if (snapshot.numberOfItems(inSection: 0) > 0) {
-            let metadata = snapshot.itemIdentifiers(inSection: 0).last
-            
-            //Self.logger.debug("getLastItem() - date: \(metadata?.date) name: \(metadata?.fileNameView ?? "")")
-            return metadata
+            return snapshot.itemIdentifiers(inSection: 0).last
         }
         
         return nil
@@ -92,19 +89,13 @@ final class MediaViewModel: NSObject {
     
     func metadataSearch(offsetDate: Date, limit: Int, refresh: Bool) {
         
-        //Self.logger.debug("metadataSearch() - offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
-        
         let days = -30
         guard let fromDate = Calendar.current.date(byAdding: .day, value: days, to: offsetDate) else { return }
-        
-        //Self.logger.debug("metadataSearch() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
         
         Task { [weak self] in
             guard let self else { return }
             
             let results = await search(toDate: offsetDate, fromDate: fromDate, limit: limit) //saves metadata to be paginated
-            
-            //Self.logger.debug("metadataSearch() - added: \(results.added.count) updated: \(results.updated.count) deleted: \(results.deleted.count)")
             
             await processSearchResult(metadatas: results.metadatas, toDate: offsetDate, fromDate: fromDate, days: days) //recursive call until enough results received or gone all the way back in time
 
@@ -113,23 +104,15 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    func sync(visibleToDate: Date, visibleFromDate: Date) {
+    func sync(toDate: Date, fromDate: Date) {
         
         Task { [weak self] in
             guard let self else { return }
-
-            let snapshot = dataSource.snapshot()
-            let metadata = snapshot.itemIdentifiers(inSection: 0).first
-            var toDate = visibleToDate
-            
-            if toDate == metadata!.date as Date {
-                toDate = Date()
-            }
             
             //Self.logger.debug("sync() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
-            //Self.logger.debug("sync() - visibleFromDate: \(visibleFromDate.formatted(date: .abbreviated, time: .standard))")
+            //Self.logger.debug("sync() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
             
-            let results = await search(toDate: toDate, fromDate: visibleFromDate, limit: Global.shared.pageSize)
+            let results = await search(toDate: toDate, fromDate: fromDate, limit: Global.shared.searchLimit)
             
             guard results.metadatas != nil else { return }
             var updatedFavorites = getUpdatedFavorites(metadatas: results.metadatas!)

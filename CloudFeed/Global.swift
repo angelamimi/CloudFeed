@@ -63,4 +63,5 @@ class Global: NSObject {
     //
     let pageSize: Int         = 100
     let metadataPageSize: Int = 100
+    let searchLimit: Int      = 1000
 }

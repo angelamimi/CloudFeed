@@ -31,18 +31,15 @@ class MediaController: CollectionController {
         initCollectionView(delegate: self)
         initEmptyView(imageSystemName: "photo", title:"No media yet", description: "Your photos and videos will show up here")
         initConstraints()
+        initObservers()
+    }
+    
+    deinit {
+        cleanup()
     }
     
     override func viewDidAppear(_ animated: Bool) {
-
-        let visibleDateRange = getVisibleDateRange()
-        
-        if visibleDateRange.toDate == nil || visibleDateRange.fromDate == nil {
-            hideMenu()
-            viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize, refresh: false)
-        } else {
-            viewModel.sync(visibleToDate: visibleDateRange.toDate!, visibleFromDate: visibleDateRange.fromDate!)
-        }
+        findMedia()
     }
     
     override func refresh() {
@@ -76,6 +73,18 @@ class MediaController: CollectionController {
         }
     }
     
+    private func findMedia() {
+        
+        let syncDateRange = getSyncDateRange()
+        
+        if syncDateRange.toDate == nil || syncDateRange.fromDate == nil {
+            hideMenu()
+            viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize, refresh: false)
+        } else {
+            viewModel.sync(toDate: syncDateRange.toDate!, fromDate: syncDateRange.fromDate!)
+        }
+    }
+    
     private func openViewer(indexPath: IndexPath) {
         
         let metadata = viewModel.getItemAtIndexPath(indexPath)
@@ -88,28 +97,13 @@ class MediaController: CollectionController {
         coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
     }
     
-    private func getVisibleDateRange() -> (toDate: Date?, fromDate: Date?) {
-        
-        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-        let first = visibleIndexes?.first
-        let last = visibleIndexes?.last
-        
-        if first == nil || last == nil {
-            //Self.logger.debug("getVisibleDateRange() - no visible items")
+    private func getSyncDateRange() -> (toDate: Date?, fromDate: Date?) {
+        let lastItem = viewModel.getLastItem()
+        if lastItem == nil {
+            return (nil, nil)
         } else {
-
-            let firstMetadata = viewModel.getItemAtIndexPath(first!)
-            let lastMetadata = viewModel.getItemAtIndexPath(last!)
-            
-            if firstMetadata == nil || lastMetadata == nil {
-                //Self.logger.debug("getVisibleDateRange() - missing metadata")
-            } else {
-                //Self.logger.debug("getVisibleDateRange() - \(firstMetadata!.date) \(lastMetadata!.date)")
-                return (firstMetadata!.date as Date, lastMetadata!.date as Date)
-            }
+            return (Date(), lastItem!.date as Date)
         }
-        
-        return (nil, nil)
     }
     
     private func favoriteMenuAction(metadata: tableMetadata) -> UIAction {
@@ -132,6 +126,25 @@ class MediaController: CollectionController {
         }
         
         self.viewModel.toggleFavorite(metadata: metadata)
+    }
+    
+    private func enteringForeground() {
+        
+        if isViewLoaded && view.window != nil {
+            Self.logger.debug("enteringForeground() - currentItemCount: \(self.viewModel.currentItemCount())")
+            Self.logger.debug("enteringForeground() - executing findMedia")
+            findMedia()
+        }
+    }
+    
+    private func initObservers() {
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
+            self?.enteringForeground()
+        }
+    }
+    
+    private func cleanup() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
 }
 

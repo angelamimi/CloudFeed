@@ -128,7 +128,6 @@ class TitleView: UIView {
     }
     
     @objc func titleTouched() {
-        Self.logger.debug("titleTouched()")
         self.mediaView?.titleTouched()
     }
     
