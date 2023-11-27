@@ -62,7 +62,14 @@ class CollectionViewCell: UICollectionViewCell {
     }
     
     func setImage(_ image: UIImage?) {
-        imageView.image = image
+        
+        UIView.transition(with: self.imageView,
+                          duration: 0.3,
+                          options: .transitionCrossDissolve,
+                          animations: { self.imageView.image = image },
+                          completion: nil)
+        
+        //imageView.image = image
     }
     
     func setContentMode(isLongImage: Bool) {
