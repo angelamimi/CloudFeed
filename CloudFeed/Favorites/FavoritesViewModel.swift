@@ -262,7 +262,7 @@ final class FavoritesViewModel: NSObject {
             
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
                 await self.dataService.downloadVideoPreview(metadata: metadata)
-            } else if metadata.isSVG {
+            } else if metadata.svg {
                 await loadSVG(metadata: metadata)
             } else {
                 await self.dataService.downloadPreview(metadata: metadata)
@@ -301,8 +301,8 @@ final class FavoritesViewModel: NSObject {
                 await cell.resetStatusIcon()
             }
             
-            //await cell.setImage(UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag)))
-            //Self.logger.debug("CELL - image size: \(cell.imageView.image?.size.width ?? -1),\(cell.imageView.image?.size.height ?? -1)")
+            await cell.setBackgroundColor()
+            
             let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
             
             if image != nil {

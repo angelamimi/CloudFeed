@@ -136,7 +136,7 @@ extension ViewerViewModel {
             let previewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
             let imagePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
             
-            if metadata.isGIF {
+            if metadata.gif {
                 if !FileManager().fileExists(atPath: previewPath) {
                     NextcloudUtility.shared.createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
                 }
@@ -146,7 +146,7 @@ extension ViewerViewModel {
                 } else {
                     image = UIImage(contentsOfFile: imagePath)
                 }
-            } else if metadata.isSVG {
+            } else if metadata.svg {
                 
                 return NextcloudUtility.shared.loadSVGPreview(metadata: metadata)
                 

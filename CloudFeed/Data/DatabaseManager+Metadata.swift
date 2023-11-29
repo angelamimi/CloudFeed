@@ -70,8 +70,8 @@ extension tableMetadata {
     var fileExtension: String { (fileNameView as NSString).pathExtension }
     var fileNoExtension: String { (fileNameView as NSString).deletingPathExtension }
     
-    var isSVG: Bool { fileExtension == "svg" || contentType == "image/svg+xml" }
-    var isGIF: Bool { fileExtension == "gif" || contentType == "image/gif" }
+    var svg: Bool { fileExtension == "svg" || contentType == "image/svg+xml" }
+    var gif: Bool { fileExtension == "gif" || contentType == "image/gif" }
 }
 
 extension DatabaseManager {

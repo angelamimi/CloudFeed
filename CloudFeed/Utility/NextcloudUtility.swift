@@ -105,7 +105,7 @@ class NextcloudUtility: NSObject {
     @discardableResult
     func loadSVGPreview(metadata: tableMetadata) -> UIImage? {
         
-        guard metadata.isSVG else { return nil }
+        guard metadata.svg else { return nil }
 
         let imagePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
         let previewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)

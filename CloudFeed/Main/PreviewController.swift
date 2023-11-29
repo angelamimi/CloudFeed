@@ -133,12 +133,12 @@ class PreviewController: UIViewController {
     
     private func viewImage(metadata: tableMetadata) {
         
-        if metadata.isGIF {
+        if metadata.gif {
             processGIF(metadata: metadata)
             return
         }
         
-        if metadata.isSVG {
+        if metadata.svg {
             processSVG(metadata: metadata)
             return
         }

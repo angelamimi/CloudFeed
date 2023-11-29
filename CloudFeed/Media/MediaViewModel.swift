@@ -217,7 +217,7 @@ final class MediaViewModel: NSObject {
             
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
                 await self.dataService.downloadVideoPreview(metadata: metadata)
-            } else if metadata.isSVG {
+            } else if metadata.svg {
                 await loadSVG(metadata: metadata)
             } else {
                 await self.dataService.downloadPreview(metadata: metadata)
@@ -542,6 +542,8 @@ final class MediaViewModel: NSObject {
             } else {
                 await cell.resetStatusIcon()
             }
+            
+            await cell.setBackgroundColor()
             
             let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
             

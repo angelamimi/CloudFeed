@@ -80,11 +80,18 @@ class CollectionViewCell: UICollectionViewCell {
         }
     }
     
+    func setBackgroundColor() {
+        //for images with a transparent background. white looks the best regardless of theme
+        backgroundColor = .white
+    }
+    
     private func initCell() {
         
         imageStatus.image = nil
         imageView.image = nil
         imageFavorite.image = nil
+        
+        backgroundColor = .secondarySystemBackground
         
         if (self.reuseIdentifier == "MainCollectionViewCell") {
             imageFavorite.image = UIImage(systemName: "star.fill")
