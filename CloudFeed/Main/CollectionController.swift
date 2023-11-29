@@ -111,9 +111,9 @@ class CollectionController: UIViewController {
             self.layout!.numberOfColumns += 1
         }
         
-        /*UIView.animate(withDuration: 0.0, animations: {
+        UIView.animate(withDuration: 0.0, animations: {
             self.collectionView.collectionViewLayout.invalidateLayout()
-        })*/
+        })
     }
     
     func initCollectionView(delegate: CollectionLayoutDelegate) {

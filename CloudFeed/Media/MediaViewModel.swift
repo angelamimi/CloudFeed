@@ -95,12 +95,14 @@ final class MediaViewModel: NSObject {
         Task { [weak self] in
             guard let self else { return }
             
+            print("search!!!!")
             let results = await search(toDate: offsetDate, fromDate: fromDate, limit: limit) //saves metadata to be paginated
             
-            await processSearchResult(metadatas: results.metadatas, toDate: offsetDate, fromDate: fromDate, days: days) //recursive call until enough results received or gone all the way back in time
+            await processSearchResult(metadatas: results.metadatas, toDate: offsetDate, fromDate: fromDate, days: days, refresh: refresh) //recursive call until enough results received or gone all the way back in time
 
-            let resultMetadatas = await paginateMetadata(toDate: offsetDate, fromDate: fromDate, offsetDate: nil, offsetName: nil) //chunks results to be displayed in pages
-            await processPaginationResult(resultMetadatas: resultMetadatas, toDate: offsetDate, fromDate: fromDate, days: days, refresh: refresh) //updates the datasource
+            //print("paginate!!!!")
+            //let resultMetadatas = await paginateMetadata(toDate: offsetDate, fromDate: fromDate, offsetDate: nil, offsetName: nil) //chunks results to be displayed in pages
+            //await processPaginationResult(resultMetadatas: resultMetadatas, toDate: offsetDate, fromDate: fromDate, days: days, refresh: refresh) //updates the datasource
         }
     }
     
@@ -139,12 +141,10 @@ final class MediaViewModel: NSObject {
                 //Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
             }
         }
-
-        guard let offsetDate = offsetDate else { return }
         
-        //Self.logger.debug("loadMore() - offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
-        
-        metadataSearch(offsetDate: offsetDate, limit: 300, refresh: false)
+        if offsetDate != nil {
+            metadataSearch(offsetDate: offsetDate!, limit: Global.shared.pageSize, refresh: false)
+        }
     }
     
     func loadPreview(indexPath: IndexPath) {
@@ -335,14 +335,17 @@ final class MediaViewModel: NSObject {
         return (sorted, result.added, result.updated, result.deleted)
     }
     
-    private func processSearchResult(metadatas: [tableMetadata]?, toDate: Date, fromDate: Date, days: Int) async {
+    private func processSearchResult(metadatas: [tableMetadata]?, toDate: Date, fromDate: Date, days: Int, refresh: Bool) async {
         
         guard let resultMetadatas = metadatas else {
             delegate.searchResultReceived(resultItemCount: nil)
             return
         }
         
-        //Self.logger.debug("processSearchResult() - resultMetadatas count: \(resultMetadatas.count)")
+        print("process result!!!! days: \(days) result count: \(resultMetadatas.count)")
+        
+        //display results
+        applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
         
         if resultMetadatas.count >= Global.shared.metadataPageSize {
             delegate.searchResultReceived(resultItemCount: resultMetadatas.count)
@@ -360,9 +363,27 @@ final class MediaViewModel: NSObject {
             Self.logger.debug("processSearchResult() - fromDate: \(span.fromDate.formatted(date: .abbreviated, time: .standard))")*/
 
             let results = await search(toDate: span.toDate, fromDate: span.fromDate, limit: Global.shared.metadataPageSize)
-            await processSearchResult(metadatas: results.metadatas, toDate: span.toDate, fromDate: span.fromDate, days: span.spanDays)
+            await processSearchResult(metadatas: results.metadatas, toDate: span.toDate, fromDate: span.fromDate, days: span.spanDays, refresh: refresh)
         }
     }
+    
+    /*private func paginateMetadata(toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool, days: Int) async -> [tableMetadata] {
+        let resultMetadatas = dataService.paginateMetadata(fromDate: fromDate, toDate: toDate, offsetDate: offsetDate, offsetName: offsetName)
+        
+        if resultMetadatas.count >= Global.shared.pageSize {
+            //have a full page. display all
+            applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
+        } else {
+            //not enough for a full page. adjust time span, and fetch again
+            guard let span = calculateSearchDates(toDate: toDate, days: days) else {
+                applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
+                return //gone back as far as possible. break out of recursive call
+            }
+            
+            let resultMetadatas = await paginateMetadataOLD(toDate: span.toDate, fromDate: span.fromDate, offsetDate: nil, offsetName: nil)
+            await processPaginationResultOLD(resultMetadatas: resultMetadatas, toDate: span.toDate, fromDate: span.fromDate, days: span.spanDays, refresh: refresh)
+        }
+    }*/
     
     private func paginateMetadata(toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?) async -> [tableMetadata] {
         
@@ -428,6 +449,52 @@ final class MediaViewModel: NSObject {
         
         return (toDate, fromDate, newDays)
     }
+    
+    /*
+    private func applyDatasourceChangesAsync(metadatas: [tableMetadata], refresh: Bool) async {
+        var snapshot = dataSource.snapshot()
+        var ocIdAdd : [tableMetadata] = []
+        var ocIdUpdate : [tableMetadata] = []
+        
+        if refresh {
+            snapshot.deleteAllItems()
+            snapshot.appendSections([0])
+        }
+        
+        for metadata in metadatas {
+
+            if snapshot.indexOfItem(metadata) == nil {
+                ocIdAdd.append(metadata)
+            } else {
+                ocIdUpdate.append(metadata)
+            }
+        }
+        
+        if ocIdAdd.count > 0 {
+            snapshot.appendItems(ocIdAdd)
+        }
+        
+        if ocIdUpdate.count > 0 {
+            snapshot.reconfigureItems(ocIdUpdate)
+        }
+        
+        let applySnapshot = snapshot
+        
+        await withCheckedContinuation { cont in
+            DispatchQueue.main.async { [weak self] in
+                guard let self else {
+                    cont.resume()
+                    return
+                }
+                self.dataSource.apply(applySnapshot, animatingDifferences: true) { [weak self] in
+                    print("!!!! finished applying to datasource")
+                    //cont.resume(returning: true)
+                    cont.resume()
+                    self?.delegate.dataSourceUpdated()
+                }
+            }
+        }
+    }*/
     
     private func applyDatasourceChanges(metadatas: [tableMetadata], refresh: Bool) {
 
