@@ -1,6 +1,6 @@
 //
 //  SceneDelegate.swift
-//  CloudFeed
+//  Feed
 //
 //  Created by Angela Jarosz on 3/11/23.
 //
