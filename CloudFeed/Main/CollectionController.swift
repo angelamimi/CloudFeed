@@ -107,7 +107,7 @@ class CollectionController: UIViewController {
         
         guard self.layout!.numberOfColumns + 1 <= currentItemCount else { return }
         
-        if self.layout!.numberOfColumns + 1 < 6 {
+        if self.layout!.numberOfColumns + 1 < 5 {
             self.layout!.numberOfColumns += 1
         }
         

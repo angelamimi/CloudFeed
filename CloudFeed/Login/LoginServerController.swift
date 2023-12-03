@@ -11,11 +11,16 @@ class LoginServerController: UIViewController {
     
     var coordinator: LoginServerCoordinator!
     
+    @IBOutlet weak var serverURLLabel: UILabel!
     @IBOutlet weak var serverURLTextField: UITextField!
     @IBOutlet weak var serverURLButton: UIButton!
     
     @IBAction func buttonClicked(_ sender: Any) {
         processURL()
+    }
+    
+    override func viewDidLoad() {
+        serverURLLabel.text = "Server URL"
     }
     
     override func viewWillAppear(_ animated: Bool) {

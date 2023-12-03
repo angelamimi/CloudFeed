@@ -65,6 +65,7 @@
 		394BCB1529C7E82100C4F619 /* KTVHTTPCache.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */; };
 		394BCB1629C7E82100C4F619 /* KTVHTTPCache.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		394BCB1929C7E9BC00C4F619 /* NextcloudUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394BCB1829C7E9BB00C4F619 /* NextcloudUtility.swift */; };
+		395C14E52B1C03FF00074EB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 395C14E42B1C03FF00074EB8 /* Assets.xcassets */; };
 		395F3A1A2A9678340004FF32 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395F3A192A9678340004FF32 /* Environment.swift */; };
 		395F3A1C2A96812E0004FF32 /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395F3A1B2A96812E0004FF32 /* UserAccount.swift */; };
 		3966633B29DCD10D005727D4 /* AcknowledgementsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3966633A29DCD10D005727D4 /* AcknowledgementsController.swift */; };
@@ -178,6 +179,7 @@
 		394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVCocoaHTTPServer.xcframework; path = Carthage/Build/KTVCocoaHTTPServer.xcframework; sourceTree = "<group>"; };
 		394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVHTTPCache.xcframework; path = Carthage/Build/KTVHTTPCache.xcframework; sourceTree = "<group>"; };
 		394BCB1829C7E9BB00C4F619 /* NextcloudUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudUtility.swift; sourceTree = "<group>"; };
+		395C14E42B1C03FF00074EB8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		395F3A192A9678340004FF32 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		395F3A1B2A96812E0004FF32 /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
 		3966633A29DCD10D005727D4 /* AcknowledgementsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcknowledgementsController.swift; sourceTree = "<group>"; };
@@ -189,7 +191,6 @@
 		3966634629DF34AD005727D4 /* EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyView.swift; sourceTree = "<group>"; };
 		39680C2B2AB9D32F00A16D5B /* CloudFeed.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CloudFeed.xctestplan; sourceTree = "<group>"; };
 		39680C302ABB527800A16D5B /* mock-favorites.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-favorites.json"; sourceTree = "<group>"; };
-		396B418B2B1926DB00D95E02 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3972EE9D2ADEC27F0020EEC7 /* CollectionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionController.swift; sourceTree = "<group>"; };
 		398DA7232AC3343B00F98E7F /* BaseTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTest.swift; sourceTree = "<group>"; };
 		398DA7272AC6199500F98E7F /* mock-search.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-search.json"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.json; };
@@ -340,12 +341,12 @@
 				395F3A1B2A96812E0004FF32 /* UserAccount.swift */,
 				3927356C29BD1E820058796A /* SceneDelegate.swift */,
 				3927356A29BD1E820058796A /* AppDelegate.swift */,
-				396B418B2B1926DB00D95E02 /* Assets.xcassets */,
 				3927357529BD1E830058796A /* LaunchScreen.storyboard */,
 				392735BD29BE738F0058796A /* CloudFeed.entitlements */,
 				3927357829BD1E830058796A /* Info.plist */,
 				3966634229DE190D005727D4 /* Acknowledgements.plist */,
 				391579AD2AB6825000DFEAB1 /* Localizable.strings */,
+				395C14E42B1C03FF00074EB8 /* Assets.xcassets */,
 			);
 			path = CloudFeed;
 			sourceTree = "<group>";
@@ -552,6 +553,7 @@
 				3927357729BD1E830058796A /* LaunchScreen.storyboard in Resources */,
 				39271D5D29D8D7DF00522DFD /* Favorites.storyboard in Resources */,
 				391579AE2AB6825000DFEAB1 /* Localizable.strings in Resources */,
+				395C14E52B1C03FF00074EB8 /* Assets.xcassets in Resources */,
 				3966634329DE190D005727D4 /* Acknowledgements.plist in Resources */,
 				39271D5729D79E7900522DFD /* TitleView.xib in Resources */,
 				39271D4A29D7922D00522DFD /* Media.storyboard in Resources */,
