@@ -248,8 +248,21 @@ class StoreUtility {
             details[kCGImagePropertyPixelHeight] = height
         }
         
-        if let width = imageDict[kCGImagePropertyPixelWidth] {
-            details[kCGImagePropertyPixelWidth] = width
+        if let dpiWidth = imageDict[kCGImagePropertyDPIWidth], let dpiHeight = imageDict[kCGImagePropertyDPIHeight] {
+            details[kCGImagePropertyDPIWidth] = dpiWidth
+            details[kCGImagePropertyDPIHeight] = dpiHeight
+        }
+        
+        if let colorModel = imageDict[kCGImagePropertyColorModel] {
+            details[kCGImagePropertyColorModel] = colorModel
+        }
+        
+        if let depth = imageDict[kCGImagePropertyDepth] {
+            details[kCGImagePropertyDepth] = depth
+        }
+        
+        if let profile = imageDict[kCGImagePropertyProfileName] {
+            details[kCGImagePropertyProfileName] = profile
         }
         
         /*for (key, value) in imageDict {
@@ -266,8 +279,28 @@ class StoreUtility {
                 details[kCGImagePropertyExifDateTimeOriginal] = date
             }
             
+            if let lensMake = exif[kCGImagePropertyExifLensMake] {
+                details[kCGImagePropertyExifLensMake] = lensMake
+            }
+            
             if let lensModel = exif[kCGImagePropertyExifLensModel] {
                 details[kCGImagePropertyExifLensModel] = lensModel
+            }
+            
+            if let aperture = exif[kCGImagePropertyExifFNumber] as? Double {
+                details[kCGImagePropertyExifFNumber] = aperture
+            }
+            
+            if let exposure = exif[kCGImagePropertyExifExposureBiasValue] as? Int {
+                details[kCGImagePropertyExifExposureBiasValue] = exposure
+            }
+            
+            if let iso = (exif[kCGImagePropertyExifISOSpeedRatings] as? [Int])?[0] {
+                details[kCGImagePropertyExifISOSpeedRatings] = iso
+            }
+            
+            if let brightness = exif[kCGImagePropertyExifBrightnessValue] as? Double {
+                details[kCGImagePropertyExifBrightnessValue] = brightness
             }
         }
         

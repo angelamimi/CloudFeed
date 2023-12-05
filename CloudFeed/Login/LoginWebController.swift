@@ -33,7 +33,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         super.viewDidLoad()
         
         navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationItem.title = "Server Login"
+        navigationItem.title = Strings.LoginServerTitle
         
         mWebKitView.navigationDelegate = self
 
@@ -45,8 +45,6 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
     }
     
     private func executeLoginFlowRequest() {
-        
-        Self.logger.debug("executeLoginFlowRequest()")
         
         guard urlBase != nil else { return }
         
@@ -61,9 +59,6 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         let languageCode: String? = NSLocale.preferredLanguages[0]
         
         var request = URLRequest(url: inputURL)
-        
-        Self.logger.debug("serverURL: \(serverURL)")
-        Self.logger.debug("languageCode: \(languageCode!)")
         
         request.setValue(languageCode, forHTTPHeaderField: "ACCEPT-LANGUAGE")
         request.setValue("true", forHTTPHeaderField: "OCS-APIREQUEST")
@@ -112,7 +107,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
     }
     
     func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        Self.logger.debug("didReceive()")
+
         DispatchQueue.global().async {
             if let serverTrust = challenge.protectionSpace.serverTrust {
                 completionHandler(Foundation.URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: serverTrust))
@@ -123,12 +118,11 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        Self.logger.debug("decidePolicyFor()")
         decisionHandler(.allow)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        Self.logger.debug("didFinish()")
+        //Self.logger.debug("didFinish()")
     }
     
     private func processResult(url: URL) {

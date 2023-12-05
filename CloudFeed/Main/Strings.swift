@@ -40,6 +40,7 @@ extension Strings {
     public static let UrlErrorMessage = NSLocalizedString("Url.Error.Message", comment: "")
     public static let LoginServerLabel = NSLocalizedString("Login.Server.Label", comment: "")
     public static let LoginServerButton = NSLocalizedString("Login.Server.Button", comment: "")
+    public static let LoginServerTitle = NSLocalizedString("Login.Server.Title", comment: "")
     
     //Media
     public static let MediaErrorMessage = NSLocalizedString("Media.Error.Message", comment: "")
@@ -62,4 +63,21 @@ extension Strings {
     public static let TitleEdit = NSLocalizedString("Title.Edit", comment: "")
     public static let TitleZoomIn = NSLocalizedString("Title.ZoomIn", comment: "")
     public static let TitleZoomOut = NSLocalizedString("Title.ZoomOut", comment: "")
+    
+    //Image Detail and EXIF
+    public static let DetailName = NSLocalizedString("Detail.Name", comment: "")
+    public static let DetailEditedDate = NSLocalizedString("Detail.EditedDate", comment: "")
+    public static let DetailCreatedDate = NSLocalizedString("Detail.CreatedDate", comment: "")
+    public static let DetailFileSize = NSLocalizedString("Detail.FileSize", comment: "")
+    public static let DetailDimensions = NSLocalizedString("Detail.Dimensions", comment: "")
+    public static let DetailLenseMake = NSLocalizedString("Detail.LenseMake", comment: "")
+    public static let DetailLenseModel = NSLocalizedString("Detail.LenseModel", comment: "")
+    public static let DetailColorSpace = NSLocalizedString("Detail.ColorSpace", comment: "")
+    public static let DetailDPI = NSLocalizedString("Detail.DPI", comment: "")
+    public static let DetailProfile = NSLocalizedString("Detail.Profile", comment: "")
+    public static let DetailDepth = NSLocalizedString("Detail.Depth", comment: "")
+    public static let DetailAperture = NSLocalizedString("Detail.Aperture", comment: "")
+    public static let DetailExposure = NSLocalizedString("Detail.Exposure", comment: "")
+    public static let DetailISO = NSLocalizedString("Detail.ISO", comment: "")
+    public static let DetailBrightness = NSLocalizedString("Detail.Brightness", comment: "")
 }

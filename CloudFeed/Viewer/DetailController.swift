@@ -53,12 +53,16 @@ class DetailController: UIViewController {
     
     private func appendData(data: NSMutableDictionary) {
         guard metadata != nil else { return }
-        details.append(MetadataDetail(title: "Name", detail: metadata!.fileNameView))
-        details.append(MetadataDetail(title: "Edited", detail: (metadata!.date as Date).formatted(date: .abbreviated, time: .standard)))
+        details.append(MetadataDetail(title: Strings.DetailName, detail: metadata!.fileNameView))
+        details.append(MetadataDetail(title: Strings.DetailEditedDate, detail: (metadata!.date as Date).formatted(date: .abbreviated, time: .standard)))
                        
         //Self.logger.debug("appendData() - date: \(self.metadata?.date)")
         //Self.logger.debug("appendData() - uploadDate: \(self.metadata?.uploadDate)")
         //Self.logger.debug("appendData() - creationDate: \(self.metadata?.creationDate)")
+        
+        for (key, value) in data {
+            Self.logger.debug("appendData() - key: \(key as! String)")
+        }
         
         if let dateTaken = data[kCGImagePropertyExifDateTimeOriginal] {
             if let dateString = dateTaken as? String {
@@ -69,7 +73,7 @@ class DetailController: UIViewController {
                 dateFormatterGet.dateFormat = "yyyy:MM:dd:HH:mm:ss"
                 
                 if let date = dateFormatterGet.date(from: dateString) {
-                    details.append(MetadataDetail(title: "Created", detail: date.formatted(date: .abbreviated, time: .standard)))
+                    details.append(MetadataDetail(title: Strings.DetailCreatedDate, detail: date.formatted(date: .abbreviated, time: .standard)))
                 } else {
                     Self.logger.error("Error decoding date taken string")
                 }
@@ -79,16 +83,57 @@ class DetailController: UIViewController {
         if let rawFileSize = data[kCGImagePropertyFileSize] {
             if let fileSize = rawFileSize as? Int64 {
                 let fileSizeString = ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file)
-                details.append(MetadataDetail(title: "File Size", detail: fileSizeString))
+                details.append(MetadataDetail(title: Strings.DetailFileSize, detail: fileSizeString))
             }
         }
         
         if let width = data[kCGImagePropertyPixelWidth], let height = data[kCGImagePropertyPixelHeight] {
-            details.append(MetadataDetail(title: "Dimensions", detail: "\(width) x \(height)"))
+            details.append(MetadataDetail(title: Strings.DetailDimensions, detail: "\(width) x \(height)"))
+        }
+        
+        if let dpiWidth = data[kCGImagePropertyDPIWidth], let dpiHeight = data[kCGImagePropertyDPIHeight] {
+            details.append(MetadataDetail(title: Strings.DetailDPI, detail: "\(dpiWidth) x \(dpiHeight)"))
+        }
+        
+        if let colorSpace = data[kCGImagePropertyColorModel] {
+            details.append(MetadataDetail(title: Strings.DetailColorSpace, detail: colorSpace as? String))
+        }
+        
+        if let depth = data[kCGImagePropertyDepth] {
+            if depth is String {
+                let depthString = depth as! String
+                if depthString.count > 0 {
+                    details.append(MetadataDetail(title: Strings.DetailDepth, detail: depthString))
+                }
+            }
+        }
+        
+        if let profile = data[kCGImagePropertyProfileName] {
+            details.append(MetadataDetail(title: Strings.DetailProfile, detail: profile as? String))
+        }
+        
+        if let lensMake = data[kCGImagePropertyExifLensMake] {
+            details.append(MetadataDetail(title: Strings.DetailLenseMake, detail: lensMake as? String))
         }
         
         if let lensModel = data[kCGImagePropertyExifLensModel] {
-            details.append(MetadataDetail(title: "Lense Model", detail: lensModel as? String))
+            details.append(MetadataDetail(title: Strings.DetailLenseModel, detail: lensModel as? String))
+        }
+        
+        if let aperture = data[kCGImagePropertyExifFNumber] as? Double {
+            details.append(MetadataDetail(title: Strings.DetailAperture, detail: "ƒ\(aperture.description)"))
+        }
+        
+        if let exposure = data[kCGImagePropertyExifExposureBiasValue] as? Int {
+            details.append(MetadataDetail(title: Strings.DetailExposure, detail: "\(exposure.description) ev"))
+        }
+        
+        if let iso = data[kCGImagePropertyExifISOSpeedRatings] as? Int {
+            details.append(MetadataDetail(title: Strings.DetailISO, detail: iso.description))
+        }
+        
+        if let brightness = data[kCGImagePropertyExifBrightnessValue] as? Double {
+            details.append(MetadataDetail(title: Strings.DetailBrightness, detail: String(format: "%.\(2)f", brightness)))
         }
     
         tableView?.reloadData()

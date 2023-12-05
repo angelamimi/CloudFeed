@@ -35,6 +35,7 @@
 "Url.Error.Message" = "Failed to load URL. Please try again.";
 "Login.Server.Label" = "Server URL";
 "Login.Server.Button" = "Go";
+"Login.Server.Title" = "Server Login";
 
 /* Media */
 "Media.Error.Message" = "Failed to load media.";
@@ -57,3 +58,20 @@
 "Title.Edit" = "Edit";
 "Title.ZoomIn" = "Zoom In";
 "Title.ZoomOut" = "Zoom Out";
+
+/* Image Detail and EXIF */
+"Detail.Name" = "Name";
+"Detail.EditedDate" = "Edited";
+"Detail.CreatedDate" = "Created";
+"Detail.FileSize" = "File Size";
+"Detail.Dimensions" = "Dimensions";
+"Detail.LenseMake" = "Lense Make";
+"Detail.LenseModel" = "Lense Model";
+"Detail.ColorSpace" = "Color Space";
+"Detail.DPI" = "Resolution";
+"Detail.Profile" = "Profile";
+"Detail.Depth" = "Depth";
+"Detail.Aperture" = "Aperture";
+"Detail.Exposure" = "Exposure";
+"Detail.ISO" = "ISO";
+"Detail.Brightness" = "Brightness";
