@@ -25,6 +25,8 @@ class FavoritesController: CollectionController {
         
         registerCell("CollectionViewCell")
         
+        title = Strings.FavNavTitle
+        
         collectionView.delegate = self
         collectionView.allowsMultipleSelection = false
         
@@ -32,7 +34,7 @@ class FavoritesController: CollectionController {
         
         initCollectionView(delegate: self)
         initTitleView(mediaView: self, allowEdit: true)
-        initEmptyView(imageSystemName: "star.fill", title:"No favorites yet", description: "Files you mark as favorite will show up here")
+        initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
         initConstraints()
         initObservers()
     }
@@ -132,7 +134,7 @@ class FavoritesController: CollectionController {
     }
     
     private func favoriteMenuAction(indexPath: IndexPath) -> UIAction {
-        return UIAction(title: "Remove from favorites", image: UIImage(systemName: "star.fill")) { [weak self] _ in
+        return UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.fill")) { [weak self] _ in
             self?.removeFavorite(indexPath: indexPath)
         }
     }
@@ -174,6 +176,7 @@ extension FavoritesController: FavoritesDelegate {
             self.setTitle()
             
             if self.collectionView.numberOfItems(inSection: 0) == 0 {
+                self.hideMenu()
                 self.collectionView.isHidden = true
                 self.emptyView.isHidden = false
             }

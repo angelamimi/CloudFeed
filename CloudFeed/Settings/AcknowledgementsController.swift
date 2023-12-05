@@ -20,7 +20,7 @@ final class AcknowledgementsController : UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.title = "Acknowledgements"
+        navigationItem.title = Strings.SettingsItemAcknowledgements
         
         let item = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .done, target: self, action: #selector(didTapCloseButton))
         

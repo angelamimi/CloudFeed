@@ -40,6 +40,7 @@ class TitleView: UIView {
 
         initMenuButton()
         initTitle()
+        initText()
         
         doneButton.isHidden = true
         doneButton.addTarget(self, action: #selector(endEdit), for: .touchUpInside)
@@ -64,16 +65,16 @@ class TitleView: UIView {
     
     func initMenu(allowEdit: Bool) {
         
-        let zoomIn = UIAction(title: "Zoom In", image: UIImage(systemName: "plus.magnifyingglass")) { action in
+        let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { action in
             self.mediaView?.zoomInGrid()
         }
 
-        let zoomOut = UIAction(title: "Zoom Out", image: UIImage(systemName: "minus.magnifyingglass")) { action in
+        let zoomOut = UIAction(title: Strings.TitleZoomOut, image: UIImage(systemName: "minus.magnifyingglass")) { action in
             self.mediaView?.zoomOutGrid()
         }
     
         if allowEdit {
-            let edit = UIAction(title: "Edit", image: UIImage(systemName: "pencil")) { action in
+            let edit = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { action in
                 self.mediaView?.edit()
                 self.beginEdit()
             }
@@ -161,6 +162,11 @@ class TitleView: UIView {
         } else {
             title.font = .boldSystemFont(ofSize: 24)
         }
+    }
+    
+    private func initText() {
+        doneButton.setTitle(Strings.TitleApply, for: .normal)
+        cancelButton.setTitle(Strings.TitleCancel, for: .normal)
     }
 }
 

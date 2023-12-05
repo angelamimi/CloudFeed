@@ -88,11 +88,11 @@ class PagerController: UIViewController, MediaViewController {
         var action: UIAction
         
         if (isFavorite) {
-            action = UIAction(title: "Remove from Favorites", image: UIImage(systemName: "star.fill")) { action in
+            action = UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.fill")) { action in
                 self.toggleFavoriteNetwork(isFavorite: false)
             }
         } else {
-            action = UIAction(title: "Add to Favorites", image: UIImage(systemName: "star")) { action in
+            action = UIAction(title: Strings.FavAdd, image: UIImage(systemName: "star")) { action in
                 self.toggleFavoriteNetwork(isFavorite: true)
             }
         }

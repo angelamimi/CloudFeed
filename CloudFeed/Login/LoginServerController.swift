@@ -20,7 +20,8 @@ class LoginServerController: UIViewController {
     }
     
     override func viewDidLoad() {
-        serverURLLabel.text = "Server URL"
+        serverURLLabel.text = Strings.LoginServerLabel
+        serverURLButton.setTitle(Strings.LoginServerButton, for: .normal)
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {

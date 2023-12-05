@@ -24,14 +24,42 @@ extension Strings {
     //Settings - Profile load error
     public static let ProfileErrorMessage = NSLocalizedString("Profile.Error.Message", comment: "")
     
+    //Settings
+    public static let SettingsNavTitle = NSLocalizedString("Settings.Nav.Title", comment: "")
+    public static let SettingsSectionInformation = NSLocalizedString("Settings.Section.Information", comment: "")
+    public static let SettingsSectionData = NSLocalizedString("Settings.Section.Data", comment: "")
+    public static let SettingsItemAcknowledgements = NSLocalizedString("Settings.Item.Acknowledgements", comment: "")
+    public static let SettingsItemClearCache = NSLocalizedString("Settings.Item.ClearCache", comment: "")
+    public static let SettingsItemResetApplication = NSLocalizedString("Settings.Item.ResetApplication", comment: "")
+    public static let SettingsLabelVersion = NSLocalizedString("Settings.Label.Version", comment: "")
+    public static let SettingsLabelVersionUnknown = NSLocalizedString("Settings.Label.VersionUnknown", comment: "")
+    public static let SettingsLabelCacheSize = NSLocalizedString("Settings.Label.CacheSize", comment: "")
+    
     //Login
     public static let InitErrorMessage = NSLocalizedString("Init.Error.Message", comment: "")
     public static let UrlErrorMessage = NSLocalizedString("Url.Error.Message", comment: "")
+    public static let LoginServerLabel = NSLocalizedString("Login.Server.Label", comment: "")
+    public static let LoginServerButton = NSLocalizedString("Login.Server.Button", comment: "")
     
     //Media
     public static let MediaErrorMessage = NSLocalizedString("Media.Error.Message", comment: "")
+    public static let MediaEmptyTitle = NSLocalizedString("Media.Empty.Title", comment: "")
+    public static let MediaEmptyDescription = NSLocalizedString("Media.Empty.Description", comment: "")
+    public static let MediaNavTitle = NSLocalizedString("Media.Nav.Title", comment: "")
     
     //Favorites
     public static let FavErrorMessage = NSLocalizedString("Fav.Error.Message", comment: "")
     public static let FavUpdateErrorMessage = NSLocalizedString("Fav.Update.Error.Message", comment: "")
+    public static let FavAdd = NSLocalizedString("Fav.Add", comment: "")
+    public static let FavRemove = NSLocalizedString("Fav.Remove", comment: "")
+    public static let FavEmptyTitle = NSLocalizedString("Fav.Empty.Title", comment: "")
+    public static let FavEmptyDescription = NSLocalizedString("Fav.Empty.Description", comment: "")
+    public static let FavNavTitle = NSLocalizedString("Fav.Nav.Title", comment: "")
+    
+    //Title Bar
+    public static let TitleApply = NSLocalizedString("Title.ApplyChanges", comment: "")
+    public static let TitleCancel = NSLocalizedString("Title.CancelChanges", comment: "")
+    public static let TitleEdit = NSLocalizedString("Title.Edit", comment: "")
+    public static let TitleZoomIn = NSLocalizedString("Title.ZoomIn", comment: "")
+    public static let TitleZoomOut = NSLocalizedString("Title.ZoomOut", comment: "")
 }

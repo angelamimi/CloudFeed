@@ -44,7 +44,7 @@
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="34" id="x53-LG-c6e"/>
                                 </constraints>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="Go"/>
+                                <buttonConfiguration key="configuration" style="filled"/>
                                 <connections>
                                     <action selector="buttonClicked:" destination="l5S-b9-HY7" eventType="touchUpInside" id="QKt-CN-WJM"/>
                                 </connections>

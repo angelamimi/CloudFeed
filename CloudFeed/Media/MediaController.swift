@@ -24,12 +24,14 @@ class MediaController: CollectionController {
         
         registerCell("MainCollectionViewCell")
         
+        title = Strings.MediaNavTitle
+        
         collectionView.delegate = self
         
         viewModel.initDataSource(collectionView: collectionView)
         initTitleView(mediaView: self, allowEdit: false)
         initCollectionView(delegate: self)
-        initEmptyView(imageSystemName: "photo", title:"No media yet", description: "Your photos and videos will show up here")
+        initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
         initConstraints()
         initObservers()
     }
@@ -109,11 +111,11 @@ class MediaController: CollectionController {
     private func favoriteMenuAction(metadata: tableMetadata) -> UIAction {
         
         if metadata.favorite {
-            return UIAction(title: "Remove from favorites", image: UIImage(systemName: "star.fill")) { [weak self] _ in
+            return UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.fill")) { [weak self] _ in
                 self?.toggleFavorite(metadata: metadata)
             }
         } else {
-            return UIAction(title: "Add to favorites", image: UIImage(systemName: "star")) { [weak self] _ in
+            return UIAction(title: Strings.FavAdd, image: UIImage(systemName: "star")) { [weak self] _ in
                 self?.toggleFavorite(metadata: metadata)
             }
         }

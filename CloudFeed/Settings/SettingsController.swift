@@ -30,6 +30,8 @@ class SettingsController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        title = Strings.SettingsNavTitle
+        
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -111,9 +113,9 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 1 {
-            return "Information"
+            return Strings.SettingsSectionInformation
         } else if section == 2 {
-            return "Data"
+            return Strings.SettingsSectionData
         }
         return ""
     }
@@ -154,7 +156,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             
             if indexPath.section == 1 && indexPath.item == 0 {
                 content.image = UIImage(systemName: "person.wave.2")
-                content.text = "Acknowledgements"
+                content.text = Strings.SettingsItemAcknowledgements
                 cell.tintColor = UIColor.label
                 cell.accessoryType = .disclosureIndicator
             } else if indexPath.section == 1 && indexPath.item == 1 {
@@ -164,19 +166,19 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 if let dictionary = Bundle.main.infoDictionary,
                     let version = dictionary["CFBundleShortVersionString"] as? String,
                     let build = dictionary["CFBundleVersion"] as? String {
-                    content.text = "Version \(version) (\(build))"
+                    content.text = "\(Strings.SettingsLabelVersion) \(version) (\(build))"
                 } else {
-                    content.text = "Version (unknown)"
+                    content.text = "\(Strings.SettingsLabelVersion) (\(Strings.SettingsLabelVersionUnknown)))" //"Version (unknown)"
                 }
             } else if indexPath.section == 2 && indexPath.item == 0 {
                 content.image = UIImage(systemName: "trash")
-                content.text = "Clear Cache"
-                content.secondaryText = "Cache size: " + cacheSizeDescription
+                content.text = Strings.SettingsItemClearCache
+                content.secondaryText = "\(Strings.SettingsLabelCacheSize): \(cacheSizeDescription)" //"Cache size: " + cacheSizeDescription
                 cell.tintColor = UIColor.label
                 cell.accessoryType = .none
             } else if indexPath.section == 2 && indexPath.item == 1 {
                 content.image = UIImage(systemName: "xmark.octagon")
-                content.text = "Reset Application"
+                content.text = Strings.SettingsItemResetApplication
                 cell.tintColor = UIColor.red
                 cell.accessoryType = .none
             }

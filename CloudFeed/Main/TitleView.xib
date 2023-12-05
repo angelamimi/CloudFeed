@@ -27,16 +27,16 @@
                     <buttonConfiguration key="configuration" style="plain" cornerStyle="capsule"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ABi-ln-iPL" userLabel="Done Button">
-                    <rect key="frame" x="325.66666666666669" y="55" width="64.333333333333314" height="34"/>
+                    <rect key="frame" x="366" y="55" width="24" height="34"/>
                     <color key="tintColor" systemColor="labelColor"/>
                     <state key="normal" title="Button"/>
-                    <buttonConfiguration key="configuration" style="plain" title="Done"/>
+                    <buttonConfiguration key="configuration" style="plain"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k2S-Un-QnP" userLabel="Cancel Button">
-                    <rect key="frame" x="7" y="55" width="77" height="34"/>
+                    <rect key="frame" x="7" y="55" width="24" height="34"/>
                     <color key="tintColor" systemColor="labelColor"/>
                     <state key="normal" title="Button"/>
-                    <buttonConfiguration key="configuration" style="plain" title="Cancel"/>
+                    <buttonConfiguration key="configuration" style="plain"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hCV-CC-q7z">
                     <rect key="frame" x="0.0" y="55" width="40" height="34"/>
