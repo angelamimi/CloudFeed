@@ -31,8 +31,6 @@ final class LoginViewModel: NSObject {
     
     func login(server: String, username: String, password: String) {
         
-        //Self.logger.debug("createAccount() - server: \(server) username: \(username) password: \(password)")
-
         var urlBase = server
 
         // Normalized
@@ -43,10 +41,7 @@ final class LoginViewModel: NSObject {
         let account: String = "\(username) \(urlBase)"
 
         if dataService.getAccounts() == nil {
-            
             initSettings()
-            
-            Self.logger.debug("createAccount() - removeAllSettings???")
         }
 
         // Add new account
@@ -57,8 +52,6 @@ final class LoginViewModel: NSObject {
             delegate.loginError()
             return
         }
-        
-        //Environment.current.setupFor(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
         
         delegate.loginSuccess(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
      }
@@ -71,6 +64,7 @@ final class LoginViewModel: NSObject {
 
         dataService.clearDatabase(account: nil, removeAccount: true)
 
+        //TODO: PROPER CLEANUP!!
         //StoreUtility.removeGroupDirectoryProviderStorage()
         //StoreUtility.removeGroupLibraryDirectory()
 

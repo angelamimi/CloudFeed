@@ -24,12 +24,10 @@ class ProfileCell: UITableViewCell {
     }
 
     func updateProfileImage(_ image: UIImage?) {
+        
         if image == nil {
             let configuration = UIImage.SymbolConfiguration(pointSize: 40, weight: .ultraLight)
-            let sysImage = UIImage(systemName: "person.crop.circle.fill", withConfiguration: configuration)?.withTintColor(.secondarySystemBackground, renderingMode: .alwaysOriginal)
-            profileImageView.image = sysImage
-            profileImageView.layer.borderWidth = 0
-            profileImageView.layer.cornerRadius = 0
+            profileImageView.image = UIImage(systemName: "person.crop.circle.fill", withConfiguration: configuration)?.withTintColor(.secondarySystemBackground, renderingMode: .alwaysOriginal)
         } else {
             profileImageView.image = image
         }

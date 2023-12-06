@@ -17,8 +17,7 @@ class CollectionController: UIViewController {
     @IBOutlet weak var emptyView: EmptyView!
     @IBOutlet weak var collectionViewTopConstraint: NSLayoutConstraint!
     
-    var refreshControl = UIRefreshControl()
-    
+    private var refreshControl = UIRefreshControl()
     private var titleView: TitleView?
     private var layout: CollectionLayout?
     
@@ -89,6 +88,7 @@ class CollectionController: UIViewController {
     }
     
     func zoomIn() {
+        
         guard layout != nil else { return }
         let columns = self.layout?.numberOfColumns ?? 0
         
@@ -117,6 +117,7 @@ class CollectionController: UIViewController {
     }
     
     func initCollectionView(delegate: CollectionLayoutDelegate) {
+        
         layout = CollectionLayout()
         layout?.delegate = delegate
         layout?.numberOfColumns = UIDevice.current.userInterfaceIdiom == .pad ? 4 : 2
@@ -128,6 +129,7 @@ class CollectionController: UIViewController {
     }
     
     func initTitleView(mediaView: MediaViewController, allowEdit: Bool) {
+        
         titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
         self.view.addSubview(titleView!)
         
@@ -136,6 +138,7 @@ class CollectionController: UIViewController {
     }
     
     func initEmptyView(imageSystemName: String, title: String, description: String) {
+        
         let configuration = UIImage.SymbolConfiguration(pointSize: 48)
         let image = UIImage(systemName: imageSystemName, withConfiguration: configuration)
         

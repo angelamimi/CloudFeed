@@ -33,6 +33,10 @@ class PreviewController: UIViewController {
         imageView.backgroundColor = .clear
     }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
 
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
@@ -55,10 +59,6 @@ class PreviewController: UIViewController {
         ])
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     func playLivePhoto(_ url: URL) {
         let avpController = viewModel.loadVideoFromUrl(url, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
         setupVideoController(avpController: avpController, autoPlay: true)
@@ -73,7 +73,7 @@ class PreviewController: UIViewController {
         
         let fileName = (metadata.fileNameView as NSString).deletingPathExtension + ".mov"
         
-        Self.logger.debug("loadLiveVideo() - fileName: \(fileName)")
+        //Self.logger.debug("loadLiveVideo() - fileName: \(fileName)")
         
         if let metadata = viewModel.getMetadata(account: metadata.account, serverUrl: metadata.serverUrl, fileName: fileName) {
             

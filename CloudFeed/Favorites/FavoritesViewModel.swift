@@ -112,8 +112,6 @@ final class FavoritesViewModel: NSObject {
     
     func fetch(refresh: Bool) {
         
-        //Self.logger.debug("fetch()")
-        
         delegate.fetching()
                 
         Task { [weak self] in
@@ -203,8 +201,6 @@ final class FavoritesViewModel: NSObject {
     
     func stopPreviewLoad(indexPath: IndexPath) {
         
-        //Self.logger.debug("stopPreviewLoad() - indexPath: \(indexPath)")
-        
         queue.async { [weak self] in
             
             guard let previewLoadTask = self?.previewTasks[indexPath] else {
@@ -216,7 +212,6 @@ final class FavoritesViewModel: NSObject {
     }
     
     private func clearTask(indexPath: IndexPath) {
-        //Self.logger.debug("clearTask() - indexPath: \(indexPath)")
         
         queue.async { [weak self] in
             if self?.previewTasks[indexPath] != nil {

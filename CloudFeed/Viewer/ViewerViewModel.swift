@@ -84,9 +84,9 @@ final class ViewerViewModel {
     
     func downloadLivePhotoVideo(fileName: String, metadata: tableMetadata) async {
         
-        if let metadata = dataService.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", 
-                                                                         metadata.account, metadata.serverUrl, fileName)), !StoreUtility.fileProviderStorageExists(metadata) {
-
+        let predicate = NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", metadata.account, metadata.serverUrl, fileName)
+        
+        if let metadata = dataService.getMetadata(predicate: predicate), !StoreUtility.fileProviderStorageExists(metadata) {
             await dataService.download(metadata: metadata, selector: "")
         }
     }
@@ -159,7 +159,6 @@ extension ViewerViewModel {
                 
                 if image != nil && (imageWidth > viewWidth || imageHeight > viewHeight) {
                     
-                    //TODO: Large images spike memory. Have to downsample in some way.
                     let filePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
                     let fileData = FileManager().contents(atPath: filePath)
                     
@@ -170,7 +169,7 @@ extension ViewerViewModel {
                         } else {
                             newSize = CGSize(width: viewHeight, height: viewHeight)
                         }
-                        //Self.logger.debug("downsample!!!!!!!!!!")
+
                         return UIImage.downsample(imageData: (fileData! as CFData), to: newSize!)
                     }
                 }

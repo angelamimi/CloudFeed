@@ -60,10 +60,6 @@ class DetailController: UIViewController {
         //Self.logger.debug("appendData() - uploadDate: \(self.metadata?.uploadDate)")
         //Self.logger.debug("appendData() - creationDate: \(self.metadata?.creationDate)")
         
-        for (key, value) in data {
-            Self.logger.debug("appendData() - key: \(key as! String)")
-        }
-        
         if let dateTaken = data[kCGImagePropertyExifDateTimeOriginal] {
             if let dateString = dateTaken as? String {
                 

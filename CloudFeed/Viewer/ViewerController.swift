@@ -87,12 +87,12 @@ class ViewerController: UIViewController {
             
             let image = await viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
             
-            Self.logger.debug("loadImage() - have image? \(image != nil) for ocId: \(metadata.ocId)")
+            //Self.logger.debug("loadImage() - have image? \(image != nil) for ocId: \(metadata.ocId)")
             
             if image != nil && self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
                 
                 DispatchQueue.main.async { [weak self] in
-                    Self.logger.debug("loadImage() - setting imageview image for ocId: \(metadata.ocId)")
+                    //Self.logger.debug("loadImage() - setting imageview image for ocId: \(metadata.ocId)")
                     self?.imageView.image = image
                     self?.activityIndicator.stopAnimating()
                 }
@@ -222,7 +222,7 @@ class ViewerController: UIViewController {
     }
     
     private func setDetailTableVisibility(visible: Bool) {
-        Self.logger.debug("setDetailTableVisibility()")
+
         if (visible) {
             let detailViewController = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailViewController") as! DetailController
             detailViewController.metadata = metadata

@@ -246,8 +246,11 @@ extension DatabaseManager {
             classFile = NKCommon.TypeClassFile.image.rawValue
             fileName = fileName + ".jpg"
         }
+        
+        let predicate = NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView CONTAINS[cd] %@ AND ocId != %@ AND classFile == %@", 
+                                    metadata.account, metadata.serverUrl, fileName, metadata.ocId, classFile)
 
-        guard let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView CONTAINS[cd] %@ AND ocId != %@ AND classFile == %@", metadata.account, metadata.serverUrl, fileName, metadata.ocId, classFile)).first else {
+        guard let result = realm.objects(tableMetadata.self).filter(predicate).first else {
             return nil
         }
 

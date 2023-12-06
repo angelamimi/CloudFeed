@@ -288,7 +288,6 @@ extension FavoritesController: UICollectionViewDelegate {
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
                 cell.selected(true)
@@ -299,7 +298,6 @@ extension FavoritesController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        //Self.logger.debug("collectionView.didDeselectItemAt() - indexPath: \(indexPath)")
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
                 cell.selected(false)

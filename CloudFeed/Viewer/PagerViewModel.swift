@@ -49,10 +49,8 @@ final class PagerViewModel: NSObject {
             
             let result = await dataService.toggleFavoriteMetadata(metadata)
             if result != nil {
-                //metadatas[currentIndex].favorite = isFavorite
                 metadatas[currentIndex] = result!
                 delegate?.finishedUpdatingFavorite(isFavorite: isFavorite)
-                
             } else {
                 //TODO: Show the user an error
             }

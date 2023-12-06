@@ -10,6 +10,7 @@ import PhotosUI
 import os.log
 
 class FileSystemUtility: NSObject {
+    
     @objc static let shared: FileSystemUtility = {
         let instance = FileSystemUtility()
         return instance
@@ -24,8 +25,6 @@ class FileSystemUtility: NSObject {
     
     func getDirectorySize(directory: String) -> Int64 {
         
-        Self.logger.debug("getDirectorySize() - directory: \(directory)")
-
         let url = URL(fileURLWithPath: directory)
         let manager = FileManager.default
         var totalSize: Int64 = 0
@@ -45,8 +44,6 @@ class FileSystemUtility: NSObject {
     
     func deleteFile(filePath: String) {
         
-        Self.logger.debug("deleteFile() - filePath \(filePath)")
-
         do {
             try FileManager.default.removeItem(atPath: filePath)
         } catch {
@@ -55,8 +52,6 @@ class FileSystemUtility: NSObject {
     }
     
     func linkItem(atPath: String, toPath: String) {
-        
-        Self.logger.debug("linkItem() - atPath: \(atPath) toPath: \(toPath)")
 
         try? FileManager.default.removeItem(atPath: toPath)
         try? FileManager.default.linkItem(atPath: atPath, toPath: toPath)

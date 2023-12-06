@@ -131,10 +131,7 @@ class MediaController: CollectionController {
     }
     
     private func enteringForeground() {
-        
         if isViewLoaded && view.window != nil {
-            Self.logger.debug("enteringForeground() - currentItemCount: \(self.viewModel.currentItemCount())")
-            Self.logger.debug("enteringForeground() - executing findMedia")
             findMedia()
         }
     }

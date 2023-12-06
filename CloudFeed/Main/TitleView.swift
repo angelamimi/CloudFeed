@@ -87,6 +87,7 @@ class TitleView: UIView {
     }
     
     func initNavigation() {
+        
         title.isHidden = false
         backButton.isHidden = false
         doneButton.isHidden = true
@@ -133,6 +134,7 @@ class TitleView: UIView {
     }
     
     private func initMenuButton() {
+        
         menuButton.showsMenuAsPrimaryAction = true
         menuButton.layer.masksToBounds = true
         

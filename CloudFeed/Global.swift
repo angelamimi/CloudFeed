@@ -8,6 +8,7 @@
 import UIKit
 
 class Global: NSObject {
+    
     static let shared: Global = {
         let instance = Global()
         return instance
@@ -15,6 +16,15 @@ class Global: NSObject {
     
     let keyChain                      = "com.angelamimi.cloudfeed"
     let userAgent                     = "CloudFeed-iOS"
+    
+    // MARK: - Remote
+    //
+    let davLocation                   = "/remote.php/dav/files/"
+    let loginLocation                 = "/index.php/login/flow"
+    let prefix                        = "nc://"
+    let urlValidation                 = "login"
+    let http                          = "http://"
+    let https                         = "https://"
     
     // MARK: - Storage
     //
@@ -42,11 +52,6 @@ class Global: NSObject {
     
     
     // MARK: - Metadata download status
-    //
-    // 1) wait download/upload
-    // 2) in download/upload
-    // 3) downloading/uploading
-    // 4) done or error
     //
     let metadataStatusNormal: Int = 0
     

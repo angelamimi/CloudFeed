@@ -104,9 +104,6 @@ final class SettingsViewModel: NSObject {
             
             let totalSize = FileSystemUtility.shared.getDirectorySize(directory: directory)
             
-            //let formattedSize = ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .binary)
-            //Self.logger.debug("calculateCacheSize() - \(formattedSize)")
-            
             delegate.cacheCalculated(cacheSize: totalSize)
         }
     }

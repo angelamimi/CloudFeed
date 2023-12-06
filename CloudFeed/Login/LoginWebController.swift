@@ -15,6 +15,8 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
     var coordinator: LoginWebCoordinator!
     var viewModel: LoginViewModel!
     
+    @IBOutlet weak var mWebKitView: WKWebView!
+    
     private var urlBase: String?
     
     private var configServerUrl: String?
@@ -25,8 +27,6 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
             subsystem: Bundle.main.bundleIdentifier!,
             category: String(describing: LoginWebController.self)
         )
-    
-    @IBOutlet weak var mWebKitView: WKWebView!
 
     override func viewDidLoad() {
         
@@ -48,14 +48,13 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         
         guard urlBase != nil else { return }
         
-        let serverURL: String = urlBase! + "/index.php/login/flow"
+        let serverURL: String = urlBase! + Global.shared.loginLocation
         
         guard let inputURL = URL(string: serverURL) else {
             coordinator.showInvalidURLPrompt()
             return
         }
         
-        //let languageCode: String? = Locale.autoupdatingCurrent.language.languageCode?.identifier
         let languageCode: String? = NSLocale.preferredLanguages[0]
         
         var request = URLRequest(url: inputURL)
@@ -74,23 +73,23 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         let urlString: String = url.absoluteString.lowercased()
         
         // prevent http redirection
-        if urlBase!.lowercased().hasPrefix("https://") && urlString.lowercased().hasPrefix("http://") {
+        if urlBase!.lowercased().hasPrefix(Global.shared.http) && urlString.lowercased().hasPrefix(Global.shared.https) {
             Self.logger.error("didReceiveServerRedirectForProvisionalNavigation() - preventing redirect to \(urlString)")
             return
         }
         
-        if urlString.hasPrefix("nc://") == true && urlString.contains("login") == true {
+        if urlString.hasPrefix(Global.shared.prefix) == true && urlString.contains(Global.shared.urlValidation) == true {
             mWebKitView.stopLoading()
             processResult(url: url)
         }
     }
     
-    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+    /*func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         guard let url = webView.url else { return }
         
         let urlString: String = url.absoluteString.lowercased()
         Self.logger.debug("didStartProvisionalNavigation() - urlString: \(urlString)")
-    }
+    }*/
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
 
@@ -119,10 +118,6 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         decisionHandler(.allow)
-    }
-
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        //Self.logger.debug("didFinish()")
     }
     
     private func processResult(url: URL) {

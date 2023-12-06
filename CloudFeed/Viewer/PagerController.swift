@@ -105,11 +105,11 @@ class PagerController: UIViewController, MediaViewController {
     }
     
     private func toggleFavoriteNetwork(isFavorite: Bool) {
-        
         viewModel.toggleFavorite(isFavorite: isFavorite)
     }
     
     private func getVideoURL(metadata: tableMetadata) -> URL? {
+        
         if StoreUtility.fileProviderStorageExists(metadata) {
             return URL(fileURLWithPath: StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!)
         }
@@ -149,17 +149,15 @@ extension PagerController: UIGestureRecognizerDelegate {
                                                     fileName: fileName),
                 StoreUtility.fileProviderStorageExists(metadata) {
                 
-                AudioServicesPlaySystemSound(1519) // peek feedback
                 let urlVideo = getVideoURL(metadata: metadata)
                 
-                Self.logger.debug("didLongpressGestureEvent() - \(urlVideo?.absoluteString ?? "BLERG")")
                 if let url = urlVideo {
                     currentViewController.playLivePhoto(url)
                 }
             }
             
         } else if gestureRecognizer.state == .ended {
-            Self.logger.debug("didLongpressGestureEvent() - ended")
+            //Self.logger.debug("didLongpressGestureEvent() - ended")
         }
     }
 }

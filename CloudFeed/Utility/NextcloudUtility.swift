@@ -13,6 +13,7 @@ import SVGKit
 import UIKit
 
 class NextcloudUtility: NSObject {
+    
     @objc static let shared: NextcloudUtility = {
         let instance = NextcloudUtility()
         return instance
@@ -36,8 +37,7 @@ class NextcloudUtility: NSObject {
             return
         }
         
-        if classFile != NKCommon.TypeClassFile.image.rawValue
-            && classFile != NKCommon.TypeClassFile.video.rawValue {
+        if classFile != NKCommon.TypeClassFile.image.rawValue && classFile != NKCommon.TypeClassFile.video.rawValue {
             return
         }
 
@@ -53,7 +53,7 @@ class NextcloudUtility: NSObject {
 
         } else if classFile == NKCommon.TypeClassFile.video.rawValue {
 
-            let videoPath = NSTemporaryDirectory()+"tempvideo.mp4"
+            let videoPath = NSTemporaryDirectory() + "tempvideo.mp4"
             
             //Self.logger.debug("createImageFrom() - videoPath: \(videoPath)")
             //Self.logger.debug("createImageFrom() - fileNamePath: \(fileNamePath)")

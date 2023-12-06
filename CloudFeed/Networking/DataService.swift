@@ -27,7 +27,7 @@ class DataService: NSObject {
     func setup(account: String, user: String, userId: String, password: String, urlBase: String) {
         
         nextcloudService.setupAccount(account: account, user: user, userId: userId, password: password, urlBase: urlBase)
-        //NKCommon.shared.levelLog = 1
+
         NextcloudKit.shared.nkCommonInstance.levelLog = 0
         
         let serverVersionMajor = databaseManager.getCapabilitiesServerInt(account: account, elements: Global.shared.capabilitiesVersionMajor)
@@ -127,17 +127,6 @@ class DataService: NSObject {
     // MARK: Favorites
     func toggleFavoriteMetadata(_ metadata: tableMetadata) async -> tableMetadata? {
         
-        /*if let metadataLive = databaseManager.getMetadataLivePhoto(metadata: metadata) {
-            let error = await toggleFavorite(metadata: metadataLive)
-            if error == .success {
-                return await toggleFavorite(metadata: metadata)
-            } else {
-                return error
-            }
-        } else {
-            return await toggleFavorite(metadata: metadata)
-        }*/
-        
         if let metadataLive = databaseManager.getMetadataLivePhoto(metadata: metadata) {
             let result = await toggleFavorite(metadata: metadataLive)
             if result == nil {
@@ -151,6 +140,7 @@ class DataService: NSObject {
     }
     
     private func toggleFavorite(metadata: tableMetadata) async -> tableMetadata? {
+        
         let fileName = StoreUtility.returnFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
         let favorite = !metadata.favorite
         let ocId = metadata.ocId
@@ -203,9 +193,8 @@ class DataService: NSObject {
         let savedMetadatas = databaseManager.fetchFavoriteMetadata(account: account, startServerUrl: startServerUrl,
                                               fromDate: fromDate, toDate: Date.now)
         
-        Self.logger.debug("processFavorites() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
-        
-        Self.logger.debug("processFavorites() - savedMetadatas count: \(savedMetadatas.count) displayedMetadatas count: \(displayedMetadatas.count)")
+        //Self.logger.debug("processFavorites() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
+        //Self.logger.debug("processFavorites() - savedMetadatas count: \(savedMetadatas.count) displayedMetadatas count: \(displayedMetadatas.count)")
         
         //if displayed but doesn't exist in db, flag for delete
         for displayedMetadata in displayedMetadatas {
@@ -228,6 +217,7 @@ class DataService: NSObject {
     // MARK: -
     // MARK: Download
     func download(metadata: tableMetadata, selector: String) async {
+        
         let serverUrlFileName = metadata.serverUrl + "/" + metadata.fileName
         let fileNameLocalPath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileName)!
         
@@ -245,6 +235,7 @@ class DataService: NSObject {
     }
     
     func downloadPreview(metadata: tableMetadata) async {
+       
         var fileNamePath: String
         var fileNamePreviewLocalPath: String
         var fileNameIconLocalPath: String
@@ -252,11 +243,6 @@ class DataService: NSObject {
         fileNamePath = StoreUtility.returnFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
         fileNamePreviewLocalPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
         fileNameIconLocalPath = StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)
-        
-        Self.logger.debug("downloadPreview() - ocId: \(metadata.ocId)")
-        
-        Self.logger.debug("downloadPreview() - fileNamePreviewLocalPath: \(fileNamePreviewLocalPath)")
-        Self.logger.debug("downloadPreview() - fileNameIconLocalPath: \(fileNameIconLocalPath)")
         
         var etagResource: String?
         if FileManager.default.fileExists(atPath: fileNameIconLocalPath) && FileManager.default.fileExists(atPath: fileNamePreviewLocalPath) {
@@ -268,6 +254,7 @@ class DataService: NSObject {
     }
     
     func downloadVideoPreview(metadata: tableMetadata) async {
+        
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue
             && !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
             
@@ -288,16 +275,11 @@ class DataService: NSObject {
     // MARK: Search
     func paginateMetadata(fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
         
-        let account = Environment.current.currentUser?.account
-        guard account != nil else { return [] }
+        guard let account = Environment.current.currentUser?.account else { return [] }
+        guard let mediaPath = getMediaPath() else { return [] }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return [] }
         
-        let mediaPath = getMediaPath()
-        guard mediaPath != nil else { return [] }
-        
-        let startServerUrl = getStartServerUrl(mediaPath: mediaPath)
-        guard startServerUrl != nil else { return [] }
-        
-        return databaseManager.paginateMetadata(account: account!, startServerUrl: startServerUrl!, fromDate: fromDate, toDate: toDate,
+        return databaseManager.paginateMetadata(account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate,
                                                 offsetDate: offsetDate, offsetName: offsetName)
     }
     
@@ -308,7 +290,8 @@ class DataService: NSObject {
         guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return ([], [], [], [], true) }
         
         //remote search
-        let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath, toDate: toDate, fromDate: fromDate, limit: limit)
+        let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath, 
+                                                              toDate: toDate, fromDate: fromDate, limit: limit)
         
         if searchResult.files.count == 0 {
             return ([], [], [], [], searchResult.error)
@@ -355,7 +338,7 @@ class DataService: NSObject {
         
         guard urlBase != nil && userId != nil else { return nil }
         
-        let startServerUrl = urlBase! + "/remote.php/dav/files/" + userId! + mediaPath!
+        let startServerUrl = urlBase! + Global.shared.davLocation + userId! + mediaPath!
         
         return startServerUrl
     }

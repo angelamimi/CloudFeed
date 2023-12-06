@@ -12,15 +12,15 @@ import os.log
 
 class StoreUtility {
     
-    private static let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier!,
-        category: String(describing: StoreUtility.self)
-    )
-    
     static let shared: StoreUtility = {
         let instance = StoreUtility()
         return instance
     }()
+    
+    private static let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier!,
+        category: String(describing: StoreUtility.self)
+    )
     
     static func getPassword(_ account: String!) -> String! {
         let key = "password" + account
@@ -106,21 +106,9 @@ class StoreUtility {
     }
     
     static func initStorage() {
+        
         var path : String?
         let dirGroup = StoreUtility.getDirectoryGroup()
-        
-        /*path = StoreUtility.getDirectoryDocuments()
-        
-        Self.logger.debug("createDirectoryStandard() - path: \(path ?? "NONE")")
-
-        do {
-            if !FileManager.default.fileExists(atPath: path!) {
-                try FileManager.default.createDirectory(atPath: path!, withIntermediateDirectories: true)
-            }
-        } catch {
-            //TODO: Handle error
-            Self.logger.error("createDirectoryStandard() - path: \(path ?? "nil") error: \(error.localizedDescription)")
-        }*/
         
         path = dirGroup?.appendingPathComponent(Global.shared.databaseDirectory).path
         do {
@@ -144,22 +132,20 @@ class StoreUtility {
     }
     
     static func removeDocumentsDirectory() {
-        guard let path = StoreUtility.getDirectoryDocuments() else { return }
-        Self.logger.debug("removeDocumentsDirectory() - path: \(path)")
+        guard let path = StoreUtility.getDocumentDirectoryPath() else { return }
+        //Self.logger.debug("removeDocumentsDirectory() - path: \(path)")
         try? FileManager.default.removeItem(atPath: path)
     }
     
-    // Return the path of directory Documents -> NSDocumentDirectory
-    static func getDirectoryDocuments() -> String? {
+    private static func getDocumentDirectoryPath() -> String? {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).map(\.path)
-        Self.logger.debug("getDirectoryDocuments() - path: \(paths[0])")
+        //Self.logger.debug("getDocumentDirectoryPath() - path: \(paths[0])")
         return paths[0]
     }
     
     static func returnFileNamePath(metadataFileName: String, serverUrl: String, urlBase: String, userId: String, account: String) -> String {
         
-        //TODO: Hardcoded
-        let homeServer = urlBase + "/remote.php/dav/files/" + userId
+        let homeServer = urlBase + Global.shared.davLocation + userId
         
         var fileName = "\(serverUrl.replacingOccurrences(of: homeServer, with: ""))/\(metadataFileName)"
 
@@ -171,6 +157,7 @@ class StoreUtility {
     }
     
     static func getFormattedDate(_ date: Date) -> String {
+        
         var title: String = ""
 
         if date == StoreUtility.datetimeWithOutTime(Date.distantPast) {
@@ -185,6 +172,7 @@ class StoreUtility {
     }
     
     static func datetimeWithOutTime(_ date: Date?) -> Date? {
+        
         var datDate = date
         if datDate == nil {
             return nil
@@ -206,7 +194,6 @@ class StoreUtility {
         let details = NSMutableDictionary()
         
         if (metadata.classFile != "image") || !StoreUtility.fileProviderStorageExists(metadata) {
-            //completition(latitude, longitude, location, date, lensModel)
             completition(details)
             return
         }
@@ -223,8 +210,6 @@ class StoreUtility {
             completition(details)
             return
         }
-        
-        // FILES PROPERTIES
         
         let properties = NSMutableDictionary(dictionary: fileProperties!)
 
@@ -308,34 +293,19 @@ class StoreUtility {
     }
     
     static func fileProviderStorageExists(_ tableMetadata: tableMetadata) -> Bool {
+        
         let fileNameViewPath: String! = StoreUtility.getDirectoryProviderStorageOcId(tableMetadata.ocId, fileNameView: tableMetadata.fileNameView)
-        let _: String! = StoreUtility.getDirectoryProviderStorageOcId(tableMetadata.ocId, fileNameView: tableMetadata.fileName)
-
-        var fileNameViewSize: UInt64
-        //var fileNameSize: UInt64
         
         do {
-            
-            //let attr = try FileManager.default.attributesOfItem(atPath: fileNameViewPath)[FileAttributeKey.size]
-            //let val = (attr as! NSNumber).uint64Value
-            
-            //Self.logger.debug("fileProviderStorageExists() - fileNameViewPath: \(fileNameViewPath)")
-            //Self.logger.debug("fileProviderStorageExists() - fileNamePath: \(fileNamePath)")
-            //Self.logger.debug("fileProviderStorageExists() - val: \(val) attr: \(attr.debugDescription)")
-            
-            fileNameViewSize = try FileManager.default.attributesOfItem(atPath: fileNameViewPath)[FileAttributeKey.size] as? UInt64 ?? 0
-            //fileNameSize = try FileManager.default.attributesOfItem(atPath: fileNamePath)[FileAttributeKey.size] as? UInt64 ?? 0
-            
-            //Self.logger.debug("fileProviderStorageExists() - fileNameViewSize: \(val) fileNameSize: \(attr.debugDescription)")
-            
+            let fileNameViewSize: UInt64 = try FileManager.default.attributesOfItem(atPath: fileNameViewPath)[FileAttributeKey.size] as? UInt64 ?? 0
             return fileNameViewSize == tableMetadata.size;
-             
         } catch { }
         
         return false
     }
     
     static func getExtension(_ fileName: String?) -> String? {
+        
         let fileNameArray = fileName?.components(separatedBy: CharacterSet(charactersIn: "."))
         var ext = "\(fileNameArray?.last ?? "")"
         
@@ -345,6 +315,7 @@ class StoreUtility {
     }
     
     static func fileProviderStorageSize(_ ocId: String?, fileNameView: String?) -> Int64 {
+        
         let fileNamePath : String = StoreUtility.getDirectoryProviderStorageOcId(ocId, fileNameView: fileNameView) ?? ""
 
         var fileSize: Int64
@@ -358,6 +329,7 @@ class StoreUtility {
     }
     
     static func fileProviderStoragePreviewIconExists(_ ocId: String?, etag: String?) -> Bool {
+        
         let fileNamePathPreview = getDirectoryProviderStoragePreviewOcId(ocId, etag: etag)
         let fileNamePathIcon = getDirectoryProviderStorageIconOcId(ocId, etag: etag)
         
@@ -366,11 +338,13 @@ class StoreUtility {
             fileSizePreview = try FileManager.default.attributesOfItem(atPath: fileNamePathPreview)[FileAttributeKey.size] as? UInt64 ?? 0
         } catch {
         }
+        
         var fileSizeIcon: UInt64? = nil
         do {
             fileSizeIcon = try FileManager.default.attributesOfItem(atPath: fileNamePathIcon)[FileAttributeKey.size] as? UInt64 ?? 0
         } catch {
         }
+        
         if (fileSizePreview ?? 0) > 0 && (fileSizeIcon ?? 0) > 0 {
             return true
         } else {
