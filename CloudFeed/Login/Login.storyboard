@@ -36,6 +36,9 @@
                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="URL" returnKeyType="go" smartDashesType="no" smartQuotesType="no" textContentType="url"/>
+                                <connections>
+                                    <action selector="doneEditing:" destination="l5S-b9-HY7" eventType="editingDidEndOnExit" id="EwH-qz-9fb"/>
+                                </connections>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FS8-r7-fs8">
                                 <rect key="frame" x="318.66666666666669" y="474.66666666666663" width="50" height="34"/>
@@ -72,6 +75,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="ixF-fe-Zfy"/>
                     <connections>
+                        <outlet property="centerConstraint" destination="3kZ-0o-fiF" id="HbH-3C-3SP"/>
                         <outlet property="serverURLButton" destination="FS8-r7-fs8" id="u0p-VB-ffD"/>
                         <outlet property="serverURLLabel" destination="b0c-1J-USh" id="El0-hj-dho"/>
                         <outlet property="serverURLTextField" destination="5lc-xR-qdM" id="oEj-mi-lEO"/>

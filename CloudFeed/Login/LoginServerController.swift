@@ -15,6 +15,12 @@ class LoginServerController: UIViewController {
     @IBOutlet weak var serverURLTextField: UITextField!
     @IBOutlet weak var serverURLButton: UIButton!
     
+    @IBOutlet weak var centerConstraint: NSLayoutConstraint!
+    
+    @IBAction func doneEditing(_ sender: Any) {
+        processURL()
+    }
+    
     @IBAction func buttonClicked(_ sender: Any) {
         processURL()
     }
@@ -33,10 +39,56 @@ class LoginServerController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
         self.navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)),
+                                               name: UIResponder.keyboardWillShowNotification, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)),
+                                               name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    
+    @objc
+    private func keyboardWillShow(notification: Notification) {
+        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+            print("keyboardWillShow() - keyboardFrame: \(keyboardFrame)")
+            adjust(keyboardTop: keyboardFrame.origin.y)
+        }
+    }
+
+    @objc 
+    private func keyboardWillBeHidden(notification: Notification) {
+        resetPosition()
+    }
+    
+    private func adjust(keyboardTop: CGFloat) {
+        
+        let padding = 10.0
+        let buttonBottom = serverURLButton.frame.origin.y + serverURLButton.frame.height
+        
+        if buttonBottom + padding >= keyboardTop {
+            let diff = (buttonBottom + padding) - keyboardTop
+            centerConstraint.constant = centerConstraint.constant - diff
+        }
+    }
+    
+    private func resetPosition() {
+        if centerConstraint.constant != 50 {
+            centerConstraint.constant = 50
+        }
     }
     
     private func processURL() {
+        
         guard var url = serverURLTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
             coordinator.showInvalidURLPrompt()
             return
