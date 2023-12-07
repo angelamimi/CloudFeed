@@ -64,18 +64,6 @@ final class LoginViewModel: NSObject {
 
         dataService.clearDatabase(account: nil, removeAccount: true)
 
-        //TODO: PROPER CLEANUP!!
-        //StoreUtility.removeGroupDirectoryProviderStorage()
-        //StoreUtility.removeGroupLibraryDirectory()
-
-        //TODO: Causes database to fail. account isn't found eventhough was added
-        //StoreUtility.removeDocumentsDirectory()
-        
-        
-        //StoreUtility.removeTemporaryDirectory()
-
         StoreUtility.initStorage()
-
-        //StoreUtility.deleteAllChainStore()
     }
 }

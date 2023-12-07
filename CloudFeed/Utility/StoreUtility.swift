@@ -131,6 +131,20 @@ class StoreUtility {
         }
     }
     
+    static func initTemporaryDirectory() {
+        
+        let path = NSTemporaryDirectory()
+        
+        do {
+            if !FileManager.default.fileExists(atPath: path) {
+                try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
+            }
+        } catch {
+            //TODO: Handle error
+            Self.logger.error("initTemporaryDirectory() - path: \(path) error: \(error.localizedDescription)")
+        }
+    }
+    
     static func removeDocumentsDirectory() {
         guard let path = StoreUtility.getDocumentDirectoryPath() else { return }
         //Self.logger.debug("removeDocumentsDirectory() - path: \(path)")
@@ -143,7 +157,7 @@ class StoreUtility {
         return paths[0]
     }
     
-    static func returnFileNamePath(metadataFileName: String, serverUrl: String, urlBase: String, userId: String, account: String) -> String {
+    static func buildFileNamePath(metadataFileName: String, serverUrl: String, urlBase: String, userId: String, account: String) -> String {
         
         let homeServer = urlBase + Global.shared.davLocation + userId
         

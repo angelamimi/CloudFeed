@@ -66,8 +66,8 @@ final class SettingsViewModel: NSObject {
             
             StoreUtility.removeDocumentsDirectory()
             
-            //TODO: THIS CAUSES VIDEOS TO NOT PLAY ON LONG CLICK OF COLLECTION VIEW
-            //StoreUtility.removeTemporaryDirectory()
+            StoreUtility.removeTemporaryDirectory()
+            StoreUtility.initTemporaryDirectory()
             
             HTTPCache.shared.deleteAllCache()
             
