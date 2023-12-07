@@ -31,10 +31,6 @@ class EmptyView: UIView {
         initView()
     }
     
-    override func awakeFromNib() {
-        Self.logger.debug("awakeFromNib() - titleLabel?? \(self.titleLabel != nil)")
-    }
-    
     func display(image: UIImage?, title: String, description: String) {
         self.emptyImage.image = image
         self.titleLabel.text = title

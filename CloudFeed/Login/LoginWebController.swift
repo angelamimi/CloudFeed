@@ -12,28 +12,28 @@ import WebKit
 
 class LoginWebController: UIViewController, WKNavigationDelegate {
     
-    let webLoginAutenticationProtocol: String = "nc://"
-    var urlBase: String?// = "https://cloud.angelamimi.com"
+    var coordinator: LoginWebCoordinator!
+    var viewModel: LoginViewModel!
     
-    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    @IBOutlet weak var mWebKitView: WKWebView!
     
-    var configServerUrl: String?
-    var configUsername: String?
-    var configPassword: String?
+    private var urlBase: String?
+    
+    private var configServerUrl: String?
+    private var configUsername: String?
+    private var configPassword: String?
     
     private static let logger = Logger(
             subsystem: Bundle.main.bundleIdentifier!,
             category: String(describing: LoginWebController.self)
         )
-    
-    @IBOutlet weak var mWebKitView: WKWebView!
-    
+
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
         navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationItem.title = "Server Login"
+        navigationItem.title = Strings.LoginServerTitle
         
         mWebKitView.navigationDelegate = self
 
@@ -46,24 +46,18 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
     
     private func executeLoginFlowRequest() {
         
-        Self.logger.debug("executeLoginFlowRequest()")
-        
         guard urlBase != nil else { return }
         
-        let serverURL: String = urlBase! + "/index.php/login/flow"
+        let serverURL: String = urlBase! + Global.shared.loginLocation
         
         guard let inputURL = URL(string: serverURL) else {
-            showInvalidURLPrompt()
+            coordinator.showInvalidURLPrompt()
             return
         }
         
-        //let languageCode: String? = Locale.autoupdatingCurrent.language.languageCode?.identifier
         let languageCode: String? = NSLocale.preferredLanguages[0]
         
         var request = URLRequest(url: inputURL)
-        
-        Self.logger.debug("serverURL: \(serverURL)")
-        Self.logger.debug("languageCode: \(languageCode!)")
         
         request.setValue(languageCode, forHTTPHeaderField: "ACCEPT-LANGUAGE")
         request.setValue("true", forHTTPHeaderField: "OCS-APIREQUEST")
@@ -79,23 +73,23 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         let urlString: String = url.absoluteString.lowercased()
         
         // prevent http redirection
-        if urlBase!.lowercased().hasPrefix("https://") && urlString.lowercased().hasPrefix("http://") {
+        if urlBase!.lowercased().hasPrefix(Global.shared.http) && urlString.lowercased().hasPrefix(Global.shared.https) {
             Self.logger.error("didReceiveServerRedirectForProvisionalNavigation() - preventing redirect to \(urlString)")
             return
         }
         
-        if urlString.hasPrefix(webLoginAutenticationProtocol) == true && urlString.contains("login") == true {
+        if urlString.hasPrefix(Global.shared.prefix) == true && urlString.contains(Global.shared.urlValidation) == true {
             mWebKitView.stopLoading()
             processResult(url: url)
         }
     }
     
-    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+    /*func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         guard let url = webView.url else { return }
         
         let urlString: String = url.absoluteString.lowercased()
         Self.logger.debug("didStartProvisionalNavigation() - urlString: \(urlString)")
-    }
+    }*/
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
 
@@ -108,11 +102,11 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         
         Self.logger.error("didFailProvisionalNavigation() - errorMessage: \(errorMessage)")
 
-        showInvalidURLPrompt()
+        coordinator.showInvalidURLPrompt()
     }
     
     func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        Self.logger.debug("didReceive()")
+
         DispatchQueue.global().async {
             if let serverTrust = challenge.protectionSpace.serverTrust {
                 completionHandler(Foundation.URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: serverTrust))
@@ -123,12 +117,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        Self.logger.debug("decidePolicyFor()")
         decisionHandler(.allow)
-    }
-
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        Self.logger.debug("didFinish()")
     }
     
     private func processResult(url: URL) {
@@ -143,8 +132,6 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
             if value.contains("user:") { user = value }
             if value.contains("password:") { password = value }
         }
-        
-        Self.logger.debug("processResult() - server: \(server) user: \(user) password: \(password)")
 
         if server != "" && user != "" && password != "" {
 
@@ -152,63 +139,21 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
             let username: String = user.replacingOccurrences(of: "user:", with: "").replacingOccurrences(of: "+", with: " ")
             let password: String = password.replacingOccurrences(of: "password:", with: "")
 
-            createAccount(server: server, username: username, password: password)
+            viewModel.login(server: server, username: username, password: password)
         } else {
-            showInitFailedPrompt()
+            coordinator.showInitFailedPrompt()
         }
-    }
-    
-    private func createAccount(server: String, username: String, password: String) {
-        
-        Self.logger.debug("createAccount() - server: \(server) username: \(username) password: \(password)")
-
-        var urlBase = server
-
-        // Normalized
-        if urlBase.last == "/" {
-            urlBase = String(urlBase.dropLast())
-        }
-
-        let account: String = "\(username) \(urlBase)"
-
-        if DatabaseManager.shared.getAccounts() == nil {
-            
-            SettingsUtility.shared.initSettings()
-            
-            Self.logger.debug("createAccount() - removeAllSettings???")
-        }
-
-        // Add new account
-        DatabaseManager.shared.deleteAccount(account)
-        DatabaseManager.shared.addAccount(account, urlBase: urlBase, user: username, password: password)
-
-        guard let tableAccount = DatabaseManager.shared.setAccountActive(account) else {
-            showInitFailedPrompt()
-            return
-        }
-        
-        appDelegate.activateServiceForAccount(account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
-
-        appDelegate.launchApp()
-     }
-    
-    private func showInitFailedPrompt() {
-        let alertController = UIAlertController(title: "Error", message: "Initialization failed. Please try again.", preferredStyle: .alert)
-
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
-            self.navigationController?.popViewController(animated: true)
-        }))
-
-        self.present(alertController, animated: true)
-    }
-    
-    private func showInvalidURLPrompt() {
-        let alertController = UIAlertController(title: "Error", message: "Failed to load URL. Please try again.", preferredStyle: .alert)
-
-        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
-            self.navigationController?.popViewController(animated: true)
-        }))
-
-        self.present(alertController, animated: true)
     }
 }
+
+extension LoginWebController: LoginDelegate {
+    
+    func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
+        coordinator.handleLoginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
+    }
+    
+    func loginError() {
+        coordinator.showInitFailedPrompt()
+    }
+}
+

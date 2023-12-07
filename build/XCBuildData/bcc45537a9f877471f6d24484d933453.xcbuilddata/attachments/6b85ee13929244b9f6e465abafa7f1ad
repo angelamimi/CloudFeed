@@ -1,0 +1,35 @@
+{
+  "" : {
+    "const-values" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/SwiftyXMLParser-master.swiftconstvalues",
+    "dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/SwiftyXMLParser-master.d",
+    "diagnostics" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/SwiftyXMLParser-master.dia",
+    "emit-module-dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/SwiftyXMLParser-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/SwiftyXMLParser-master-emit-module.dia",
+    "swift-dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/SwiftyXMLParser-master.swiftdeps"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/SwiftyXMLParser/Accessor.swift" : {
+    "index-unit-output-path" : "/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Accessor.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Accessor.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Accessor.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/SwiftyXMLParser/Element.swift" : {
+    "index-unit-output-path" : "/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Element.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Element.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Element.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/SwiftyXMLParser/Error.swift" : {
+    "index-unit-output-path" : "/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Error.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Error.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Error.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/SwiftyXMLParser/Parser.swift" : {
+    "index-unit-output-path" : "/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Parser.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Parser.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/Parser.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/SwiftyXMLParser/XML.swift" : {
+    "index-unit-output-path" : "/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/XML.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/XML.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SwiftyXMLParser/build/SwiftyXMLParser.build/Release-iphoneos/SwiftyXMLParser.build/Objects-normal/arm64/XML.o"
+  }
+}

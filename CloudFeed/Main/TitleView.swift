@@ -8,7 +8,7 @@
 import UIKit
 import os.log
 
-protocol MediaController : AnyObject {
+protocol MediaViewController : AnyObject {
     func zoomInGrid()
     func zoomOutGrid()
     func edit()
@@ -26,7 +26,10 @@ class TitleView: UIView {
     @IBOutlet weak var backButton: UIButton!
     @IBOutlet weak var backButtonConstraint: NSLayoutConstraint!
     
-    weak var mediaView: MediaController?
+    @IBOutlet weak var menuButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var menuButtonHeightConstraint: NSLayoutConstraint!
+    
+    weak var mediaView: MediaViewController?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -34,10 +37,10 @@ class TitleView: UIView {
     )
 
     override func awakeFromNib() {
-        menuButton.showsMenuAsPrimaryAction = true
-        
-        menuButton.layer.cornerRadius = 20
-        menuButton.layer.masksToBounds = true
+
+        initMenuButton()
+        initTitle()
+        initText()
         
         doneButton.isHidden = true
         doneButton.addTarget(self, action: #selector(endEdit), for: .touchUpInside)
@@ -46,24 +49,32 @@ class TitleView: UIView {
         cancelButton.addTarget(self, action: #selector(cancelEdit), for: .touchUpInside)
         
         backButton.isHidden = true
-        backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
+        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         
         let guestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(titleTouched))
         title.addGestureRecognizer(guestureRecognizer)
     }
     
+    func hideMenu() {
+        menuButton.isHidden = true
+    }
+    
+    func showMenu() {
+        menuButton.isHidden = false
+    }
+    
     func initMenu(allowEdit: Bool) {
         
-        let zoomIn = UIAction(title: "Zoom In", image: UIImage(systemName: "plus.magnifyingglass")) { action in
+        let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { action in
             self.mediaView?.zoomInGrid()
         }
 
-        let zoomOut = UIAction(title: "Zoom Out", image: UIImage(systemName: "minus.magnifyingglass")) { action in
+        let zoomOut = UIAction(title: Strings.TitleZoomOut, image: UIImage(systemName: "minus.magnifyingglass")) { action in
             self.mediaView?.zoomOutGrid()
         }
     
         if allowEdit {
-            let edit = UIAction(title: "Edit", image: UIImage(systemName: "pencil")) { action in
+            let edit = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { action in
                 self.mediaView?.edit()
                 self.beginEdit()
             }
@@ -76,12 +87,11 @@ class TitleView: UIView {
     }
     
     func initNavigation() {
+        
         title.isHidden = false
         backButton.isHidden = false
         doneButton.isHidden = true
         cancelButton.isHidden = true
-    
-        title.font = .boldSystemFont(ofSize: 22)
     }
     
     func beginEdit() {
@@ -115,13 +125,50 @@ class TitleView: UIView {
         self.mediaView?.cancel()
     }
     
-    @objc func back() {
+    @objc func goBack() {
        self.mediaView?.cancel()
     }
     
     @objc func titleTouched() {
-        Self.logger.debug("titleTouched()")
         self.mediaView?.titleTouched()
+    }
+    
+    private func initMenuButton() {
+        
+        menuButton.showsMenuAsPrimaryAction = true
+        menuButton.layer.masksToBounds = true
+        
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            initMenuButtonWithSize(30)
+        } else {
+            initMenuButtonWithSize(20)
+        }
+    }
+    
+    private func initMenuButtonWithSize(_ size: CGFloat) {
+        
+        let configuration = UIImage.SymbolConfiguration(pointSize: size, weight: .bold)
+        let image = UIImage(systemName: "ellipsis", withConfiguration: configuration)
+        let double = size * 2
+        
+        menuButton.setImage(image, for: .normal)
+        menuButton.layer.cornerRadius = size
+        
+        menuButtonWidthConstraint.constant = double
+        menuButtonHeightConstraint.constant = double
+    }
+    
+    private func initTitle() {
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            title.font = .boldSystemFont(ofSize: 36)
+        } else {
+            title.font = .boldSystemFont(ofSize: 24)
+        }
+    }
+    
+    private func initText() {
+        doneButton.setTitle(Strings.TitleApply, for: .normal)
+        cancelButton.setTitle(Strings.TitleCancel, for: .normal)
     }
 }
 

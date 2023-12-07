@@ -1,0 +1,77 @@
+/* 
+  Localizable.strings
+  CloudFeed
+
+  Created by Angela Jarosz on 9/16/23.
+  
+*/
+
+/* Common */
+"Ok.Action" = "Ok";
+"Cancel.Action" = "Cancel";
+"Error.Title" = "Error";
+
+/* Settings - Application reset dialog */
+"Reset.Title" = "Reset Application";
+"Reset.Message" = "Are you sure you want to reset? This will clear all data and close the application. It cannot be undone.";
+"Reset.Action" = "Reset";
+
+/* Settings - Profile fetch error dialog */
+"Profile.Error.Message" = "Failed to load Profile.";
+
+/* Settings */
+"Settings.Nav.Title" = "Settings";
+"Settings.Section.Information" = "Information";
+"Settings.Section.Data" = "Data";
+"Settings.Item.Acknowledgements" = "Acknowledgements";
+"Settings.Item.ClearCache" = "Clear Cache";
+"Settings.Item.ResetApplication" = "Reset Application";
+"Settings.Label.Version" = "Version";
+"Settings.Label.VersionUnknown" = "unknown";
+"Settings.Label.CacheSize" = "Cache Size";
+
+/* Login */
+"Init.Error.Message" = "Initialization failed. Please try again.";
+"Url.Error.Message" = "Failed to load URL. Please try again.";
+"Login.Server.Label" = "Server URL";
+"Login.Server.Button" = "Go";
+"Login.Server.Title" = "Server Login";
+
+/* Media */
+"Media.Error.Message" = "Failed to load media.";
+"Media.Empty.Title" = "No media yet";
+"Media.Empty.Description" = "Your photos and videos will show up here";
+"Media.Nav.Title" = "Home";
+
+/* Favorites */
+"Fav.Error.Message" = "Failed to load favorites.";
+"Fav.Update.Error.Message" = "Failed to save favorite.";
+"Fav.Empty.Title" = "No favorites yet";
+"Fav.Empty.Description" = "Files you mark as favorite will show up here";
+"Fav.Add" = "Add to favorites";
+"Fav.Remove" = "Remove from favorites";
+"Fav.Nav.Title" = "Favorites";
+
+/* Title Bar */
+"Title.ApplyChanges" = "Done";
+"Title.CancelChanges" = "Cancel";
+"Title.Edit" = "Edit";
+"Title.ZoomIn" = "Zoom In";
+"Title.ZoomOut" = "Zoom Out";
+
+/* Image Detail and EXIF */
+"Detail.Name" = "Name";
+"Detail.EditedDate" = "Edited";
+"Detail.CreatedDate" = "Created";
+"Detail.FileSize" = "File Size";
+"Detail.Dimensions" = "Dimensions";
+"Detail.LenseMake" = "Lense Make";
+"Detail.LenseModel" = "Lense Model";
+"Detail.ColorSpace" = "Color Space";
+"Detail.DPI" = "Resolution";
+"Detail.Profile" = "Profile";
+"Detail.Depth" = "Depth";
+"Detail.Aperture" = "Aperture";
+"Detail.Exposure" = "Exposure";
+"Detail.ISO" = "ISO";
+"Detail.Brightness" = "Brightness";

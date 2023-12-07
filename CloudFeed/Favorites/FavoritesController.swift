@@ -4,25 +4,16 @@
 //
 //  Created by Angela Jarosz on 4/1/23.
 //
-
 import NextcloudKit
 import os.log
 import UIKit
 
-class FavoritesController: UIViewController {
+class FavoritesController: CollectionController {
     
-    @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var emptyView: EmptyView!
+    var coordinator: FavoritesCoordinator!
+    var viewModel: FavoritesViewModel!
     
-    private let groupSize = 2 //thumbnail fetches executed concurrently
-    
-    private var isInitialFetch = false
-    private var isEditMode = false
-    
-    private var titleView: TitleView?
     private var layout: CollectionLayout?
-
-    private var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -30,445 +21,244 @@ class FavoritesController: UIViewController {
     )
     
     override func viewDidLoad() {
-        collectionView.isHidden = true
+        super.viewDidLoad()
+        
+        registerCell("CollectionViewCell")
+        
+        title = Strings.FavNavTitle
+        
         collectionView.delegate = self
         collectionView.allowsMultipleSelection = false
         
-        emptyView.isHidden = false
+        viewModel.initDataSource(collectionView: collectionView)
         
-        navigationController?.isNavigationBarHidden = true
-        
-        initEmptyView()
-        initCollectionViewLayout()
-        initCollectionViewCell()
-        initTitleView()
-        
-        dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            Task {
-                await self.setImage(metadata: metadata, cell: cell, indexPath: indexPath)
-            }
-            return cell
-        }
-        
-        initialFetch()
+        initCollectionView(delegate: self)
+        initTitleView(mediaView: self, allowEdit: true)
+        initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
+        initConstraints()
+        initObservers()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        Self.logger.debug("viewWillAppear()")
+    deinit {
+        cleanup()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        fetchFavorites()
+    }
+    
+    override func refresh() {
+        viewModel.fetch(refresh: true)
+    }
+    
+    override func loadMore() {
+        viewModel.loadMore()
+    }
+    
+    override func setTitle() {
         
-        //if metadatas.count == 0 {
-        if collectionView.numberOfSections == 0 || collectionView.numberOfItems(inSection: 0) == 0 {
-            initialFetch()
-        } else if !isInitialFetch {
-            metadataFetch()
-        }
-    }
-    
-    override func viewSafeAreaInsetsDidChange() {
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-        titleView?.heightAnchor.constraint(equalToConstant: 50).isActive = true
-    }
-    
-    public func clear() {
-        guard dataSource != nil else { return }
-        var snapshot = dataSource.snapshot()
-        snapshot.deleteAllItems()
-        dataSource.applySnapshotUsingReloadData(snapshot)
-    }
-    
-    private func initCollectionViewCell() {
-        let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
-        collectionView.register(nib, forCellWithReuseIdentifier: "CollectionViewCell")
-    }
-    
-    private func initEmptyView() {
-        let configuration = UIImage.SymbolConfiguration(pointSize: 48)
-        let image = UIImage(systemName: "star.fill", withConfiguration: configuration)
-        
-        emptyView.display(image: image, title: "No favorites yet", description: "Files you mark as favorite will show up here")
-    }
-    
-    private func initCollectionViewLayout() {
-        layout = CollectionLayout()
-        layout?.delegate = self
-        layout?.numberOfColumns = UIDevice.current.userInterfaceIdiom == .pad ? 4 : 2
-        
-        collectionView.collectionViewLayout = layout!
-    }
-    
-    private func initTitleView() {
-        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
-        self.view.addSubview(titleView!)
-        
-        titleView?.mediaView = self
-        titleView?.initMenu(allowEdit: true)
-    }
-    
-    private func setTitle() {
-
-        titleView?.title.text = ""
+        setTitle("")
         
         let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
         guard let indexPath = visibleIndexes?.first else { return }
-
-        let metadata = dataSource.itemIdentifier(for: indexPath)
+        
+        let metadata = viewModel.getItemAtIndexPath(indexPath)
         guard metadata != nil else { return }
-        titleView?.title.text = StoreUtility.getFormattedDate(metadata!.date as Date)
-    }
 
-    private func setImage(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath) async {
-        
-        Self.logger.debug("setImage() - indexPath: \(indexPath)")
-        
-        let ocId = metadata.ocId
-        let etag = metadata.etag
-        
-        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag)) {
-            cell.imageView.image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag))
-            //Self.logger.debug("CELL - image size: \(cell.imageView.image?.size.width ?? -1),\(cell.imageView.image?.size.height ?? -1)")
-        }  else {
-            Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(ocId)")
-            cell.imageView.image = nil
+        setTitle(StoreUtility.getFormattedDate(metadata!.date as Date))
+    }
+    
+    public func clear() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.scrollToTop()
+            self.hideMenu()
+            self.setTitle("")
+            self.viewModel?.resetDataSource()
         }
+    }
+    
+    private func fetchFavorites() {
         
-        if isEditMode {
-            cell.selectMode(true)
-            if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
-                cell.selected(true)
-            } else {
-                cell.selected(false)
-            }
+        let visibleDateRange = getVisibleItemData()
+        
+        if visibleDateRange.toDate == nil || visibleDateRange.name == nil {
+            hideMenu()
+            viewModel.fetch(refresh: false)
         } else {
-            cell.selectMode(false)
-        }
-    }
-    
-    private func initialFetch() {
-        
-        Self.logger.debug("initialFetch()")
-        
-        isInitialFetch = true
-        
-        var snapshot = dataSource.snapshot()
-        snapshot.deleteAllItems()
-        snapshot.appendSections([0])
-        
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: false)
-        }
-        
-        Task {
-            guard let resultMetadatas = await getFavorites() else { return }
-            await processResult(resultMetadatas: resultMetadatas)
-        }
-    }
-    
-    private func metadataFetch() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let resultMetadatas = NextcloudService.shared.getFavoriteMetadatas(account: appDelegate.account)
-        
-        guard resultMetadatas != nil && resultMetadatas?.count ?? 0 > 0 else { return }
-        
-        let metadatas = processMetadata(resultMetadatas: resultMetadatas!)
-        
-        Task {
-            await refreshDatasource(metadatas: metadatas)
-        }
-    }
-    
-    private func getFavorites() async -> [tableMetadata]? {
-
-        Self.logger.debug("getFavorites()")
-        let resultMetadatas = await NextcloudService.shared.getFavorites()
-        
-        Self.logger.debug("getFavorites() - resultMetadatas count: \(resultMetadatas == nil ? -1 : resultMetadatas!.count)")
-        
-        return resultMetadatas
-    }
-    
-    private func processResult(resultMetadatas: [tableMetadata]) async {
-        let metadatas = processMetadata(resultMetadatas: resultMetadatas)
-        await processMetadataPage(pageMetadatas: metadatas)
-    }
-    
-    private func processMetadata(resultMetadatas: [tableMetadata]) -> [tableMetadata] {
-        
-        var metadatas : [tableMetadata] = []
-        
-        if resultMetadatas.count > 0 {
-
-            //TODO: Allow user to sort?
-            let sorted = resultMetadatas.sorted(by: {($0.date as Date) > ($1.date as Date)} )
-            
-            //Filter out live photo movies. Only show the jpg in favorites.
-            for metadata in sorted {
-                if metadata.livePhoto && (metadata.fileNameView as NSString).pathExtension.lowercased() == "mov" {
-                    continue
-                }
-                metadatas.append(metadata)
-            }
-        }
-        
-        Self.logger.debug("processMetadata() - new metadata count: \(metadatas.count) result count: \(resultMetadatas.count)")
-        
-        //let idArray = metadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        //Self.logger.debug("processMetadata() - metadatas: \(idArray)")
-        
-        return metadatas
-    }
-    
-    /*
-     Divides the current page of results into groups of fetch preview tasks to be executed concurrently
-     */
-    private func processMetadataPage(pageMetadatas: [tableMetadata]) async {
-        if pageMetadatas.count == 0 {
-            collectionView.isHidden = true
-            emptyView.isHidden = false
-            
-            return
-            
-            //TODO: Clear the collectionview?
-        } else {
-            collectionView.isHidden = false
-            emptyView.isHidden = true
-        }
-        
-        var groupMetadata: [tableMetadata] = []
-        
-        //let idArray = pageMetadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        //Self.logger.debug("processMetadataPage() - pageMetadatas: \(idArray)")
-        
-        for metadataIndex in (0...pageMetadatas.count - 1) {
-            
-            //Self.logger.debug("processMetadataPage() - metadataIndex: \(metadataIndex) pageMetadatas.count \(pageMetadatas.count)")
-            
-            if groupMetadata.count < groupSize {
-                //Self.logger.debug("processMetadataPage() - appending: \(pageMetadatas[metadataIndex].ocId)")
-                groupMetadata.append(pageMetadatas[metadataIndex])
-            } else {
-                await executeGroup(metadatas: groupMetadata)
-                await applyDatasourceChanges(metadatas: groupMetadata)
-                
-                groupMetadata = []
-                //Self.logger.debug("processMetadataPage() - appending: \(pageMetadatas[metadataIndex].ocId)")
-                groupMetadata.append(pageMetadatas[metadataIndex])
-            }
-        }
-        
-        if groupMetadata.count > 0 {
-            //Self.logger.debug("processMetadataPage() - groupMetadata: \(groupMetadata)")
-            await executeGroup(metadatas: groupMetadata)
-            await applyDatasourceChanges(metadatas: groupMetadata)
-        }
-    }
-    
-    private func executeGroup(metadatas: [tableMetadata]) async {
-        await withTaskGroup(of: Void.self, returning: Void.self, body: { taskGroup in
-            for metadata in metadatas {
-                taskGroup.addTask {
-                    //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType) fileExtension: \(metadata.fileExtension)")
-                    //Self.logger.debug("executeGroup() - ocId: \(metadata.ocId) fileNameView: \(metadata.fileNameView)")
-                    if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
-                        await NextcloudService.shared.downloadVideoPreview(metadata: metadata)
-                    } else if metadata.contentType == "image/svg+xml" || metadata.fileExtension == "svg" {
-                        //NextcloudService.shared.downloadSVGPreview(metadata: metadata)
-                    } else {
-                        //Self.logger.debug("executeGroup() - contentType: \(metadata.contentType)")
-                        await NextcloudService.shared.downloadPreview(metadata: metadata)
-                    }
-                }
-            }
-        })
-    }
-    
-    private func refreshDatasource(metadatas: [tableMetadata]) async {
-        var snapshot = dataSource.snapshot()
-        var delete: [tableMetadata] = []
-        
-        for currentMetadata in snapshot.itemIdentifiers(inSection: 0) {
-            let metadata = metadatas.first(where: { $0.ocId == currentMetadata.ocId })
-            if (metadata == nil) {
-                delete.append(currentMetadata)
-            }
-        }
-        
-        Self.logger.debug("refreshDatasource() - delete count: \(delete.count)")
-        
-        if delete.count > 0 {
-            snapshot.deleteItems(delete)
-        }
-        
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true, completion: {
-                Task {
-                    await self.applyDatasourceChanges(metadatas: metadatas)
-                }
-            })
-        }
-    }
-    
-    private func applyDatasourceChanges(metadatas: [tableMetadata]) async {
-        var ocIdAdd : [tableMetadata] = []
-        var ocIdUpdate : [tableMetadata] = []
-        var snapshot = dataSource.snapshot()
-        
-        for metadata in metadatas {
-            if snapshot.indexOfItem(metadata) == nil {
-                ocIdAdd.append(metadata)
-            } else {
-                ocIdUpdate.append(metadata)
-            }
-        }
-        
-        if ocIdAdd.count > 0 {
-            snapshot.appendItems(ocIdAdd, toSection: 0)
-        }
-        
-        if ocIdUpdate.count > 0 {
-            //snapshot.reconfigureItems(ocIdUpdate)
-            snapshot.reloadItems(ocIdUpdate)
-        }
-        
-        Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd.count) ocIdUpdate: \(ocIdUpdate.count)")
-        
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true, completion: {
-                if (snapshot.itemIdentifiers(inSection: 0).count == metadatas.count) {
-                    self.isInitialFetch = false
-                }
-            })
-            self.setTitle()
+            viewModel.syncFavs()
         }
     }
     
     private func openViewer(indexPath: IndexPath) {
         
-        let metadata = dataSource.itemIdentifier(for: indexPath)
+        let metadata = viewModel.getItemAtIndexPath(indexPath)
         
-        guard metadata != nil && (metadata!.classFile == NKCommon.typeClassFile.image.rawValue
-                || metadata!.classFile == NKCommon.typeClassFile.audio.rawValue
-                || metadata!.classFile == NKCommon.typeClassFile.video.rawValue) else { return }
+        guard metadata != nil && (metadata!.classFile == NKCommon.TypeClassFile.image.rawValue
+                || metadata!.classFile == NKCommon.TypeClassFile.audio.rawValue
+                || metadata!.classFile == NKCommon.TypeClassFile.video.rawValue) else { return }
         
-        guard let navigationController = self.navigationController else { return }
-        
-        let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
-        
-        viewerPager.currentIndex = indexPath.item
-        
-        let snapshot = dataSource.snapshot()
-        
-        viewerPager.metadatas = snapshot.itemIdentifiers(inSection: 0)
-        navigationController.pushViewController(viewerPager, animated: true)
+        let metadatas = viewModel.getItems()
+        coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
     }
     
     private func bulkEdit() async {
-        let indexPaths = collectionView.indexPathsForSelectedItems
-        
-        Self.logger.debug("bulkEdit() - indexPaths: \(indexPaths ?? [])")
-        
-        guard indexPaths != nil else { return }
-        
-        var snapshot = dataSource.snapshot()
-        
-        for indexPath in indexPaths! {
-            let metadata = dataSource.itemIdentifier(for: indexPath)
-            
-            guard metadata != nil else { continue }
-            
-            let error = await NextcloudService.shared.favoriteMetadata(metadata!)
-            if error == .success {
-                snapshot.deleteItems([metadata!])
-            } else {
-                //TODO: Show the user a single error for all failed
-                Self.logger.error("bulkEdit() - ERROR: \(error.errorDescription)")
-            }
-        }
-
-        isEditMode = false
-        collectionView.allowsMultipleSelection = false
-        
-        snapshot.reloadSections([0])
-        
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true)
-        }
+        guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
+        await viewModel.bulkEdit(indexPaths: indexPaths)
     }
     
     private func reloadSection() {
+        viewModel.reload()
+    }
+    
+    private func getVisibleItemData() -> (toDate: Date?, name: String?) {
         
-        var snapshot = dataSource.snapshot()
+        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+        let first = visibleIndexes?.first
+
+        if first == nil {
+            //Self.logger.debug("getVisibleItemData() - no visible items")
+        } else {
+
+            let firstMetadata = viewModel.getItemAtIndexPath(first!)
+
+            if firstMetadata == nil {
+                //Self.logger.debug("getVisibleItemData() - missing metadata")
+            } else {
+                //Self.logger.debug("getVisibleItemData() - \(firstMetadata!.date) \(firstMetadata!.fileNameView)")
+                return (firstMetadata!.date as Date, firstMetadata!.fileNameView)
+            }
+        }
         
-        guard snapshot.numberOfSections > 0 else { return }
-        snapshot.reloadSections([0])
+        return (nil, nil)
+    }
+    
+    private func favoriteMenuAction(indexPath: IndexPath) -> UIAction {
+        return UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.fill")) { [weak self] _ in
+            self?.removeFavorite(indexPath: indexPath)
+        }
+    }
+    
+    private func removeFavorite(indexPath: IndexPath) {
+        Task { [weak self] in
+            await self?.viewModel.bulkEdit(indexPaths: [indexPath])
+        }
+    }
+    
+    private func enteringForeground() {
+        if isViewLoaded && view.window != nil {
+            Self.logger.debug("enteringForeground() - executing refresh")
+            refresh()
+        }
+    }
+    
+    private func initObservers() {
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
+            self?.enteringForeground()
+        }
+    }
+    
+    private func cleanup() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+}
+
+extension FavoritesController: FavoritesDelegate {
+    
+    func bulkEditFinished() {
         
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
+            self.isEditing = false
+            self.collectionView.allowsMultipleSelection = false
+        
+            self.setTitle()
+            
+            if self.collectionView.numberOfItems(inSection: 0) == 0 {
+                self.hideMenu()
+                self.collectionView.isHidden = true
+                self.emptyView.isHidden = false
+            }
+        }
+    }
+    
+    func fetching() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if !self.isRefreshing() && !self.isLoadingMore() {
+                self.activityIndicator.startAnimating()
+            }
+        }
+    }
+    
+    func fetchResultReceived(resultItemCount: Int?) {
+        DispatchQueue.main.async { [weak self] in
+            if resultItemCount == nil {
+                self?.coordinator.showLoadfailedError()
+            }
+        }
+    }
+    
+    func dataSourceUpdated() {
+        DispatchQueue.main.async { [weak self] in
+            self?.displayResults()
+        }
+    }
+    
+    func editCellUpdated(cell: CollectionViewCell, indexPath: IndexPath) {
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
+            if self.isEditing {
+                cell.selectMode(true)
+                if self.collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
+                    cell.selected(true)
+                } else {
+                    cell.selected(false)
+                }
+            } else {
+                cell.selectMode(false)
+            }
         }
     }
 }
 
-extension FavoritesController : MediaController {
+extension FavoritesController: MediaViewController {
     
     func zoomInGrid() {
-        guard layout != nil else { return }
-        let columns = self.layout?.numberOfColumns ?? 0
-        
-        if columns - 1 > 0 {
-            self.layout?.numberOfColumns -= 1
-        }
-        
-        UIView.animate(withDuration: 0.0, animations: {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-        })
+        zoomIn()
     }
     
     func zoomOutGrid() {
-        guard layout != nil else { return }
-        
-        let snapshot = dataSource.snapshot()
-        let count = snapshot.numberOfItems(inSection: 0)
-        
-        guard self.layout!.numberOfColumns + 1 <= count else { return }
-
-        if self.layout!.numberOfColumns + 1 < 6 {
-            self.layout!.numberOfColumns += 1
-        }
-        
-        UIView.animate(withDuration: 0.0, animations: {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-        })
+        let count = viewModel.currentItemCount()
+        zoomOut(currentItemCount: count)
     }
     
     func titleTouched() {
-        collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-        initialFetch()
+        if viewModel.currentItemCount() > 0 {
+            collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        }
     }
     
     func edit() {
-        isEditMode = true
+        isEditing = true
         collectionView.allowsMultipleSelection = true
         reloadSection()
     }
     
     func endEdit() {
-        
-        //Self.logger.debug("endEdit() - selectOcId: \(self.selectOcId)")
-            
-        Task {
-            await bulkEdit()
+        Task { [weak self] in
+            await self?.bulkEdit()
         }
     }
     
     func cancel() {
-        //self.selectOcId = []
-        
+
         collectionView.indexPathsForSelectedItems?.forEach { collectionView.deselectItem(at: $0, animated: false) }
 
-        isEditMode = false
+        isEditing = false
         collectionView.allowsMultipleSelection = false
         reloadSection()
     }
@@ -478,35 +268,27 @@ extension FavoritesController : CollectionLayoutDelegate {
     
     func collectionView(_ collectionView: UICollectionView, sizeOfPhotoAtIndexPath indexPath: IndexPath) -> CGSize {
 
-        let metadata = dataSource.itemIdentifier(for: indexPath)
+        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return CGSize(width: 0, height: 0) }
+        var imageSize: CGSize?
         
-        guard metadata != nil else { return CGSize(width: 0, height: 0) }
-        
-        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata!.ocId, etag: metadata!.etag)) {
-            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata!.ocId, etag: metadata!.etag))
+        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
             if image != nil {
-                return image!.size
+                imageSize = image!.size
             }
-        }  else {
-            Self.logger.debug("sizeOfPhotoAtIndexPath - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata!.ocId)")
         }
-        
-        return CGSize(width: 0, height: 0)
-    }
-}
-
-extension FavoritesController : UIScrollViewDelegate {
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        setTitle()
+        return NextcloudUtility.shared.adjustSize(imageSize: imageSize)
     }
 }
 
 extension FavoritesController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        viewModel.loadPreview(indexPath: indexPath)
+    }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        Self.logger.debug("collectionView.didSelectItemAt() - indexPath: \(indexPath)")
-        if isEditMode {
+        if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
                 cell.selected(true)
             }
@@ -516,11 +298,36 @@ extension FavoritesController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        Self.logger.debug("collectionView.didDeselectItemAt() - indexPath: \(indexPath)")
-        if isEditMode {
+        if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
                 cell.selected(false)
             }
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        guard let indexPath = indexPaths.first, let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return nil }
+        guard let image = cell.imageView.image else { return nil }
+        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return nil }
+        
+        let imageSize = image.size
+        let width = self.view.bounds.width
+        let height = imageSize.height * (width / imageSize.width)
+        let previewController = self.coordinator.getPreviewController(metadata: metadata)
+        
+        previewController.preferredContentSize = CGSize(width: width, height: height)
+
+        let config = UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: { previewController }, actionProvider: { [weak self] _ in
+            guard let self else { return .init(children: []) }
+            return UIMenu(title: "", options: .displayInline, children: [self.favoriteMenuAction(indexPath: indexPath)])
+        })
+        
+        return config
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+        guard let indexPath = configuration.identifier as? IndexPath else { return }
+        openViewer(indexPath: indexPath)
     }
 }

@@ -29,6 +29,18 @@ class CollectionViewCell: UICollectionViewCell {
         initCell()
     }
     
+    func resetStatusIcon() {
+        imageStatus.image = nil
+    }
+    
+    func showVideoIcon() {
+        imageStatus.image = UIImage(systemName: "video.fill")
+    }
+    
+    func showLivePhotoIcon() {
+        imageStatus.image = UIImage(systemName: "livephoto")
+    }
+    
     func showFavorite() {
         imageFavorite.isHidden = false
     }
@@ -42,10 +54,6 @@ class CollectionViewCell: UICollectionViewCell {
     }
     
     func selected(_ status: Bool) {
-        //imageFavorite.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-        //imageFavorite.layer.cornerRadius = 10
-        //imageFavorite.layer.masksToBounds = true
-        Self.logger.debug("selected() - ?: \(status)")
         if status {
             imageFavorite.image = UIImage(systemName: "star")
         } else {
@@ -53,15 +61,37 @@ class CollectionViewCell: UICollectionViewCell {
         }
     }
     
+    func setImage(_ image: UIImage?) {
+        
+        UIView.transition(with: self.imageView,
+                          duration: 0.3,
+                          options: .transitionCrossDissolve,
+                          animations: { self.imageView.image = image },
+                          completion: nil)
+        
+        //imageView.image = image
+    }
+    
+    func setContentMode(isLongImage: Bool) {
+        if isLongImage {
+            imageView.contentMode = .scaleAspectFit
+        } else {
+            imageView.contentMode = .scaleAspectFill
+        }
+    }
+    
+    func setBackgroundColor() {
+        //for images with a transparent background. white looks the best regardless of theme
+        backgroundColor = .white
+    }
+    
     private func initCell() {
         
-        //Self.logger.debug("initCell() - reuseIdentifier: \(self.reuseIdentifier ?? "NONE") width: \(self.frame.width) height \(self.frame.height)")
-        imageView.backgroundColor = .secondarySystemBackground
         imageStatus.image = nil
         imageView.image = nil
         imageFavorite.image = nil
         
-        //Self.logger.debug("initCell()")
+        backgroundColor = .secondarySystemBackground
         
         if (self.reuseIdentifier == "MainCollectionViewCell") {
             imageFavorite.image = UIImage(systemName: "star.fill")

@@ -18,7 +18,6 @@ http://www.apache.org/licenses/</string>
 		<string>https://github.com/kishikawakatsumi/KeychainAccess</string>
 		<key>license</key>
 		<string>The MIT License (MIT)
-
 Copyright (c) 2014 kishikawa katsumi</string>
 	</dict>
 	<dict>
@@ -36,7 +35,7 @@ Parts Copyright (c) Tipbit Inc</string>
 		<key>link</key>
 		<string>https://github.com/Nextcloud/NextcloudKit</string>
 		<key>license</key>
-		<string></string>
+		<string>GNU General Public License</string>
 	</dict>
 	<dict>
 		<key>title</key>
@@ -48,13 +47,12 @@ Parts Copyright (c) Tipbit Inc</string>
 	</dict>
 	<dict>
 		<key>title</key>
-		<string>OpenSSL</string>
+		<string>KTVHTTPCache</string>
 		<key>link</key>
-		<string>https://github.com/krzyzanowskim/OpenSSL</string>
+		<string>https://github.com/marinofaggiana/KTVHTTPCache</string>
 		<key>license</key>
-		<string>Copyright OpenSSL
-Contents licensed under the terms of the OpenSSL license
-See https://www.openssl.org/source/license.html for details</string>
+		<string>MIT License
+Copyright (c) 2017 Single</string>
 	</dict>
 </array>
 </plist>

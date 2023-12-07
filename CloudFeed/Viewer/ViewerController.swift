@@ -9,21 +9,20 @@ import AVFoundation
 import AVKit
 import UIKit
 import NextcloudKit
-import SVGKit
 import os.log
 
 class ViewerController: UIViewController {
+    
+    var viewModel: ViewerViewModel!
     
     @IBOutlet weak var statusImageView: UIImageView!
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var statusContainerView: UIView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
-    var player: AVPlayer?
     var metadata: tableMetadata = tableMetadata()
     var index: Int = 0
-    
-    weak var pager: PagerController?
     
     private var panRecognizer: UIPanGestureRecognizer?
     private var doubleTapRecognizer: UITapGestureRecognizer?
@@ -37,7 +36,7 @@ class ViewerController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if DatabaseManager.shared.getMetadataLivePhoto(metadata: metadata) != nil {
+        if viewModel.getMetadataLivePhoto(metadata: metadata) != nil {
             statusImageView.image = NextcloudUtility.shared.loadImage(named: "livephoto", color: .label)
             statusLabel.text = "LIVE"
             statusContainerView.isHidden = false
@@ -51,19 +50,72 @@ class ViewerController: UIViewController {
         
         initGestureRecognizers()
 
-        if metadata.classFile == NKCommon.typeClassFile.video.rawValue || metadata.classFile == NKCommon.typeClassFile.audio.rawValue {
+        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             loadVideo()
         } else {
             reloadImage()
         }
     }
     
-    func playLivePhoto(_ url: URL) {
-        loadVideoFromUrl(url, autoPlay: true)
-    }
-    
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+    
+    func playLivePhoto(_ url: URL) {
+        let avpController = viewModel.loadVideoFromUrl(url, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+        setupVideoController(avpController: avpController, autoPlay: true)
+    }
+    
+    private func loadVideo() {
+        guard let avpController = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height) else { return }
+        setupVideoController(avpController: avpController, autoPlay: false)
+    }
+    
+    private func reloadImage() {
+        if let metadata = viewModel.getMetadataFromOcId(metadata.ocId) {
+            self.metadata = metadata
+            loadImage(metadata: metadata)
+        }
+    }
+    
+    private func loadImage(metadata: tableMetadata) {
+        
+        activityIndicator.startAnimating()
+        
+        Task { [weak self] in
+            guard let self else { return }
+            
+            let image = await viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+            
+            //Self.logger.debug("loadImage() - have image? \(image != nil) for ocId: \(metadata.ocId)")
+            
+            if image != nil && self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
+                
+                DispatchQueue.main.async { [weak self] in
+                    //Self.logger.debug("loadImage() - setting imageview image for ocId: \(metadata.ocId)")
+                    self?.imageView.image = image
+                    self?.activityIndicator.stopAnimating()
+                }
+            }
+        }
+    }
+    
+    private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
+
+        if self.children.count == 0 {
+            addChild(avpController)
+        }
+        
+        //titleView, live photo container, and activity indicator
+        if self.view.subviews.count == 3 {
+            self.view.addSubview(avpController.view)
+        }
+        
+        avpController.didMove(toParent: self)
+        
+        if autoPlay {
+            avpController.player?.play()
+        }
     }
     
     private func initGestureRecognizers() {
@@ -98,7 +150,7 @@ class ViewerController: UIViewController {
         }
     }
     
-    @objc func handleDoubleTap(tapGesture: UITapGestureRecognizer) {
+    @objc private func handleDoubleTap(tapGesture: UITapGestureRecognizer) {
         let currentScale : CGFloat = tapGesture.view?.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
         
         if currentScale == 1.0 {
@@ -112,7 +164,7 @@ class ViewerController: UIViewController {
         }
     }
     
-    @objc func handlePan(panGesture: UIPanGestureRecognizer) {
+    @objc private func handlePan(panGesture: UIPanGestureRecognizer) {
         switch panGesture.state {
         case .began:
             initialCenter = imageView.center
@@ -129,7 +181,7 @@ class ViewerController: UIViewController {
         }
     }
     
-    @objc func handlePinch(pinchGesture: UIPinchGestureRecognizer) {
+    @objc private func handlePinch(pinchGesture: UIPinchGestureRecognizer) {
         
         // Use the x or y scale, they should be the same for typical zooming (non-skewing)
         let currentScale : CGFloat = pinchGesture.view?.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
@@ -170,182 +222,11 @@ class ViewerController: UIViewController {
     }
     
     private func setDetailTableVisibility(visible: Bool) {
-        Self.logger.debug("setDetailTableVisibility()")
+
         if (visible) {
             let detailViewController = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailViewController") as! DetailController
             detailViewController.metadata = metadata
             self.present(detailViewController, animated: true, completion: nil)
         }
-    }
-    
-    private func loadVideo() {
-        let urlVideo = getVideoURL(metadata: metadata)
-        
-        if let url = urlVideo {
-            loadVideoFromUrl(url, autoPlay: false)
-        }
-    }
-    
-    private func getVideoURL(metadata: tableMetadata) -> URL? {
-        
-        if StoreUtility.fileProviderStorageExists(metadata) {
-            return URL(fileURLWithPath: StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!)
-        } else {
-            guard let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
-            return HTTPCache.shared.getProxyURL(stringURL: stringURL)
-        }
-    }
-    
-    private func loadVideoFromUrl(_ url: URL, autoPlay: Bool) {
-        player = AVPlayer(url: url)
-        let avpController = AVPlayerViewController()
-        avpController.player = player
-        avpController.view.backgroundColor = UIColor.systemBackground
-        
-        avpController.view.frame.size.height = self.view.frame.height
-        avpController.view.frame.size.width = self.view.frame.width
-        
-        avpController.videoGravity = .resizeAspect
-        
-        avpController.showsPlaybackControls = true
-        
-        //Self.logger.debug("loadImage() - child count: \(self.children.count) subview count: \(self.view.subviews.count)")
-        
-        if self.children.count == 0 {
-            addChild(avpController)
-        }
-        
-        //TitleView, Live photo image and label container
-        if self.view.subviews.count == 2 {
-            self.view.addSubview(avpController.view)
-        }
-        
-        avpController.didMove(toParent: self)
-        
-        if autoPlay {
-            avpController.player?.play()
-        }
-    }
-    
-    private func reloadImage() {
-        if let metadata = DatabaseManager.shared.getMetadataFromOcId(metadata.ocId) {
-            self.metadata = metadata
-            loadImage(metadata: metadata)
-        }
-    }
-    
-    private func loadImage(metadata: tableMetadata) {
-        
-        //Self.logger.debug("loadImage() - fileNameView: \(metadata.fileNameView) livePhoto? \(metadata.livePhoto)")
-        
-        // Download image
-        if !StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.typeClassFile.image.rawValue {
-            
-            if metadata.livePhoto {
-                let fileName = (metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-                if let metadata = DatabaseManager.shared.getMetadata(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", metadata.account, metadata.serverUrl, fileName)), !StoreUtility.fileProviderStorageExists(metadata) {
-                    NextcloudService.shared.download(metadata: metadata, selector: "") { _, _ in }
-                }
-            }
-            
-            NextcloudService.shared.download(metadata: metadata, selector: "") { _, _ in
-                let image = getImageMetadata(metadata)
-                if self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
-                    //self.image = image
-                    self.imageView.image = image
-                }
-            }
-        }
-        
-        // Get image
-        let image = getImageMetadata(metadata)
-        if self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
-            //self.image = image
-            self.imageView.image = image
-        }
-        
-        //self.pager?.navigationItem.title = metadata.fileNameView
-        //self.title = metadata.fileNameView
-        
-        func getImageMetadata(_ metadata: tableMetadata) -> UIImage? {
-            
-            if let image = getImage(metadata: metadata) {
-                return image
-            }
-            
-            if metadata.classFile == NKCommon.typeClassFile.video.rawValue && !metadata.hasPreview {
-                NextcloudUtility.shared.createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
-            }
-            
-            if StoreUtility.fileProviderStoragePreviewIconExists(metadata.ocId, etag: metadata.etag) {
-                let imagePreviewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
-                return UIImage(contentsOfFile: imagePreviewPath)
-            }
-            
-            /*if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
-                return UIImage(named: "noPreviewVideo")?.image(color: .gray, size: view.frame.width)
-            } else if metadata.classFile == NKCommon.typeClassFile.audio.rawValue {
-                return UIImage(named: "noPreviewAudio")?.image(color: .gray, size: view.frame.width)
-            } else {
-                return UIImage(named: "noPreview")?.image(color: .gray, size: view.frame.width)
-            }*/
-            return nil
-        }
-    }
-    
-    private func getImage(metadata: tableMetadata) -> UIImage? {
-        
-        let ext = StoreUtility.getExtension(metadata.fileNameView)
-        var image: UIImage?
-        
-        if StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.typeClassFile.image.rawValue {
-            
-            let previewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
-            let imagePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
-            
-            if ext == "GIF" {
-                if !FileManager().fileExists(atPath: previewPath) {
-                    NextcloudUtility.shared.createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
-                }
-                
-                if let fileData = FileManager().contents(atPath: imagePath) {
-                    image = UIImage.gifImageWithData(fileData)
-                } else {
-                    image = UIImage(contentsOfFile: imagePath)
-                }
-            } else if ext == "SVG" {
-                
-                return NextcloudUtility.shared.downloadSVGPreview(metadata: metadata)
-                
-            } else {
-                NextcloudUtility.shared.createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
-                image = UIImage(contentsOfFile: imagePath)
-                
-                let imageWidth : CGFloat = image?.size.width ?? 0
-                let imageHeight : CGFloat = image?.size.height ?? 0
-                
-                if image != nil && (imageWidth > self.view.frame.width || imageHeight > self.view.frame.height) {
-                    
-                    //TODO: Large images spike memory. Have to downsample in some way.
-                    let filePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
-                    let fileData = FileManager().contents(atPath: filePath)
-                    
-                    if fileData != nil {
-                        var newSize : CGSize?
-                        if imageWidth > imageHeight {
-                            newSize = CGSize(width: self.view.frame.width, height: self.view.frame.width)
-                        } else {
-                            newSize = CGSize(width: self.view.frame.height, height: self.view.frame.height)
-                        }
-                        //Self.logger.debug("downsample!!!!!!!!!!")
-                        return UIImage.downsample(imageData: (fileData! as CFData), to: newSize!)
-                    }
-                }
-                    
-                return image
-            }
-        }
-        
-        return image
     }
 }

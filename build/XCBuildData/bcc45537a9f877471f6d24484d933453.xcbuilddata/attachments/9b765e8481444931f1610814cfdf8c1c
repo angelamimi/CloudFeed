@@ -1,0 +1,145 @@
+{
+  "" : {
+    "const-values" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit-master.swiftconstvalues",
+    "dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit-master.d",
+    "diagnostics" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit-master.dia",
+    "emit-module-dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit-master-emit-module.dia",
+    "swift-dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit-master.swiftdeps"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/API/NextcloudKit+API_Async.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+API_Async.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+API_Async.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+API_Async.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/API/NextcloudKit+API.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+API.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+API.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+API.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/E2EE/NextcloudKit+E2EE_Async.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+E2EE_Async.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+E2EE_Async.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+E2EE_Async.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/E2EE/NextcloudKit+E2EE.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+E2EE.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+E2EE.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+E2EE.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/Extensions/Image+Extension.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/Image+Extension.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/Image+Extension.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/Image+Extension.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/Extensions/String+Extension.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/String+Extension.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/String+Extension.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/String+Extension.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+Comments.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Comments.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Comments.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Comments.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+Dashboard.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Dashboard.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Dashboard.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Dashboard.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+FilesLock.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+FilesLock.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+FilesLock.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+FilesLock.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+Groupfolders.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Groupfolders.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Groupfolders.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Groupfolders.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+Hovercard.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Hovercard.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Hovercard.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Hovercard.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+Login.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Login.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Login.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Login.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+NCText.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+NCText.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+NCText.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+NCText.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+PushNotification.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+PushNotification.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+PushNotification.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+PushNotification.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+Richdocuments.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Richdocuments.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Richdocuments.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Richdocuments.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+Search.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Search.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Search.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Search.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+Share.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Share.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Share.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+Share.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKit+UserStatus.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+UserStatus.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+UserStatus.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+UserStatus.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NextcloudKitBackground.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKitBackground.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKitBackground.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKitBackground.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NKCommon.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKCommon.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKCommon.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKCommon.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NKError.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKError.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKError.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKError.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NKModel.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKModel.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKModel.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKModel.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NKRequestOptions.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKRequestOptions.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKRequestOptions.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKRequestOptions.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/NKShareAccounts.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKShareAccounts.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKShareAccounts.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NKShareAccounts.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/WebDAV/NextcloudKit+WebDAV_Async.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+WebDAV_Async.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+WebDAV_Async.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+WebDAV_Async.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/Sources/NextcloudKit/WebDAV/NextcloudKit+WebDAV.swift" : {
+    "index-unit-output-path" : "/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+WebDAV.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+WebDAV.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/NextcloudKit/build/NextcloudKit.build/Release-iphoneos/NextcloudKit.build/Objects-normal/arm64/NextcloudKit+WebDAV.o"
+  }
+}

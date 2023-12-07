@@ -1,0 +1,4 @@
+module NextcloudKit {
+header "NextcloudKit-Swift.h"
+export *
+}

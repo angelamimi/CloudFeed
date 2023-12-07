@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "52416E07-ABD7-4C7E-8A3B-30A9C84A66DB",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "skippedTests" : [
+        "BaseTest"
+      ],
+      "target" : {
+        "containerPath" : "container:CloudFeed.xcodeproj",
+        "identifier" : "3927357C29BD1E830058796A",
+        "name" : "CloudFeedTests"
+      }
+    }
+  ],
+  "version" : 1
+}

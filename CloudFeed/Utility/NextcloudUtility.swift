@@ -13,6 +13,7 @@ import SVGKit
 import UIKit
 
 class NextcloudUtility: NSObject {
+    
     @objc static let shared: NextcloudUtility = {
         let instance = NextcloudUtility()
         return instance
@@ -36,14 +37,11 @@ class NextcloudUtility: NSObject {
             return
         }
         
-        if classFile != NKCommon.typeClassFile.image.rawValue
-            && classFile != NKCommon.typeClassFile.video.rawValue {
+        if classFile != NKCommon.TypeClassFile.image.rawValue && classFile != NKCommon.TypeClassFile.video.rawValue {
             return
         }
 
-        if classFile == NKCommon.typeClassFile.image.rawValue {
-            
-            //print("FILE NAME PATH = \(fileNamePath)")
+        if classFile == NKCommon.TypeClassFile.image.rawValue {
 
             originalImage = UIImage(contentsOfFile: fileNamePath)
 
@@ -53,9 +51,9 @@ class NextcloudUtility: NSObject {
             try? scaleImagePreview?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathPreview))
             try? scaleImageIcon?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathIcon))
 
-        } else if classFile == NKCommon.typeClassFile.video.rawValue {
+        } else if classFile == NKCommon.TypeClassFile.video.rawValue {
 
-            let videoPath = NSTemporaryDirectory()+"tempvideo.mp4"
+            let videoPath = NSTemporaryDirectory() + "tempvideo.mp4"
             
             //Self.logger.debug("createImageFrom() - videoPath: \(videoPath)")
             //Self.logger.debug("createImageFrom() - fileNamePath: \(fileNamePath)")
@@ -81,8 +79,8 @@ class NextcloudUtility: NSObject {
         let thumbnailImageRef: CGImage
         do {
             thumbnailImageRef = try assetIG.copyCGImage(at: cmTime, actualTime: nil)
-        } catch {//let error {
-            //Self.logger.error("imageFromVideo() - Error: \(error) url: \(url)")
+        } catch let error {
+            Self.logger.error("imageFromVideo() - Error: \(error) url: \(url)")
             return nil
         }
         
@@ -105,67 +103,50 @@ class NextcloudUtility: NSObject {
     }
     
     @discardableResult
-    func downloadSVGPreview(metadata: tableMetadata) -> UIImage? {
-        Self.logger.debug("downloadSVGPreview()")
+    func loadSVGPreview(metadata: tableMetadata) -> UIImage? {
         
-        guard metadata.fileExtension == "svg" else { return nil }
+        guard metadata.svg else { return nil }
 
         let imagePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
         let previewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
+        let iconPath = StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)
         
-        let svgImage = SVGKImage(contentsOfFile: imagePath)
+        guard let svgImage = SVGKImage(contentsOfFile: imagePath) else { return nil }
         
-        guard svgImage != nil else { return nil }
-        
-        svgImage!.size = CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)
-        
-        if let image = svgImage!.uiImage {
+        if let image = svgImage.uiImage {
+            
+            if !FileManager().fileExists(atPath: iconPath) {
+                do {
+                    try image.jpegData(compressionQuality: 0.5)?.write(to: URL(fileURLWithPath: iconPath))
+                } catch { }
+            }
+            
             if !FileManager().fileExists(atPath: previewPath) {
                 do {
-                    Self.logger.debug("downloadSVGPreview() - previewPath: \(previewPath)")
-                    try image.pngData()?.write(to: URL(fileURLWithPath: previewPath), options: .atomic)
+                    try image.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
                 } catch { }
-            } else {
-                Self.logger.debug("downloadSVGPreview() - exists at previewPath: \(previewPath)")
             }
+            
             return image
         }
         
         return nil
     }
     
-    func loadUserImage(for user: String, userBaseUrl: String) -> UIImage {
+    private func scale(imageSize: CGSize, targetSize: CGSize) -> CGSize {
         
-        let fileName = userBaseUrl + "-" + user + ".png"
-        let localFilePath = String(StoreUtility.getDirectoryUserData()) + "/" + fileName
+        // Compute the scaling ratio for the width and height separately
+        let widthScaleRatio = targetSize.width / imageSize.width
+        let heightScaleRatio = targetSize.height / imageSize.height
 
-        if let localImage = UIImage(contentsOfFile: localFilePath) {
-            Self.logger.debug("loadUserImage() - \(localImage.size.width),\(localImage.size.height)")
-            return createAvatar(image: localImage, size: 150)
-        } else if let loadedAvatar = DatabaseManager.shared.getAvatarImage(fileName: fileName) {
-            Self.logger.debug("loadUserImage() - loadedAvatar")
-            return loadedAvatar
-        } else {
-            Self.logger.debug("loadUserImage() - crop circle")
-            let config = UIImage.SymbolConfiguration(pointSize: 30)
-            return NextcloudUtility.shared.loadImage(named: "person.crop.circle", symbolConfiguration: config)
-        }
+        // To keep the aspect ratio, scale by the smaller scaling ratio
+        let scaleFactor = min(widthScaleRatio, heightScaleRatio)
+
+        // Multiply the original image’s dimensions by the scale factor
+        // to determine the scaled image size that preserves aspect ratio
+        return CGSize(width: imageSize.width * scaleFactor, height: imageSize.height * scaleFactor)
     }
-    
-    func createAvatar(image: UIImage, size: CGFloat) -> UIImage {
 
-        var avatarImage = image
-        let rect = CGRect(x: 0, y: 0, width: size, height: size)
-
-        UIGraphicsBeginImageContextWithOptions(rect.size, false, 3.0)
-        UIBezierPath(roundedRect: rect, cornerRadius: rect.size.height).addClip()
-        avatarImage.draw(in: rect)
-        avatarImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
-        UIGraphicsEndImageContext()
-
-        return avatarImage
-    }
-    
     func getUserBaseUrl(_ account: tableAccount) -> String {
         return account.user + "-" + (URL(string: account.urlBase)?.host ?? "")
     }
@@ -174,24 +155,37 @@ class NextcloudUtility: NSObject {
 
         var image: UIImage?
 
-        // see https://stackoverflow.com/questions/71764255
-        let sfSymbolName = imageName.replacingOccurrences(of: "_", with: ".")
         if let symbolConfiguration = symbolConfiguration {
-            image = UIImage(systemName: sfSymbolName, withConfiguration: symbolConfiguration as? UIImage.Configuration)?.withTintColor(color, renderingMode: .alwaysOriginal)
+            image = UIImage(systemName: imageName, withConfiguration: symbolConfiguration as? UIImage.Configuration)?.withTintColor(color, renderingMode: .alwaysOriginal)
         } else {
-            image = UIImage(systemName: sfSymbolName)?.withTintColor(color, renderingMode: .alwaysOriginal)
+            image = UIImage(systemName: imageName)?.withTintColor(color, renderingMode: .alwaysOriginal)
         }
-        /*if image == nil {
-            image = UIImage(named: imageName)?.image(color: color, size: size)
-        }
-        if let image = image {
-            return image
-        }*/
 
         if image == nil {
             return UIImage(systemName: "rectangle.slash")!.image(color: color, size: size)
         } else {
             return image!
         }
+    }
+    
+    func adjustSize(imageSize: CGSize?) -> CGSize {
+        if imageSize != nil {
+            let ratio = imageSize!.width < imageSize!.height ? imageSize!.width / imageSize!.height : imageSize!.height / imageSize!.width
+            
+            if ratio < 0.5 {
+                //too tall or too wide. adjust size so full image is visible
+                return imageSize!.width < imageSize!.height ? CGSize(width: 250, height: 400) : CGSize(width: 400, height: 250)
+            } else {
+                return imageSize!
+            }
+        }
+        
+        return CGSize(width: 0, height: 0)
+    }
+    
+    func isLongImage(imageSize: CGSize) -> Bool {
+        
+        let ratio = imageSize.width < imageSize.height ? imageSize.width / imageSize.height : imageSize.height / imageSize.width
+        return ratio < 0.5
     }
 }

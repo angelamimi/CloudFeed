@@ -1,0 +1,4 @@
+module Mocker {
+header "Mocker-Swift.h"
+export *
+}

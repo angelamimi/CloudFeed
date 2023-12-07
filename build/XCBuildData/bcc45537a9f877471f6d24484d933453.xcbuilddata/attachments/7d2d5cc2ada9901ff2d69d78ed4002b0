@@ -1,0 +1,4 @@
+module Bid {
+umbrella "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/realm-core/src/external/IntelRDFPMathLib20U2/LIBRARY/src"
+export *
+}

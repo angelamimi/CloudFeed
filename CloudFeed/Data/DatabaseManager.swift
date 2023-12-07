@@ -12,17 +12,12 @@ import SwiftyJSON
 import UIKit
 
 class DatabaseManager: NSObject {
-    static let shared: DatabaseManager = {
-        let instance = DatabaseManager()
-        return instance
-    }()
+
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
+                                       category: String(describing: DatabaseManager.self))
     
-    private static let logger = Logger(
-            subsystem: Bundle.main.bundleIdentifier!,
-            category: String(describing: DatabaseManager.self)
-        )
-    
-    override init() {
+    func setup() {
+        
         let dirGroup = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Global.shared.groupIdentifier)
         let databaseFileUrlPath = dirGroup?.appendingPathComponent(Global.shared.databaseDirectory + "/" + Global.shared.databaseDefault)
         
@@ -39,13 +34,13 @@ class DatabaseManager: NSObject {
         
         if let databaseFilePath = databaseFileUrlPath?.path {
             if FileManager.default.fileExists(atPath: databaseFilePath) {
-                NKCommon.shared.writeLog("DATABASE FOUND in " + databaseFilePath)
+                NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE FOUND in " + databaseFilePath)
             } else {
-                NKCommon.shared.writeLog("DATABASE NOT FOUND in " + databaseFilePath)
+                NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE NOT FOUND in " + databaseFilePath)
             }
         }
         
-        Self.logger.debug("init() - databaseFileUrlPath: \(databaseFileUrlPath?.path ?? "NIL PATH")")
+        //Self.logger.debug("init() - databaseFileUrlPath: \(databaseFileUrlPath?.path ?? "NIL PATH")")
         
         let config = Realm.Configuration(
             fileURL: databaseFileUrlPath,
@@ -54,31 +49,28 @@ class DatabaseManager: NSObject {
 
         Realm.Configuration.defaultConfiguration = config
         
-        Self.logger.debug("init() - Realm configuration: \(Realm.Configuration.defaultConfiguration)")
+        //Self.logger.debug("init() - Realm configuration: \(Realm.Configuration.defaultConfiguration)")
         
-        // Verify Database, if corrupt remove it
+        // Verify db. if corrupt, remove it
         do {
             _ = try Realm()
         } catch {
             if let databaseFileUrlPath = databaseFileUrlPath {
                 do {
-                    //TODO: Present error
-                    //let error = NKError(errorCode: NCGlobal.shared.errorInternalError, errorDescription: "_database_corrupt_")
-                    //NCContentPresenter.shared.showError(error: error, priority: .max)
-
-                    NKCommon.shared.writeLog("DATABASE CORRUPT: removed")
+                    //TODO: Show error?
+                    NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE CORRUPT: removed")
                     try FileManager.default.removeItem(at: databaseFileUrlPath)
                 } catch {}
             }
         }
 
-        // Open Real
+        //Open
         _ = try! Realm()
     }
     
     // MARK: -
     // MARK: Capabilities
-    func addCapabilitiesJSon(_ data: Data, account: String) {
+    func addCapabilitiesJSon(account: String, data: Data) {
         
         let realm = try! Realm()
         
@@ -92,7 +84,7 @@ class DatabaseManager: NSObject {
                 realm.add(addObject, update: .all)
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
         }
     }
     
@@ -129,7 +121,7 @@ class DatabaseManager: NSObject {
                 realm.add(addObject, update: .all)
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
         }
     }
     
@@ -179,7 +171,7 @@ class DatabaseManager: NSObject {
                 realm.delete(results)
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
         }
     }
     
@@ -187,7 +179,6 @@ class DatabaseManager: NSObject {
         
         self.clearTable(tableAvatar.self)
         self.clearTable(tableCapabilities.self, account: account)
-        //self.clearTable(tableDirectory.self, account: account)
         self.clearTable(tableLocalFile.self, account: account)
         self.clearTable(tableMetadata.self, account: account)
         
@@ -208,7 +199,7 @@ class DatabaseManager: NSObject {
             do {
                 try FileManager.default.removeItem(at: URL)
             } catch let error {
-                NKCommon.shared.writeLog("Could not write to database: \(error)")
+                NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
             }
         }
     }

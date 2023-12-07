@@ -1,0 +1,35 @@
+{
+  "" : {
+    "const-values" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mocker-master.swiftconstvalues",
+    "dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mocker-master.d",
+    "diagnostics" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mocker-master.dia",
+    "emit-module-dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mocker-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mocker-master-emit-module.dia",
+    "swift-dependencies" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mocker-master.swiftdeps"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/Sources/Mock.swift" : {
+    "index-unit-output-path" : "/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mock.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mock.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mock.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/Sources/Mock+DataType.swift" : {
+    "index-unit-output-path" : "/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mock+DataType.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mock+DataType.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mock+DataType.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/Sources/Mocker.swift" : {
+    "index-unit-output-path" : "/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mocker.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mocker.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/Mocker.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/Sources/MockingURLProtocol.swift" : {
+    "index-unit-output-path" : "/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/MockingURLProtocol.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/MockingURLProtocol.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/MockingURLProtocol.o"
+  },
+  "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/Sources/XCTest+Mocker.swift" : {
+    "index-unit-output-path" : "/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/XCTest+Mocker.o",
+    "llvm-bc" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/XCTest+Mocker.bc",
+    "object" : "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/Mocker/build/Mocker.build/Release-iphoneos/Mocker.build/Objects-normal/arm64/XCTest+Mocker.o"
+  }
+}

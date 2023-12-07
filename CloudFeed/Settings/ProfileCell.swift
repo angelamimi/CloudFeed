@@ -9,7 +9,6 @@ import UIKit
 
 class ProfileCell: UITableViewCell {
     
-    @IBOutlet weak var profileBackground: UIView!
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var profileEmailLabel: UILabel!
     @IBOutlet weak var profileNameLabel: UILabel!
@@ -17,19 +16,21 @@ class ProfileCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        profileBackground.layer.cornerRadius = 20
-        profileBackground.layer.masksToBounds = true
-        profileBackground.layer.borderColor = UIColor.label.cgColor
-        profileBackground.layer.borderWidth = 1
-        
         profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
         profileImageView.layer.masksToBounds = true
-        profileImageView.layer.borderColor = UIColor.label.cgColor
-        profileImageView.layer.borderWidth = 1
+        
+        profileNameLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        profileEmailLabel.font = UIFont.preferredFont(forTextStyle: .body)
     }
 
-    func updateProfileImage(_ image: UIImage) {
-        profileImageView.image = image
+    func updateProfileImage(_ image: UIImage?) {
+        
+        if image == nil {
+            let configuration = UIImage.SymbolConfiguration(pointSize: 40, weight: .ultraLight)
+            profileImageView.image = UIImage(systemName: "person.crop.circle.fill", withConfiguration: configuration)?.withTintColor(.secondarySystemBackground, renderingMode: .alwaysOriginal)
+        } else {
+            profileImageView.image = image
+        }
     }
     
     func updateProfile(_ email: String, fullName name: String) {

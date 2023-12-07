@@ -1,0 +1,4 @@
+module RealmSwift {
+header "RealmSwift-Swift.h"
+export *
+}

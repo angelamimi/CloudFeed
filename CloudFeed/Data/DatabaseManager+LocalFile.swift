@@ -6,8 +6,8 @@
 //
 
 import Foundation
+import os.log
 import RealmSwift
-import NextcloudKit
 
 class tableLocalFile: Object {
 
@@ -29,6 +29,9 @@ class tableLocalFile: Object {
 
 extension DatabaseManager {
     
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
+                                       category: String(describing: DatabaseManager.self) + "LocalFile")
+    
     func addLocalFile(metadata: tableMetadata) {
         
         let realm = try! Realm()
@@ -49,7 +52,7 @@ extension DatabaseManager {
                 realm.add(addObject, update: .all)
             }
         } catch let error {
-            NKCommon.shared.writeLog("Could not write to database: \(error)")
+            Self.logger.error("Could not write to database: \(error)")
         }
     }
     

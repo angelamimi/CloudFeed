@@ -14,18 +14,12 @@ protocol CollectionLayoutDelegate: AnyObject {
 
 class CollectionLayout: UICollectionViewFlowLayout {
     
-    private static let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier!,
-        category: String(describing: CollectionLayout.self)
-    )
-    
     weak var delegate: CollectionLayoutDelegate!
-    
     var numberOfColumns: Int = 4
-    var cellPadding: CGFloat = 3
     
+    private var cellPadding: CGFloat = 4
     private var cache = [UICollectionViewLayoutAttributes]()
-    
+    private var columnHeights: [[CGFloat]] = []
     private var contentHeight: CGFloat = 0
     
     private var contentWidth: CGFloat {
@@ -35,7 +29,10 @@ class CollectionLayout: UICollectionViewFlowLayout {
         return collectionView.bounds.width
     }
     
-    private var columnHeights: [[CGFloat]] = []
+    private static let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier!,
+        category: String(describing: CollectionLayout.self)
+    )
     
     override func invalidateLayout() {
         super.invalidateLayout()
@@ -43,13 +40,12 @@ class CollectionLayout: UICollectionViewFlowLayout {
     }
     
     override var collectionViewContentSize: CGSize {
-        //Self.logger.debug("collectionViewContentSize - contentHeight: \(self.contentHeight)")
         return CGSize(width: contentWidth, height: contentHeight)
     }
     
     override func prepare() {
         
-        Self.logger.debug("prepare() - numberOfColumns: \(self.numberOfColumns) content size: \(self.contentWidth),\(self.contentHeight) collectionView size:\(self.collectionView?.bounds.width ?? 0),\(self.collectionView?.bounds.height ?? 0)")
+        //Self.logger.debug("prepare() - numberOfColumns: \(self.numberOfColumns) content size: \(self.contentWidth),\(self.contentHeight) collectionView size:\(self.collectionView?.bounds.width ?? 0),\(self.collectionView?.bounds.height ?? 0)")
         
         if !cache.isEmpty {
             cache.removeAll()
@@ -83,8 +79,6 @@ class CollectionLayout: UICollectionViewFlowLayout {
             let indexPath = IndexPath(item: item, section: 0)
 
             var photoSize = delegate.collectionView(collectionView, sizeOfPhotoAtIndexPath: indexPath)
-            
-            //Self.logger.debug("prepare() - photoSize: \(photoSize.width), \(photoSize.height)")
             
             if (photoSize.width == 0 || photoSize.height == 0) {
                 photoSize = CGSize(width: 100, height: 100)
