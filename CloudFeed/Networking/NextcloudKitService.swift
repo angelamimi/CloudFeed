@@ -59,11 +59,13 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     // MARK: Download
     func download(metadata: tableMetadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> NKError {
         
+        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
+        
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.download(
                 serverUrlFileName: serverUrlFileName,
                 fileNameLocalPath: fileNameLocalPath,
-                queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue,
+                options: options,
                 requestHandler: { request in }) { (account, etag, date, _, allHeaderFields, afError, error) in
                     
                     if afError?.isExplicitlyCancelledError ?? false {
