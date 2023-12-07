@@ -55,12 +55,10 @@ class LoginServerController: UIViewController {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-
     
     @objc
     private func keyboardWillShow(notification: Notification) {
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-            print("keyboardWillShow() - keyboardFrame: \(keyboardFrame)")
             adjust(keyboardTop: keyboardFrame.origin.y)
         }
     }
