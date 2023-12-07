@@ -156,28 +156,36 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 24.0, leading: 0, bottom: 24.0, trailing: 0)
             
             if indexPath.section == 1 && indexPath.item == 0 {
+                
                 content.image = UIImage(systemName: "person.wave.2")
                 content.text = Strings.SettingsItemAcknowledgements
                 cell.tintColor = UIColor.label
                 cell.accessoryType = .disclosureIndicator
+                
             } else if indexPath.section == 1 && indexPath.item == 1 {
+                
                 content.image = UIImage(systemName: "info.circle")
                 cell.accessoryType = .none
+                cell.tintColor = UIColor.label
                 
                 if let dictionary = Bundle.main.infoDictionary,
                     let version = dictionary["CFBundleShortVersionString"] as? String,
                     let build = dictionary["CFBundleVersion"] as? String {
                     content.text = "\(Strings.SettingsLabelVersion) \(version) (\(build))"
                 } else {
-                    content.text = "\(Strings.SettingsLabelVersion) (\(Strings.SettingsLabelVersionUnknown)))" //"Version (unknown)"
+                    content.text = "\(Strings.SettingsLabelVersion) (\(Strings.SettingsLabelVersionUnknown)))"
                 }
+                
             } else if indexPath.section == 2 && indexPath.item == 0 {
+                
                 content.image = UIImage(systemName: "trash")
                 content.text = Strings.SettingsItemClearCache
-                content.secondaryText = "\(Strings.SettingsLabelCacheSize): \(cacheSizeDescription)" //"Cache size: " + cacheSizeDescription
+                content.secondaryText = "\(Strings.SettingsLabelCacheSize): \(cacheSizeDescription)"
                 cell.tintColor = UIColor.label
                 cell.accessoryType = .none
+                
             } else if indexPath.section == 2 && indexPath.item == 1 {
+                
                 content.image = UIImage(systemName: "xmark.octagon")
                 content.text = Strings.SettingsItemResetApplication
                 cell.tintColor = UIColor.red
