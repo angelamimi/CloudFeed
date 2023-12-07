@@ -438,7 +438,7 @@ final class MediaViewModel: NSObject {
                 await cell.resetStatusIcon()
             }
             
-            await cell.setBackgroundColor()
+            //await cell.setBackgroundColor()
             
             let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
             

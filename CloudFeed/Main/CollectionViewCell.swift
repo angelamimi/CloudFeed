@@ -63,11 +63,16 @@ class CollectionViewCell: UICollectionViewCell {
     
     func setImage(_ image: UIImage?) {
         
+        guard image != nil else {
+            imageView.image = nil
+            return
+        }
+        
         UIView.transition(with: self.imageView,
-                          duration: 0.3,
+                          duration: 0.6,
                           options: .transitionCrossDissolve,
-                          animations: { self.imageView.image = image },
-                          completion: nil)
+                          animations: { [weak self] in self?.imageView.image = image },
+                          completion: { [weak self] _ in self?.setBackgroundColor() } )
         
         //imageView.image = image
     }
@@ -80,7 +85,7 @@ class CollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func setBackgroundColor() {
+    private func setBackgroundColor() {
         //for images with a transparent background. white looks the best regardless of theme
         backgroundColor = .white
     }
