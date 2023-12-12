@@ -14,6 +14,7 @@ import UIKit
 class PreviewController: UIViewController {
     
     private var imageView = UIImageView()
+    private var activityIndicator = UIActivityIndicatorView(style: .large)
     private var metadata: tableMetadata!
     
     var viewModel: ViewerViewModel!
@@ -37,8 +38,25 @@ class PreviewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
+        
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
+        
+        view.addSubview(activityIndicator)
+        
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
 
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        
+        activityIndicator.startAnimating()
+        
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             loadVideo()
         } else if metadata.livePhoto {
@@ -46,27 +64,18 @@ class PreviewController: UIViewController {
         } else if metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
             viewImage(metadata: metadata)
         }
-        
-        view.addSubview(imageView)
-        
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            imageView.leftAnchor.constraint(equalTo: view.leftAnchor),
-            imageView.rightAnchor.constraint(equalTo: view.rightAnchor),
-            imageView.topAnchor.constraint(equalTo: view.topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
     }
     
     func playLivePhoto(_ url: URL) {
         let avpController = viewModel.loadVideoFromUrl(url, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
         setupVideoController(avpController: avpController, autoPlay: true)
+        activityIndicator.stopAnimating()
     }
     
     private func loadVideo() {
         guard let avpController = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height) else { return }
         setupVideoController(avpController: avpController, autoPlay: true)
+        activityIndicator.stopAnimating()
     }
     
     private func loadLiveVideo() {
@@ -83,6 +92,7 @@ class PreviewController: UIViewController {
                 Task { [weak self] in
                     await self?.viewModel.downloadLivePhotoVideo(fileName: fileName, metadata: metadata)
                     self?.playLiveVideoFromMetadata(metadata)
+                    self?.activityIndicator.stopAnimating()
                 }
             }
         }
@@ -147,6 +157,7 @@ class PreviewController: UIViewController {
 
             if let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)) {
                 imageView.image = image
+                showImage()
             }
         }
     }
@@ -159,6 +170,7 @@ class PreviewController: UIViewController {
             
             DispatchQueue.main.async { [weak self] in
                 self?.imageView.image = image
+                self?.showImage()
             }
         }
     }
@@ -168,6 +180,7 @@ class PreviewController: UIViewController {
         if StoreUtility.fileProviderStorageExists(metadata) {
             guard let image = NextcloudUtility.shared.loadSVGPreview(metadata: metadata) else { return }
             imageView.image = image
+            self.showImage()
         } else {
             Task { [weak self] in
                 guard let self else { return }
@@ -178,8 +191,25 @@ class PreviewController: UIViewController {
                 
                 DispatchQueue.main.async { [weak self] in
                     self?.imageView.image = image
+                    self?.showImage()
                 }
             }
         }
+    }
+    
+    private func showImage() {
+        
+        view.addSubview(imageView)
+
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            imageView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            imageView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            imageView.topAnchor.constraint(equalTo: view.topAnchor),
+            imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+        
+        activityIndicator.stopAnimating()
     }
 }

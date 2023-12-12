@@ -68,11 +68,13 @@ class CollectionViewCell: UICollectionViewCell {
             return
         }
         
+        //imageView.image = nil
+        
         UIView.transition(with: self.imageView,
-                          duration: 0.6,
+                          duration: 1.5,
                           options: .transitionCrossDissolve,
-                          animations: { [weak self] in self?.imageView.image = image },
-                          completion: { [weak self] _ in self?.setBackgroundColor() } )
+                          animations: { [weak self] in self?.imageView.image = image }
+        )
         
         //imageView.image = image
     }
@@ -87,7 +89,7 @@ class CollectionViewCell: UICollectionViewCell {
     
     private func setBackgroundColor() {
         //for images with a transparent background. white looks the best regardless of theme
-        backgroundColor = .white
+        //backgroundColor = .white
     }
     
     private func initCell() {

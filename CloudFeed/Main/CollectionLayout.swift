@@ -141,6 +141,11 @@ class CollectionLayout: UICollectionViewFlowLayout {
     private func shortestColumnIndex(inSection section: Int) -> Int {
         return columnHeights[section].enumerated().min(by: { $0.element < $1.element })?.offset ?? 0
     }
+    
+    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        guard let collectionView = collectionView else { return false }
+        return !newBounds.size.equalTo(collectionView.bounds.size)
+    }
 }
 
 
