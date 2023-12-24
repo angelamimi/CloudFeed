@@ -168,16 +168,15 @@ class DataService: NSObject {
     
     func paginateFavoriteMetadata(offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
         
-        let account = Environment.current.currentUser?.account
-        guard account != nil else { return [] }
+        guard let account = Environment.current.currentUser?.account else { return [] }
+        guard let mediaPath = getMediaPath() else { return [] }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return [] }
         
-        let mediaPath = getMediaPath()
-        guard mediaPath != nil else { return [] }
-        
-        let startServerUrl = getStartServerUrl(mediaPath: mediaPath)
-        guard startServerUrl != nil else { return [] }
-        
-        return databaseManager.paginateFavoriteMetadata(account: account!, startServerUrl: startServerUrl!, offsetDate: offsetDate, offsetName: offsetName)
+        if offsetDate == nil || offsetName == nil {
+            return databaseManager.paginateFavoriteMetadata(account: account, startServerUrl: startServerUrl)
+        } else {
+            return databaseManager.paginateFavoriteMetadata(account: account, startServerUrl: startServerUrl, offsetDate: offsetDate!, offsetName: offsetName!)
+        }
     }
     
     func processFavorites(displayedMetadatas: [tableMetadata]) -> (delete: [tableMetadata], add: [tableMetadata])? {
@@ -283,15 +282,16 @@ class DataService: NSObject {
                                                 offsetDate: offsetDate, offsetName: offsetName)
     }
     
-    func searchMedia(toDate: Date, fromDate: Date, limit: Int) async -> (metadatas: [tableMetadata], added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata], error: Bool) {
+    func searchMedia(toDate: Date, fromDate: Date, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata], added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata], error: Bool) {
         
         guard let account = Environment.current.currentUser?.account else { return ([], [], [], [], true) }
         guard let mediaPath = getMediaPath() else { return ([], [], [], [], true) }
         guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return ([], [], [], [], true) }
         
-        //remote search
-        let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath, 
-                                                              toDate: toDate, fromDate: fromDate, limit: limit)
+        //remote search with large limit. allows for many files with the same date.
+        //need the extra buffer for pagination/continuous scrolling, and syncing when returning to screen.
+        let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath,
+                                                              toDate: toDate, fromDate: fromDate, limit: Global.shared.metadataPageSize)
         
         if searchResult.files.count == 0 {
             return ([], [], [], [], searchResult.error)
@@ -311,14 +311,19 @@ class DataService: NSObject {
         //add, update, delete stored metadata
         let processResult = databaseManager.processMetadatas(metadataCollection.metadatas, metadatasResult: metadatasResult)
         
-        let metadataPredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue)
+        let metadataPredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", 
+                                            account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue)
         
         //flag stored live photo files
         databaseManager.processMetadatasMedia(predicate: metadataPredicate)
         
         //filter out videos of the live photo file pair
-        let pagePredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false)", account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue, fromDate as NSDate, toDate as NSDate, NKCommon.TypeClassFile.image.rawValue)
-        let metadatas = databaseManager.getMetadatasMediaPage(predicate: pagePredicate)
+        let pagePredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false)", 
+                                        account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue, 
+                                        fromDate as NSDate, toDate as NSDate, NKCommon.TypeClassFile.image.rawValue)
+        
+        let metadatas = databaseManager.paginateMetadata(predicate: pagePredicate, offsetDate: toDate, offsetName: offsetName)
+        Self.logger.debug("searchMedia() - added: \(processResult.added.count) updated: \(processResult.updated.count) deleted: \(processResult.deleted.count)")
     
         return (metadatas, processResult.added, processResult.updated, processResult.deleted, false)
     }

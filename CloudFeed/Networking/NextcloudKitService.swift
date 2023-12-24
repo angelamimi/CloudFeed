@@ -85,13 +85,13 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
 
         let _ = await NextcloudKit.shared.downloadPreview(fileNamePathOrFileId: fileNamePath,
-                                                                      fileNamePreviewLocalPath: fileNamePreviewLocalPath,
-                                                                      widthPreview: Global.shared.sizePreview,
-                                                                      heightPreview: Global.shared.sizePreview,
-                                                                      fileNameIconLocalPath: fileNameIconLocalPath,
-                                                                      sizeIcon: Global.shared.sizeIcon,
-                                                                      etag: etagResource,
-                                                                      options: options)
+                                                          fileNamePreviewLocalPath: fileNamePreviewLocalPath,
+                                                          widthPreview: Global.shared.sizePreview,
+                                                          heightPreview: Global.shared.sizePreview,
+                                                          fileNameIconLocalPath: fileNameIconLocalPath,
+                                                          sizeIcon: Global.shared.sizeIcon,
+                                                          etag: etagResource,
+                                                          options: options)
     }
     
     func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String? {

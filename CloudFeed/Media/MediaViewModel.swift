@@ -25,9 +25,6 @@ final class MediaViewModel: NSObject {
     let delegate: MediaDelegate
     let dataService: DataService
     
-    private var previewTasks: [IndexPath: Task<Void, Never>] = [:]
-    private let queue = DispatchQueue(label: String(describing: MediaViewModel.self))
-    
     private let loadMoreThreshold = -80.0
     
     private static let logger = Logger(
@@ -87,7 +84,7 @@ final class MediaViewModel: NSObject {
         return nil
     }
     
-    func metadataSearch(offsetDate: Date, limit: Int, refresh: Bool) {
+    func metadataSearch(offsetDate: Date, offsetName: String?, limit: Int, refresh: Bool) {
         
         let days = -30
         guard let fromDate = Calendar.current.date(byAdding: .day, value: days, to: offsetDate) else { return }
@@ -96,10 +93,10 @@ final class MediaViewModel: NSObject {
             guard let self else { return }
             
             //saves metadata to be paginated
-            let results = await search(toDate: offsetDate, fromDate: fromDate, limit: limit)
+            let results = await search(toDate: offsetDate, fromDate: fromDate, offsetName: offsetName, limit: limit)
             
             //recursive call until enough results received or gone all the way back in time
-            await processSearchResult(metadatas: results.metadatas, toDate: offsetDate, fromDate: fromDate, days: days, refresh: refresh)
+            await processSearchResult(metadatas: results.metadatas, toDate: offsetDate, fromDate: fromDate, offsetName: offsetName, days: days, refresh: refresh)
         }
     }
     
@@ -111,7 +108,7 @@ final class MediaViewModel: NSObject {
             //Self.logger.debug("sync() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
             //Self.logger.debug("sync() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
             
-            let results = await search(toDate: toDate, fromDate: fromDate, limit: Global.shared.searchLimit)
+            let results = await search(toDate: toDate, fromDate: fromDate, offsetName: nil, limit: Global.shared.pageSize)
             
             guard results.metadatas != nil else { return }
             var updatedFavorites = getUpdatedFavorites(metadatas: results.metadatas!)
@@ -119,13 +116,14 @@ final class MediaViewModel: NSObject {
             updatedFavorites.append(contentsOf: results.updated)
             
             //Self.logger.debug("sync() - added: \(results.added.count) updated: \(results.updated.count) deleted: \(results.deleted.count)")
-            processSync(added: results.added, updated: updatedFavorites, deleted: results.deleted)
+            syncDatasource(added: results.added, updated: updatedFavorites, deleted: results.deleted)
         }
     }
     
     func loadMore() {
         
         var offsetDate: Date?
+        var offsetName: String?
 
         let snapshot = dataSource.snapshot()
         
@@ -135,38 +133,23 @@ final class MediaViewModel: NSObject {
                 /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
                     but might lose items with dates in the same second */
                 offsetDate = metadata!.date as Date
-                //Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
+                offsetName = metadata!.fileNameView
+                //Self.logger.debug("loadMore() - offsetName: \(offsetName!) offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
             }
         }
         
-        if offsetDate != nil {
-            metadataSearch(offsetDate: offsetDate!, limit: Global.shared.pageSize, refresh: false)
+        if offsetDate != nil && offsetName != nil {
+            metadataSearch(offsetDate: offsetDate!, offsetName: offsetName!, limit: Global.shared.pageSize, refresh: false)
         }
     }
     
-    func loadPreview(indexPath: IndexPath) {
+    private func loadPreview(indexPath: IndexPath) async {
         
-        guard let metadata = dataSource.itemIdentifier(for: indexPath) else { return }
+        guard let metadata = await dataSource.itemIdentifier(for: indexPath) else { return }
         
-        queue.async {
-            if !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
-                self.loadPreviewImageForMetadata(metadata, indexPath: indexPath)
-            }
-        }
+        await loadPreviewImageForMetadata(metadata, indexPath: indexPath)
     }
-    
-    func stopPreviewLoad(indexPath: IndexPath) {
-        
-        queue.async {
-            
-            guard let previewLoadTask = self.previewTasks[indexPath] else {
-                return
-            }
-            previewLoadTask.cancel()
-            self.previewTasks[indexPath] = nil
-        }
-    }
-    
+
     func toggleFavorite(metadata: tableMetadata) {
         
         Task { [weak self] in
@@ -193,43 +176,14 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    private func clearTask(indexPath: IndexPath) {
-        
-        queue.async {
-            if self.previewTasks[indexPath] != nil {
-                self.previewTasks[indexPath] = nil
-            }
-        }
-    }
-    
-    private func loadPreviewImageForMetadata(_ metadata: tableMetadata, indexPath: IndexPath) {
-        
-        previewTasks[indexPath] = Task { [weak self] in
-            guard let self else { return }
-            
-            defer { self.clearTask(indexPath: indexPath) }
-            
-            if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
-                await self.dataService.downloadVideoPreview(metadata: metadata)
-            } else if metadata.svg {
-                await loadSVG(metadata: metadata)
-            } else {
-                await self.dataService.downloadPreview(metadata: metadata)
-            }
-            
-            if Task.isCancelled { return }
-            
-            guard FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) else {
-                return
-            }
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                
-                var snapshot = self.dataSource.snapshot()
-                snapshot.reloadItems([metadata])
-                self.dataSource.apply(snapshot, animatingDifferences: false)
-            }
+    private func loadPreviewImageForMetadata(_ metadata: tableMetadata, indexPath: IndexPath) async {
+
+        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
+            await self.dataService.downloadVideoPreview(metadata: metadata)
+        } else if metadata.svg {
+            await loadSVG(metadata: metadata)
+        } else {
+            await self.dataService.downloadPreview(metadata: metadata)
         }
     }
     
@@ -251,10 +205,12 @@ final class MediaViewModel: NSObject {
         return upadatedFavorites
     }
     
-    private func processSync(added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
+    private func syncDatasource(added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
         
         var snapshot = dataSource.snapshot()
         let displayedMetadata = snapshot.itemIdentifiers(inSection: 0)
+        
+        guard displayedMetadata.count > 0 else { return }
         
         for delete in deleted {
             if displayedMetadata.contains(delete) {
@@ -262,25 +218,8 @@ final class MediaViewModel: NSObject {
             }
         }
         
-        let applySnapshot = snapshot
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            self.dataSource.apply(applySnapshot, animatingDifferences: true, completion: {
-                self.applyAddedUpdated(added: added, updated: updated)
-            })
-        }
-    }
-    
-    private func applyAddedUpdated(added: [tableMetadata], updated: [tableMetadata]) {
-        
-        var snapshot = dataSource.snapshot()
-        let displayedMetadata = snapshot.itemIdentifiers(inSection: 0)
-        
-        if added.count > 0 && displayedMetadata.count > 0 {
-            
+        if added.count > 0 {
             let firstItem = displayedMetadata.first!
-            
             for add in added {
                 if !displayedMetadata.contains(add) {
                     snapshot.insertItems([add], beforeItem: firstItem)
@@ -293,22 +232,21 @@ final class MediaViewModel: NSObject {
                 snapshot.reloadItems([update])
             }
         }
-            
+        
         DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            self.dataSource.apply(snapshot, animatingDifferences: true)
-            self.delegate.dataSourceUpdated()
+            self?.dataSource.apply(snapshot, animatingDifferences: true)
+            self?.delegate.dataSourceUpdated()
         }
     }
     
-    private func search(toDate: Date, fromDate: Date, limit: Int) async -> (metadatas: [tableMetadata]?, added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
+    private func search(toDate: Date, fromDate: Date, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata]?, added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
         
         //Self.logger.debug("search() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
         //Self.logger.debug("search() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
         
         delegate.searching()
         
-        let result = await dataService.searchMedia(toDate: toDate, fromDate: fromDate, limit: limit)
+        let result = await dataService.searchMedia(toDate: toDate, fromDate: fromDate, offsetName: offsetName, limit: limit)
         
         //Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
         
@@ -329,7 +267,7 @@ final class MediaViewModel: NSObject {
         return (sorted, result.added, result.updated, result.deleted)
     }
     
-    private func processSearchResult(metadatas: [tableMetadata]?, toDate: Date, fromDate: Date, days: Int, refresh: Bool) async {
+    private func processSearchResult(metadatas: [tableMetadata]?, toDate: Date, fromDate: Date, offsetName: String?, days: Int, refresh: Bool) async {
         
         guard let resultMetadatas = metadatas else {
             delegate.searchResultReceived(resultItemCount: nil)
@@ -339,7 +277,7 @@ final class MediaViewModel: NSObject {
         //display results
         applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
         
-        if resultMetadatas.count >= Global.shared.metadataPageSize {
+        if resultMetadatas.count >= Global.shared.pageSize {
             delegate.searchResultReceived(resultItemCount: resultMetadatas.count)
         } else {
             
@@ -354,8 +292,8 @@ final class MediaViewModel: NSObject {
             /*Self.logger.debug("processSearchResult() - toDate: \(span.toDate.formatted(date: .abbreviated, time: .standard))")
             Self.logger.debug("processSearchResult() - fromDate: \(span.fromDate.formatted(date: .abbreviated, time: .standard))")*/
 
-            let results = await search(toDate: span.toDate, fromDate: span.fromDate, limit: Global.shared.metadataPageSize)
-            await processSearchResult(metadatas: results.metadatas, toDate: span.toDate, fromDate: span.fromDate, days: span.spanDays, refresh: refresh)
+            let results = await search(toDate: span.toDate, fromDate: span.fromDate, offsetName: offsetName, limit: Global.shared.pageSize)
+            await processSearchResult(metadatas: results.metadatas, toDate: span.toDate, fromDate: span.fromDate, offsetName: offsetName, days: span.spanDays, refresh: refresh)
         }
     }
     
@@ -429,6 +367,10 @@ final class MediaViewModel: NSObject {
     private func setImage(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath) async {
         
         if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+
+            if metadata.gif || metadata.svg {
+                await cell.setContentMode(isLongImage: true)
+            }
             
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
                 await cell.showVideoIcon()
@@ -438,20 +380,29 @@ final class MediaViewModel: NSObject {
                 await cell.resetStatusIcon()
             }
             
-            //await cell.setBackgroundColor()
-            
             let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
-            
-            if image != nil {
-                //too wide or tall and the preview appears to shrink. allow image to be cut off
-                await cell.setContentMode(isLongImage: NextcloudUtility.shared.isLongImage(imageSize: image!.size))
-            }
-            
             await cell.setImage(image)
+            
         } else {
-            //Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(metadata.ocId)")
-            await cell.resetStatusIcon()
+            
             await cell.setImage(nil)
+            await loadPreview(indexPath: indexPath)
+
+            applyUpdateForMetadata(metadata)
+        }
+    }
+    
+    private func applyUpdateForMetadata(_ metadata: tableMetadata) {
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
+            var snapshot = self.dataSource.snapshot()
+            
+            if snapshot.itemIdentifiers.contains(metadata) {
+                snapshot.reconfigureItems([metadata])
+                self.dataSource.apply(snapshot, animatingDifferences: true)
+            }
         }
     }
     

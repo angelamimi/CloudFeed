@@ -91,6 +91,7 @@
 		39C31E8E2A7994880045DF50 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8D2A7994880045DF50 /* DataService.swift */; };
 		39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */; };
 		39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */; };
+		39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -202,6 +203,7 @@
 		39C31E8D2A7994880045DF50 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 		39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudKitService.swift; sourceTree = "<group>"; };
 		39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Metadata.swift"; sourceTree = "<group>"; };
+		39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -375,6 +377,7 @@
 				39B03F0C29C53FD300704670 /* CollectionViewCell.swift */,
 				3972EE9D2ADEC27F0020EEC7 /* CollectionController.swift */,
 				39271D4729D7694E00522DFD /* CollectionLayout.swift */,
+				39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */,
 				39B449A82AEAA790003DA6BA /* PreviewController.swift */,
 				3966634629DF34AD005727D4 /* EmptyView.swift */,
 				39271D5829D7A05100522DFD /* TitleView.swift */,
@@ -617,6 +620,7 @@
 				391579A62AB0BF2C00DFEAB1 /* MediaViewModel.swift in Sources */,
 				391579AA2AB3D8B800DFEAB1 /* SettingsViewModel.swift in Sources */,
 				3972EE9E2ADEC27F0020EEC7 /* CollectionController.swift in Sources */,
+				39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */,
 				39271D5B29D8D7CD00522DFD /* FavoritesController.swift in Sources */,
 				39271D7529DA66D800522DFD /* UIImage+Extensions.swift in Sources */,
 				39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */,

@@ -257,10 +257,19 @@ extension DatabaseManager {
         return tableMetadata.init(value: result)
     }
     
-    func paginateFavoriteMetadata(account: String, startServerUrl: String, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+    func paginateFavoriteMetadata(account: String, startServerUrl: String) -> [tableMetadata] {
         
         let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
                                     account, startServerUrl, NKCommon.TypeClassFile.image.rawValue)
+
+        return paginateMetadata(predicate: predicate, offsetDate: nil, offsetName: nil)
+    }
+    
+    func paginateFavoriteMetadata(account: String, startServerUrl: String, offsetDate: Date, offsetName: String) -> [tableMetadata] {
+        
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+                                    account, startServerUrl, offsetDate as NSDate,
+                                    NKCommon.TypeClassFile.image.rawValue)
 
         return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
     }
@@ -291,7 +300,7 @@ extension DatabaseManager {
         return Array(results.map { tableMetadata.init(value: $0) })
     }
     
-    private func paginateMetadata(predicate: NSPredicate, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+    func paginateMetadata(predicate: NSPredicate, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
     
         let realm = try! Realm()
         realm.refresh()
@@ -330,19 +339,6 @@ extension DatabaseManager {
         
         return metadatas
     }
-    
-    func getMetadatasMediaPage(predicate: NSPredicate) -> [tableMetadata] {
-        let realm = try! Realm()
-        realm.refresh()
-        
-        let sortProperties = [SortDescriptor(keyPath: "serverUrl", ascending: false),
-                              SortDescriptor(keyPath:  "date", ascending: false),
-                              SortDescriptor(keyPath:  "fileNameView", ascending: false)]
-
-        let results = realm.objects(tableMetadata.self).filter(predicate).sorted(by: sortProperties)
-
-        return Array(results.map { tableMetadata.init(value: $0) })
-    }
 
     func processMetadatasMedia(predicate: NSPredicate) {
         
@@ -351,8 +347,7 @@ extension DatabaseManager {
 
         do {
             try realm.write {
-                let sortProperties = [SortDescriptor(keyPath: "serverUrl", ascending: false),
-                                      SortDescriptor(keyPath:  "fileNameView", ascending: false)]
+                let sortProperties = [SortDescriptor(keyPath:  "fileNameView", ascending: false)]
                 let results = realm.objects(tableMetadata.self).filter(predicate).sorted(by: sortProperties)
                 
                 for index in results.indices {

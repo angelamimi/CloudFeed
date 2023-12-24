@@ -93,7 +93,7 @@ final class FavoritesViewModel: NSObject {
         guard let offsetDate = offsetDate else { return }
         guard let offsetName = offsetName else { return }
         
-        //Self.logger.debug("loadMore() - offsetName: \(offsetName) offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("loadMore() - offsetName: \(offsetName) offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
         
         sync(offsetDate: offsetDate, offsetName: offsetName)
     }
@@ -158,14 +158,14 @@ final class FavoritesViewModel: NSObject {
             var snapshot = dataSource.snapshot()
             let displayed = snapshot.itemIdentifiers(inSection: 0)
             
-            //Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
+            Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
             
             guard let result = dataService.processFavorites(displayedMetadatas: displayed) else {
                 delegate.dataSourceUpdated()
                 return
             }
             
-            //Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
+            Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
             
             guard result.delete.count > 0 || result.add.count > 0 else {
                 delegate.dataSourceUpdated()
@@ -188,36 +188,11 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    func loadPreview(indexPath: IndexPath) {
+    private func loadPreview(indexPath: IndexPath) async {
         
-        guard let metadata = dataSource.itemIdentifier(for: indexPath) else { return }
+        guard let metadata = await dataSource.itemIdentifier(for: indexPath) else { return }
         
-        queue.async { [weak self] in
-            if !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
-                self?.loadPreviewImageForMetadata(metadata, indexPath: indexPath)
-            }
-        }
-    }
-    
-    func stopPreviewLoad(indexPath: IndexPath) {
-        
-        queue.async { [weak self] in
-            
-            guard let previewLoadTask = self?.previewTasks[indexPath] else {
-                return
-            }
-            previewLoadTask.cancel()
-            self?.previewTasks[indexPath] = nil
-        }
-    }
-    
-    private func clearTask(indexPath: IndexPath) {
-        
-        queue.async { [weak self] in
-            if self?.previewTasks[indexPath] != nil {
-                self?.previewTasks[indexPath] = nil
-            }
-        }
+        await self.loadPreviewImageForMetadata(metadata, indexPath: indexPath)
     }
     
     func bulkEdit(indexPaths: [IndexPath]) async {
@@ -248,34 +223,14 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func loadPreviewImageForMetadata(_ metadata: tableMetadata, indexPath: IndexPath) {
-        
-        previewTasks[indexPath] = Task { [weak self] in
-            guard let self else { return }
-        
-            defer { self.clearTask(indexPath: indexPath) }
-            
-            if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
-                await self.dataService.downloadVideoPreview(metadata: metadata)
-            } else if metadata.svg {
-                await loadSVG(metadata: metadata)
-            } else {
-                await self.dataService.downloadPreview(metadata: metadata)
-            }
-            
-            if Task.isCancelled { return }
-            
-            guard FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) else {
-                return
-            }
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                
-                var snapshot = self.dataSource.snapshot()
-                snapshot.reloadItems([metadata])
-                self.dataSource.apply(snapshot, animatingDifferences: false)
-            }
+    private func loadPreviewImageForMetadata(_ metadata: tableMetadata, indexPath: IndexPath) async {
+
+        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
+            await self.dataService.downloadVideoPreview(metadata: metadata)
+        } else if metadata.svg {
+            await loadSVG(metadata: metadata)
+        } else {
+            await self.dataService.downloadPreview(metadata: metadata)
         }
     }
     
@@ -288,6 +243,10 @@ final class FavoritesViewModel: NSObject {
         
         if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag)) {
             
+            if metadata.gif || metadata.svg {
+                await cell.setContentMode(isLongImage: true)
+            }
+            
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
                 await cell.showVideoIcon()
             } else if metadata.livePhoto {
@@ -296,49 +255,32 @@ final class FavoritesViewModel: NSObject {
                 await cell.resetStatusIcon()
             }
             
-            //await cell.setBackgroundColor()
-            
             let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
-            
-            if image != nil {
-                await cell.setContentMode(isLongImage: NextcloudUtility.shared.isLongImage(imageSize: image!.size))
-            }
-            
             await cell.setImage(image)
             
         }  else {
             //Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(ocId)")
-            await cell.resetStatusIcon()
             await cell.setImage(nil)
+            await loadPreview(indexPath: indexPath)
+
+            applyUpdateForMetadata(metadata)
         }
         
         delegate.editCellUpdated(cell: cell, indexPath: indexPath)
     }
     
-    private func processMetadata(resultMetadatas: [tableMetadata]) -> [tableMetadata] {
+    private func applyUpdateForMetadata(_ metadata: tableMetadata) {
         
-        var metadatas : [tableMetadata] = []
-        
-        if resultMetadatas.count > 0 {
-
-            //TODO: Allow user to sort?
-            let sorted = resultMetadatas.sorted(by: {($0.date as Date) > ($1.date as Date)} )
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
             
-            //Filter out live photo movies. Only show the jpg in favorites.
-            for metadata in sorted {
-                if metadata.livePhoto && (metadata.fileNameView as NSString).pathExtension.lowercased() == "mov" {
-                    continue
-                }
-                metadatas.append(metadata)
+            var snapshot = self.dataSource.snapshot()
+            
+            if snapshot.itemIdentifiers.contains(metadata) {
+                snapshot.reconfigureItems([metadata])
+                self.dataSource.apply(snapshot, animatingDifferences: true)
             }
         }
-        
-        //Self.logger.debug("processMetadata() - new metadata count: \(metadatas.count) result count: \(resultMetadatas.count)")
-        
-        //let idArray = metadatas.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        //Self.logger.debug("processMetadata() - metadatas: \(idArray)")
-        
-        return metadatas
     }
     
     private func applyDatasourceChanges(metadatas: [tableMetadata], refresh: Bool) async {

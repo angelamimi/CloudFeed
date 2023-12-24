@@ -32,7 +32,7 @@ class FavoritesController: CollectionController {
         
         viewModel.initDataSource(collectionView: collectionView)
         
-        initCollectionView(delegate: self)
+        initCollectionView()
         initTitleView(mediaView: self, allowEdit: true)
         initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
         initConstraints()
@@ -264,28 +264,7 @@ extension FavoritesController: MediaViewController {
     }
 }
 
-extension FavoritesController : CollectionLayoutDelegate {
-    
-    func collectionView(_ collectionView: UICollectionView, sizeOfPhotoAtIndexPath indexPath: IndexPath) -> CGSize {
-
-        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return CGSize(width: 0, height: 0) }
-        var imageSize: CGSize?
-        
-        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
-            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
-            if image != nil {
-                imageSize = image!.size
-            }
-        }
-        return NextcloudUtility.shared.adjustSize(imageSize: imageSize)
-    }
-}
-
 extension FavoritesController: UICollectionViewDelegate {
-    
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        viewModel.loadPreview(indexPath: indexPath)
-    }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if isEditing {

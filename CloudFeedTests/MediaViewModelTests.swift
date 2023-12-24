@@ -34,7 +34,8 @@ final class MediaViewModelTests: BaseTest {
         expectation = expectation(description: "media search")
         
         let offsetDate = Calendar.current.date(from: DateComponents.init(year: 2020, month: 7, day: 4, hour: 3, minute: 31, second: 25))
-        mediaViewModel?.metadataSearch(offsetDate: offsetDate!, limit: 10, refresh: false)
+
+        mediaViewModel?.metadataSearch(offsetDate: offsetDate!, offsetName: nil, limit: 10, refresh: false)
         
         waitForExpectations(timeout: 1)
         

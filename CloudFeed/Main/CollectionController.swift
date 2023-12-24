@@ -19,9 +19,9 @@ class CollectionController: UIViewController {
     
     private var refreshControl = UIRefreshControl()
     private var titleView: TitleView?
-    private var layout: CollectionLayout?
+    private var layout: FlowLayout?
     
-    private let scrollThreshold = -80.0
+    //private let scrollThreshold = -200.0
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -90,42 +90,38 @@ class CollectionController: UIViewController {
     func zoomIn() {
         
         guard layout != nil else { return }
-        let columns = self.layout?.numberOfColumns ?? 0
+        let columns = self.layout?.cellsPerRow ?? 0
         
         if columns - 1 > 0 {
-            self.layout?.numberOfColumns -= 1
+            self.layout?.cellsPerRow -= 1
         }
-        
-        UIView.animate(withDuration: 0.0, animations: {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-        })
     }
     
     func zoomOut(currentItemCount: Int) {
         
         guard layout != nil else { return }
         
-        guard self.layout!.numberOfColumns + 1 <= currentItemCount else { return }
+        guard self.layout!.cellsPerRow + 1 <= currentItemCount else { return }
         
-        if self.layout!.numberOfColumns + 1 < 5 {
-            self.layout!.numberOfColumns += 1
+        if self.layout!.cellsPerRow + 1 < 5 {
+            self.layout!.cellsPerRow += 1
         }
-        
-        UIView.animate(withDuration: 0.0, animations: {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-        })
     }
     
-    func initCollectionView(delegate: CollectionLayoutDelegate) {
+    func initCollectionView() {
         
-        layout = CollectionLayout()
-        layout?.delegate = delegate
-        layout?.numberOfColumns = UIDevice.current.userInterfaceIdiom == .pad ? 4 : 2
+        let cellsPerRow = UIDevice.current.userInterfaceIdiom == .pad ? 3 : 2
         
-        collectionView.collectionViewLayout = layout!
+        let layout = FlowLayout(cellsPerRow: cellsPerRow)
+        
+        self.collectionView.collectionViewLayout = layout
+        self.layout = layout
         
         refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
         collectionView.refreshControl = refreshControl
+        
+        //collectionView.prefetchDataSource = self
+        //collectionView.isPrefetchingEnabled = true
     }
     
     func initTitleView(mediaView: MediaViewController, allowEdit: Bool) {
@@ -180,6 +176,18 @@ class CollectionController: UIViewController {
     }
 }
 
+/*extension CollectionController : UICollectionViewDataSourcePrefetching {
+    
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        Self.logger.debug("prefetchItemsAt() - indexPaths: \(indexPaths)")
+        //prefetchItemsAt(indexPaths)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
+        Self.logger.debug("cancelPrefetchingForItemsAt() - indexPaths: \(indexPaths)")
+    }
+}*/
+
 extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
@@ -187,24 +195,18 @@ extension CollectionController : UIScrollViewDelegate {
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        setTitle()
-    }
 
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        setTitle()
 
         guard isEditing == false else { return }
         
-        if scrollView.contentOffset.y <= scrollThreshold {
-            //refresh()
-        } else {
-            let currentOffset = scrollView.contentOffset.y
-            let maximumOffset = scrollView.contentSize.height - scrollView.frame.size.height
-            let difference = maximumOffset - currentOffset
-            
-            if difference <= scrollThreshold {
-                loadMoreIndicator.startAnimating()
-                loadMore()
-            }
+        let count = collectionView.numberOfItems(inSection: 0)
+        let lastIndexPath = IndexPath(item: count - 1, section: 0)
+        
+        if collectionView.indexPathsForVisibleItems.contains(lastIndexPath) && loadMoreIndicator.isAnimating == false {
+            Self.logger.debug("scrollViewDidEndDecelerating() - LOAD MORE")
+            loadMoreIndicator.startAnimating()
+            loadMore()
         }
     }
 }

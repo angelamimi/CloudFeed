@@ -63,20 +63,24 @@ class CollectionViewCell: UICollectionViewCell {
     
     func setImage(_ image: UIImage?) {
         
-        guard image != nil else {
-            imageView.image = nil
-            return
+        DispatchQueue.main.async { [weak self] in
+            guard image != nil else {
+                self?.imageView.image = nil
+                return
+            }
+            
+            //imageView.image = nil
+            
+            guard let self else { return }
+            
+            UIView.transition(with: self.imageView,
+                 duration: 0.5,
+                 options: .transitionCrossDissolve,
+                 animations: { [weak self] in self?.imageView.image = image }
+             )
+            
+            self.imageView.image = image
         }
-        
-        //imageView.image = nil
-        
-        UIView.transition(with: self.imageView,
-                          duration: 1.5,
-                          options: .transitionCrossDissolve,
-                          animations: { [weak self] in self?.imageView.image = image }
-        )
-        
-        //imageView.image = image
     }
     
     func setContentMode(isLongImage: Bool) {
@@ -97,6 +101,8 @@ class CollectionViewCell: UICollectionViewCell {
         imageStatus.image = nil
         imageView.image = nil
         imageFavorite.image = nil
+        
+        imageView.contentMode = .scaleAspectFill
         
         backgroundColor = .secondarySystemBackground
         

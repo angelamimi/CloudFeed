@@ -56,7 +56,7 @@ final class NextclouldServiceTests: BaseTest {
         let toDate = Calendar.current.date(from: DateComponents.init(year: 2020, month: 7, day: 4, hour: 3, minute: 31, second: 25))
         let fromDate = Calendar.current.date(byAdding: .day, value: -30, to: toDate!)!
         
-        let result = await dataService?.searchMedia(toDate: toDate!, fromDate: fromDate, limit: 20)
+        let result = await dataService?.searchMedia(toDate: toDate!, fromDate: fromDate, offsetName: nil, limit: 20)
         
         XCTAssertNotNil(result)
         
@@ -73,7 +73,7 @@ final class NextclouldServiceTests: BaseTest {
         let toDate = Date()
         let fromDate = Date()
         
-        let result = await dataService?.searchMedia(toDate: toDate, fromDate: fromDate, limit: 20)
+        let result = await dataService?.searchMedia(toDate: toDate, fromDate: fromDate, offsetName: "", limit: 20)
         
         XCTAssertNotNil(result)
         
@@ -92,7 +92,7 @@ final class NextclouldServiceTests: BaseTest {
         let toDate = Date()
         let fromDate = Date()
         
-        let result = await dataService?.searchMedia(toDate: toDate, fromDate: fromDate, limit: 20)
+        let result = await dataService?.searchMedia(toDate: toDate, fromDate: fromDate, offsetName: "", limit: 20)
         
         XCTAssertNotNil(result)
         

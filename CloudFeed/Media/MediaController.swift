@@ -30,7 +30,7 @@ class MediaController: CollectionController {
         
         viewModel.initDataSource(collectionView: collectionView)
         initTitleView(mediaView: self, allowEdit: false)
-        initCollectionView(delegate: self)
+        initCollectionView()
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
         initConstraints()
         initObservers()
@@ -45,7 +45,7 @@ class MediaController: CollectionController {
     }
     
     override func refresh() {
-        viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize, refresh: true)
+        viewModel.metadataSearch(offsetDate: Date(), offsetName: nil, limit: Global.shared.pageSize, refresh: true)
     }
     
     override func loadMore() {
@@ -81,7 +81,7 @@ class MediaController: CollectionController {
         
         if syncDateRange.toDate == nil || syncDateRange.fromDate == nil {
             hideMenu()
-            viewModel.metadataSearch(offsetDate: Date(), limit: Global.shared.metadataPageSize, refresh: false)
+            viewModel.metadataSearch(offsetDate: Date(), offsetName: nil, limit: Global.shared.pageSize, refresh: false)
         } else {
             viewModel.sync(toDate: syncDateRange.toDate!, fromDate: syncDateRange.fromDate!)
         }
@@ -183,36 +183,10 @@ extension MediaController: MediaDelegate {
     }
 }
 
-extension MediaController: CollectionLayoutDelegate {
-    
-    func collectionView(_ collectionView: UICollectionView, sizeOfPhotoAtIndexPath indexPath: IndexPath) -> CGSize {
-
-        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return CGSize(width: 0, height: 0) }
-        var imageSize: CGSize?
-        
-        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
-            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
-            if image != nil {
-                imageSize = image!.size
-            }
-        }
-        
-        return NextcloudUtility.shared.adjustSize(imageSize: imageSize)
-    }
-}
-
 extension MediaController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         openViewer(indexPath: indexPath)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        viewModel.loadPreview(indexPath: indexPath)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        viewModel.stopPreviewLoad(indexPath: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
