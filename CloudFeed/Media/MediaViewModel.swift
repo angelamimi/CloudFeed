@@ -388,7 +388,10 @@ final class MediaViewModel: NSObject {
             await cell.setImage(nil)
             await loadPreview(indexPath: indexPath)
 
-            applyUpdateForMetadata(metadata)
+            //only update datasource if preview was actually downloaded
+            if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+                applyUpdateForMetadata(metadata)
+            }
         }
     }
     

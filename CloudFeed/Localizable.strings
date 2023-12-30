@@ -34,7 +34,7 @@
 "Init.Error.Message" = "Initialization failed. Please try again.";
 "Url.Error.Message" = "Failed to load URL. Please try again.";
 "Login.Server.Label" = "Server URL";
-"Login.Server.Button" = "Go";
+"Login.Server.Button" = "Connect";
 "Login.Server.Title" = "Server Login";
 
 /* Media */

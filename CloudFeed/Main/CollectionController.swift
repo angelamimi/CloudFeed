@@ -19,7 +19,6 @@ class CollectionController: UIViewController {
     
     private var refreshControl = UIRefreshControl()
     private var titleView: TitleView?
-    private var layout: FlowLayout?
     
     //private let scrollThreshold = -200.0
     
@@ -89,22 +88,23 @@ class CollectionController: UIViewController {
     
     func zoomIn() {
         
-        guard layout != nil else { return }
-        let columns = self.layout?.cellsPerRow ?? 0
+        guard let layout = collectionView.collectionViewLayout as? FlowLayout else { return }
+        
+        let columns = layout.cellsPerRow
         
         if columns - 1 > 0 {
-            self.layout?.cellsPerRow -= 1
+            layout.cellsPerRow -= 1
         }
     }
     
     func zoomOut(currentItemCount: Int) {
+
+        guard let layout = collectionView.collectionViewLayout as? FlowLayout else { return }
         
-        guard layout != nil else { return }
+        guard layout.cellsPerRow + 1 <= currentItemCount else { return }
         
-        guard self.layout!.cellsPerRow + 1 <= currentItemCount else { return }
-        
-        if self.layout!.cellsPerRow + 1 < 5 {
-            self.layout!.cellsPerRow += 1
+        if layout.cellsPerRow + 1 < 5 {
+            layout.cellsPerRow += 1
         }
     }
     
@@ -114,14 +114,11 @@ class CollectionController: UIViewController {
         
         let layout = FlowLayout(cellsPerRow: cellsPerRow)
         
-        self.collectionView.collectionViewLayout = layout
-        self.layout = layout
+        collectionView.collectionViewLayout = layout
         
         refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
         collectionView.refreshControl = refreshControl
-        
-        //collectionView.prefetchDataSource = self
-        //collectionView.isPrefetchingEnabled = true
+        collectionView.isPrefetchingEnabled = false
     }
     
     func initTitleView(mediaView: MediaViewController, allowEdit: Bool) {

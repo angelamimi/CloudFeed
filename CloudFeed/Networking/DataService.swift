@@ -323,7 +323,7 @@ class DataService: NSObject {
                                         fromDate as NSDate, toDate as NSDate, NKCommon.TypeClassFile.image.rawValue)
         
         let metadatas = databaseManager.paginateMetadata(predicate: pagePredicate, offsetDate: toDate, offsetName: offsetName)
-        Self.logger.debug("searchMedia() - added: \(processResult.added.count) updated: \(processResult.updated.count) deleted: \(processResult.deleted.count)")
+        //Self.logger.debug("searchMedia() - added: \(processResult.added.count) updated: \(processResult.updated.count) deleted: \(processResult.deleted.count)")
     
         return (metadatas, processResult.added, processResult.updated, processResult.deleted, false)
     }
