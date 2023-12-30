@@ -147,7 +147,6 @@ class FavoritesController: CollectionController {
     
     private func enteringForeground() {
         if isViewLoaded && view.window != nil {
-            Self.logger.debug("enteringForeground() - executing refresh")
             refresh()
         }
     }

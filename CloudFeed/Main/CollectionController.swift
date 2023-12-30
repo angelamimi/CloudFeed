@@ -173,18 +173,6 @@ class CollectionController: UIViewController {
     }
 }
 
-/*extension CollectionController : UICollectionViewDataSourcePrefetching {
-    
-    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-        Self.logger.debug("prefetchItemsAt() - indexPaths: \(indexPaths)")
-        //prefetchItemsAt(indexPaths)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
-        Self.logger.debug("cancelPrefetchingForItemsAt() - indexPaths: \(indexPaths)")
-    }
-}*/
-
 extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
@@ -201,7 +189,6 @@ extension CollectionController : UIScrollViewDelegate {
         let lastIndexPath = IndexPath(item: count - 1, section: 0)
         
         if collectionView.indexPathsForVisibleItems.contains(lastIndexPath) && loadMoreIndicator.isAnimating == false {
-            Self.logger.debug("scrollViewDidEndDecelerating() - LOAD MORE")
             loadMoreIndicator.startAnimating()
             loadMore()
         }

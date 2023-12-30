@@ -69,7 +69,6 @@ class PagerController: UIViewController, MediaViewController {
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        Self.logger.debug("viewDidDisappear()")
         self.titleView?.menuButton.menu = nil
     }
     
@@ -121,8 +120,6 @@ extension PagerController: PagerViewModelDelegate {
     
     func finishedPaging(metadata: tableMetadata) {
         titleView?.title.text = metadata.fileNameView
-    
-        Self.logger.debug("finishedPaging() - favorite: \(metadata.favorite)")
         setFavoriteMenu(isFavorite: metadata.favorite)
     }
     

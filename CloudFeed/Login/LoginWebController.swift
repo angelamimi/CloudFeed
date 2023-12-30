@@ -84,13 +84,6 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         }
     }
     
-    /*func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        guard let url = webView.url else { return }
-        
-        let urlString: String = url.absoluteString.lowercased()
-        Self.logger.debug("didStartProvisionalNavigation() - urlString: \(urlString)")
-    }*/
-    
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
 
         var errorMessage = error.localizedDescription

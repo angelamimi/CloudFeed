@@ -93,7 +93,7 @@ final class FavoritesViewModel: NSObject {
         guard let offsetDate = offsetDate else { return }
         guard let offsetName = offsetName else { return }
         
-        Self.logger.debug("loadMore() - offsetName: \(offsetName) offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
+        //Self.logger.debug("loadMore() - offsetName: \(offsetName) offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
         
         sync(offsetDate: offsetDate, offsetName: offsetName)
     }
@@ -158,14 +158,14 @@ final class FavoritesViewModel: NSObject {
             var snapshot = dataSource.snapshot()
             let displayed = snapshot.itemIdentifiers(inSection: 0)
             
-            Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
+            //Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
             
             guard let result = dataService.processFavorites(displayedMetadatas: displayed) else {
                 delegate.dataSourceUpdated()
                 return
             }
             
-            Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
+            //Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
             
             guard result.delete.count > 0 || result.add.count > 0 else {
                 delegate.dataSourceUpdated()

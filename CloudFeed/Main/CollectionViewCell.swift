@@ -91,9 +91,8 @@ class CollectionViewCell: UICollectionViewCell {
         }
     }
     
-    private func setBackgroundColor() {
-        //for images with a transparent background. white looks the best regardless of theme
-        //backgroundColor = .white
+    func clearBackground() {
+        backgroundColor = .clear
     }
     
     private func initCell() {

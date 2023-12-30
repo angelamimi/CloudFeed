@@ -25,8 +25,6 @@ final class MediaViewModel: NSObject {
     let delegate: MediaDelegate
     let dataService: DataService
     
-    private let loadMoreThreshold = -80.0
-    
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: MediaViewModel.self)
@@ -370,6 +368,7 @@ final class MediaViewModel: NSObject {
 
             if metadata.gif || metadata.svg {
                 await cell.setContentMode(isLongImage: true)
+                await cell.clearBackground()
             }
             
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
