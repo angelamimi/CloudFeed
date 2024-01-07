@@ -799,7 +799,7 @@
 				CODE_SIGN_ENTITLEMENTS = CloudFeed/CloudFeed.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = LB7Q63276B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CloudFeed/Info.plist;
@@ -837,7 +837,7 @@
 				CODE_SIGN_ENTITLEMENTS = CloudFeed/CloudFeed.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = LB7Q63276B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CloudFeed/Info.plist;

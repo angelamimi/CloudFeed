@@ -125,26 +125,6 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func processFavoriteResult(error: Bool) {
-        if error {
-            delegate.fetchResultReceived(resultItemCount: nil)
-        }
-    }
-    
-    func sync(offsetDate: Date, offsetName: String) {
-        
-        delegate.fetching()
-        
-        Task { [weak self] in
-            guard let self else { return }
-
-            _ = await self.dataService.getFavorites()
-            
-            let resultMetadatas = self.dataService.paginateFavoriteMetadata(offsetDate: offsetDate, offsetName: offsetName)
-            await applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
-        }
-    }
-    
     func syncFavs() {
         
         delegate.fetching()
@@ -158,14 +138,14 @@ final class FavoritesViewModel: NSObject {
             var snapshot = dataSource.snapshot()
             let displayed = snapshot.itemIdentifiers(inSection: 0)
             
-            //Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
+            Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
             
             guard let result = dataService.processFavorites(displayedMetadatas: displayed) else {
                 delegate.dataSourceUpdated()
                 return
             }
             
-            //Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
+            Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
             
             guard result.delete.count > 0 || result.add.count > 0 else {
                 delegate.dataSourceUpdated()
@@ -185,6 +165,26 @@ final class FavoritesViewModel: NSObject {
                     self?.delegate.dataSourceUpdated()
                 })
             }
+        }
+    }
+    
+    private func processFavoriteResult(error: Bool) {
+        if error {
+            delegate.fetchResultReceived(resultItemCount: nil)
+        }
+    }
+    
+    private func sync(offsetDate: Date, offsetName: String) {
+        
+        delegate.fetching()
+        
+        Task { [weak self] in
+            guard let self else { return }
+
+            _ = await self.dataService.getFavorites()
+            
+            let resultMetadatas = self.dataService.paginateFavoriteMetadata(offsetDate: offsetDate, offsetName: offsetName)
+            await applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
         }
     }
     

@@ -184,28 +184,25 @@ class DataService: NSObject {
         guard let account = Environment.current.currentUser?.account else { return nil }
         guard let mediaPath = getMediaPath() else { return nil }
         guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return nil }
-        guard let fromDate = displayedMetadatas.last?.date as? Date else { return nil }
-        
+
         var delete: [tableMetadata] = []
         var add: [tableMetadata] = []
 
-        let savedMetadatas = databaseManager.fetchFavoriteMetadata(account: account, startServerUrl: startServerUrl,
-                                              fromDate: fromDate, toDate: Date.now)
+        let savedFavorites = databaseManager.fetchFavoriteMetadata(account: account, startServerUrl: startServerUrl)
         
-        //Self.logger.debug("processFavorites() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
-        //Self.logger.debug("processFavorites() - savedMetadatas count: \(savedMetadatas.count) displayedMetadatas count: \(displayedMetadatas.count)")
+        Self.logger.debug("processFavorites() - savedFavorites count: \(savedFavorites.count) displayedMetadatas count: \(displayedMetadatas.count)")
         
         //if displayed but doesn't exist in db, flag for delete
         for displayedMetadata in displayedMetadatas {
-            if savedMetadatas.firstIndex(where: { $0.ocId == displayedMetadata.ocId }) == nil {
+            if savedFavorites.firstIndex(where: { $0.ocId == displayedMetadata.ocId }) == nil {
                 delete.append(displayedMetadata)
             }
         }
         
         //if exists in db, but is not displayed, flag for add
-        for savedMetadata in savedMetadatas {
-            if displayedMetadatas.firstIndex(where: { $0.ocId == savedMetadata.ocId }) == nil {
-                add.append(savedMetadata)
+        for saved in savedFavorites {
+            if displayedMetadatas.firstIndex(where: { $0.ocId == saved.ocId }) == nil {
+                add.append(saved)
             }
         }
         

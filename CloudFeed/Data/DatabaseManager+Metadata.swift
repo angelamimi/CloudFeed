@@ -283,11 +283,10 @@ extension DatabaseManager {
         return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
     }
     
-    func fetchFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [tableMetadata] {
+    func fetchFavoriteMetadata(account: String, startServerUrl: String) -> [tableMetadata] {
         
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
-                                    account, startServerUrl, fromDate as NSDate, toDate as NSDate,
-                                    NKCommon.TypeClassFile.image.rawValue)
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+                                    account, startServerUrl, NKCommon.TypeClassFile.image.rawValue)
         
         let sortProperties = [SortDescriptor(keyPath: "date", ascending: false),
                               SortDescriptor(keyPath:  "fileNameView", ascending: false)]
