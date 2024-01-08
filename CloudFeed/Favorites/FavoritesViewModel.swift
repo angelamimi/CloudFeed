@@ -154,8 +154,41 @@ final class FavoritesViewModel: NSObject {
             
             if result.delete.count > 0 { snapshot.deleteItems(result.delete) }
             
-            if result.add.count > 0 && snapshot.itemIdentifiers.first != nil {
+            /*if result.add.count > 0 && snapshot.itemIdentifiers.first != nil {
                 snapshot.insertItems(result.add, beforeItem: snapshot.itemIdentifiers.first!)
+            }*/
+            
+            if result.add.count > 0 {
+                
+                if snapshot.numberOfItems > 0 {
+                    
+                    //loop through each item to be added and find where it fits in the visible collection by date and possibly name
+                    for result in result.add {
+                        
+                        for visibleItem in displayed {
+                            
+                            let resultTime = result.date.timeIntervalSinceReferenceDate
+                            let visibleTime = visibleItem.date.timeIntervalSinceReferenceDate
+                            
+                            if resultTime > visibleTime {
+                                snapshot.insertItems([result], beforeItem: visibleItem)
+                                break
+                            } else if resultTime == visibleTime {
+                                if result.fileNameView > visibleItem.fileNameView {
+                                    snapshot.insertItems([result], beforeItem: visibleItem)
+                                    break
+                                }
+                            }
+                        }
+                        
+                        if snapshot.itemIdentifiers.contains(result) == false {
+                            snapshot.appendItems([result])
+                        }
+                    }
+                    
+                } else {
+                    snapshot.appendItems(result.add)
+                }
             }
             
             let applySnapshot = snapshot
