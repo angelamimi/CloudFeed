@@ -86,6 +86,17 @@ class TitleView: UIView {
         backButtonConstraint.constant = 8
     }
     
+    func updateTitleSize() {
+        
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            updateMenuButtonWithSize(30)
+        } else {
+            updateMenuButtonWithSize(20)
+        }
+        
+        setTitleSize()
+    }
+    
     func initNavigation() {
         
         title.isHidden = false
@@ -98,9 +109,18 @@ class TitleView: UIView {
 
         menuButton.isHidden = true
         title.isHidden = true
-        
+
         doneButton.isHidden = false
         cancelButton.isHidden = false
+    }
+    
+    func resetEdit() {
+        
+        menuButton.isHidden = false
+        title.isHidden = false
+        
+        doneButton.isHidden = true
+        cancelButton.isHidden = true
     }
     
     @objc func endEdit() {
@@ -139,13 +159,13 @@ class TitleView: UIView {
         menuButton.layer.masksToBounds = true
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            initMenuButtonWithSize(30)
+            updateMenuButtonWithSize(30)
         } else {
-            initMenuButtonWithSize(20)
+            updateMenuButtonWithSize(20)
         }
     }
     
-    private func initMenuButtonWithSize(_ size: CGFloat) {
+    private func updateMenuButtonWithSize(_ size: CGFloat) {
         
         let configuration = UIImage.SymbolConfiguration(pointSize: size, weight: .bold)
         let image = UIImage(systemName: "ellipsis", withConfiguration: configuration)
@@ -159,16 +179,21 @@ class TitleView: UIView {
     }
     
     private func initTitle() {
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            title.font = .boldSystemFont(ofSize: 36)
-        } else {
-            title.font = .boldSystemFont(ofSize: 24)
-        }
+        setTitleSize()
     }
     
     private func initText() {
         doneButton.setTitle(Strings.TitleApply, for: .normal)
         cancelButton.setTitle(Strings.TitleCancel, for: .normal)
+    }
+    
+    private func setTitleSize() {
+        
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            title.font = .boldSystemFont(ofSize: 36)
+        } else {
+            title.font = .boldSystemFont(ofSize: 24)
+        }
     }
 }
 

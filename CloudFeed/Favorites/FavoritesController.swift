@@ -47,6 +47,13 @@ class FavoritesController: CollectionController {
         fetchFavorites()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        if isEditing {
+            cancel()
+            resetEdit()
+        }
+    }
+    
     override func refresh() {
         viewModel.fetch(refresh: true)
     }
@@ -177,7 +184,7 @@ extension FavoritesController: FavoritesDelegate {
             if self.collectionView.numberOfItems(inSection: 0) == 0 {
                 self.hideMenu()
                 self.collectionView.isHidden = true
-                self.emptyView.isHidden = false
+                self.emptyView.show()
             }
         }
     }

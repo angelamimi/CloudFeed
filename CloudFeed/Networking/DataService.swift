@@ -190,7 +190,7 @@ class DataService: NSObject {
 
         let savedFavorites = databaseManager.fetchFavoriteMetadata(account: account, startServerUrl: startServerUrl)
         
-        Self.logger.debug("processFavorites() - savedFavorites count: \(savedFavorites.count) displayedMetadatas count: \(displayedMetadatas.count)")
+        //Self.logger.debug("processFavorites() - savedFavorites count: \(savedFavorites.count) displayedMetadatas count: \(displayedMetadatas.count)")
         
         //if displayed but doesn't exist in db, flag for delete
         for displayedMetadata in displayedMetadatas {

@@ -18,9 +18,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5ls-AF-slB" userLabel="Empty View" customClass="EmptyView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="72" y="275" width="250" height="250"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5ls-AF-slB" userLabel="Empty View" customClass="EmptyView" customModule="CloudFeed" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="103" width="393" height="715"/>
+                                <viewLayoutGuide key="safeArea" id="e0R-in-U75"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="J2a-Pd-Ybs">
@@ -61,9 +61,13 @@
                         <constraints>
                             <constraint firstItem="J2a-Pd-Ybs" firstAttribute="top" secondItem="lJf-TF-9FZ" secondAttribute="top" constant="50" id="5T5-ip-1pm"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="bottom" secondItem="yeB-rd-53C" secondAttribute="bottom" id="7L8-ZO-fBv"/>
+                            <constraint firstItem="5ls-AF-slB" firstAttribute="top" secondItem="lJf-TF-9FZ" secondAttribute="top" id="BJE-Jg-cBh"/>
                             <constraint firstItem="J2a-Pd-Ybs" firstAttribute="bottom" secondItem="lJf-TF-9FZ" secondAttribute="bottom" id="FLe-zc-NsL"/>
+                            <constraint firstItem="5ls-AF-slB" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="HXq-B9-Qbp"/>
+                            <constraint firstItem="lJf-TF-9FZ" firstAttribute="bottom" secondItem="5ls-AF-slB" secondAttribute="bottom" id="IJq-V7-9zj"/>
                             <constraint firstItem="J2a-Pd-Ybs" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="MQm-AF-EML"/>
                             <constraint firstItem="yeB-rd-53C" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="Mq0-yK-2CC"/>
+                            <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="5ls-AF-slB" secondAttribute="trailing" id="MxL-h2-rJL"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="yeB-rd-53C" secondAttribute="trailing" id="QiM-CX-TMT"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="J2a-Pd-Ybs" secondAttribute="trailing" id="vJy-Kz-pmh"/>
                         </constraints>

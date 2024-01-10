@@ -47,7 +47,7 @@
 "Fav.Error.Message" = "Failed to load favorites.";
 "Fav.Update.Error.Message" = "Failed to save favorite.";
 "Fav.Empty.Title" = "No favorites yet";
-"Fav.Empty.Description" = "Files you mark as favorite will show up here";
+"Fav.Empty.Description" = "Files you favorite will display here";
 "Fav.Add" = "Add to favorites";
 "Fav.Remove" = "Remove from favorites";
 "Fav.Nav.Title" = "Favorites";

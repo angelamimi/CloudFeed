@@ -37,11 +37,30 @@ class EmptyView: UIView {
         self.descriptionLabel.text = description
     }
     
+    func hide() {
+        isHidden = true
+    }
+    
+    func show() {
+        
+        isHidden = false
+        
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            titleLabel.font = .boldSystemFont(ofSize: 36)
+            descriptionLabel.font = .systemFont(ofSize: 36)
+        } else {
+            titleLabel.font = .boldSystemFont(ofSize: 24)
+            descriptionLabel.font = .systemFont(ofSize: 24)
+        }
+    }
+    
     private func initView() {
+        
         view = loadViewFromNib()
+        
         view.frame = bounds
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
- 
+        
         addSubview(view)
     }
     

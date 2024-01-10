@@ -17,9 +17,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" id="JeB-gU-3iL" customClass="EmptyView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="68" y="276" width="250" height="250"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JeB-gU-3iL" customClass="EmptyView" customModule="CloudFeed" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <viewLayoutGuide key="safeArea" id="Cly-Il-3CM"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="a9G-dO-ziM">
@@ -49,12 +49,16 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="a9G-dO-ziM" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="3uO-CX-4DQ"/>
+                            <constraint firstItem="JeB-gU-3iL" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="9Iq-75-ptA"/>
                             <constraint firstItem="U1v-Hu-l3P" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="DE2-Wo-rrM"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="JeB-gU-3iL" secondAttribute="trailing" id="OuV-AZ-MJH"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="U1v-Hu-l3P" secondAttribute="trailing" id="R01-ue-lMy"/>
                             <constraint firstItem="a9G-dO-ziM" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="50" id="ZEf-Pq-neZ"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="a9G-dO-ziM" secondAttribute="trailing" id="hmH-fm-8bV"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="a9G-dO-ziM" secondAttribute="bottom" id="k8M-wy-Iya"/>
+                            <constraint firstItem="JeB-gU-3iL" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="oQU-Td-6Wf"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="U1v-Hu-l3P" secondAttribute="bottom" id="qQ0-8t-zGr"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="JeB-gU-3iL" secondAttribute="bottom" id="ui2-0e-fny"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Favorites" image="star.fill" catalog="system" id="5DK-Da-rQb"/>

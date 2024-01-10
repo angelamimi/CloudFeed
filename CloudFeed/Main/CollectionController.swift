@@ -19,8 +19,7 @@ class CollectionController: UIViewController {
     
     private var refreshControl = UIRefreshControl()
     private var titleView: TitleView?
-    
-    //private let scrollThreshold = -200.0
+    private var titleViewHeightAnchor: NSLayoutConstraint?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -70,6 +69,10 @@ class CollectionController: UIViewController {
         activityIndicator.stopAnimating()
     }
     
+    func resetEdit() {
+        titleView?.resetEdit()
+    }
+    
     func initConstraints() {
 
         titleView?.translatesAutoresizingMaskIntoConstraints = false
@@ -78,12 +81,14 @@ class CollectionController: UIViewController {
         titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            titleView?.heightAnchor.constraint(equalToConstant: 70).isActive = true
+            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: 70)
             collectionViewTopConstraint?.constant = 70
         } else {
-            titleView?.heightAnchor.constraint(equalToConstant: 50).isActive = true
+            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: 50)
             collectionViewTopConstraint?.constant = 50
         }
+        
+        titleViewHeightAnchor?.isActive = true
     }
     
     func zoomIn() {
@@ -148,14 +153,18 @@ class CollectionController: UIViewController {
         
         if displayCount == 0 {
             collectionView.isHidden = true
-            emptyView.isHidden = false
+            emptyView.show()
             hideMenu()
             setTitle("")
+            titleViewHeightAnchor?.isActive = false
         } else {
             collectionView.isHidden = false
-            emptyView.isHidden = true
+            emptyView.hide()
             showMenu()
             setTitle()
+            titleViewHeightAnchor?.isActive = true
+            
+            updateTitleConstraints()
         }
     }
     
@@ -170,6 +179,19 @@ class CollectionController: UIViewController {
     
     @objc private func refresh(_ sender: Any) {
         refresh()
+    }
+    
+    private func updateTitleConstraints() {
+        
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            titleViewHeightAnchor?.constant = 70
+            collectionViewTopConstraint?.constant = 70
+        } else {
+            titleViewHeightAnchor?.constant = 50
+            collectionViewTopConstraint?.constant = 50
+        }
+        
+        titleView?.updateTitleSize()
     }
 }
 
