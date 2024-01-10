@@ -205,7 +205,7 @@ extension SettingsController: SettingsDelegate {
         self.profileImage = image
         
         DispatchQueue.main.async { [weak self] in
-            self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .none)
+            self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .automatic)
         }
     }
     
@@ -223,7 +223,7 @@ extension SettingsController: SettingsDelegate {
         cacheSizeDescription = StoreUtility.transformedSize(cacheSize)
         
         DispatchQueue.main.async { [weak self] in
-            self?.tableView.reloadRows(at: [IndexPath(item: 1, section: 0)], with: .none)
+            self?.tableView.reloadRows(at: [IndexPath(item: 1, section: 0)], with: .automatic)
             self?.tableView.reloadData()
         }
     }
@@ -234,7 +234,7 @@ extension SettingsController: SettingsDelegate {
         self.profileEmail = profileEmail
         
         DispatchQueue.main.async { [weak self] in
-            self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .none)
+            self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .automatic)
             self?.stopActivityIndicator()
             
             if profileName == "" && profileEmail == "" {
