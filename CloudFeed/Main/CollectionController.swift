@@ -106,9 +106,7 @@ class CollectionController: UIViewController {
 
         guard let layout = collectionView.collectionViewLayout as? FlowLayout else { return }
         
-        guard layout.cellsPerRow + 1 <= currentItemCount else { return }
-        
-        if layout.cellsPerRow + 1 < 5 {
+        if layout.cellsPerRow < 5 {
             layout.cellsPerRow += 1
         }
     }
@@ -152,16 +150,30 @@ class CollectionController: UIViewController {
         refreshControl.endRefreshing()
         
         if displayCount == 0 {
+            
+            if isEditing {
+                //was in the middle of editing, but all favorites were removed outside of favorites screen. end edit mode
+                isEditing = false
+                collectionView.allowsMultipleSelection = false
+                resetEdit()
+            }
+            
             collectionView.isHidden = true
             emptyView.show()
             hideMenu()
             setTitle("")
             titleViewHeightAnchor?.isActive = false
+            
         } else {
+            
             collectionView.isHidden = false
             emptyView.hide()
-            showMenu()
-            setTitle()
+            
+            if !isEditing {
+                showMenu()
+                setTitle()
+            }
+            
             titleViewHeightAnchor?.isActive = true
             
             updateTitleConstraints()

@@ -65,25 +65,25 @@ class TitleView: UIView {
     
     func initMenu(allowEdit: Bool) {
         
-        let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { action in
-            self.mediaView?.zoomInGrid()
+        let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { [weak self] action in
+            self?.mediaView?.zoomInGrid()
         }
 
-        let zoomOut = UIAction(title: Strings.TitleZoomOut, image: UIImage(systemName: "minus.magnifyingglass")) { action in
-            self.mediaView?.zoomOutGrid()
+        let zoomOut = UIAction(title: Strings.TitleZoomOut, image: UIImage(systemName: "minus.magnifyingglass")) { [weak self] action in
+            self?.mediaView?.zoomOutGrid()
         }
     
         if allowEdit {
-            let edit = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { action in
-                self.mediaView?.edit()
-                self.beginEdit()
+            let edit = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { [weak self] action in
+                self?.mediaView?.edit()
+                self?.beginEdit()
             }
             menuButton.menu = UIMenu(children: [zoomIn, zoomOut, edit])
         } else {
             menuButton.menu = UIMenu(children: [zoomIn, zoomOut])
         }
         
-        backButtonConstraint.constant = 8
+        backButtonConstraint.constant = 4
     }
     
     func updateTitleSize() {
@@ -131,7 +131,7 @@ class TitleView: UIView {
         doneButton.isHidden = true
         cancelButton.isHidden = true
         
-        self.mediaView?.endEdit()
+        mediaView?.endEdit()
     }
     
     @objc func cancelEdit() {
@@ -142,15 +142,15 @@ class TitleView: UIView {
         doneButton.isHidden = true
         cancelButton.isHidden = true
         
-        self.mediaView?.cancel()
+        mediaView?.cancel()
     }
     
     @objc func goBack() {
-       self.mediaView?.cancel()
+       mediaView?.cancel()
     }
     
     @objc func titleTouched() {
-        self.mediaView?.titleTouched()
+        mediaView?.titleTouched()
     }
     
     private func initMenuButton() {

@@ -47,13 +47,6 @@ class FavoritesController: CollectionController {
         fetchFavorites()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        if isEditing {
-            cancel()
-            resetEdit()
-        }
-    }
-    
     override func refresh() {
         viewModel.fetch(refresh: true)
     }
@@ -154,7 +147,7 @@ class FavoritesController: CollectionController {
     
     private func enteringForeground() {
         if isViewLoaded && view.window != nil {
-            refresh()
+            fetchFavorites()
         }
     }
     
@@ -179,13 +172,7 @@ extension FavoritesController: FavoritesDelegate {
             self.isEditing = false
             self.collectionView.allowsMultipleSelection = false
         
-            self.setTitle()
-            
-            if self.collectionView.numberOfItems(inSection: 0) == 0 {
-                self.hideMenu()
-                self.collectionView.isHidden = true
-                self.emptyView.show()
-            }
+            self.displayResults()
         }
     }
     
@@ -249,9 +236,11 @@ extension FavoritesController: MediaViewController {
     }
     
     func edit() {
-        isEditing = true
-        collectionView.allowsMultipleSelection = true
-        reloadSection()
+        if viewModel.currentItemCount() > 0 {
+            isEditing = true
+            collectionView.allowsMultipleSelection = true
+            reloadSection()
+        }
     }
     
     func endEdit() {
