@@ -281,6 +281,7 @@ extension FavoritesController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
         
+        guard isEditing == false else { return nil }
         guard let indexPath = indexPaths.first, let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return nil }
         guard let image = cell.imageView.image else { return nil }
         guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return nil }
