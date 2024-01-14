@@ -136,7 +136,7 @@ final class FavoritesViewModel: NSObject {
             processFavoriteResult(error: error)
             
             var snapshot = dataSource.snapshot()
-            let displayed = snapshot.itemIdentifiers(inSection: 0)
+            var displayed = snapshot.itemIdentifiers(inSection: 0)
             
             //Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
             
@@ -154,12 +154,19 @@ final class FavoritesViewModel: NSObject {
             
             if result.delete.count > 0 { snapshot.deleteItems(result.delete) }
             
+            displayed = snapshot.itemIdentifiers(inSection: 0)
+            
             if result.add.count > 0 {
                 
                 if snapshot.numberOfItems > 0 {
                     
                     //loop through each item to be added and find where it fits in the visible collection by date and possibly name
                     for result in result.add {
+                        
+                        if snapshot.itemIdentifiers.contains(result) {
+                            Self.logger.debug("syncFavs() - favorite exists. do not add again")
+                            continue
+                        }
                         
                         for visibleItem in displayed {
                             
