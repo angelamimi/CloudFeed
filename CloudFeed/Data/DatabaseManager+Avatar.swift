@@ -1,8 +1,8 @@
 //
-//  DatabaseManager+LocalFile.swift
+//  DatabaseManager+Avatar.swift
 //  CloudFeed
 //
-//  Created by Marino Faggiana on 01/08/23.
+//  Created by Marino Faggiana on 20/01/23.
 //  Copyright © 2023 Marino Faggiana. All rights reserved.
 //  Copyright © 2024 Angela Jarosz. All rights reserved.
 //
@@ -26,46 +26,39 @@
 import Foundation
 import os.log
 import RealmSwift
+import UIKit
 
-class tableLocalFile: Object {
+class tableAvatar: Object {
 
-    @objc dynamic var account = ""
+    @objc dynamic var date = NSDate()
     @objc dynamic var etag = ""
-    @objc dynamic var exifDate: NSDate?
-    @objc dynamic var exifLatitude = ""
-    @objc dynamic var exifLongitude = ""
-    @objc dynamic var exifLensModel: String?
-    @objc dynamic var favorite: Bool = false
     @objc dynamic var fileName = ""
-    @objc dynamic var ocId = ""
-    @objc dynamic var offline: Bool = false
+    @objc dynamic var loaded: Bool = false
 
     override static func primaryKey() -> String {
-        return "ocId"
+        return "fileName"
     }
 }
 
 extension DatabaseManager {
     
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
-                                       category: String(describing: DatabaseManager.self) + "LocalFile")
+                                       category: String(describing: DatabaseManager.self) + "Avatar")
     
-    func addLocalFile(metadata: tableMetadata) {
+    func addAvatar(fileName: String, etag: String) {
         
         let realm = try! Realm()
         
         do {
             try realm.write {
                 
-                let addObject = getTableLocalFile(predicate: NSPredicate(format: "ocId == %@", metadata.ocId)) ?? tableLocalFile()
+                // Add new
+                let addObject = tableAvatar()
                 
-                addObject.account = metadata.account
-                addObject.etag = metadata.etag
-                addObject.exifDate = NSDate()
-                addObject.exifLatitude = "-1"
-                addObject.exifLongitude = "-1"
-                addObject.ocId = metadata.ocId
-                addObject.fileName = metadata.fileName
+                addObject.date = NSDate()
+                addObject.etag = etag
+                addObject.fileName = fileName
+                addObject.loaded = true
                 
                 realm.add(addObject, update: .all)
             }
@@ -74,14 +67,30 @@ extension DatabaseManager {
         }
     }
     
-    func getTableLocalFile(predicate: NSPredicate) -> tableLocalFile? {
+    func getAvatar(fileName: String) -> tableAvatar? {
         
         let realm = try! Realm()
         
-        guard let result = realm.objects(tableLocalFile.self).filter(predicate).first else {
+        guard let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first else {
             return nil
         }
         
-        return tableLocalFile.init(value: result)
+        return tableAvatar.init(value: result)
+    }
+    
+    func getAvatarImage(fileName: String) -> UIImage? {
+        
+        let realm = try! Realm()
+        let fileNameLocalPath = String(StoreUtility.getDirectoryUserData()) + "/" + fileName
+        
+        let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first
+        if result == nil {
+            FileSystemUtility.shared.deleteFile(filePath: fileNameLocalPath)
+            return nil
+        } else if result?.loaded == false {
+            return nil
+        }
+        
+        return UIImage(contentsOfFile: fileNameLocalPath)
     }
 }

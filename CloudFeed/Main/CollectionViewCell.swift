@@ -83,8 +83,8 @@ class CollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func setContentMode(isLongImage: Bool) {
-        if isLongImage {
+    func setContentMode(aspectFit: Bool) {
+        if aspectFit {
             imageView.contentMode = .scaleAspectFit
         } else {
             imageView.contentMode = .scaleAspectFill

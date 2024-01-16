@@ -114,7 +114,9 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
     }
     
     private func processResult(url: URL) {
-        //Pulled from NextCloud @ iOSClient/Login/NCLoginWeb.swift
+        //  From NextCloud - iOSClient/Login/NCLoginWeb.swift
+        //  Created by Marino Faggiana on 21/08/2019.
+        //  Copyright © 2019 Marino Faggiana. All rights reserved.
         var server: String = ""
         var user: String = ""
         var password: String = ""

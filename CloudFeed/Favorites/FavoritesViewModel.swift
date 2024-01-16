@@ -279,7 +279,7 @@ final class FavoritesViewModel: NSObject {
         if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag)) {
             
             if metadata.gif || metadata.svg {
-                await cell.setContentMode(isLongImage: true)
+                await cell.setContentMode(aspectFit: true)
             }
             
             if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {

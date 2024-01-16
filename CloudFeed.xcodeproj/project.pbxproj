@@ -53,7 +53,6 @@
 		392735A529BE13590058796A /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 392735A429BE13590058796A /* Realm */; };
 		392735A729BE13590058796A /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 392735A629BE13590058796A /* RealmSwift */; };
 		392735AB29BE2DAA0058796A /* DatabaseManager+Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735AA29BE2DAA0058796A /* DatabaseManager+Account.swift */; };
-		392735AD29BE3C140058796A /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735AC29BE3C140058796A /* Database.swift */; };
 		392735B029BE3DED0058796A /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 392735AF29BE3DED0058796A /* KeychainAccess */; };
 		392735B329BE402D0058796A /* StoreUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735B229BE402D0058796A /* StoreUtility.swift */; };
 		392735B629BE4FE00058796A /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 392735B529BE4FE00058796A /* Login.storyboard */; };
@@ -92,6 +91,8 @@
 		39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */; };
 		39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */; };
 		39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */; };
+		39EED48A2B56F9C100475802 /* DatabaseManager+Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */; };
+		39EED48C2B56FF2B00475802 /* DatabaseManager+Capabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -168,7 +169,6 @@
 		3927359F29BD69EA0058796A /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		392735A129BD6A4F0058796A /* Global.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
 		392735AA29BE2DAA0058796A /* DatabaseManager+Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Account.swift"; sourceTree = "<group>"; };
-		392735AC29BE3C140058796A /* Database.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
 		392735B229BE402D0058796A /* StoreUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreUtility.swift; sourceTree = "<group>"; };
 		392735B529BE4FE00058796A /* Login.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Login.storyboard; sourceTree = "<group>"; };
 		392735B729BE50780058796A /* LoginWebController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWebController.swift; sourceTree = "<group>"; };
@@ -201,9 +201,11 @@
 		39B03F1329C6384300704670 /* FileSystemUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemUtility.swift; sourceTree = "<group>"; };
 		39B449A82AEAA790003DA6BA /* PreviewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewController.swift; sourceTree = "<group>"; };
 		39C31E8D2A7994880045DF50 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
-		39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudKitService.swift; sourceTree = "<group>"; };
+		39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudKitService.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Metadata.swift"; sourceTree = "<group>"; };
 		39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
+		39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Avatar.swift"; sourceTree = "<group>"; };
+		39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Capabilities.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -358,9 +360,10 @@
 		392735A829BE2CF40058796A /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				392735AC29BE3C140058796A /* Database.swift */,
 				3927359F29BD69EA0058796A /* DatabaseManager.swift */,
 				392735AA29BE2DAA0058796A /* DatabaseManager+Account.swift */,
+				39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */,
+				39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */,
 				39271D6F29DA622700522DFD /* DatabaseManager+LocalFile.swift */,
 				39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */,
 			);
@@ -611,10 +614,11 @@
 				39C31E8E2A7994880045DF50 /* DataService.swift in Sources */,
 				395F3A1A2A9678340004FF32 /* Environment.swift in Sources */,
 				3903CE7D2AA78C72003E7E41 /* PagerCoordinator.swift in Sources */,
-				392735AD29BE3C140058796A /* Database.swift in Sources */,
 				3903CE732AA78375003E7E41 /* MediaCoordinator.swift in Sources */,
+				39EED48C2B56FF2B00475802 /* DatabaseManager+Capabilities.swift in Sources */,
 				3927356D29BD1E820058796A /* SceneDelegate.swift in Sources */,
 				3966634129DCD4E8005727D4 /* ProfileCell.swift in Sources */,
+				39EED48A2B56F9C100475802 /* DatabaseManager+Avatar.swift in Sources */,
 				3903CE7F2AA7ED6D003E7E41 /* ViewerCoordinator.swift in Sources */,
 				3903CE7B2AA78557003E7E41 /* SettingsCoordinator.swift in Sources */,
 				391579A62AB0BF2C00DFEAB1 /* MediaViewModel.swift in Sources */,
@@ -799,7 +803,7 @@
 				CODE_SIGN_ENTITLEMENTS = CloudFeed/CloudFeed.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = LB7Q63276B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CloudFeed/Info.plist;
@@ -837,7 +841,7 @@
 				CODE_SIGN_ENTITLEMENTS = CloudFeed/CloudFeed.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = LB7Q63276B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CloudFeed/Info.plist;

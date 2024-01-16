@@ -367,7 +367,7 @@ final class MediaViewModel: NSObject {
         if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
 
             if metadata.gif || metadata.svg {
-                await cell.setContentMode(isLongImage: true)
+                await cell.setContentMode(aspectFit: true)
                 await cell.clearBackground()
             }
             

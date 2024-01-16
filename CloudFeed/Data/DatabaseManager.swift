@@ -2,13 +2,31 @@
 //  DatabaseManager.swift
 //  CloudFeed
 //
-//  Created by Angela Jarosz on 3/11/23.
+//  Created by Marino Faggiana on 06/05/17.
+//  Copyright © 2017 Marino Faggiana. All rights reserved.
+//  Copyright © 2024 Angela Jarosz. All rights reserved.
+//
+//  Author Marino Faggiana <marino.faggiana@nextcloud.com>
+//  Author Henrik Storch <henrik.storch@nextcloud.com>
+//  Author Angela Jarosz
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
 import NextcloudKit
 import os.log
 import RealmSwift
-import SwiftyJSON
 import UIKit
 
 class DatabaseManager: NSObject {
@@ -68,92 +86,6 @@ class DatabaseManager: NSObject {
         _ = try! Realm()
     }
     
-    // MARK: -
-    // MARK: Capabilities
-    func addCapabilitiesJSon(account: String, data: Data) {
-        
-        let realm = try! Realm()
-        
-        do {
-            try realm.write {
-                let addObject = tableCapabilities()
-                
-                addObject.account = account
-                addObject.jsondata = data
-                
-                realm.add(addObject, update: .all)
-            }
-        } catch let error {
-            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
-        }
-    }
-    
-    func getCapabilitiesServerInt(account: String, elements: [String]) -> Int {
-        
-        let realm = try! Realm()
-        
-        guard let result = realm.objects(tableCapabilities.self).filter("account == %@", account).first,
-              let jsondata = result.jsondata else {
-            return 0
-        }
-        
-        let json = JSON(jsondata)
-        return json[elements].intValue
-    }
-    
-    // MARK: -
-    // MARK: Avatar
-    func addAvatar(fileName: String, etag: String) {
-        
-        let realm = try! Realm()
-        
-        do {
-            try realm.write {
-                
-                // Add new
-                let addObject = tableAvatar()
-                
-                addObject.date = NSDate()
-                addObject.etag = etag
-                addObject.fileName = fileName
-                addObject.loaded = true
-                
-                realm.add(addObject, update: .all)
-            }
-        } catch let error {
-            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
-        }
-    }
-    
-    func getAvatar(fileName: String) -> tableAvatar? {
-        
-        let realm = try! Realm()
-        
-        guard let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first else {
-            return nil
-        }
-        
-        return tableAvatar.init(value: result)
-    }
-    
-    func getAvatarImage(fileName: String) -> UIImage? {
-        
-        let realm = try! Realm()
-        let fileNameLocalPath = String(StoreUtility.getDirectoryUserData()) + "/" + fileName
-        
-        let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first
-        if result == nil {
-            FileSystemUtility.shared.deleteFile(filePath: fileNameLocalPath)
-            return nil
-        } else if result?.loaded == false {
-            return nil
-        }
-        
-        return UIImage(contentsOfFile: fileNameLocalPath)
-    }
-    
-    // MARK: -
-    // MARK: Database Management
     func clearTable(_ table: Object.Type, account: String? = nil) {
 
         let realm = try! Realm()

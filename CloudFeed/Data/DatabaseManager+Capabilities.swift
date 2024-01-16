@@ -1,8 +1,8 @@
 //
-//  DatabaseManager+LocalFile.swift
+//  DatabaseManager+Capabilities.swift
 //  CloudFeed
 //
-//  Created by Marino Faggiana on 01/08/23.
+//  Created by Marino Faggiana on 29/05/23.
 //  Copyright © 2023 Marino Faggiana. All rights reserved.
 //  Copyright © 2024 Angela Jarosz. All rights reserved.
 //
@@ -26,46 +26,33 @@
 import Foundation
 import os.log
 import RealmSwift
+import SwiftyJSON
 
-class tableLocalFile: Object {
+class tableCapabilities: Object {
 
     @objc dynamic var account = ""
-    @objc dynamic var etag = ""
-    @objc dynamic var exifDate: NSDate?
-    @objc dynamic var exifLatitude = ""
-    @objc dynamic var exifLongitude = ""
-    @objc dynamic var exifLensModel: String?
-    @objc dynamic var favorite: Bool = false
-    @objc dynamic var fileName = ""
-    @objc dynamic var ocId = ""
-    @objc dynamic var offline: Bool = false
+    @objc dynamic var jsondata: Data?
 
     override static func primaryKey() -> String {
-        return "ocId"
+        return "account"
     }
 }
 
 extension DatabaseManager {
     
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
-                                       category: String(describing: DatabaseManager.self) + "LocalFile")
+                                       category: String(describing: DatabaseManager.self) + "Capabilities")
     
-    func addLocalFile(metadata: tableMetadata) {
+    func addCapabilitiesJSon(account: String, data: Data) {
         
         let realm = try! Realm()
         
         do {
             try realm.write {
+                let addObject = tableCapabilities()
                 
-                let addObject = getTableLocalFile(predicate: NSPredicate(format: "ocId == %@", metadata.ocId)) ?? tableLocalFile()
-                
-                addObject.account = metadata.account
-                addObject.etag = metadata.etag
-                addObject.exifDate = NSDate()
-                addObject.exifLatitude = "-1"
-                addObject.exifLongitude = "-1"
-                addObject.ocId = metadata.ocId
-                addObject.fileName = metadata.fileName
+                addObject.account = account
+                addObject.jsondata = data
                 
                 realm.add(addObject, update: .all)
             }
@@ -74,14 +61,16 @@ extension DatabaseManager {
         }
     }
     
-    func getTableLocalFile(predicate: NSPredicate) -> tableLocalFile? {
+    func getCapabilitiesServerInt(account: String, elements: [String]) -> Int {
         
         let realm = try! Realm()
         
-        guard let result = realm.objects(tableLocalFile.self).filter(predicate).first else {
-            return nil
+        guard let result = realm.objects(tableCapabilities.self).filter("account == %@", account).first,
+              let jsondata = result.jsondata else {
+            return 0
         }
         
-        return tableLocalFile.init(value: result)
+        let json = JSON(jsondata)
+        return json[elements].intValue
     }
 }
