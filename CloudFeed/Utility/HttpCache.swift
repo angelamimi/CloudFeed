@@ -2,11 +2,6 @@
 //  HttpCache.swift
 //  CloudFeed
 //
-//  Created by Angela Jarosz on 3/19/23.
-//
-//  HTTPCache.swift
-//  Nextcloud
-//
 //  Created by Marino Faggiana on 28/10/2020.
 //  Copyright © 2020 Marino Faggiana. All rights reserved.
 //

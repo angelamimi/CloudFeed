@@ -4,11 +4,10 @@
 //
 //  Created by Marino Faggiana on 06/05/17.
 //  Copyright © 2017 Marino Faggiana. All rights reserved.
-//  Copyright © 2024 Angela Jarosz. All rights reserved.
+//  Copyright © 2023 Angela Jarosz. All rights reserved.
 //
 //  Author Marino Faggiana <marino.faggiana@nextcloud.com>
 //  Author Henrik Storch <henrik.storch@nextcloud.com>
-//  Author Angela Jarosz
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by

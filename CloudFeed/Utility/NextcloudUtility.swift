@@ -7,7 +7,6 @@
 //  Copyright © 2024 Angela Jarosz. All rights reserved.
 //
 //  Author Marino Faggiana <marino.faggiana@nextcloud.com>
-//  Author Angela Jarosz
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
