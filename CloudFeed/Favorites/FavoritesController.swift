@@ -179,7 +179,7 @@ class FavoritesController: CollectionController {
 
 extension FavoritesController: FavoritesDelegate {
     
-    func bulkEditFinished() {
+    func bulkEditFinished(error: Bool) {
         
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -188,6 +188,13 @@ extension FavoritesController: FavoritesDelegate {
             self.collectionView.allowsMultipleSelection = false
         
             self.displayResults()
+            
+            if error {
+                collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
+                    self?.collectionView.deselectItem(at: $0, animated: false)
+                }
+                self.coordinator.showFavoriteUpdateFailedError()
+            }
         }
     }
     
@@ -266,7 +273,9 @@ extension FavoritesController: MediaViewController {
     
     func cancel() {
 
-        collectionView.indexPathsForSelectedItems?.forEach { collectionView.deselectItem(at: $0, animated: false) }
+        collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
+            self?.collectionView.deselectItem(at: $0, animated: false)
+        }
 
         isEditing = false
         collectionView.allowsMultipleSelection = false

@@ -45,7 +45,7 @@
 
 /* Favorites */
 "Fav.Error.Message" = "Failed to load favorites.";
-"Fav.Update.Error.Message" = "Failed to save favorite.";
+"Fav.Update.Error.Message" = "Save failed. Please try again.";
 "Fav.Empty.Title" = "No favorites yet";
 "Fav.Empty.Description" = "Files you favorite will display here";
 "Fav.Add" = "Add to favorites";

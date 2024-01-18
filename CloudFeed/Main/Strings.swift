@@ -49,7 +49,7 @@ extension Strings {
     public static let SettingsLabelVersionUnknown = NSLocalizedString("Settings.Label.VersionUnknown", comment: "")
     public static let SettingsLabelCacheSize = NSLocalizedString("Settings.Label.CacheSize", comment: "")
     
-    //Login
+    //Initialization and Login
     public static let InitErrorMessage = NSLocalizedString("Init.Error.Message", comment: "")
     public static let UrlErrorMessage = NSLocalizedString("Url.Error.Message", comment: "")
     public static let LoginServerLabel = NSLocalizedString("Login.Server.Label", comment: "")

@@ -32,7 +32,12 @@ final class AppCoordinator: Coordinator {
     func start() {
         
         let dbManager = DatabaseManager()
-        dbManager.setup()
+        let error = dbManager.setup()
+        
+        if error {
+            showInitFailedError()
+            return
+        }
         
         let dataService = DataService(nextcloudService: NextcloudKitService(), databaseManager: dbManager)
         
@@ -49,5 +54,21 @@ final class AppCoordinator: Coordinator {
             let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
             mainCoordinator.start()
         }
+    }
+    
+    func showInitFailedError() {
+        
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.InitErrorMessage, preferredStyle: .alert)
+        let navigationController = UINavigationController()
+        
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
+            navigationController.popViewController(animated: true)
+            exit(0)
+        }))
+        
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        
+        navigationController.present(alertController, animated: true)
     }
 }

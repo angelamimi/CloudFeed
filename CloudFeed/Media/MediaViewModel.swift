@@ -168,7 +168,7 @@ final class MediaViewModel: NSObject {
             guard let self else { return }
             
             let result = await dataService.toggleFavoriteMetadata(metadata)
-            
+
             if result == nil {
                 self.delegate.favoriteUpdated(error: true)
             } else {
@@ -263,7 +263,7 @@ final class MediaViewModel: NSObject {
         //Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
         
         guard result.error == false else {
-            Self.logger.error("search() - error") //TODO: Alert user of error?
+            Self.logger.error("search() - error")
             return (nil, [], [], [])
         }
         

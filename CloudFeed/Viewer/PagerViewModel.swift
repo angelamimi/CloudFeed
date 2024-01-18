@@ -24,6 +24,7 @@ import UIKit
 protocol PagerViewModelDelegate: AnyObject {
     func finishedPaging(metadata: tableMetadata)
     func finishedUpdatingFavorite(isFavorite: Bool)
+    func saveFavoriteError()
 }
 
 final class PagerViewModel: NSObject {
@@ -62,11 +63,12 @@ final class PagerViewModel: NSObject {
             guard let self else { return }
             
             let result = await dataService.toggleFavoriteMetadata(metadata)
+
             if result != nil {
                 metadatas[currentIndex] = result!
                 delegate?.finishedUpdatingFavorite(isFavorite: isFavorite)
             } else {
-                //TODO: Show the user an error
+                delegate?.saveFavoriteError()
             }
         }
     }

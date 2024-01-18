@@ -33,7 +33,7 @@ class DatabaseManager: NSObject {
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
                                        category: String(describing: DatabaseManager.self))
     
-    func setup() {
+    func setup() -> Bool {
         
         let dirGroup = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Global.shared.groupIdentifier)
         let databaseFileUrlPath = dirGroup?.appendingPathComponent(Global.shared.databaseDirectory + "/" + Global.shared.databaseDefault)
@@ -57,8 +57,6 @@ class DatabaseManager: NSObject {
             }
         }
         
-        //Self.logger.debug("init() - databaseFileUrlPath: \(databaseFileUrlPath?.path ?? "NIL PATH")")
-        
         let config = Realm.Configuration(
             fileURL: databaseFileUrlPath,
             schemaVersion: Global.shared.databaseSchemaVersion
@@ -74,15 +72,20 @@ class DatabaseManager: NSObject {
         } catch {
             if let databaseFileUrlPath = databaseFileUrlPath {
                 do {
-                    //TODO: Show error?
                     NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE CORRUPT: removed")
                     try FileManager.default.removeItem(at: databaseFileUrlPath)
                 } catch {}
             }
         }
 
-        //Open
-        _ = try! Realm()
+        do {
+            _ = try Realm()
+            return false
+        } catch let error as NSError {
+            NextcloudKit.shared.nkCommonInstance.writeLog("Could not open database: \(error)")
+        }
+        
+        return true
     }
     
     func clearTable(_ table: Object.Type, account: String? = nil) {

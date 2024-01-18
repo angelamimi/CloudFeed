@@ -26,6 +26,7 @@ import os.log
 
 class PagerController: UIViewController, MediaViewController {
     
+    var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
     
     private weak var titleView: TitleView?
@@ -133,12 +134,20 @@ class PagerController: UIViewController, MediaViewController {
 extension PagerController: PagerViewModelDelegate {
     
     func finishedPaging(metadata: tableMetadata) {
-        titleView?.title.text = metadata.fileNameView
+        DispatchQueue.main.async { [weak self] in
+            self?.titleView?.title.text = metadata.fileNameView
+        }
         setFavoriteMenu(isFavorite: metadata.favorite)
     }
     
     func finishedUpdatingFavorite(isFavorite: Bool) {
         setFavoriteMenu(isFavorite: isFavorite)
+    }
+    
+    func saveFavoriteError() {
+        DispatchQueue.main.async { [weak self] in
+            self?.coordinator.showFavoriteUpdateFailedError()
+        }
     }
 }
 

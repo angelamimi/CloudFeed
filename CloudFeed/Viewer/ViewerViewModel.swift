@@ -132,12 +132,7 @@ extension ViewerViewModel {
             let imagePreviewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
             return UIImage(contentsOfFile: imagePreviewPath)
         }
-        
-        //TODO: Show generic image by type if missing a preview image
-        /*if metadata.classFile == NKCommon.typeClassFile.video.rawValue {
-        } else if metadata.classFile == NKCommon.typeClassFile.audio.rawValue {
-        } else {
-        }*/
+
         return nil
     }
     

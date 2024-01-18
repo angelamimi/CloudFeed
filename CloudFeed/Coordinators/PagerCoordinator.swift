@@ -38,8 +38,19 @@ final class PagerCoordinator {
         let viewModel = PagerViewModel(coordinator: viewerCoordinator, dataService: dataService, currentIndex: currentIndex, metadatas: metadatas)
         
         viewModel.delegate = viewerPager
+        
         viewerPager.viewModel = viewModel
+        viewerPager.coordinator = self
         
         navigationController.pushViewController(viewerPager, animated: true)
+    }
+    
+    func showFavoriteUpdateFailedError() {
+        
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.FavUpdateErrorMessage, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default))
+        
+        navigationController.present(alertController, animated: true)
     }
 }

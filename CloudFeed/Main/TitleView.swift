@@ -96,7 +96,7 @@ class TitleView: UIView {
         } else {
             menuButton.menu = UIMenu(children: [zoomIn, zoomOut])
         }
-        
+
         backButtonConstraint.constant = 4
     }
     
@@ -115,6 +115,7 @@ class TitleView: UIView {
         
         title.isHidden = false
         backButton.isHidden = false
+        
         doneButton.isHidden = true
         cancelButton.isHidden = true
     }

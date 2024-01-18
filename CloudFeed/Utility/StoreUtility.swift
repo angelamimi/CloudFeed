@@ -133,8 +133,7 @@ class StoreUtility {
                 try FileManager.default.createDirectory(atPath: path!, withIntermediateDirectories: true)
             }
         } catch {
-            //TODO: Handle error
-            Self.logger.error("initDirectories() - path: \(path ?? "nil") error: \(error.localizedDescription)")
+            Self.logger.error("initDirectories() - path: \(path ?? "nil") error: \(error)")
         }
         
         path = dirGroup?.appendingPathComponent(Global.shared.userDataDirectory).path
@@ -143,8 +142,7 @@ class StoreUtility {
                 try FileManager.default.createDirectory(atPath: path!, withIntermediateDirectories: true)
             }
         } catch {
-            //TODO: Handle error
-            Self.logger.error("initDirectories() - path: \(path ?? "nil") error: \(error.localizedDescription)")
+            Self.logger.error("initDirectories() - path: \(path ?? "nil") error: \(error)")
         }
     }
     
@@ -157,8 +155,7 @@ class StoreUtility {
                 try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
             }
         } catch {
-            //TODO: Handle error
-            Self.logger.error("initTemporaryDirectory() - path: \(path) error: \(error.localizedDescription)")
+            Self.logger.error("initTemporaryDirectory() - path: \(path) error: \(error)")
         }
     }
     

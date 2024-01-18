@@ -80,8 +80,11 @@ class MediaController: CollectionController {
     }
     
     public func clear() {
+        
         DispatchQueue.main.async { [weak self] in
+            
             guard let self else { return }
+            
             self.scrollToTop()
             self.hideMenu()
             self.setTitle("")
@@ -114,7 +117,9 @@ class MediaController: CollectionController {
     }
     
     private func getSyncDateRange() -> (toDate: Date?, fromDate: Date?) {
+        
         let lastItem = viewModel.getLastItem()
+        
         if lastItem == nil {
             return (nil, nil)
         } else {
@@ -191,7 +196,7 @@ extension MediaController: MediaDelegate {
     func searchResultReceived(resultItemCount: Int?) {
         DispatchQueue.main.async { [weak self] in
             if resultItemCount == nil {
-                self?.coordinator.showLoadfailedError()
+                self?.coordinator.showLoadFailedError()
             }
         }
     }
@@ -240,8 +245,7 @@ extension MediaController: MediaViewController {
     }
     
     func zoomOutGrid() {
-        let count = viewModel.currentItemCount()
-        zoomOut(currentItemCount: count)
+        zoomOut(currentItemCount: viewModel.currentItemCount())
     }
     
     func titleTouched() {

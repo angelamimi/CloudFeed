@@ -26,7 +26,7 @@ import UIKit
 protocol FavoritesDelegate: AnyObject {
     func fetching()
     func dataSourceUpdated()
-    func bulkEditFinished()
+    func bulkEditFinished(error: Bool)
     func fetchResultReceived(resultItemCount: Int?)
     func editCellUpdated(cell: CollectionViewCell, indexPath: IndexPath)
 }
@@ -34,11 +34,9 @@ protocol FavoritesDelegate: AnyObject {
 final class FavoritesViewModel: NSObject {
     
     var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
+    
     let delegate: FavoritesDelegate
     let dataService: DataService
-    
-    private var previewTasks: [IndexPath: Task<Void, Never>] = [:]
-    private let queue = DispatchQueue(label: String(describing: FavoritesViewModel.self))
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -220,16 +218,17 @@ final class FavoritesViewModel: NSObject {
     func bulkEdit(indexPaths: [IndexPath]) async {
         
         var snapshot = dataSource.snapshot()
+        var error = false
         
         for indexPath in indexPaths {
-            let metadata = await dataSource.itemIdentifier(for: indexPath)
             
-            guard metadata != nil else { continue }
+            guard let metadata = await dataSource.itemIdentifier(for: indexPath) else { continue }
             
-            let result = await dataService.toggleFavoriteMetadata(metadata!)
-            if result == nil{
-                //TODO: Show the user a single error for all failed
-                Self.logger.error("bulkEdit() - ERROR")
+            let result = await dataService.toggleFavoriteMetadata(metadata)
+            
+            if result == nil {
+                Self.logger.error("bulkEdit() - failed to save favorite ocid: \(metadata.ocId)")
+                error = true
             } else {
                 snapshot.deleteItems([result!])
             }
@@ -238,10 +237,11 @@ final class FavoritesViewModel: NSObject {
         snapshot.reloadSections([0])
         
         let applySnapshot = snapshot
+        let applyError = error
         
         DispatchQueue.main.async { [weak self] in
             self?.dataSource.apply(applySnapshot, animatingDifferences: true)
-            self?.delegate.bulkEditFinished()
+            self?.delegate.bulkEditFinished(error: applyError)
         }
     }
     

@@ -157,7 +157,6 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                     if error == .success && responseAccount == account && files.count > 0 {
                         continuation.resume(returning: (files, false))
                     } else if error == .success && files.count == 0 {
-                        //TODO: Nothing found for valid search. Do another search with a different time frame?
                         continuation.resume(returning: ([], false))
                     } else if error != .success {
                         Self.logger.error("[ERROR] Media search new media error code \(error.errorCode) \(error.errorDescription)")

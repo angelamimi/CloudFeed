@@ -25,7 +25,8 @@ import RealmSwift
 
 class MockDatabaseManager: DatabaseManager {
     
-    override func setup() {
+    override func setup() -> Bool {
         Realm.Configuration.defaultConfiguration.inMemoryIdentifier = "TestDatabase"
+        return true
     }
 }

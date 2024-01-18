@@ -125,6 +125,8 @@ class CollectionController: UIViewController {
         }
     }
     
+    
+    
     func initCollectionView() {
         
         let cellsPerRow = UIDevice.current.userInterfaceIdiom == .pad ? 3 : 2

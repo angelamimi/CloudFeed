@@ -45,7 +45,7 @@ extension MediaCoordinator {
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }
     
-    func showLoadfailedError() {
+    func showLoadFailedError() {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaErrorMessage, preferredStyle: .alert)
         
