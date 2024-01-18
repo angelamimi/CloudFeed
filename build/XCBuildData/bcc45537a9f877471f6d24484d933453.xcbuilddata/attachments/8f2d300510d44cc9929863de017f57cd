@@ -1,4 +1,0 @@
-module SwiftyJSON {
-header "SwiftyJSON-Swift.h"
-export *
-}

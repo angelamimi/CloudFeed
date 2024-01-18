@@ -1,4 +1,0 @@
-module SwiftyXMLParser {
-header "SwiftyXMLParser-Swift.h"
-export *
-}

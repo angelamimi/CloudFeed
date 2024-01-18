@@ -1,4 +1,0 @@
-module SVGKit {
-umbrella header "/Users/mimi/Library/Developer/Xcode/DerivedData/CloudFeed-dyvhwmgvwbrltccmbztdxcdedyrk/SourcePackages/checkouts/SVGKit/Source/include/SVGKit.h"
-export *
-}
