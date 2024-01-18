@@ -1,0 +1,14 @@
+## Xcode
+.DS_Store
+*/build/*
+xcuserdata
+DerivedData
+.idea/
+*.xccheckout
+
+## Package
+Carthage/
+
+### SwiftPackageManager ###
+.swiftpm
+Package.resolved
