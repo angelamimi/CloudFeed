@@ -303,7 +303,7 @@ class DataService: NSObject {
         //remote search with large limit. allows for many files with the same date.
         //need the extra buffer for pagination/continuous scrolling, and syncing when returning to screen.
         let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath,
-                                                              toDate: toDate, fromDate: fromDate, limit: Global.shared.metadataPageSize)
+                                                              toDate: toDate, fromDate: fromDate, limit: limit)
         
         if searchResult.files.count == 0 {
             return ([], [], [], [], searchResult.error)
@@ -330,11 +330,17 @@ class DataService: NSObject {
         databaseManager.processMetadatasMedia(predicate: metadataPredicate)
         
         //filter out videos of the live photo file pair
-        let pagePredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false)", 
-                                        account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue, 
+        let storePredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false)",
+                                        account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue,
                                         fromDate as NSDate, toDate as NSDate, NKCommon.TypeClassFile.image.rawValue)
         
-        let metadatas = databaseManager.paginateMetadata(predicate: pagePredicate, offsetDate: toDate, offsetName: offsetName)
+        var metadatas: [tableMetadata]
+        
+        if limit == 0 {
+            metadatas = databaseManager.fetchMetadata(predicate: storePredicate)
+        } else {
+            metadatas = databaseManager.paginateMetadata(predicate: storePredicate, offsetDate: toDate, offsetName: offsetName)
+        }
         //Self.logger.debug("searchMedia() - added: \(processResult.added.count) updated: \(processResult.updated.count) deleted: \(processResult.deleted.count)")
     
         return (metadatas, processResult.added, processResult.updated, processResult.deleted, false)

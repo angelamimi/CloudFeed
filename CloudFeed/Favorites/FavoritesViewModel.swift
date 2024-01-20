@@ -130,7 +130,7 @@ final class FavoritesViewModel: NSObject {
             guard let self else { return }
             
             let error = await self.dataService.getFavorites()
-            processFavoriteResult(error: error)
+            handleFavoriteResult(error: error)
             
             let resultMetadatas = dataService.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
@@ -145,73 +145,9 @@ final class FavoritesViewModel: NSObject {
             guard let self else { return }
             
             let error = await dataService.getFavorites()
-            processFavoriteResult(error: error)
+            handleFavoriteResult(error: error)
             
-            var snapshot = dataSource.snapshot()
-            var displayed = snapshot.itemIdentifiers(inSection: 0)
-            
-            //Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
-            
-            guard let result = dataService.processFavorites(displayedMetadatas: displayed) else {
-                delegate.dataSourceUpdated()
-                return
-            }
-            
-            //Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
-            
-            guard result.delete.count > 0 || result.add.count > 0 else {
-                delegate.dataSourceUpdated()
-                return
-            }
-            
-            if result.delete.count > 0 { snapshot.deleteItems(result.delete) }
-            
-            displayed = snapshot.itemIdentifiers(inSection: 0)
-            
-            if result.add.count > 0 {
-                
-                if snapshot.numberOfItems > 0 {
-                    
-                    //loop through each item to be added and find where it fits in the visible collection by date and possibly name
-                    for result in result.add {
-                        
-                        if snapshot.itemIdentifiers.contains(result) {
-                            Self.logger.debug("syncFavs() - favorite exists. do not add again")
-                            continue
-                        }
-                        
-                        for visibleItem in displayed {
-                            
-                            let resultTime = result.date.timeIntervalSinceReferenceDate
-                            let visibleTime = visibleItem.date.timeIntervalSinceReferenceDate
-                            
-                            if resultTime > visibleTime {
-                                snapshot.insertItems([result], beforeItem: visibleItem)
-                                break
-                            } else if resultTime == visibleTime {
-                                if result.fileNameView > visibleItem.fileNameView {
-                                    snapshot.insertItems([result], beforeItem: visibleItem)
-                                    break
-                                }
-                            }
-                        }
-                        
-                        if snapshot.itemIdentifiers.contains(result) == false {
-                            snapshot.appendItems([result])
-                        }
-                    }
-                } else {
-                    snapshot.appendItems(result.add)
-                }
-            }
-            
-            let applySnapshot = snapshot
-            
-            DispatchQueue.main.async { [weak self] in
-                self?.dataSource.apply(applySnapshot, animatingDifferences: true, completion: {
-                    self?.delegate.dataSourceUpdated()
-                })
-            }
+            processFavorites()
         }
     }
     
@@ -245,7 +181,7 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func processFavoriteResult(error: Bool) {
+    private func handleFavoriteResult(error: Bool) {
         if error {
             delegate.fetchResultReceived(resultItemCount: nil)
         }
@@ -319,6 +255,75 @@ final class FavoritesViewModel: NSObject {
         }
         
         delegate.editCellUpdated(cell: cell, indexPath: indexPath)
+    }
+    
+    private func processFavorites() {
+        
+        var snapshot = dataSource.snapshot()
+        var displayed = snapshot.itemIdentifiers(inSection: 0)
+        
+        //Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
+        
+        guard let result = dataService.processFavorites(displayedMetadatas: displayed) else {
+            delegate.dataSourceUpdated()
+            return
+        }
+        
+        //Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
+        
+        guard result.delete.count > 0 || result.add.count > 0 else {
+            delegate.dataSourceUpdated()
+            return
+        }
+        
+        if result.delete.count > 0 { snapshot.deleteItems(result.delete) }
+        
+        displayed = snapshot.itemIdentifiers(inSection: 0)
+        
+        if result.add.count > 0 {
+            
+            if snapshot.numberOfItems == 0 {
+                snapshot.appendItems(result.add)
+            } else {
+                
+                //find where each item to be added fits in the visible collection by date and possibly name
+                for result in result.add {
+                    
+                    if snapshot.itemIdentifiers.contains(result) {
+                        Self.logger.debug("processFavorites() - \(result.fileNameView) exists. do not add again.")
+                        continue
+                    }
+                    
+                    for visibleItem in displayed {
+                        
+                        let resultTime = result.date.timeIntervalSinceReferenceDate
+                        let visibleTime = visibleItem.date.timeIntervalSinceReferenceDate
+                        
+                        if resultTime > visibleTime {
+                            snapshot.insertItems([result], beforeItem: visibleItem)
+                            break
+                        } else if resultTime == visibleTime {
+                            if result.fileNameView > visibleItem.fileNameView {
+                                snapshot.insertItems([result], beforeItem: visibleItem)
+                                break
+                            }
+                        }
+                    }
+
+                    if snapshot.itemIdentifiers.contains(result) == false {
+                        snapshot.appendItems([result])
+                    }
+                }
+            }
+        }
+        
+        let applySnapshot = snapshot
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSource.apply(applySnapshot, animatingDifferences: true, completion: {
+                self?.delegate.dataSourceUpdated()
+            })
+        }
     }
     
     private func applyUpdateForMetadata(_ metadata: tableMetadata) {

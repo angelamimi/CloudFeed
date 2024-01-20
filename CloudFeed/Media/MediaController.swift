@@ -59,7 +59,7 @@ class MediaController: CollectionController {
     }
     
     override func refresh() {
-        viewModel.metadataSearch(offsetDate: Date(), offsetName: nil, limit: Global.shared.pageSize, refresh: true)
+        viewModel.metadataSearch(offsetDate: Date(), offsetName: nil, refresh: true)
     }
     
     override func loadMore() {
@@ -98,7 +98,7 @@ class MediaController: CollectionController {
         
         if syncDateRange.toDate == nil || syncDateRange.fromDate == nil {
             hideMenu()
-            viewModel.metadataSearch(offsetDate: Date(), offsetName: nil, limit: Global.shared.pageSize, refresh: false)
+            viewModel.metadataSearch(offsetDate: Date(), offsetName: nil, refresh: false)
         } else {
             viewModel.sync(toDate: syncDateRange.toDate!, fromDate: syncDateRange.fromDate!)
         }

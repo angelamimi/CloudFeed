@@ -305,11 +305,16 @@ extension DatabaseManager {
         let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
                                     account, startServerUrl, NKCommon.TypeClassFile.image.rawValue)
         
-        let sortProperties = [SortDescriptor(keyPath: "date", ascending: false),
-                              SortDescriptor(keyPath:  "fileNameView", ascending: false)]
+        return fetchMetadata(predicate: predicate)
+    }
+    
+    func fetchMetadata(predicate: NSPredicate) -> [tableMetadata] {
         
         let realm = try! Realm()
         realm.refresh()
+        
+        let sortProperties = [SortDescriptor(keyPath: "date", ascending: false),
+                              SortDescriptor(keyPath:  "fileNameView", ascending: false)]
         
         let results = realm.objects(tableMetadata.self).filter(predicate).sorted(by: sortProperties)
         
@@ -328,8 +333,7 @@ extension DatabaseManager {
         
         if offsetName == nil || offsetDate == nil {
             if results.count > 0 {
-                let resultArray = Array(results.map { tableMetadata.init(value: $0) })
-                return Array(resultArray.prefix(Global.shared.pageSize))
+                return Array(results.prefix(Global.shared.pageSize).map { tableMetadata.init(value: $0) })
             } else {
                 return []
             }

@@ -96,7 +96,7 @@ final class MediaViewModel: NSObject {
         return nil
     }
     
-    func metadataSearch(offsetDate: Date, offsetName: String?, limit: Int, refresh: Bool) {
+    func metadataSearch(offsetDate: Date, offsetName: String?, refresh: Bool) {
         
         let days = -30
         guard let fromDate = Calendar.current.date(byAdding: .day, value: days, to: offsetDate) else { return }
@@ -105,7 +105,7 @@ final class MediaViewModel: NSObject {
             guard let self else { return }
             
             //saves metadata to be paginated
-            let results = await search(toDate: offsetDate, fromDate: fromDate, offsetName: offsetName, limit: limit)
+            let results = await search(toDate: offsetDate, fromDate: fromDate, offsetName: offsetName, limit: Global.shared.limit)
             
             //recursive call until enough results received or gone all the way back in time
             await processSearchResult(metadatas: results.metadatas, toDate: offsetDate, fromDate: fromDate, offsetName: offsetName, days: days, refresh: refresh)
@@ -120,15 +120,18 @@ final class MediaViewModel: NSObject {
             //Self.logger.debug("sync() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
             //Self.logger.debug("sync() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
             
-            let results = await search(toDate: toDate, fromDate: fromDate, offsetName: nil, limit: Global.shared.pageSize)
+            let results = await search(toDate: toDate, fromDate: fromDate, offsetName: nil, limit: 0)
             
             guard results.metadatas != nil else { return }
-            var updatedFavorites = getUpdatedFavorites(metadatas: results.metadatas!)
             
-            updatedFavorites.append(contentsOf: results.updated)
+            //results.updated accounts for favorites updated remotely. Also need to account for favorites updated locally.
+            //have to compare what is displayed with what was just fetched
+            var updated = getUpdatedFavorites(metadatas: results.metadatas!)
+            updated.append(contentsOf: results.updated)
             
-            //Self.logger.debug("sync() - added: \(results.added.count) updated: \(results.updated.count) deleted: \(results.deleted.count)")
-            syncDatasource(added: results.added, updated: updatedFavorites, deleted: results.deleted)
+            //Self.logger.debug("sync() - count: \(results.metadatas!.count)")
+            //Self.logger.debug("sync() - added: \(results.added.count) total updated: \(updated.count) deleted: \(results.deleted.count)")
+            syncDatasource(added: results.added, updated: updated, deleted: results.deleted)
         }
     }
     
@@ -151,7 +154,7 @@ final class MediaViewModel: NSObject {
         }
         
         if offsetDate != nil && offsetName != nil {
-            metadataSearch(offsetDate: offsetDate!, offsetName: offsetName!, limit: Global.shared.pageSize, refresh: false)
+            metadataSearch(offsetDate: offsetDate!, offsetName: offsetName!, refresh: false)
         }
     }
     
@@ -229,19 +232,49 @@ final class MediaViewModel: NSObject {
                 snapshot.deleteItems([delete])
             }
         }
-        
-        if added.count > 0 {
-            let firstItem = displayedMetadata.first!
-            for add in added {
-                if !displayedMetadata.contains(add) {
-                    snapshot.insertItems([add], beforeItem: firstItem)
-                }
-            }
-        }
 
         for update in updated {
-            if displayedMetadata.contains(update) {
-                snapshot.reloadItems([update])
+            if let displayed = displayedMetadata.first(where: { $0.ocId == update.ocId }) {
+                displayed.favorite = update.favorite
+                displayed.fileNameView = update.fileNameView
+                snapshot.reloadItems([displayed])
+            }
+        }
+        
+        if added.count > 0 {
+            
+            if snapshot.numberOfItems == 0 {
+                snapshot.appendItems(added)
+            } else {
+                
+                //find where each item to be added fits in the visible collection by date and possibly name
+                for result in added {
+                    
+                    if snapshot.itemIdentifiers.contains(result) {
+                        Self.logger.debug("syncDatasource() - \(result.fileNameView) exists. do not add again.")
+                        continue
+                    }
+                    
+                    for visibleItem in displayedMetadata {
+                        
+                        let resultTime = result.date.timeIntervalSinceReferenceDate
+                        let visibleTime = visibleItem.date.timeIntervalSinceReferenceDate
+                        
+                        if resultTime > visibleTime {
+                            snapshot.insertItems([result], beforeItem: visibleItem)
+                            break
+                        } else if resultTime == visibleTime {
+                            if result.fileNameView > visibleItem.fileNameView {
+                                snapshot.insertItems([result], beforeItem: visibleItem)
+                                break
+                            }
+                        }
+                    }
+
+                    if snapshot.itemIdentifiers.contains(result) == false {
+                        snapshot.appendItems([result])
+                    }
+                }
             }
         }
         
@@ -268,13 +301,6 @@ final class MediaViewModel: NSObject {
         }
         
         let sorted = result.metadatas.sorted(by: {($0.date as Date) > ($1.date as Date)} )
-        
-        /*for metadata in sorted {
-            Self.logger.debug("search() - date: \(metadata.date) fileNameView: \(metadata.fileNameView)")
-        }*/
-        
-        //let idArray = sorted.map({ (metadata: tableMetadata) -> String in metadata.ocId })
-        //Self.logger.debug("search() - sorted: \(idArray)")
         
         return (sorted, result.added, result.updated, result.deleted)
     }
@@ -304,7 +330,7 @@ final class MediaViewModel: NSObject {
             /*Self.logger.debug("processSearchResult() - toDate: \(span.toDate.formatted(date: .abbreviated, time: .standard))")
             Self.logger.debug("processSearchResult() - fromDate: \(span.fromDate.formatted(date: .abbreviated, time: .standard))")*/
 
-            let results = await search(toDate: span.toDate, fromDate: span.fromDate, offsetName: offsetName, limit: Global.shared.pageSize)
+            let results = await search(toDate: span.toDate, fromDate: span.fromDate, offsetName: offsetName, limit: Global.shared.limit)
             await processSearchResult(metadatas: results.metadatas, toDate: span.toDate, fromDate: span.fromDate, offsetName: offsetName, days: span.spanDays, refresh: refresh)
         }
     }
