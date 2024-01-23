@@ -38,8 +38,6 @@ class DetailController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        Self.logger.debug("viewDidLoad()")
-        
         tableView.dataSource = self
         
         tableView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
@@ -161,6 +159,7 @@ class MetadataDetail {
 }
 
 extension DetailController: UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return details.count
     }

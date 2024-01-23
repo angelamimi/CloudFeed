@@ -85,6 +85,36 @@
             </objects>
             <point key="canvasLocation" x="220.61068702290075" y="-12.67605633802817"/>
         </scene>
+        <!--Filter Controller-->
+        <scene sceneID="tky-be-fGU">
+            <objects>
+                <viewController storyboardIdentifier="FilterController" id="zgh-Co-8k7" customClass="FilterController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="4B5-XX-TMw">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uql-a6-OAQ" customClass="FilterView" customModule="CloudFeed" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="1Aw-xj-eoq"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="uql-a6-OAQ" firstAttribute="leading" secondItem="1Aw-xj-eoq" secondAttribute="leading" id="ACh-z1-aTk"/>
+                            <constraint firstItem="1Aw-xj-eoq" firstAttribute="bottom" secondItem="uql-a6-OAQ" secondAttribute="bottom" id="Tjr-Zc-rmO"/>
+                            <constraint firstItem="uql-a6-OAQ" firstAttribute="top" secondItem="1Aw-xj-eoq" secondAttribute="top" id="cpy-v1-eND"/>
+                            <constraint firstItem="1Aw-xj-eoq" firstAttribute="trailing" secondItem="uql-a6-OAQ" secondAttribute="trailing" id="fZi-VT-nXe"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="filterView" destination="uql-a6-OAQ" id="atp-Cn-A6f"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ewQ-hD-v4v" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1154.9618320610687" y="-13.380281690140846"/>
+        </scene>
         <!--Home-->
         <scene sceneID="ehu-5t-Bpi">
             <objects>

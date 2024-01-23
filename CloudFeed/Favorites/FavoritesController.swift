@@ -281,6 +281,10 @@ extension FavoritesController: MediaViewController {
         collectionView.allowsMultipleSelection = false
         reloadSection()
     }
+    
+    func filter() {
+        //TODO: IMPLEMENT FILTER
+    }
 }
 
 extension FavoritesController: UICollectionViewDelegate {

@@ -92,6 +92,7 @@ class PagerController: UIViewController, MediaViewController {
     func edit() {}
     func endEdit() {}
     func titleTouched() {}
+    func filter() {}
     
     func cancel() {        
         navigationController?.popViewController(animated: true)

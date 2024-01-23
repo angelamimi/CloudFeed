@@ -27,6 +27,9 @@ class MediaController: CollectionController {
     
     var coordinator: MediaCoordinator!
     var viewModel: MediaViewModel!
+    
+    private var filterFromDate: Date?
+    private var filterToDate: Date?
 
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -248,6 +251,10 @@ extension MediaController: MediaViewController {
         zoomOut(currentItemCount: viewModel.currentItemCount())
     }
     
+    func filter() {
+        coordinator.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
+    }
+    
     func titleTouched() {
         if viewModel.currentItemCount() > 0 {
             collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
@@ -257,4 +264,39 @@ extension MediaController: MediaViewController {
     func edit() {}
     func endEdit() {}
     func cancel() {}
+}
+
+extension MediaController: Filterable {
+    
+    func filter(from: Date, to: Date) {
+        
+        Self.logger.debug("filter() - from: \(from.formatted(date: .abbreviated, time: .standard))")
+        Self.logger.debug("filter() - to: \(to.formatted(date: .abbreviated, time: .standard))")
+        
+        if to < from {
+            coordinator.dismissFilter()
+            coordinator.showInvalidFilterError()
+        } else {
+            //TODO: Search by dates
+            coordinator.dismissFilter()
+            
+            filterToDate = to
+            filterFromDate = from
+            
+            viewModel.filter(toDate: to, fromDate: from)
+        }
+    }
+    
+    func removeFilter() {
+        
+        Self.logger.debug("removeFilter()")
+        coordinator.dismissFilter()
+        
+        filterToDate = nil
+        filterFromDate = nil
+        
+        refresh()
+        
+        viewModel.resetDataSource()
+    }
 }

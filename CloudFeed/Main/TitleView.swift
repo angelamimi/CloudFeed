@@ -22,9 +22,10 @@
 import UIKit
 import os.log
 
-protocol MediaViewController : AnyObject {
+protocol MediaViewController: AnyObject {
     func zoomInGrid()
     func zoomOutGrid()
+    func filter()
     func edit()
     func endEdit()
     func cancel()
@@ -86,15 +87,19 @@ class TitleView: UIView {
         let zoomOut = UIAction(title: Strings.TitleZoomOut, image: UIImage(systemName: "minus.magnifyingglass")) { [weak self] action in
             self?.mediaView?.zoomOutGrid()
         }
+        
+        let filter = UIAction(title: "Filter", image: UIImage(systemName: "line.3.horizontal.decrease.circle")) { [weak self] action in
+            self?.mediaView?.filter()
+        }
     
         if allowEdit {
             let edit = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { [weak self] action in
                 self?.mediaView?.edit()
                 self?.beginEdit()
             }
-            menuButton.menu = UIMenu(children: [zoomIn, zoomOut, edit])
+            menuButton.menu = UIMenu(children: [zoomIn, zoomOut, filter, edit])
         } else {
-            menuButton.menu = UIMenu(children: [zoomIn, zoomOut])
+            menuButton.menu = UIMenu(children: [zoomIn, zoomOut, filter])
         }
 
         backButtonConstraint.constant = 4

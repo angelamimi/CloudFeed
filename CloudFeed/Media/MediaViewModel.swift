@@ -112,6 +112,21 @@ final class MediaViewModel: NSObject {
         }
     }
     
+    func filter(toDate: Date, fromDate: Date) {
+        
+        Task { [weak self] in
+            guard let self else { return }
+            
+            let results = await search(toDate: toDate, fromDate: fromDate, offsetName: nil, limit: Global.shared.limit)
+            
+            guard results.metadatas != nil else { return }
+            
+            Self.logger.debug("filter() - count: \(results.metadatas!.count)")
+            Self.logger.debug("filter() - added: \(results.added.count) total updated: \(results.updated.count) deleted: \(results.deleted.count)")
+            applyDatasourceChanges(metadatas: results.metadatas!, refresh: true)
+        }
+    }
+    
     func sync(toDate: Date, fromDate: Date) {
         
         Task { [weak self] in

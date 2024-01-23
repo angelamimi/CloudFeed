@@ -90,6 +90,9 @@
 		39C31E8E2A7994880045DF50 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8D2A7994880045DF50 /* DataService.swift */; };
 		39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */; };
 		39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */; };
+		39E570742B5DE80A00548E02 /* FilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E570732B5DE80A00548E02 /* FilterController.swift */; };
+		39E570762B5DE98100548E02 /* FilterView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39E570752B5DE98100548E02 /* FilterView.xib */; };
+		39E570782B5DF7C700548E02 /* FilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E570772B5DF7C700548E02 /* FilterView.swift */; };
 		39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */; };
 		39EED48A2B56F9C100475802 /* DatabaseManager+Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */; };
 		39EED48C2B56FF2B00475802 /* DatabaseManager+Capabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */; };
@@ -203,6 +206,9 @@
 		39C31E8D2A7994880045DF50 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 		39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudKitService.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Metadata.swift"; sourceTree = "<group>"; };
+		39E570732B5DE80A00548E02 /* FilterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterController.swift; sourceTree = "<group>"; };
+		39E570752B5DE98100548E02 /* FilterView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FilterView.xib; sourceTree = "<group>"; };
+		39E570772B5DF7C700548E02 /* FilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterView.swift; sourceTree = "<group>"; };
 		39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Avatar.swift"; sourceTree = "<group>"; };
 		39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Capabilities.swift"; sourceTree = "<group>"; };
@@ -375,14 +381,17 @@
 			children = (
 				3927357029BD1E820058796A /* Main.storyboard */,
 				3966634429DF321F005727D4 /* EmptyView.xib */,
+				39E570752B5DE98100548E02 /* FilterView.xib */,
 				39271D5629D79E7900522DFD /* TitleView.xib */,
 				39B03F0D29C53FD300704670 /* CollectionViewCell.xib */,
 				39B03F0C29C53FD300704670 /* CollectionViewCell.swift */,
 				3972EE9D2ADEC27F0020EEC7 /* CollectionController.swift */,
 				39271D4729D7694E00522DFD /* CollectionLayout.swift */,
 				39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */,
+				39E570732B5DE80A00548E02 /* FilterController.swift */,
 				39B449A82AEAA790003DA6BA /* PreviewController.swift */,
 				3966634629DF34AD005727D4 /* EmptyView.swift */,
+				39E570772B5DF7C700548E02 /* FilterView.swift */,
 				39271D5829D7A05100522DFD /* TitleView.swift */,
 				391579AF2AB7464000DFEAB1 /* Strings.swift */,
 			);
@@ -546,6 +555,7 @@
 				39271D5D29D8D7DF00522DFD /* Favorites.storyboard in Resources */,
 				391579AE2AB6825000DFEAB1 /* Localizable.strings in Resources */,
 				395C14E52B1C03FF00074EB8 /* Assets.xcassets in Resources */,
+				39E570762B5DE98100548E02 /* FilterView.xib in Resources */,
 				3966634329DE190D005727D4 /* Acknowledgements.plist in Resources */,
 				39271D5729D79E7900522DFD /* TitleView.xib in Resources */,
 				39271D4A29D7922D00522DFD /* Media.storyboard in Resources */,
@@ -590,6 +600,7 @@
 				3927356F29BD1E820058796A /* MediaController.swift in Sources */,
 				39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */,
 				392735B329BE402D0058796A /* StoreUtility.swift in Sources */,
+				39E570782B5DF7C700548E02 /* FilterView.swift in Sources */,
 				394BCB0E29C7E25000C4F619 /* HttpCache.swift in Sources */,
 				39B03F1229C636B500704670 /* SettingsController.swift in Sources */,
 				3966634729DF34AD005727D4 /* EmptyView.swift in Sources */,
@@ -601,6 +612,7 @@
 				391579A82AB33F0000DFEAB1 /* FavoritesViewModel.swift in Sources */,
 				39271D6429D9091600522DFD /* DetailCell.swift in Sources */,
 				3903CE6D2AA4DC37003E7E41 /* LoginServerCoordinator.swift in Sources */,
+				39E570742B5DE80A00548E02 /* FilterController.swift in Sources */,
 				394BCB1929C7E9BC00C4F619 /* NextcloudUtility.swift in Sources */,
 				392735AB29BE2DAA0058796A /* DatabaseManager+Account.swift in Sources */,
 				39B03F1429C6384300704670 /* FileSystemUtility.swift in Sources */,
