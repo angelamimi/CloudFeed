@@ -41,6 +41,8 @@
 "Media.Error.Message" = "Failed to load new media.";
 "Media.Empty.Title" = "No media yet";
 "Media.Empty.Description" = "Your photos and videos will show up here";
+"Media.Empty.Filter.Title" = "None found";
+"Media.Empty.Filter.Description" = "Your filter returned no results";
 "Media.Nav.Title" = "Home";
 "Media.Filter" = "Apply Filter";
 "Media.RemoveFilter" = "Remove Filter";
@@ -51,6 +53,8 @@
 "Fav.Update.Error.Message" = "Save failed. Please try again.";
 "Fav.Empty.Title" = "No favorites yet";
 "Fav.Empty.Description" = "Files you favorite will display here";
+"Fav.Empty.Filter.Title" = "None found";
+"Fav.Empty.Filter.Description" = "Your filter returned no favorites";
 "Fav.Add" = "Add to favorites";
 "Fav.Remove" = "Remove from favorites";
 "Fav.Nav.Title" = "Favorites";

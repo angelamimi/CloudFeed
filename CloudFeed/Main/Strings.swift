@@ -60,6 +60,8 @@ extension Strings {
     public static let MediaErrorMessage = NSLocalizedString("Media.Error.Message", comment: "")
     public static let MediaEmptyTitle = NSLocalizedString("Media.Empty.Title", comment: "")
     public static let MediaEmptyDescription = NSLocalizedString("Media.Empty.Description", comment: "")
+    public static let MediaEmptyFilterTitle = NSLocalizedString("Media.Empty.Filter.Title", comment: "")
+    public static let MediaEmptyFilterDescription = NSLocalizedString("Media.Empty.Filter.Description", comment: "")
     public static let MediaNavTitle = NSLocalizedString("Media.Nav.Title", comment: "")
     public static let MediaFilter = NSLocalizedString("Media.Filter", comment: "")
     public static let MediaRemoveFilter = NSLocalizedString("Media.RemoveFilter", comment: "")
@@ -72,6 +74,8 @@ extension Strings {
     public static let FavRemove = NSLocalizedString("Fav.Remove", comment: "")
     public static let FavEmptyTitle = NSLocalizedString("Fav.Empty.Title", comment: "")
     public static let FavEmptyDescription = NSLocalizedString("Fav.Empty.Description", comment: "")
+    public static let FavEmptyFilterTitle = NSLocalizedString("Fav.Empty.Filter.Title", comment: "")
+    public static let FavEmptyFilterDescription = NSLocalizedString("Fav.Empty.Filter.Description", comment: "")
     public static let FavNavTitle = NSLocalizedString("Fav.Nav.Title", comment: "")
     
     //Title Bar

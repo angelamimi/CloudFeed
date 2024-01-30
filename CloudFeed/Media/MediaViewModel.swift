@@ -25,7 +25,7 @@ import SVGKit
 import UIKit
 
 protocol MediaDelegate: AnyObject {
-    func dataSourceUpdated()
+    func dataSourceUpdated(refresh: Bool)
     func favoriteUpdated(error: Bool)
     
     func searching()
@@ -38,6 +38,8 @@ final class MediaViewModel: NSObject {
     
     let delegate: MediaDelegate
     let dataService: DataService
+    
+    private var cancelSearch: Bool = false
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -96,19 +98,39 @@ final class MediaViewModel: NSObject {
         return nil
     }
     
-    func metadataSearch(offsetDate: Date, offsetName: String?, refresh: Bool) {
-        
-        let days = -30
-        guard let fromDate = Calendar.current.date(byAdding: .day, value: days, to: offsetDate) else { return }
+    func metadataSearch(toDate: Date, fromDate: Date?, offsetDate: Date?, offsetName: String?, refresh: Bool) {
         
         Task { [weak self] in
             guard let self else { return }
             
-            //saves metadata to be paginated
-            let results = await search(toDate: offsetDate, fromDate: fromDate, offsetName: offsetName, limit: Global.shared.limit)
+            cancelSearch = false
             
-            //recursive call until enough results received or gone all the way back in time
-            await processSearchResult(metadatas: results.metadatas, toDate: offsetDate, fromDate: fromDate, offsetName: offsetName, days: days, refresh: refresh)
+            if fromDate == nil {
+                
+                let days = -30
+                guard let calculatedFromDate = Calendar.current.date(byAdding: .day, value: days, to: toDate) else { return }
+                
+                //saves metadata to be paginated
+                let results = await search(toDate: toDate, fromDate: calculatedFromDate, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
+                
+                //recursive call until enough results received or gone all the way back in time
+                await processSearchResult(metadatas: results.metadatas, toDate: toDate, offsetDate: offsetDate, offsetName: offsetName, days: days, refresh: refresh)
+                
+            } else {
+                
+                //saves metadata to be paginated
+                let results = await search(toDate: toDate, fromDate: fromDate!, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
+                
+                guard let resultMetadatas = results.metadatas else {
+                    delegate.searchResultReceived(resultItemCount: nil)
+                    return
+                }
+                
+                if cancelSearch { return }
+                
+                //display results
+                applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
+            }
         }
     }
     
@@ -117,12 +139,13 @@ final class MediaViewModel: NSObject {
         Task { [weak self] in
             guard let self else { return }
             
-            let results = await search(toDate: toDate, fromDate: fromDate, offsetName: nil, limit: Global.shared.limit)
+            cancelSearch = true //applying filter. stop the recursive search for more results if there is one
+            
+            let results = await search(toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: Global.shared.limit)
             
             guard results.metadatas != nil else { return }
             
-            Self.logger.debug("filter() - count: \(results.metadatas!.count)")
-            Self.logger.debug("filter() - added: \(results.added.count) total updated: \(results.updated.count) deleted: \(results.deleted.count)")
+            //Self.logger.debug("filter() - added: \(results.added.count) total updated: \(results.updated.count) deleted: \(results.deleted.count)")
             applyDatasourceChanges(metadatas: results.metadatas!, refresh: true)
         }
     }
@@ -135,7 +158,7 @@ final class MediaViewModel: NSObject {
             //Self.logger.debug("sync() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
             //Self.logger.debug("sync() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
             
-            let results = await search(toDate: toDate, fromDate: fromDate, offsetName: nil, limit: 0)
+            let results = await search(toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 0)
             
             guard results.metadatas != nil else { return }
             
@@ -144,13 +167,13 @@ final class MediaViewModel: NSObject {
             var updated = getUpdatedFavorites(metadatas: results.metadatas!)
             updated.append(contentsOf: results.updated)
             
-            //Self.logger.debug("sync() - count: \(results.metadatas!.count)")
-            //Self.logger.debug("sync() - added: \(results.added.count) total updated: \(updated.count) deleted: \(results.deleted.count)")
+            Self.logger.debug("sync() - count: \(results.metadatas!.count)")
+            Self.logger.debug("sync() - added: \(results.added.count) total updated: \(updated.count) deleted: \(results.deleted.count)")
             syncDatasource(added: results.added, updated: updated, deleted: results.deleted)
         }
     }
     
-    func loadMore() {
+    func loadMore(filterFromDate: Date?) {
         
         var offsetDate: Date?
         var offsetName: String?
@@ -168,9 +191,9 @@ final class MediaViewModel: NSObject {
             }
         }
         
-        if offsetDate != nil && offsetName != nil {
-            metadataSearch(offsetDate: offsetDate!, offsetName: offsetName!, refresh: false)
-        }
+        guard offsetDate != nil && offsetName != nil else { return }
+        
+        metadataSearch(toDate: offsetDate!, fromDate: filterFromDate, offsetDate: offsetDate!, offsetName: offsetName!, refresh: false)
     }
     
     private func loadPreview(indexPath: IndexPath) async {
@@ -266,7 +289,7 @@ final class MediaViewModel: NSObject {
                 for result in added {
                     
                     if snapshot.itemIdentifiers.contains(result) {
-                        Self.logger.debug("syncDatasource() - \(result.fileNameView) exists. do not add again.")
+                        //Self.logger.debug("syncDatasource() - \(result.fileNameView) exists. do not add again.")
                         continue
                     }
                     
@@ -295,23 +318,22 @@ final class MediaViewModel: NSObject {
         
         DispatchQueue.main.async { [weak self] in
             self?.dataSource.apply(snapshot, animatingDifferences: true)
-            self?.delegate.dataSourceUpdated()
+            self?.delegate.dataSourceUpdated(refresh: false)
         }
     }
     
-    private func search(toDate: Date, fromDate: Date, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata]?, added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
+    private func search(toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata]?, added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
         
         //Self.logger.debug("search() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
         //Self.logger.debug("search() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
         
         delegate.searching()
         
-        let result = await dataService.searchMedia(toDate: toDate, fromDate: fromDate, offsetName: offsetName, limit: limit)
+        let result = await dataService.searchMedia(toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: limit)
         
         //Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
         
         guard result.error == false else {
-            Self.logger.error("search() - error")
             return (nil, [], [], [])
         }
         
@@ -320,7 +342,9 @@ final class MediaViewModel: NSObject {
         return (sorted, result.added, result.updated, result.deleted)
     }
     
-    private func processSearchResult(metadatas: [tableMetadata]?, toDate: Date, fromDate: Date, offsetName: String?, days: Int, refresh: Bool) async {
+    private func processSearchResult(metadatas: [tableMetadata]?, toDate: Date, offsetDate: Date?, offsetName: String?, days: Int, refresh: Bool) async {
+        
+        if cancelSearch { return }
         
         guard let resultMetadatas = metadatas else {
             delegate.searchResultReceived(resultItemCount: nil)
@@ -345,8 +369,8 @@ final class MediaViewModel: NSObject {
             /*Self.logger.debug("processSearchResult() - toDate: \(span.toDate.formatted(date: .abbreviated, time: .standard))")
             Self.logger.debug("processSearchResult() - fromDate: \(span.fromDate.formatted(date: .abbreviated, time: .standard))")*/
 
-            let results = await search(toDate: span.toDate, fromDate: span.fromDate, offsetName: offsetName, limit: Global.shared.limit)
-            await processSearchResult(metadatas: results.metadatas, toDate: span.toDate, fromDate: span.fromDate, offsetName: offsetName, days: span.spanDays, refresh: refresh)
+            let results = await search(toDate: span.toDate, fromDate: span.fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
+            await processSearchResult(metadatas: results.metadatas, toDate: span.toDate, offsetDate: offsetDate, offsetName: offsetName, days: span.spanDays, refresh: refresh)
         }
     }
     
@@ -411,9 +435,9 @@ final class MediaViewModel: NSObject {
         }
             
         DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            self.dataSource.apply(snapshot, animatingDifferences: true)
-            self.delegate.dataSourceUpdated()
+            self?.dataSource.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
+                self?.delegate.dataSourceUpdated(refresh: refresh)
+            })
         }
     }
     

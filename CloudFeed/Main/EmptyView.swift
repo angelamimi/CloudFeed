@@ -46,9 +46,9 @@ class EmptyView: UIView {
     }
     
     func display(image: UIImage?, title: String, description: String) {
-        self.emptyImage.image = image
-        self.titleLabel.text = title
-        self.descriptionLabel.text = description
+        emptyImage.image = image
+        titleLabel.text = title
+        descriptionLabel.text = description
     }
     
     func hide() {
@@ -66,6 +66,11 @@ class EmptyView: UIView {
             titleLabel.font = .boldSystemFont(ofSize: 24)
             descriptionLabel.font = .systemFont(ofSize: 24)
         }
+    }
+    
+    func updateText(title: String, description: String) {
+        titleLabel.text = title
+        descriptionLabel.text = description
     }
     
     private func initView() {

@@ -45,6 +45,40 @@ extension FavoritesCoordinator {
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }
     
+    func showFilter(filterable: Filterable, from: Date?, to: Date?) {
+        
+        let filterController = UIStoryboard(name: "Favorites", bundle: nil).instantiateViewController(identifier: "FilterController") as FilterController
+        
+        filterController.modalPresentationStyle = .formSheet
+        
+        if let sheet = filterController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.prefersEdgeAttachedInCompactHeight = true
+            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            sheet.prefersGrabberVisible = true
+        }
+        
+        navigationController.present(filterController, animated: true)
+        
+        filterController.setFilterable(filterable: filterable)
+        filterController.initDateFilter(from: from, to: to)
+    }
+    
+    func dismissFilter() {
+        navigationController.dismiss(animated: true)
+    }
+    
+    func showInvalidFilterError() {
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaInvalidFilter, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
+            self.navigationController.popViewController(animated: true)
+        }))
+        
+        navigationController.present(alertController, animated: true)
+    }
+    
     func showLoadfailedError() {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.FavErrorMessage, preferredStyle: .alert)

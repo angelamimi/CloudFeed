@@ -76,6 +76,36 @@
             </objects>
             <point key="canvasLocation" x="895.41984732824426" y="3.5211267605633805"/>
         </scene>
+        <!--Filter Controller-->
+        <scene sceneID="JPQ-1O-opy">
+            <objects>
+                <viewController storyboardIdentifier="FilterController" id="osd-df-GRF" customClass="FilterController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VW4-f1-mHo">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aSr-df-6n1" customClass="FilterView" customModule="CloudFeed" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="scd-LC-xMo"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="scd-LC-xMo" firstAttribute="trailing" secondItem="aSr-df-6n1" secondAttribute="trailing" id="G0Z-y8-Si7"/>
+                            <constraint firstItem="aSr-df-6n1" firstAttribute="top" secondItem="scd-LC-xMo" secondAttribute="top" id="LTR-2I-l0o"/>
+                            <constraint firstItem="aSr-df-6n1" firstAttribute="leading" secondItem="scd-LC-xMo" secondAttribute="leading" id="SaW-xW-Q72"/>
+                            <constraint firstItem="scd-LC-xMo" firstAttribute="bottom" secondItem="aSr-df-6n1" secondAttribute="bottom" id="W6o-em-TUs"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="filterView" destination="aSr-df-6n1" id="DiF-XY-Scw"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Eng-eM-gjp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1810" y="4"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="Sly-lq-1zb">
             <objects>

@@ -63,11 +63,15 @@ class FavoritesController: CollectionController {
     }
     
     override func refresh() {
-        viewModel.fetch(refresh: true)
+        if hasFilter() {
+            viewModel.filter(from: filterFromDate!, to: filterToDate!)
+        } else {
+            viewModel.fetch(refresh: true)
+        }
     }
     
     override func loadMore() {
-        viewModel.loadMore()
+        viewModel.loadMore(filterFromDate: filterFromDate, filterToDate: filterToDate)
     }
     
     override func setTitle() {
@@ -97,11 +101,13 @@ class FavoritesController: CollectionController {
         
         let visibleDateRange = getVisibleItemData()
         
-        if visibleDateRange.toDate == nil || visibleDateRange.name == nil {
+        if hasFilter() {
+            viewModel.syncFavs(from: filterFromDate, to: filterToDate)
+        } else if visibleDateRange.toDate != nil || visibleDateRange.name != nil {
+            viewModel.syncFavs(from: nil, to: nil)
+        } else {
             hideMenu()
             viewModel.fetch(refresh: false)
-        } else {
-            viewModel.syncFavs()
         }
     }
     
@@ -175,6 +181,14 @@ class FavoritesController: CollectionController {
     private func cleanup() {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
+    
+    private func displayResults(refresh: Bool) {
+        if hasFilter() {
+            displayResults(refresh: refresh, emptyViewTitle: Strings.FavEmptyFilterTitle, emptyViewDescription: Strings.FavEmptyFilterDescription)
+        } else {
+            displayResults(refresh: refresh, emptyViewTitle: Strings.FavEmptyTitle, emptyViewDescription: Strings.FavEmptyDescription)
+        }
+    }
 }
 
 extension FavoritesController: FavoritesDelegate {
@@ -186,8 +200,12 @@ extension FavoritesController: FavoritesDelegate {
             
             self.isEditing = false
             self.collectionView.allowsMultipleSelection = false
-        
-            self.displayResults()
+
+            self.displayResults(refresh: false)
+            
+            if self.hasFilter() {
+                self.showEditFilter()
+            }
             
             if error {
                 collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
@@ -215,9 +233,9 @@ extension FavoritesController: FavoritesDelegate {
         }
     }
     
-    func dataSourceUpdated() {
+    func dataSourceUpdated(refresh: Bool) {
         DispatchQueue.main.async { [weak self] in
-            self?.displayResults()
+            self?.displayResults(refresh: refresh)
         }
     }
     
@@ -283,7 +301,41 @@ extension FavoritesController: MediaViewController {
     }
     
     func filter() {
-        //TODO: IMPLEMENT FILTER
+        coordinator.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
+    }
+}
+
+extension FavoritesController: Filterable {
+    
+    func filter(from: Date, to: Date) {
+        
+        coordinator.dismissFilter()
+        
+        if to < from {
+            coordinator.showInvalidFilterError()
+        } else {
+
+            showEditFilter()
+            
+            filterToDate = to
+            filterFromDate = from
+            
+            viewModel.filter(from: from, to: to)
+        }
+    }
+    
+    func removeFilter() {
+        
+        coordinator.dismissFilter()
+        
+        hideEditFilter()
+        
+        filterToDate = nil
+        filterFromDate = nil
+        
+        refresh()
+        
+        viewModel.resetDataSource()
     }
 }
 

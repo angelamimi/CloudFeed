@@ -25,7 +25,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="From" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ncL-of-YGd" userLabel="From Label">
-                    <rect key="frame" x="42" y="119" width="40" height="34"/>
+                    <rect key="frame" x="42" y="119" width="99" height="34"/>
                     <constraints>
                         <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="34" id="DOZ-DD-aT6"/>
                     </constraints>
@@ -34,9 +34,9 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <datePicker contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" datePickerMode="date" style="compact" translatesAutoresizingMaskIntoConstraints="NO" id="WNZ-0p-LfB" userLabel="From Date Picker">
-                    <rect key="frame" x="98" y="119" width="265" height="34"/>
+                    <rect key="frame" x="157" y="118.66666666666667" width="200" height="34.333333333333329"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="265" id="GAZ-wK-JyX"/>
+                        <constraint firstAttribute="width" constant="200" id="GAZ-wK-JyX"/>
                     </constraints>
                 </datePicker>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="To" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NxX-UV-sA0" userLabel="To Label">
@@ -49,9 +49,9 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <datePicker contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" datePickerMode="date" style="compact" translatesAutoresizingMaskIntoConstraints="NO" id="jUz-12-V8C" userLabel="To Date Picker">
-                    <rect key="frame" x="98" y="161" width="265" height="34"/>
+                    <rect key="frame" x="157" y="160.66666666666666" width="200" height="34.333333333333343"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="265" id="Nsd-S0-WLY"/>
+                        <constraint firstAttribute="width" constant="200" id="Nsd-S0-WLY"/>
                     </constraints>
                 </datePicker>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fv9-Em-9j0" userLabel="Filter Button">
@@ -78,6 +78,7 @@
                 <constraint firstItem="WNZ-0p-LfB" firstAttribute="leading" secondItem="ncL-of-YGd" secondAttribute="trailing" constant="16" id="WiL-JV-KR1"/>
                 <constraint firstItem="jUz-12-V8C" firstAttribute="bottom" secondItem="NxX-UV-sA0" secondAttribute="bottom" id="cLp-pJ-KeQ"/>
                 <constraint firstItem="ncL-of-YGd" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="42" id="e82-i5-euh"/>
+                <constraint firstItem="jUz-12-V8C" firstAttribute="trailing" secondItem="Fv9-Em-9j0" secondAttribute="trailing" id="edR-ON-epW"/>
                 <constraint firstItem="WNZ-0p-LfB" firstAttribute="bottom" secondItem="ncL-of-YGd" secondAttribute="bottom" id="kVS-R6-HXr"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="Fv9-Em-9j0" secondAttribute="trailing" constant="36" id="rHn-Yd-505"/>
                 <constraint firstItem="jUz-12-V8C" firstAttribute="leading" secondItem="WNZ-0p-LfB" secondAttribute="leading" id="vk4-sQ-aCR"/>

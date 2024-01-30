@@ -49,7 +49,7 @@ final class MediaViewModelTests: BaseTest {
         
         let offsetDate = Calendar.current.date(from: DateComponents.init(year: 2020, month: 7, day: 4, hour: 3, minute: 31, second: 25))
 
-        mediaViewModel?.metadataSearch(offsetDate: offsetDate!, offsetName: nil, refresh: false)
+        mediaViewModel?.metadataSearch(toDate: offsetDate!, fromDate: nil, offsetDate: offsetDate!, offsetName: nil, refresh: false)
         
         waitForExpectations(timeout: 1)
         
@@ -59,6 +59,7 @@ final class MediaViewModelTests: BaseTest {
 }
 
 extension MediaViewModelTests: MediaDelegate {
+    
     func favoriteUpdated(error: Bool) {
         
     }
@@ -67,7 +68,7 @@ extension MediaViewModelTests: MediaDelegate {
 
     }
     
-    func dataSourceUpdated() {
+    func dataSourceUpdated(refresh: Bool) {
 
     }
     

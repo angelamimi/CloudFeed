@@ -291,6 +291,24 @@ extension DatabaseManager {
         return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
     }
     
+    func paginateFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [tableMetadata] {
+        
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+                                    account, startServerUrl, fromDate as NSDate, toDate as NSDate,
+                                    NKCommon.TypeClassFile.image.rawValue)
+        
+        return paginateMetadata(predicate: predicate, offsetDate: nil, offsetName: nil)
+    }
+    
+    func paginateFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date, offsetName: String) -> [tableMetadata] {
+        
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+                                    account, startServerUrl, fromDate as NSDate, toDate as NSDate,
+                                    NKCommon.TypeClassFile.image.rawValue)
+        
+        return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
+    }
+    
     func paginateMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
 
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
@@ -304,6 +322,15 @@ extension DatabaseManager {
         
         let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
                                     account, startServerUrl, NKCommon.TypeClassFile.image.rawValue)
+        
+        return fetchMetadata(predicate: predicate)
+    }
+    
+    func fetchFilteredFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [tableMetadata] {
+        
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+                                    account, startServerUrl, fromDate as NSDate, toDate as NSDate,
+                                    NKCommon.TypeClassFile.image.rawValue)
         
         return fetchMetadata(predicate: predicate)
     }

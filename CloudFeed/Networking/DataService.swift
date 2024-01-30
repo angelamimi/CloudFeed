@@ -181,7 +181,20 @@ class DataService: NSObject {
         return false
     }
     
-    func paginateFavoriteMetadata(offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+    func filterFavorites(from: Date, to: Date) async -> [tableMetadata] {
+        
+        guard let account = Environment.current.currentUser?.account else { return [] }
+        guard let mediaPath = getMediaPath() else { return [] }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return [] }
+        
+        return databaseManager.paginateFavoriteMetadata(account: account, startServerUrl: startServerUrl, fromDate: from, toDate: to)
+    }
+    
+    func paginateFavoriteMetadata() -> [tableMetadata] {
+        return paginateFavoriteMetadata(offsetDate: nil, offsetName: nil, fromDate: nil, toDate: nil)
+    }
+    
+    func paginateFavoriteMetadata(offsetDate: Date?, offsetName: String?, fromDate: Date?, toDate: Date?) -> [tableMetadata] {
         
         guard let account = Environment.current.currentUser?.account else { return [] }
         guard let mediaPath = getMediaPath() else { return [] }
@@ -189,12 +202,14 @@ class DataService: NSObject {
         
         if offsetDate == nil || offsetName == nil {
             return databaseManager.paginateFavoriteMetadata(account: account, startServerUrl: startServerUrl)
-        } else {
+        } else if fromDate == nil || toDate == nil {
             return databaseManager.paginateFavoriteMetadata(account: account, startServerUrl: startServerUrl, offsetDate: offsetDate!, offsetName: offsetName!)
+        } else {
+            return databaseManager.paginateFavoriteMetadata(account: account, startServerUrl: startServerUrl, fromDate: fromDate!, toDate: offsetDate!, offsetDate: offsetDate!, offsetName: offsetName!)
         }
     }
     
-    func processFavorites(displayedMetadatas: [tableMetadata]) -> (delete: [tableMetadata], add: [tableMetadata])? {
+    func processFavorites(displayedMetadatas: [tableMetadata], from: Date?, to: Date?) -> (delete: [tableMetadata], add: [tableMetadata])? {
         
         guard let account = Environment.current.currentUser?.account else { return nil }
         guard let mediaPath = getMediaPath() else { return nil }
@@ -202,9 +217,13 @@ class DataService: NSObject {
 
         var delete: [tableMetadata] = []
         var add: [tableMetadata] = []
+        var savedFavorites: [tableMetadata] = []
 
-        let savedFavorites = databaseManager.fetchFavoriteMetadata(account: account, startServerUrl: startServerUrl)
-        
+        if from == nil || to == nil {
+            savedFavorites = databaseManager.fetchFavoriteMetadata(account: account, startServerUrl: startServerUrl)
+        } else {
+            savedFavorites = databaseManager.fetchFilteredFavoriteMetadata(account: account, startServerUrl: startServerUrl, fromDate: from!, toDate: to!)
+        }
         //Self.logger.debug("processFavorites() - savedFavorites count: \(savedFavorites.count) displayedMetadatas count: \(displayedMetadatas.count)")
         
         //if displayed but doesn't exist in db, flag for delete
@@ -284,17 +303,7 @@ class DataService: NSObject {
     
     // MARK: -
     // MARK: Search
-    func paginateMetadata(fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
-        
-        guard let account = Environment.current.currentUser?.account else { return [] }
-        guard let mediaPath = getMediaPath() else { return [] }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return [] }
-        
-        return databaseManager.paginateMetadata(account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate,
-                                                offsetDate: offsetDate, offsetName: offsetName)
-    }
-    
-    func searchMedia(toDate: Date, fromDate: Date, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata], added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata], error: Bool) {
+    func searchMedia(toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata], added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata], error: Bool) {
         
         guard let account = Environment.current.currentUser?.account else { return ([], [], [], [], true) }
         guard let mediaPath = getMediaPath() else { return ([], [], [], [], true) }
@@ -335,17 +344,17 @@ class DataService: NSObject {
                                         fromDate as NSDate, toDate as NSDate, NKCommon.TypeClassFile.image.rawValue)
         
         var metadatas: [tableMetadata]
-        
+
         if limit == 0 {
             metadatas = databaseManager.fetchMetadata(predicate: storePredicate)
         } else {
-            metadatas = databaseManager.paginateMetadata(predicate: storePredicate, offsetDate: toDate, offsetName: offsetName)
+            //metadatas = databaseManager.paginateMetadata(predicate: storePredicate, offsetDate: toDate, offsetName: offsetName)
+            metadatas = databaseManager.paginateMetadata(predicate: storePredicate, offsetDate: offsetDate, offsetName: offsetName)
         }
         //Self.logger.debug("searchMedia() - added: \(processResult.added.count) updated: \(processResult.updated.count) deleted: \(processResult.deleted.count)")
     
         return (metadatas, processResult.added, processResult.updated, processResult.deleted, false)
     }
-    
     
     private func getMediaPath() -> String? {
         guard let activeAccount = getActiveAccount() else { return nil }

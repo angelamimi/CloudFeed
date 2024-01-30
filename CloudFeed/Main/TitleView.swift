@@ -40,9 +40,14 @@ class TitleView: UIView {
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var backButton: UIButton!
     @IBOutlet weak var backButtonConstraint: NSLayoutConstraint!
+    @IBOutlet weak var filterButton: UIButton!
     
     @IBOutlet weak var menuButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var menuButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var menuButtonTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var filterButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var filterButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var filterButtonTrailingConstraint: NSLayoutConstraint!
     
     weak var mediaView: MediaViewController?
     
@@ -53,7 +58,7 @@ class TitleView: UIView {
 
     override func awakeFromNib() {
 
-        initMenuButton()
+        initButtons()
         initTitle()
         initText()
         
@@ -66,16 +71,32 @@ class TitleView: UIView {
         backButton.isHidden = true
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         
+        filterButton.isHidden = true
+        filterButton.addTarget(self, action: #selector(editFilter), for: .touchUpInside)
+        
         let guestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(titleTouched))
         title.addGestureRecognizer(guestureRecognizer)
     }
     
     func hideMenu() {
         menuButton.isHidden = true
+        
+        //shift the filter button over to fill the gap of the now hidden menu button
+        filterButtonTrailingConstraint.constant = menuButtonTrailingConstraint.constant
+        
+        UIView.animate(withDuration: 0.2) {
+            self.layoutIfNeeded()
+        }
     }
     
     func showMenu() {
         menuButton.isHidden = false
+        
+        setFilterButtonTrailingConstraint()
+        
+        UIView.animate(withDuration: 0.2) {
+            self.layoutIfNeeded()
+        }
     }
     
     func initMenu(allowEdit: Bool) {
@@ -106,13 +127,7 @@ class TitleView: UIView {
     }
     
     func updateTitleSize() {
-        
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            updateMenuButtonWithSize(30)
-        } else {
-            updateMenuButtonWithSize(20)
-        }
-        
+        updateButtons()
         setTitleSize()
     }
     
@@ -129,6 +144,7 @@ class TitleView: UIView {
 
         menuButton.isHidden = true
         title.isHidden = true
+        filterButton.isHidden = true
 
         doneButton.isHidden = false
         cancelButton.isHidden = false
@@ -173,15 +189,40 @@ class TitleView: UIView {
         mediaView?.titleTouched()
     }
     
-    private func initMenuButton() {
+    @objc func editFilter() {
+        mediaView?.filter()
+    }
+    
+    private func initButtons() {
         
         menuButton.showsMenuAsPrimaryAction = true
         menuButton.layer.masksToBounds = true
         
+        filterButton.layer.masksToBounds = true
+        
+        updateButtons()
+    }
+    
+    private func updateButtons() {
+        
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
             updateMenuButtonWithSize(30)
+            updateFilterButtonWithSize(30)
+            //filterButtonTrailingConstraint.constant = 30
         } else {
             updateMenuButtonWithSize(20)
+            updateFilterButtonWithSize(20)
+            //filterButtonTrailingConstraint.constant = 56
+        }
+        
+        setFilterButtonTrailingConstraint()
+    }
+    
+    private func setFilterButtonTrailingConstraint() {
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            filterButtonTrailingConstraint.constant = 76
+        } else {
+            filterButtonTrailingConstraint.constant = 56
         }
     }
     
@@ -192,10 +233,24 @@ class TitleView: UIView {
         let double = size * 2
         
         menuButton.setImage(image, for: .normal)
+        
         menuButton.layer.cornerRadius = size
         
         menuButtonWidthConstraint.constant = double
         menuButtonHeightConstraint.constant = double
+    }
+    
+    private func updateFilterButtonWithSize(_ size: CGFloat) {
+        
+        let configuration = UIImage.SymbolConfiguration(pointSize: size - 5, weight: .bold)
+        let dateImage = UIImage(systemName: "calendar.badge.clock", withConfiguration: configuration)
+        let double = size * 2
+        
+        filterButton.setImage(dateImage, for: .normal)
+        filterButton.layer.cornerRadius = size
+        
+        filterButtonWidthConstraint.constant = double
+        filterButtonHeightConstraint.constant = double
     }
     
     private func initTitle() {

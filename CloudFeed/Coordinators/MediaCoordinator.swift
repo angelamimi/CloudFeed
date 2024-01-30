@@ -51,7 +51,6 @@ extension MediaCoordinator {
         
         filterController.modalPresentationStyle = .formSheet
         
-        
         if let sheet = filterController.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false

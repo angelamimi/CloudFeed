@@ -35,6 +35,9 @@ class CollectionController: UIViewController {
     private var titleView: TitleView?
     private var titleViewHeightAnchor: NSLayoutConstraint?
     
+    var filterFromDate: Date?
+    var filterToDate: Date?
+    
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: FavoritesController.self)
@@ -67,6 +70,15 @@ class CollectionController: UIViewController {
         titleView?.hideMenu()
     }
     
+    func showEditFilter() {
+        //TODO: Add function?
+        titleView?.filterButton.isHidden = false
+    }
+    
+    func hideEditFilter() {
+        titleView?.filterButton.isHidden = true
+    }
+    
     func isRefreshing() -> Bool {
         return refreshControl.isRefreshing
     }
@@ -85,6 +97,10 @@ class CollectionController: UIViewController {
     
     func resetEdit() {
         titleView?.resetEdit()
+    }
+    
+    func hasFilter() -> Bool {
+        return filterFromDate != nil && filterToDate != nil
     }
     
     func initConstraints() {
@@ -155,15 +171,15 @@ class CollectionController: UIViewController {
         emptyView.display(image: image, title: title, description: description)
     }
     
-    func displayResults() {
+    func displayResults(refresh: Bool, emptyViewTitle: String, emptyViewDescription: String) {
         
-        let displayCount = collectionView.numberOfItems(inSection: 0)
+        let collectionCount = collectionView.numberOfItems(inSection: 0)
         
         activityIndicator.stopAnimating()
         loadMoreIndicator.stopAnimating()
         refreshControl.endRefreshing()
         
-        if displayCount == 0 {
+        if collectionCount == 0 {
             
             if isEditing {
                 //was in the middle of editing, but all favorites were removed outside of favorites screen. end edit mode
@@ -173,10 +189,15 @@ class CollectionController: UIViewController {
             }
             
             collectionView.isHidden = true
+            
+            emptyView.updateText(title: emptyViewTitle, description: emptyViewDescription)
+            
             emptyView.show()
             hideMenu()
             setTitle("")
-            titleViewHeightAnchor?.isActive = false
+            
+            //TODO: May not need anymore
+            //titleViewHeightAnchor?.isActive = false
             
         } else {
             
@@ -187,10 +208,19 @@ class CollectionController: UIViewController {
                 showMenu()
                 setTitle()
             }
-            
-            titleViewHeightAnchor?.isActive = true
+            //TODO: May not need anymore
+            //titleViewHeightAnchor?.isActive = true
             
             updateTitleConstraints()
+            
+            if refresh && (collectionCount > 0 && collectionView.indexPathsForVisibleItems.count == 0) {
+                //Self.logger.debug("displayResults() - visible items count: \(self.collectionView.indexPathsForVisibleItems.count)")
+                //TODO: Revisit
+                //When scrolled far in a long list, then filtered, the user ends up at a scroll position that
+                //doesn't display the newly filtered list. Screen appears blank. Enabling scroll to top may need
+                //more conditions around it or will scroll to top when the user is interacting with the list.
+                self.scrollToTop()
+            }
         }
     }
     
@@ -216,7 +246,7 @@ class CollectionController: UIViewController {
             titleViewHeightAnchor?.constant = 50
             collectionViewTopConstraint?.constant = 50
         }
-        
+
         titleView?.updateTitleSize()
     }
 }
@@ -234,9 +264,10 @@ extension CollectionController : UIScrollViewDelegate {
         guard isEditing == false else { return }
         
         let count = collectionView.numberOfItems(inSection: 0)
-        let lastIndexPath = IndexPath(item: count - 1, section: 0)
+        let containsFirst = collectionView.indexPathsForVisibleItems.contains(IndexPath(item: 0, section: 0))
+        let containsLast = collectionView.indexPathsForVisibleItems.contains(IndexPath(item: count - 1, section: 0))
         
-        if collectionView.indexPathsForVisibleItems.contains(lastIndexPath) && loadMoreIndicator.isAnimating == false {
+        if !(containsFirst && containsLast) && (containsLast && !isLoadingMore() && !isRefreshing()) {
             loadMoreIndicator.startAnimating()
             loadMore()
         }

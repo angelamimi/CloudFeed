@@ -15,6 +15,15 @@
             <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3eV-3U-YdS" userLabel="Filter Button">
+                    <rect key="frame" x="294" y="52" width="40" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="ohG-8C-4o9"/>
+                        <constraint firstAttribute="height" constant="40" id="rQG-ad-ips"/>
+                    </constraints>
+                    <state key="normal" title="Button"/>
+                    <buttonConfiguration key="configuration" style="filled" image="calendar.badge.checkmark" catalog="system"/>
+                </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0HJ-5a-GPf" userLabel="Menu Button">
                     <rect key="frame" x="342" y="52" width="40" height="40"/>
                     <color key="backgroundColor" systemColor="systemFillColor"/>
@@ -48,7 +57,7 @@
                     <buttonConfiguration key="configuration" style="plain" image="chevron.left" catalog="system"/>
                 </button>
                 <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jPn-bk-o2e" userLabel="Title">
-                    <rect key="frame" x="44" y="72" width="298" height="0.0"/>
+                    <rect key="frame" x="44" y="72" width="242" height="0.0"/>
                     <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                     <nil key="highlightedColor"/>
                 </label>
@@ -58,16 +67,18 @@
             <constraints>
                 <constraint firstItem="hCV-CC-q7z" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="1Dh-qN-LN2"/>
                 <constraint firstItem="k2S-Un-QnP" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="3lp-22-xwr"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="3eV-3U-YdS" secondAttribute="trailing" constant="56" id="4qz-96-94p"/>
                 <constraint firstItem="jPn-bk-o2e" firstAttribute="centerY" secondItem="0HJ-5a-GPf" secondAttribute="centerY" id="9NL-H9-ntc"/>
                 <constraint firstItem="k2S-Un-QnP" firstAttribute="centerY" secondItem="ABi-ln-iPL" secondAttribute="centerY" id="CI6-V1-m1d"/>
                 <constraint firstItem="0HJ-5a-GPf" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="5" id="D9L-49-XlX"/>
                 <constraint firstItem="ABi-ln-iPL" firstAttribute="centerY" secondItem="0HJ-5a-GPf" secondAttribute="centerY" id="Gcb-be-Y3c"/>
                 <constraint firstItem="ABi-ln-iPL" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="HeG-QK-NmH"/>
-                <constraint firstItem="jPn-bk-o2e" firstAttribute="trailing" secondItem="0HJ-5a-GPf" secondAttribute="leading" id="I1Q-qK-bMM"/>
                 <constraint firstItem="jPn-bk-o2e" firstAttribute="leading" secondItem="hCV-CC-q7z" secondAttribute="trailing" constant="4" id="IDJ-p7-0iZ"/>
                 <constraint firstItem="hCV-CC-q7z" firstAttribute="centerY" secondItem="0HJ-5a-GPf" secondAttribute="centerY" id="QyP-ea-6Rl"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="ABi-ln-iPL" secondAttribute="trailing" id="WkI-pA-cpd"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="0HJ-5a-GPf" secondAttribute="trailing" constant="8" id="YzA-WV-I0C"/>
+                <constraint firstItem="3eV-3U-YdS" firstAttribute="leading" secondItem="jPn-bk-o2e" secondAttribute="trailing" constant="8" id="e3i-ad-Q8Y"/>
+                <constraint firstItem="3eV-3U-YdS" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="5" id="evL-Hv-36m"/>
                 <constraint firstItem="k2S-Un-QnP" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="j4h-NX-ExE"/>
             </constraints>
             <connections>
@@ -75,15 +86,21 @@
                 <outlet property="backButtonConstraint" destination="j81-PV-qBl" id="Bxt-0X-2x8"/>
                 <outlet property="cancelButton" destination="k2S-Un-QnP" id="azh-6h-sPE"/>
                 <outlet property="doneButton" destination="ABi-ln-iPL" id="qZD-hb-MEJ"/>
+                <outlet property="filterButton" destination="3eV-3U-YdS" id="tMl-ak-WaW"/>
+                <outlet property="filterButtonHeightConstraint" destination="rQG-ad-ips" id="fme-EA-HH9"/>
+                <outlet property="filterButtonTrailingConstraint" destination="4qz-96-94p" id="X8d-iP-SKC"/>
+                <outlet property="filterButtonWidthConstraint" destination="ohG-8C-4o9" id="T78-yg-qN7"/>
                 <outlet property="menuButton" destination="0HJ-5a-GPf" id="2I9-vC-mHd"/>
                 <outlet property="menuButtonHeightConstraint" destination="Dbr-eL-8MJ" id="TxH-dT-GCL"/>
+                <outlet property="menuButtonTrailingConstraint" destination="YzA-WV-I0C" id="GBg-NK-VE0"/>
                 <outlet property="menuButtonWidthConstraint" destination="Osl-hJ-cBj" id="WV3-uS-qnx"/>
                 <outlet property="title" destination="jPn-bk-o2e" id="LOL-N5-U61"/>
             </connections>
-            <point key="canvasLocation" x="-52" y="68"/>
+            <point key="canvasLocation" x="-52.307692307692307" y="67.535545023696685"/>
         </view>
     </objects>
     <resources>
+        <image name="calendar.badge.checkmark" catalog="system" width="128" height="109"/>
         <image name="chevron.left" catalog="system" width="97" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -92,7 +109,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemFillColor">
-            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.47058823529999999" green="0.47058823529999999" blue="0.50196078430000002" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

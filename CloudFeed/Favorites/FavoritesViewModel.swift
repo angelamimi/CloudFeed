@@ -25,7 +25,7 @@ import UIKit
 
 protocol FavoritesDelegate: AnyObject {
     func fetching()
-    func dataSourceUpdated()
+    func dataSourceUpdated(refresh: Bool)
     func bulkEditFinished(error: Bool)
     func fetchResultReceived(resultItemCount: Int?)
     func editCellUpdated(cell: CollectionViewCell, indexPath: IndexPath)
@@ -85,7 +85,8 @@ final class FavoritesViewModel: NSObject {
         dataSource!.applySnapshotUsingReloadData(snapshot)
     }
     
-    func loadMore() {
+    func loadMore(filterFromDate: Date?, filterToDate: Date?) {
+        
         var offsetDate: Date?
         var offsetName: String?
 
@@ -106,8 +107,7 @@ final class FavoritesViewModel: NSObject {
         guard let offsetName = offsetName else { return }
         
         //Self.logger.debug("loadMore() - offsetName: \(offsetName) offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
-        
-        sync(offsetDate: offsetDate, offsetName: offsetName)
+        sync(offsetDate: offsetDate, offsetName: offsetName, filterFromDate: filterFromDate, filterToDate: filterToDate)
     }
     
     func reload() {
@@ -129,15 +129,15 @@ final class FavoritesViewModel: NSObject {
         Task { [weak self] in
             guard let self else { return }
             
-            let error = await self.dataService.getFavorites()
+            let error = await dataService.getFavorites()
             handleFavoriteResult(error: error)
             
-            let resultMetadatas = dataService.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
+            let resultMetadatas = dataService.paginateFavoriteMetadata()
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
         }
     }
     
-    func syncFavs() {
+    func filter(from: Date, to: Date) {
         
         delegate.fetching()
                 
@@ -147,7 +147,22 @@ final class FavoritesViewModel: NSObject {
             let error = await dataService.getFavorites()
             handleFavoriteResult(error: error)
             
-            processFavorites()
+            let resultMetadatas = await dataService.filterFavorites(from: from, to: to)
+            await applyDatasourceChanges(metadatas: resultMetadatas, refresh: true)
+        }
+    }
+    
+    func syncFavs(from: Date?, to: Date?) {
+        
+        delegate.fetching()
+                
+        Task { [weak self] in
+            guard let self else { return }
+            
+            let error = await dataService.getFavorites()
+            handleFavoriteResult(error: error)
+            
+            processFavorites(from: from, to: to)
         }
     }
     
@@ -163,7 +178,7 @@ final class FavoritesViewModel: NSObject {
             let result = await dataService.toggleFavoriteMetadata(metadata)
             
             if result == nil {
-                Self.logger.error("bulkEdit() - failed to save favorite ocid: \(metadata.ocId)")
+                //Self.logger.error("bulkEdit() - failed to save favorite ocid: \(metadata.ocId)")
                 error = true
             } else {
                 snapshot.deleteItems([result!])
@@ -187,7 +202,7 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func sync(offsetDate: Date, offsetName: String) {
+    private func sync(offsetDate: Date, offsetName: String, filterFromDate: Date?, filterToDate: Date?) {
         
         delegate.fetching()
         
@@ -196,7 +211,7 @@ final class FavoritesViewModel: NSObject {
 
             _ = await self.dataService.getFavorites()
             
-            let resultMetadatas = self.dataService.paginateFavoriteMetadata(offsetDate: offsetDate, offsetName: offsetName)
+            let resultMetadatas = self.dataService.paginateFavoriteMetadata(offsetDate: offsetDate, offsetName: offsetName, fromDate: filterFromDate, toDate: filterToDate)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
         }
     }
@@ -220,8 +235,6 @@ final class FavoritesViewModel: NSObject {
     }
     
     private func setImage(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath) async {
-        
-        //Self.logger.debug("setImage() - indexPath: \(indexPath)")
         
         let ocId = metadata.ocId
         let etag = metadata.etag
@@ -257,22 +270,22 @@ final class FavoritesViewModel: NSObject {
         delegate.editCellUpdated(cell: cell, indexPath: indexPath)
     }
     
-    private func processFavorites() {
+    private func processFavorites(from: Date?, to: Date?) {
         
         var snapshot = dataSource.snapshot()
         var displayed = snapshot.itemIdentifiers(inSection: 0)
-        
+
         //Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
         
-        guard let result = dataService.processFavorites(displayedMetadatas: displayed) else {
-            delegate.dataSourceUpdated()
+        guard let result = dataService.processFavorites(displayedMetadatas: displayed, from: from, to: to) else {
+            delegate.dataSourceUpdated(refresh: false)
             return
         }
         
         //Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
         
         guard result.delete.count > 0 || result.add.count > 0 else {
-            delegate.dataSourceUpdated()
+            delegate.dataSourceUpdated(refresh: false)
             return
         }
         
@@ -290,7 +303,7 @@ final class FavoritesViewModel: NSObject {
                 for result in result.add {
                     
                     if snapshot.itemIdentifiers.contains(result) {
-                        Self.logger.debug("processFavorites() - \(result.fileNameView) exists. do not add again.")
+                        //Self.logger.debug("processFavorites() - \(result.fileNameView) exists. do not add again.")
                         continue
                     }
                     
@@ -320,8 +333,8 @@ final class FavoritesViewModel: NSObject {
         let applySnapshot = snapshot
         
         DispatchQueue.main.async { [weak self] in
-            self?.dataSource.apply(applySnapshot, animatingDifferences: true, completion: {
-                self?.delegate.dataSourceUpdated()
+            self?.dataSource.apply(applySnapshot, animatingDifferences: true, completion: { [weak self] in
+                self?.delegate.dataSourceUpdated(refresh: false)
             })
         }
     }
@@ -374,7 +387,7 @@ final class FavoritesViewModel: NSObject {
         DispatchQueue.main.async {[weak self] in
             guard let self else { return }
             self.dataSource.apply(applySnapshot, animatingDifferences: true)
-            self.delegate.dataSourceUpdated()
+            self.delegate.dataSourceUpdated(refresh: refresh)
         }
     }
     

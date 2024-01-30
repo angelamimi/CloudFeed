@@ -88,7 +88,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         
         // prevent http redirection
         if urlBase!.lowercased().hasPrefix(Global.shared.http) && urlString.lowercased().hasPrefix(Global.shared.https) {
-            Self.logger.error("didReceiveServerRedirectForProvisionalNavigation() - preventing redirect to \(urlString)")
+            //Self.logger.error("didReceiveServerRedirectForProvisionalNavigation() - preventing redirect to \(urlString)")
             return
         }
         

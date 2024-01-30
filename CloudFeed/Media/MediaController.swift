@@ -27,9 +27,6 @@ class MediaController: CollectionController {
     
     var coordinator: MediaCoordinator!
     var viewModel: MediaViewModel!
-    
-    private var filterFromDate: Date?
-    private var filterToDate: Date?
 
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -62,11 +59,15 @@ class MediaController: CollectionController {
     }
     
     override func refresh() {
-        viewModel.metadataSearch(offsetDate: Date(), offsetName: nil, refresh: true)
+        if hasFilter() {
+            viewModel.filter(toDate: filterToDate!, fromDate: filterFromDate!)
+        } else {
+            viewModel.metadataSearch(toDate: Date(), fromDate: nil, offsetDate: nil, offsetName: nil, refresh: true)
+        }
     }
     
     override func loadMore() {
-        viewModel.loadMore()
+        viewModel.loadMore(filterFromDate: filterFromDate)
     }
     
     override func setTitle() {
@@ -87,7 +88,7 @@ class MediaController: CollectionController {
         DispatchQueue.main.async { [weak self] in
             
             guard let self else { return }
-            
+
             self.scrollToTop()
             self.hideMenu()
             self.setTitle("")
@@ -99,11 +100,13 @@ class MediaController: CollectionController {
         
         let syncDateRange = getSyncDateRange()
         
-        if syncDateRange.toDate == nil || syncDateRange.fromDate == nil {
-            hideMenu()
-            viewModel.metadataSearch(offsetDate: Date(), offsetName: nil, refresh: false)
-        } else {
+        if hasFilter() {
+            viewModel.sync(toDate: filterToDate!, fromDate: filterFromDate!)
+        } else if syncDateRange.toDate != nil && syncDateRange.fromDate != nil {
             viewModel.sync(toDate: syncDateRange.toDate!, fromDate: syncDateRange.fromDate!)
+        } else {
+            hideMenu()
+            viewModel.metadataSearch(toDate: Date(), fromDate: nil, offsetDate: nil, offsetName: nil, refresh: false)
         }
     }
     
@@ -171,9 +174,14 @@ class MediaController: CollectionController {
 
 extension MediaController: MediaDelegate {
     
-    func dataSourceUpdated() {
+    func dataSourceUpdated(refresh: Bool) {
         DispatchQueue.main.async { [weak self] in
-            self?.displayResults()
+            guard let self else { return }
+            if self.hasFilter() {
+                self.displayResults(refresh: refresh, emptyViewTitle: Strings.MediaEmptyFilterTitle, emptyViewDescription: Strings.MediaEmptyFilterDescription)
+            } else {
+                self.displayResults(refresh: refresh, emptyViewTitle: Strings.MediaEmptyTitle, emptyViewDescription: Strings.MediaEmptyDescription)
+            }
         }
     }
     
@@ -270,15 +278,13 @@ extension MediaController: Filterable {
     
     func filter(from: Date, to: Date) {
         
-        Self.logger.debug("filter() - from: \(from.formatted(date: .abbreviated, time: .standard))")
-        Self.logger.debug("filter() - to: \(to.formatted(date: .abbreviated, time: .standard))")
+        coordinator.dismissFilter()
         
         if to < from {
-            coordinator.dismissFilter()
             coordinator.showInvalidFilterError()
         } else {
-            //TODO: Search by dates
-            coordinator.dismissFilter()
+
+            showEditFilter()
             
             filterToDate = to
             filterFromDate = from
@@ -289,8 +295,9 @@ extension MediaController: Filterable {
     
     func removeFilter() {
         
-        Self.logger.debug("removeFilter()")
         coordinator.dismissFilter()
+        
+        hideEditFilter()
         
         filterToDate = nil
         filterFromDate = nil
