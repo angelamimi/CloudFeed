@@ -2,9 +2,11 @@
 .DS_Store
 build/
 xcuserdata
+xcshareddata
 DerivedData
 .idea/
 *.xccheckout
+*.xcworkspace
 
 ## Package
 Carthage/
