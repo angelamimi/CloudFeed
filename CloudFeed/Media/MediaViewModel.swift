@@ -263,19 +263,20 @@ final class MediaViewModel: NSObject {
         var snapshot = dataSource.snapshot()
         let displayedMetadata = snapshot.itemIdentifiers(inSection: 0)
         
-        guard displayedMetadata.count > 0 else { return }
+        if displayedMetadata.count > 0 {
         
-        for delete in deleted {
-            if displayedMetadata.contains(delete) {
-                snapshot.deleteItems([delete])
+            for delete in deleted {
+                if displayedMetadata.contains(delete) {
+                    snapshot.deleteItems([delete])
+                }
             }
-        }
-
-        for update in updated {
-            if let displayed = displayedMetadata.first(where: { $0.ocId == update.ocId }) {
-                displayed.favorite = update.favorite
-                displayed.fileNameView = update.fileNameView
-                snapshot.reloadItems([displayed])
+            
+            for update in updated {
+                if let displayed = displayedMetadata.first(where: { $0.ocId == update.ocId }) {
+                    displayed.favorite = update.favorite
+                    displayed.fileNameView = update.fileNameView
+                    snapshot.reloadItems([displayed])
+                }
             }
         }
         
