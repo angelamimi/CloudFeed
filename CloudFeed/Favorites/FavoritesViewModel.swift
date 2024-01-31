@@ -211,7 +211,7 @@ final class FavoritesViewModel: NSObject {
 
             _ = await self.dataService.getFavorites()
             
-            let resultMetadatas = self.dataService.paginateFavoriteMetadata(offsetDate: offsetDate, offsetName: offsetName, fromDate: filterFromDate, toDate: filterToDate)
+            let resultMetadatas = self.dataService.paginateFavoriteMetadata(fromDate: filterFromDate, toDate: filterToDate, offsetDate: offsetDate, offsetName: offsetName)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
         }
     }

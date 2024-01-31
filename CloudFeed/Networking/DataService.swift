@@ -176,7 +176,7 @@ class DataService: NSObject {
         guard listingResult.files != nil else { return true }
         
         let convertResult = await databaseManager.convertFilesToMetadatas(listingResult.files!)
-        databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: convertResult.metadatas)
+        databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: convertResult)
         
         return false
     }
@@ -191,10 +191,10 @@ class DataService: NSObject {
     }
     
     func paginateFavoriteMetadata() -> [tableMetadata] {
-        return paginateFavoriteMetadata(offsetDate: nil, offsetName: nil, fromDate: nil, toDate: nil)
+        return paginateFavoriteMetadata(fromDate: nil, toDate: nil, offsetDate: nil, offsetName: nil)
     }
     
-    func paginateFavoriteMetadata(offsetDate: Date?, offsetName: String?, fromDate: Date?, toDate: Date?) -> [tableMetadata] {
+    func paginateFavoriteMetadata(fromDate: Date?, toDate: Date?, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
         
         guard let account = Environment.current.currentUser?.account else { return [] }
         guard let mediaPath = getMediaPath() else { return [] }
@@ -309,17 +309,15 @@ class DataService: NSObject {
         guard let mediaPath = getMediaPath() else { return ([], [], [], [], true) }
         guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return ([], [], [], [], true) }
         
-        //remote search with large limit. allows for many files with the same date.
-        //need the extra buffer for pagination/continuous scrolling, and syncing when returning to screen.
         let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath,
                                                               toDate: toDate, fromDate: fromDate, limit: limit)
         
-        if searchResult.files.count == 0 {
-            return ([], [], [], [], searchResult.error)
+        if searchResult.error {
+            return ([], [], [], [], true)
         }
         
         //convert to metadata
-        let metadataCollection = await databaseManager.convertFilesToMetadatas(searchResult.files)
+        let metadataCollection = searchResult.files.count == 0 ? [] : await databaseManager.convertFilesToMetadatas(searchResult.files)
         
         //get currently stored metadata
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@",
@@ -330,7 +328,7 @@ class DataService: NSObject {
         let metadatasResult = databaseManager.getMetadatas(predicate: predicate)
         
         //add, update, delete stored metadata
-        let processResult = databaseManager.processMetadatas(metadataCollection.metadatas, metadatasResult: metadatasResult)
+        let processResult = databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
         
         let metadataPredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", 
                                             account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue)
@@ -348,11 +346,10 @@ class DataService: NSObject {
         if limit == 0 {
             metadatas = databaseManager.fetchMetadata(predicate: storePredicate)
         } else {
-            //metadatas = databaseManager.paginateMetadata(predicate: storePredicate, offsetDate: toDate, offsetName: offsetName)
             metadatas = databaseManager.paginateMetadata(predicate: storePredicate, offsetDate: offsetDate, offsetName: offsetName)
         }
+        
         //Self.logger.debug("searchMedia() - added: \(processResult.added.count) updated: \(processResult.updated.count) deleted: \(processResult.deleted.count)")
-    
         return (metadatas, processResult.added, processResult.updated, processResult.deleted, false)
     }
     

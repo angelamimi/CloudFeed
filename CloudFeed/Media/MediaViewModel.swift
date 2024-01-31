@@ -167,8 +167,8 @@ final class MediaViewModel: NSObject {
             var updated = getUpdatedFavorites(metadatas: results.metadatas!)
             updated.append(contentsOf: results.updated)
             
-            Self.logger.debug("sync() - count: \(results.metadatas!.count)")
-            Self.logger.debug("sync() - added: \(results.added.count) total updated: \(updated.count) deleted: \(results.deleted.count)")
+            //Self.logger.debug("sync() - count: \(results.metadatas!.count)")
+            //Self.logger.debug("sync() - added: \(results.added.count) total updated: \(updated.count) deleted: \(results.deleted.count)")
             syncDatasource(added: results.added, updated: updated, deleted: results.deleted)
         }
     }
@@ -390,7 +390,7 @@ final class MediaViewModel: NSObject {
             return nil
         }
         
-        Self.logger.debug("calculateSearchDates() - newDays: \(String(newDays)) days: \(String(days))")
+        //Self.logger.debug("calculateSearchDates() - newDays: \(String(newDays)) days: \(String(days))")
         
         var fromDate: Date
         

@@ -163,24 +163,12 @@ extension DatabaseManager {
         return tableMetadata.init(value: result)
     }
     
-    func convertFilesToMetadatas(_ files: [NKFile]) async -> (metadataFolder: tableMetadata, metadatasFolder: [tableMetadata], metadatas: [tableMetadata]) {
+    func convertFilesToMetadatas(_ files: [NKFile]) async -> [tableMetadata] {
 
-        var counter: Int = 0
-
-        let metadataFolder = tableMetadata()
-        var metadataFolders: [tableMetadata] = []
         var metadatas: [tableMetadata] = []
 
         for file in files {
-
-            let metadata = convertFileToMetadata(file)
-
-            metadatas.append(metadata)
-            if metadata.directory {
-                metadataFolders.append(metadata)
-            }
-
-            counter += 1
+            metadatas.append(convertFileToMetadata(file))
         }
 
         //Handle live photo
@@ -198,7 +186,7 @@ extension DatabaseManager {
             metadataOutput.append(metadata)
         }
 
-        return (metadataFolder, metadataFolders, metadataOutput)
+        return metadataOutput
     }
     
     func getMetadata(predicate: NSPredicate) -> tableMetadata? {

@@ -41,7 +41,7 @@ final class NextclouldServiceTests: BaseTest {
         
         XCTAssertTrue(error == false)
         
-        let favMetadatas = dataService?.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
+        let favMetadatas = dataService?.paginateFavoriteMetadata(fromDate: nil, toDate: nil, offsetDate: nil, offsetName: nil)
         
         XCTAssertNotNil(favMetadatas)
         XCTAssertEqual(favMetadatas?.count, 0)
@@ -55,7 +55,7 @@ final class NextclouldServiceTests: BaseTest {
         
         XCTAssertTrue(error == false)
 
-        let favMetadatas = dataService?.paginateFavoriteMetadata(offsetDate: nil, offsetName: nil)
+        let favMetadatas = dataService?.paginateFavoriteMetadata(fromDate: nil, toDate: nil, offsetDate: nil, offsetName: nil)
         
         XCTAssertNotNil(favMetadatas)
         

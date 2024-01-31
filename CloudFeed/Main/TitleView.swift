@@ -109,7 +109,7 @@ class TitleView: UIView {
             self?.mediaView?.zoomOutGrid()
         }
         
-        let filter = UIAction(title: "Filter", image: UIImage(systemName: "line.3.horizontal.decrease.circle")) { [weak self] action in
+        let filter = UIAction(title: "Filter", image: UIImage(systemName: "calendar.badge.clock")) { [weak self] action in
             self?.mediaView?.filter()
         }
     
