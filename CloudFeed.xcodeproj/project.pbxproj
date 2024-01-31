@@ -979,7 +979,7 @@
 			repositoryURL = "https://github.com/Nextcloud/NextcloudKit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.7.0;
+				minimumVersion = 2.9.5;
 			};
 		};
 		392735A329BE13590058796A /* XCRemoteSwiftPackageReference "realm-swift" */ = {
@@ -987,7 +987,7 @@
 			repositoryURL = "https://github.com/realm/realm-swift.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 10.45.3;
+				minimumVersion = 10.46.0;
 			};
 		};
 		392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
