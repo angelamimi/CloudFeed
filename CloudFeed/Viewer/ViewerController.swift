@@ -158,9 +158,7 @@ class ViewerController: UIViewController {
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
         if swipeGesture.direction == .up {
-            setDetailTableVisibility(visible: true)
-        } else if swipeGesture.direction == .down {
-            setDetailTableVisibility(visible: false)
+            showDetails()
         }
     }
     
@@ -242,5 +240,22 @@ class ViewerController: UIViewController {
             detailViewController.metadata = metadata
             self.present(detailViewController, animated: true, completion: nil)
         }
+    }
+    
+    private func showDetails() {
+        
+        let detailController = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailViewController") as! DetailController
+        
+        detailController.metadata = metadata
+        
+        if let sheet = detailController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.prefersEdgeAttachedInCompactHeight = true
+            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            sheet.prefersGrabberVisible = true
+        }
+        
+        present(detailController, animated: true)
     }
 }

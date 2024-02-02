@@ -25,7 +25,6 @@ import os.log
 class DetailController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var closeButton: UIButton!
     
     weak var metadata : tableMetadata?
     private var details = [MetadataDetail]()
@@ -45,15 +44,7 @@ class DetailController: UIViewController {
         tableView.rowHeight = UITableView.automaticDimension;
         tableView.estimatedRowHeight = 70;
         
-        closeButton.addTarget(self, action: #selector(handleClose), for: .touchUpInside)
-        closeButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        closeButton.layer.cornerRadius = 8
-        
         buildDetailsDatasource()
-    }
-    
-    @objc func handleClose() {
-        self.dismiss(animated: true)
     }
     
     private func buildDetailsDatasource() {

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22154" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="r40-jb-ixQ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="r40-jb-ixQ">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22130"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -132,7 +132,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="iW4-aT-FE7">
-                                <rect key="frame" x="0.0" y="260" width="393" height="558"/>
+                                <rect key="frame" x="0.0" y="83" width="393" height="735"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="DetailCell" id="Jb7-Y3-rrm" customClass="DetailCell" customModule="CloudFeed" customModuleProvider="target">
@@ -143,17 +143,17 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xog-o2-bhb">
-                                                    <rect key="frame" x="8" y="8" width="120" height="21"/>
+                                                    <rect key="frame" x="8" y="8.0000000000000018" width="160" height="20.666666666666671"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="width" constant="120" id="48a-wk-W5S"/>
+                                                        <constraint firstAttribute="width" constant="160" id="48a-wk-W5S"/>
                                                     </constraints>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                     <color key="textColor" systemColor="secondaryLabelColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nq7-G0-xVW">
-                                                    <rect key="frame" x="138" y="8" width="247" height="21"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <rect key="frame" x="178" y="8.0000000000000018" width="207" height="20.666666666666671"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -175,31 +175,18 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9k6-lp-eA0">
-                                <rect key="frame" x="0.0" y="224" width="393" height="36"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="36" id="D8G-dr-9f4"/>
-                                </constraints>
-                                <color key="tintColor" systemColor="secondaryLabelColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="line.3.horizontal" catalog="system"/>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="jzQ-es-C4Y"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="9k6-lp-eA0" firstAttribute="leading" secondItem="jzQ-es-C4Y" secondAttribute="leading" id="3nr-2H-84V"/>
-                            <constraint firstItem="iW4-aT-FE7" firstAttribute="top" secondItem="jzQ-es-C4Y" secondAttribute="top" constant="201" id="G46-Vi-FPI"/>
                             <constraint firstItem="jzQ-es-C4Y" firstAttribute="bottom" secondItem="iW4-aT-FE7" secondAttribute="bottom" id="TLk-sP-2aK"/>
-                            <constraint firstItem="9k6-lp-eA0" firstAttribute="bottom" secondItem="iW4-aT-FE7" secondAttribute="top" id="Zbo-dS-ib7"/>
                             <constraint firstItem="iW4-aT-FE7" firstAttribute="leading" secondItem="jzQ-es-C4Y" secondAttribute="leading" id="h0e-JV-EXv"/>
                             <constraint firstItem="jzQ-es-C4Y" firstAttribute="trailing" secondItem="iW4-aT-FE7" secondAttribute="trailing" id="i1M-VG-3kG"/>
-                            <constraint firstItem="jzQ-es-C4Y" firstAttribute="trailing" secondItem="9k6-lp-eA0" secondAttribute="trailing" id="jCF-DN-wy6"/>
+                            <constraint firstItem="iW4-aT-FE7" firstAttribute="top" secondItem="jzQ-es-C4Y" secondAttribute="top" constant="24" id="kKT-Hb-kKd"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="closeButton" destination="9k6-lp-eA0" id="FoL-AB-cc0"/>
                         <outlet property="tableView" destination="iW4-aT-FE7" id="LW7-oH-Fps"/>
                     </connections>
                 </viewController>
@@ -209,7 +196,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="line.3.horizontal" catalog="system" width="128" height="65"/>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
