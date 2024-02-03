@@ -71,12 +71,11 @@ class CollectionController: UIViewController {
     }
     
     func showEditFilter() {
-        //TODO: Add function?
-        titleView?.filterButton.isHidden = false
+        titleView?.showFilterButton()
     }
     
     func hideEditFilter() {
-        titleView?.filterButton.isHidden = true
+        titleView?.hideFilterButton()
     }
     
     func isRefreshing() -> Bool {
@@ -196,9 +195,6 @@ class CollectionController: UIViewController {
             hideMenu()
             setTitle("")
             
-            //TODO: May not need anymore
-            //titleViewHeightAnchor?.isActive = false
-            
         } else {
             
             collectionView.isHidden = false
@@ -208,12 +204,10 @@ class CollectionController: UIViewController {
                 showMenu()
                 setTitle()
             }
-            //TODO: May not need anymore
-            //titleViewHeightAnchor?.isActive = true
-            
+
             updateTitleConstraints()
             
-            if refresh && (collectionCount > 0 && collectionView.indexPathsForVisibleItems.count == 0) {
+            if refresh && (hasFilter() || (collectionCount > 0 && collectionView.indexPathsForVisibleItems.count == 0)) {
                 //Self.logger.debug("displayResults() - visible items count: \(self.collectionView.indexPathsForVisibleItems.count)")
                 //TODO: Revisit
                 //When scrolled far in a long list, then filtered, the user ends up at a scroll position that

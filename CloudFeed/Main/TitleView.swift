@@ -78,6 +78,14 @@ class TitleView: UIView {
         title.addGestureRecognizer(guestureRecognizer)
     }
     
+    func showFilterButton() {
+        filterButton.isHidden = false
+    }
+    
+    func hideFilterButton() {
+        filterButton.isHidden = true
+    }
+    
     func hideMenu() {
         menuButton.isHidden = true
         
