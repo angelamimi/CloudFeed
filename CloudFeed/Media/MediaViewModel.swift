@@ -162,14 +162,17 @@ final class MediaViewModel: NSObject {
             
             guard results.metadatas != nil else { return }
             
+            var added = getAddedMetadata(metadatas: results.metadatas!)
+            added.append(contentsOf: results.added)
+            
             //results.updated accounts for favorites updated remotely. Also need to account for favorites updated locally.
             //have to compare what is displayed with what was just fetched
             var updated = getUpdatedFavorites(metadatas: results.metadatas!)
             updated.append(contentsOf: results.updated)
             
             //Self.logger.debug("sync() - count: \(results.metadatas!.count)")
-            //Self.logger.debug("sync() - added: \(results.added.count) total updated: \(updated.count) deleted: \(results.deleted.count)")
-            syncDatasource(added: results.added, updated: updated, deleted: results.deleted)
+            //Self.logger.debug("sync() - added: \(added.count) total updated: \(updated.count) deleted: \(results.deleted.count)")
+            syncDatasource(added: added, updated: updated, deleted: results.deleted)
         }
     }
     
@@ -238,6 +241,21 @@ final class MediaViewModel: NSObject {
         } else {
             await self.dataService.downloadPreview(metadata: metadata)
         }
+    }
+    
+    private func getAddedMetadata(metadatas: [tableMetadata]) -> [tableMetadata] {
+
+        let snapshot = dataSource.snapshot()
+        let currentMetadatas = snapshot.itemIdentifiers(inSection: 0)
+        var addedFavorites: [tableMetadata] = []
+        
+        for fetchedMetadata in metadatas {
+            if currentMetadatas.first(where: { $0.ocId == fetchedMetadata.ocId }) == nil {
+                addedFavorites.append(fetchedMetadata)
+            }
+        }
+        
+        return addedFavorites
     }
     
     private func getUpdatedFavorites(metadatas: [tableMetadata]) -> [tableMetadata] {
