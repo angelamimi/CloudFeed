@@ -296,7 +296,11 @@ final class FavoritesViewModel: NSObject {
         if result.add.count > 0 {
             
             if snapshot.numberOfItems == 0 {
-                snapshot.appendItems(result.add)
+                for add in result.add {
+                    if !snapshot.itemIdentifiers.contains(add) {
+                        snapshot.appendItems([add])
+                    }
+                }
             } else {
                 
                 //find where each item to be added fits in the visible collection by date and possibly name

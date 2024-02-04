@@ -301,7 +301,11 @@ final class MediaViewModel: NSObject {
         if added.count > 0 {
             
             if snapshot.numberOfItems == 0 {
-                snapshot.appendItems(added)
+                for add in added {
+                    if !snapshot.itemIdentifiers.contains(add) {
+                        snapshot.appendItems([add])
+                    }
+                }
             } else {
                 
                 //find where each item to be added fits in the visible collection by date and possibly name
