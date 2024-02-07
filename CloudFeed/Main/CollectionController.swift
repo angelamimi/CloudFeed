@@ -47,11 +47,39 @@ class CollectionController: UIViewController {
         super.viewDidLoad()
         
         navigationController?.isNavigationBarHidden = true
+        
+        initObservers()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        updateTitleConstraints()
+    }
+    
+    deinit {
+        cleanup()
     }
     
     func setTitle() {}
     func loadMore() {}
     func refresh() {}
+    func enteringForeground() {}
+    
+    private func initObservers() {
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
+            self?.willEnterForegroundNotification()
+        }
+    }
+    
+    private func cleanup() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+    
+    private func willEnterForegroundNotification() {
+        if isViewLoaded && view.window != nil {
+            updateTitleConstraints()
+            enteringForeground()
+        }
+    }
     
     func registerCell(_ cellIdentifier: String) {
         let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
@@ -204,8 +232,6 @@ class CollectionController: UIViewController {
                 showMenu()
                 setTitle()
             }
-
-            updateTitleConstraints()
             
             if refresh && (hasFilter() || (collectionCount > 0 && collectionView.indexPathsForVisibleItems.count == 0)) {
                 //Self.logger.debug("displayResults() - visible items count: \(self.collectionView.indexPathsForVisibleItems.count)")

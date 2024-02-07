@@ -47,14 +47,13 @@ class MediaController: CollectionController {
         initCollectionView()
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
         initConstraints()
-        initObservers()
-    }
-    
-    deinit {
-        cleanup()
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        findMedia()
+    }
+    
+    override func enteringForeground() {
         findMedia()
     }
     
@@ -155,20 +154,12 @@ class MediaController: CollectionController {
         self.viewModel.toggleFavorite(metadata: metadata)
     }
     
-    private func enteringForeground() {
-        if isViewLoaded && view.window != nil {
-            findMedia()
+    private func displayResults(refresh: Bool) {
+        if hasFilter() {
+            displayResults(refresh: refresh, emptyViewTitle: Strings.MediaEmptyFilterTitle, emptyViewDescription: Strings.MediaEmptyFilterDescription)
+        } else {
+            displayResults(refresh: refresh, emptyViewTitle: Strings.MediaEmptyTitle, emptyViewDescription: Strings.MediaEmptyDescription)
         }
-    }
-    
-    private func initObservers() {
-        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            self?.enteringForeground()
-        }
-    }
-    
-    private func cleanup() {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
 }
 
@@ -176,12 +167,7 @@ extension MediaController: MediaDelegate {
     
     func dataSourceUpdated(refresh: Bool) {
         DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            if self.hasFilter() {
-                self.displayResults(refresh: refresh, emptyViewTitle: Strings.MediaEmptyFilterTitle, emptyViewDescription: Strings.MediaEmptyFilterDescription)
-            } else {
-                self.displayResults(refresh: refresh, emptyViewTitle: Strings.MediaEmptyTitle, emptyViewDescription: Strings.MediaEmptyDescription)
-            }
+            self?.displayResults(refresh: refresh)
         }
     }
     
@@ -208,6 +194,7 @@ extension MediaController: MediaDelegate {
         DispatchQueue.main.async { [weak self] in
             if resultItemCount == nil {
                 self?.coordinator.showLoadFailedError()
+                self?.displayResults(refresh: false)
             }
         }
     }

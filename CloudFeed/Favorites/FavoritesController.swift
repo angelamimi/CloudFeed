@@ -51,14 +51,13 @@ class FavoritesController: CollectionController {
         initTitleView(mediaView: self, allowEdit: true)
         initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
         initConstraints()
-        initObservers()
     }
-    
-    deinit {
-        cleanup()
-    }
-    
+
     override func viewDidAppear(_ animated: Bool) {
+        fetchFavorites()
+    }
+    
+    override func enteringForeground() {
         fetchFavorites()
     }
     
@@ -166,22 +165,6 @@ class FavoritesController: CollectionController {
         }
     }
     
-    private func enteringForeground() {
-        if isViewLoaded && view.window != nil {
-            fetchFavorites()
-        }
-    }
-    
-    private func initObservers() {
-        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            self?.enteringForeground()
-        }
-    }
-    
-    private func cleanup() {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
-    }
-    
     private func displayResults(refresh: Bool) {
         if hasFilter() {
             displayResults(refresh: refresh, emptyViewTitle: Strings.FavEmptyFilterTitle, emptyViewDescription: Strings.FavEmptyFilterDescription)
@@ -229,6 +212,7 @@ extension FavoritesController: FavoritesDelegate {
         DispatchQueue.main.async { [weak self] in
             if resultItemCount == nil {
                 self?.coordinator.showLoadfailedError()
+                self?.displayResults(refresh: false)
             }
         }
     }
