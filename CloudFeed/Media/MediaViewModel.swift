@@ -389,8 +389,8 @@ final class MediaViewModel: NSObject {
                 return
             }
             
-            /*Self.logger.debug("processSearchResult() - toDate: \(span.toDate.formatted(date: .abbreviated, time: .standard))")
-            Self.logger.debug("processSearchResult() - fromDate: \(span.fromDate.formatted(date: .abbreviated, time: .standard))")*/
+            //Self.logger.debug("processSearchResult() - toDate: \(span.toDate.formatted(date: .abbreviated, time: .standard))")
+            //Self.logger.debug("processSearchResult() - fromDate: \(span.fromDate.formatted(date: .abbreviated, time: .standard))")
 
             let results = await search(toDate: span.toDate, fromDate: span.fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
             await processSearchResult(metadatas: results.metadatas, toDate: span.toDate, offsetDate: offsetDate, offsetName: offsetName, days: span.spanDays, refresh: refresh)

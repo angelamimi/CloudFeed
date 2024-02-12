@@ -134,7 +134,12 @@ class DetailController: UIViewController {
         if let brightness = data[kCGImagePropertyExifBrightnessValue] as? Double {
             details.append(MetadataDetail(title: Strings.DetailBrightness, detail: String(format: "%.\(2)f", brightness)))
         }
-    
+        
+        if let shutterSpeed = data[kCGImagePropertyExifShutterSpeedValue] as? Double {
+            let result = pow(2.0, shutterSpeed)
+            details.append(MetadataDetail(title: Strings.DetailShutterSpeed, detail: "1/\(String(format: "%.0f", result))"))
+        }
+        
         tableView?.reloadData()
     }
 }

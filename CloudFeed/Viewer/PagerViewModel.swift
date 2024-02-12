@@ -73,9 +73,12 @@ final class PagerViewModel: NSObject {
         }
     }
     
-    func getMetadata(account: String, serverUrl: String, fileName: String) -> tableMetadata? {
-        let predicate = NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", account, serverUrl, fileName)
-        return dataService.getMetadata(predicate: predicate)
+    func getMetadataLivePhoto(metadata: tableMetadata) -> tableMetadata? {
+        return dataService.getMetadataLivePhoto(metadata: metadata)
+    }
+    
+    func downloadLivePhotoVideo(metadata: tableMetadata) async {
+        await dataService.download(metadata: metadata, selector: "")
     }
 }
 

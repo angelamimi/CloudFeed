@@ -94,18 +94,14 @@ class PreviewController: UIViewController {
     
     private func loadLiveVideo() {
         
-        let fileName = (metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-        
-        //Self.logger.debug("loadLiveVideo() - fileName: \(fileName)")
-        
-        if let metadata = viewModel.getMetadata(account: metadata.account, serverUrl: metadata.serverUrl, fileName: fileName) {
+        if let videoMetadata = viewModel.getMetadataLivePhoto(metadata: metadata) {
             
-            if StoreUtility.fileProviderStorageExists(metadata) {
-                playLiveVideoFromMetadata(metadata)
+            if StoreUtility.fileProviderStorageExists(videoMetadata) {
+                playLiveVideoFromMetadata(videoMetadata)
             } else {
                 Task { [weak self] in
-                    await self?.viewModel.downloadLivePhotoVideo(fileName: fileName, metadata: metadata)
-                    self?.playLiveVideoFromMetadata(metadata)
+                    await self?.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
+                    self?.playLiveVideoFromMetadata(videoMetadata)
                     self?.activityIndicator.stopAnimating()
                 }
             }

@@ -60,7 +60,7 @@ class tableMetadata: Object {
     @objc dynamic var hasPreview: Bool = false
     @objc dynamic var iconName = ""
     @objc dynamic var iconUrl = ""
-    @objc dynamic var livePhoto: Bool = false
+    @objc dynamic var livePhotoFile = ""
     @objc dynamic var name = ""
     @objc dynamic var note = ""
     @objc dynamic var ocId = ""
@@ -85,10 +85,26 @@ class tableMetadata: Object {
 extension tableMetadata {
     
     var fileExtension: String { (fileNameView as NSString).pathExtension }
-    var fileNoExtension: String { (fileNameView as NSString).deletingPathExtension }
     
-    var svg: Bool { fileExtension == "svg" || contentType == "image/svg+xml" }
-    var gif: Bool { fileExtension == "gif" || contentType == "image/gif" }
+    var svg: Bool {
+        fileExtension == "svg" || contentType == "image/svg+xml"
+    }
+    
+    var gif: Bool {
+        fileExtension == "gif" || contentType == "image/gif"
+    }
+    
+    var livePhoto: Bool {
+        !livePhotoFile.isEmpty
+    }
+    
+    var video: Bool {
+        return classFile == NKCommon.TypeClassFile.video.rawValue
+    }
+    
+    var image: Bool {
+        return classFile == NKCommon.TypeClassFile.image.rawValue
+    }
 }
 
 extension DatabaseManager {
@@ -124,6 +140,7 @@ extension DatabaseManager {
         metadata.fileNameView = file.fileName
         metadata.hasPreview = file.hasPreview
         metadata.iconName = file.iconName
+        metadata.livePhotoFile = file.livePhotoFile
         metadata.name = file.name
         metadata.note = file.note
         metadata.ocId = file.ocId
@@ -170,23 +187,8 @@ extension DatabaseManager {
         for file in files {
             metadatas.append(convertFileToMetadata(file))
         }
-
-        //Handle live photo
-        var metadataOutput: [tableMetadata] = []
-        metadatas = metadatas.sorted(by: {$0.fileNameView < $1.fileNameView})
-
-        for index in metadatas.indices {
-            let metadata = metadatas[index]
-            if index < metadatas.count - 1,
-                metadata.fileNoExtension == metadatas[index+1].fileNoExtension,
-                ((metadata.classFile == NKCommon.TypeClassFile.image.rawValue && metadatas[index+1].classFile == NKCommon.TypeClassFile.video.rawValue) || (metadata.classFile == NKCommon.TypeClassFile.video.rawValue && metadatas[index+1].classFile == NKCommon.TypeClassFile.image.rawValue)){
-                metadata.livePhoto = true
-                metadatas[index+1].livePhoto = true
-            }
-            metadataOutput.append(metadata)
-        }
-
-        return metadataOutput
+        
+        return metadatas
     }
     
     func getMetadata(predicate: NSPredicate) -> tableMetadata? {
@@ -236,35 +238,22 @@ extension DatabaseManager {
     
     func getMetadataLivePhoto(metadata: tableMetadata) -> tableMetadata? {
 
-        let realm = try! Realm()
-        var classFile = metadata.classFile
-        var fileName = (metadata.fileNameView as NSString).deletingPathExtension
+        guard metadata.livePhoto else { return nil }
 
-        if !metadata.livePhoto {
-            return nil
+        do {
+            let realm = try Realm()
+            guard let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileId == %@", metadata.account, metadata.serverUrl, metadata.livePhotoFile)).first else { return nil }
+            return tableMetadata.init(value: result)
+        } catch let error as NSError {
+            Self.logger.error("Could not access database: \(error)")
         }
 
-        if classFile == NKCommon.TypeClassFile.image.rawValue {
-            classFile = NKCommon.TypeClassFile.video.rawValue
-            fileName = fileName + ".mov"
-        } else {
-            classFile = NKCommon.TypeClassFile.image.rawValue
-            fileName = fileName + ".jpg"
-        }
-        
-        let predicate = NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView CONTAINS[cd] %@ AND ocId != %@ AND classFile == %@", 
-                                    metadata.account, metadata.serverUrl, fileName, metadata.ocId, classFile)
-
-        guard let result = realm.objects(tableMetadata.self).filter(predicate).first else {
-            return nil
-        }
-
-        return tableMetadata.init(value: result)
+        return nil
     }
     
     func paginateFavoriteMetadata(account: String, startServerUrl: String) -> [tableMetadata] {
         
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
                                     account, startServerUrl, NKCommon.TypeClassFile.image.rawValue)
 
         return paginateMetadata(predicate: predicate, offsetDate: nil, offsetName: nil)
@@ -272,7 +261,7 @@ extension DatabaseManager {
     
     func paginateFavoriteMetadata(account: String, startServerUrl: String, offsetDate: Date, offsetName: String) -> [tableMetadata] {
         
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
                                     account, startServerUrl, offsetDate as NSDate,
                                     NKCommon.TypeClassFile.image.rawValue)
 
@@ -281,7 +270,7 @@ extension DatabaseManager {
     
     func paginateFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [tableMetadata] {
         
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
                                     account, startServerUrl, fromDate as NSDate, toDate as NSDate,
                                     NKCommon.TypeClassFile.image.rawValue)
         
@@ -290,7 +279,7 @@ extension DatabaseManager {
     
     func paginateFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date, offsetName: String) -> [tableMetadata] {
         
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
                                     account, startServerUrl, fromDate as NSDate, toDate as NSDate,
                                     NKCommon.TypeClassFile.image.rawValue)
         
@@ -299,7 +288,7 @@ extension DatabaseManager {
     
     func paginateMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
 
-        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
                                     account, startServerUrl, fromDate as NSDate, toDate as NSDate,
                                     NKCommon.TypeClassFile.image.rawValue)
         
@@ -308,7 +297,7 @@ extension DatabaseManager {
     
     func fetchFavoriteMetadata(account: String, startServerUrl: String) -> [tableMetadata] {
         
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
                                     account, startServerUrl, NKCommon.TypeClassFile.image.rawValue)
         
         return fetchMetadata(predicate: predicate)
@@ -316,7 +305,7 @@ extension DatabaseManager {
     
     func fetchFilteredFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [tableMetadata] {
         
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false) ",
+        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
                                     account, startServerUrl, fromDate as NSDate, toDate as NSDate,
                                     NKCommon.TypeClassFile.image.rawValue)
         
@@ -374,33 +363,6 @@ extension DatabaseManager {
         
         return metadatas
     }
-
-    func processMetadatasMedia(predicate: NSPredicate) {
-        
-        //pull all metadata in order to flag live photos. the 2 file dates do not have to be the same or even near each other
-        let realm = try! Realm()
-
-        do {
-            try realm.write {
-                let sortProperties = [SortDescriptor(keyPath:  "fileNameView", ascending: false)]
-                let results = realm.objects(tableMetadata.self).filter(predicate).sorted(by: sortProperties)
-                
-                for index in results.indices {
-                    let metadata = results[index]
-                    if index < results.count - 1, metadata.fileNoExtension == results[index+1].fileNoExtension {
-                        if !metadata.livePhoto {
-                            metadata.livePhoto = true
-                        }
-                        if !results[index+1].livePhoto {
-                            results[index+1].livePhoto = true
-                        }
-                    }
-                }
-            }
-        } catch let error {
-            Self.logger.error("Could not write to database: \(error)")
-        }
-    }
     
     func processMetadatas(_ metadatas: [tableMetadata], metadatasResult: [tableMetadata]) -> (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
         
@@ -437,8 +399,16 @@ extension DatabaseManager {
                             realm.add(tableMetadata.init(value: metadata), update: .all)
                         }
                     } else {
+                        
+                        //Self.logger.debug("processMetadatas() - fileName: \(metadata.fileName) livePhotoFile: \(metadata.livePhotoFile)")
+                        
                         // add new
-                        addedOcIds.append(metadata.ocId)
+                        if metadata.livePhoto && metadata.video {
+                            //don't include video part of live photo
+                        } else {
+                            addedOcIds.append(metadata.ocId)
+                        }
+                        
                         realm.add(tableMetadata.init(value: metadata), update: .all)
                     }
                 }

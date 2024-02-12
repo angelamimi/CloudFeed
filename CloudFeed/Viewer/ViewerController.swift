@@ -133,6 +133,7 @@ class ViewerController: UIViewController {
     }
     
     private func initGestureRecognizers() {
+        
         let pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(pinchGesture:)))
         
         panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(panGesture:)))
@@ -163,6 +164,7 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handleDoubleTap(tapGesture: UITapGestureRecognizer) {
+        
         let currentScale : CGFloat = tapGesture.view?.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
         
         if currentScale == 1.0 {
@@ -177,6 +179,7 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handlePan(panGesture: UIPanGestureRecognizer) {
+        
         switch panGesture.state {
         case .began:
             initialCenter = imageView.center

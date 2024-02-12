@@ -101,4 +101,5 @@ extension Strings {
     public static let DetailExposure = NSLocalizedString("Detail.Exposure", comment: "")
     public static let DetailISO = NSLocalizedString("Detail.ISO", comment: "")
     public static let DetailBrightness = NSLocalizedString("Detail.Brightness", comment: "")
+    public static let DetailShutterSpeed = NSLocalizedString("Detail.ShutterSpeed", comment: "")
 }

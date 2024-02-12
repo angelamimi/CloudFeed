@@ -240,6 +240,8 @@ class DataService: NSObject {
             }
         }
         
+        //Self.logger.debug("processFavorites() - add: \(add.count) delete: \(delete.count)")
+        
         return (delete, add)
     }
 
@@ -319,7 +321,7 @@ class DataService: NSObject {
         //convert to metadata
         let metadataCollection = searchResult.files.count == 0 ? [] : await databaseManager.convertFilesToMetadatas(searchResult.files)
         
-        //get currently stored metadata
+        //get stored metadata
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@",
                                     account, startServerUrl,
                                     NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue,
@@ -330,14 +332,8 @@ class DataService: NSObject {
         //add, update, delete stored metadata
         let processResult = databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
         
-        let metadataPredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", 
-                                            account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue)
-        
-        //flag stored live photo files
-        databaseManager.processMetadatasMedia(predicate: metadataPredicate)
-        
         //filter out videos of the live photo file pair
-        let storePredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhoto = true) OR livePhoto = false)",
+        let storePredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '')",
                                         account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue,
                                         fromDate as NSDate, toDate as NSDate, NKCommon.TypeClassFile.image.rawValue)
         
@@ -349,7 +345,7 @@ class DataService: NSObject {
             metadatas = databaseManager.paginateMetadata(predicate: storePredicate, offsetDate: offsetDate, offsetName: offsetName)
         }
         
-        //Self.logger.debug("searchMedia() - added: \(processResult.added.count) updated: \(processResult.updated.count) deleted: \(processResult.deleted.count)")
+        //Self.logger.debug("searchMedia() - count: \(metadatas.count) added: \(processResult.added.count) updated: \(processResult.updated.count) deleted: \(processResult.deleted.count)")
         return (metadatas, processResult.added, processResult.updated, processResult.deleted, false)
     }
     

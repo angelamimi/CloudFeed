@@ -130,6 +130,19 @@ class PagerController: UIViewController, MediaViewController {
         }
         return nil
     }
+    
+    private func playLiveVideoFromMetadata(controller: ViewerController, metadata: tableMetadata) {
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
+            let urlVideo = self.getVideoURL(metadata: metadata)
+
+            if let url = urlVideo {
+                controller.playLivePhoto(url)
+            }
+        }
+    }
 }
 
 extension PagerController: PagerViewModelDelegate {
@@ -164,19 +177,17 @@ extension PagerController: UIGestureRecognizerDelegate {
             
             currentViewController.updateViewConstraints()
             
-            let fileName = (currentViewController.metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-            if let metadata = viewModel.getMetadata(account: currentViewController.metadata.account,
-                                                    serverUrl: currentViewController.metadata.serverUrl,
-                                                    fileName: fileName),
-                StoreUtility.fileProviderStorageExists(metadata) {
+            if let videoMetadata = viewModel.getMetadataLivePhoto(metadata: currentViewController.metadata) {
                 
-                let urlVideo = getVideoURL(metadata: metadata)
-                
-                if let url = urlVideo {
-                    currentViewController.playLivePhoto(url)
+                if StoreUtility.fileProviderStorageExists(videoMetadata) {
+                    playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
+                } else {
+                    Task { [weak self] in
+                        await self?.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
+                        self?.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
+                    }
                 }
             }
-            
         } else if gestureRecognizer.state == .ended {
             //Self.logger.debug("didLongpressGestureEvent() - ended")
         }

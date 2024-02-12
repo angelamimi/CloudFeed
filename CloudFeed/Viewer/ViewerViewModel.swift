@@ -42,11 +42,6 @@ final class ViewerViewModel {
         return dataService.getMetadataFromOcId(ocId)
     }
     
-    func getMetadata(account: String, serverUrl: String, fileName: String) -> tableMetadata? {
-        let predicate = NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", account, serverUrl, fileName)
-        return dataService.getMetadata(predicate: predicate)
-    }
-    
     func loadVideo(viewWidth: CGFloat, viewHeight: CGFloat) -> AVPlayerViewController? {
         
         let urlVideo = getVideoURL(metadata: metadata)
@@ -79,10 +74,9 @@ final class ViewerViewModel {
     func loadImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
         
         if !StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
-            
-            if metadata.livePhoto {
-                let fileName = (metadata.fileNameView as NSString).deletingPathExtension + ".mov"
-                await downloadLivePhotoVideo(fileName: fileName, metadata: metadata)
+
+            if metadata.livePhoto, let videoMetadata = getMetadataLivePhoto(metadata: metadata) {
+                await downloadLivePhotoVideo(metadata: videoMetadata)
             }
             
             await dataService.download(metadata: metadata, selector: "")
@@ -96,13 +90,8 @@ final class ViewerViewModel {
         return image
     }
     
-    func downloadLivePhotoVideo(fileName: String, metadata: tableMetadata) async {
-        
-        let predicate = NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileNameView LIKE[c] %@", metadata.account, metadata.serverUrl, fileName)
-        
-        if let metadata = dataService.getMetadata(predicate: predicate), !StoreUtility.fileProviderStorageExists(metadata) {
-            await dataService.download(metadata: metadata, selector: "")
-        }
+    func downloadLivePhotoVideo(metadata: tableMetadata) async {
+        await dataService.download(metadata: metadata, selector: "")
     }
 }
 
