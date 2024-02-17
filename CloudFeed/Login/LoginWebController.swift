@@ -29,7 +29,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
     var coordinator: LoginWebCoordinator!
     var viewModel: LoginViewModel!
     
-    @IBOutlet weak var mWebKitView: WKWebView!
+    @IBOutlet weak var webView: WKWebView!
     
     private var urlBase: String?
     
@@ -49,7 +49,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         navigationController?.setNavigationBarHidden(false, animated: false)
         navigationItem.title = Strings.LoginServerTitle
         
-        mWebKitView.navigationDelegate = self
+        webView.navigationDelegate = self
 
         executeLoginFlowRequest()
     }
@@ -75,17 +75,17 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         
         request.setValue(languageCode, forHTTPHeaderField: "ACCEPT-LANGUAGE")
         request.setValue("true", forHTTPHeaderField: "OCS-APIREQUEST")
-        
-        mWebKitView.load(request)
+
+        webView.load(request)
     }
-    
+
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
         
         guard let url = webView.url else { return }
         guard urlBase != nil else { return }
         
         let urlString: String = url.absoluteString.lowercased()
-        
+
         // prevent http redirection
         if urlBase!.lowercased().hasPrefix(Global.shared.http) && urlString.lowercased().hasPrefix(Global.shared.https) {
             //Self.logger.error("didReceiveServerRedirectForProvisionalNavigation() - preventing redirect to \(urlString)")
@@ -93,7 +93,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         }
         
         if urlString.hasPrefix(Global.shared.prefix) == true && urlString.contains(Global.shared.urlValidation) == true {
-            mWebKitView.stopLoading()
+            webView.stopLoading()
             processResult(url: url)
         }
     }
