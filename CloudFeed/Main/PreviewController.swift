@@ -96,7 +96,7 @@ class PreviewController: UIViewController {
         
         if let videoMetadata = viewModel.getMetadataLivePhoto(metadata: metadata) {
             
-            if StoreUtility.fileProviderStorageExists(videoMetadata) {
+            if viewModel.dataService.store.fileExists(videoMetadata) {
                 playLiveVideoFromMetadata(videoMetadata)
             } else {
                 Task { [weak self] in
@@ -123,8 +123,8 @@ class PreviewController: UIViewController {
     
     private func getVideoURL(metadata: tableMetadata) -> URL? {
         
-        if StoreUtility.fileProviderStorageExists(metadata) {
-            return URL(fileURLWithPath: StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!)
+        if viewModel.dataService.store.fileExists(metadata) {
+            return URL(fileURLWithPath: viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!)
         }
 
         return nil
@@ -163,9 +163,9 @@ class PreviewController: UIViewController {
             return
         }
         
-        if StoreUtility.fileProviderStoragePreviewIconExists(metadata.ocId, etag: metadata.etag) {
+        if viewModel.dataService.store.previewExists(metadata.ocId, metadata.etag) {
 
-            if let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)) {
+            if let image = UIImage(contentsOfFile: viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)) {
                 imageView.image = image
                 showImage()
             }
@@ -187,8 +187,11 @@ class PreviewController: UIViewController {
     
     private func processSVG(metadata: tableMetadata) {
         
-        if StoreUtility.fileProviderStorageExists(metadata) {
-            guard let image = NextcloudUtility.shared.loadSVGPreview(metadata: metadata) else { return }
+        guard let imagePath = viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView) else { return }
+        let previewPath = viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+        
+        if viewModel.dataService.store.fileExists(metadata) {
+            guard let image = ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath) else { return }
             imageView.image = image
             self.showImage()
         } else {
@@ -197,7 +200,7 @@ class PreviewController: UIViewController {
                 
                 _ = await viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
                 
-                guard let image = NextcloudUtility.shared.loadSVGPreview(metadata: metadata) else { return }
+                guard let image = ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath) else { return }
                 
                 DispatchQueue.main.async { [weak self] in
                     self?.imageView.image = image

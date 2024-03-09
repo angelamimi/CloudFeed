@@ -28,7 +28,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         initNavigationBar()
-        StoreUtility.initStorage()
+        
+        //TODO: May not need storage to be set up in app delegate
+        //StoreUtility.initStorage()
         
         return true
     }

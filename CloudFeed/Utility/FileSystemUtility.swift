@@ -44,7 +44,7 @@ class FileSystemUtility: NSObject {
         let manager = FileManager.default
         var totalSize: Int64 = 0
 
-        if let enumerator = manager.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey], options: []) {
+        if let enumerator = manager.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles]) {
             for case let fileURL as URL in enumerator {
                 if let attributes = try? manager.attributesOfItem(atPath: fileURL.path) {
                     if let size = attributes[.size] as? Int64 {

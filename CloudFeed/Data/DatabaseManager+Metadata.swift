@@ -76,6 +76,8 @@ class tableMetadata: Object {
     @objc dynamic var urlBase = ""
     @objc dynamic var user = ""
     @objc dynamic var userId = ""
+    @objc dynamic var height: Int = 0
+    @objc dynamic var width: Int = 0
     
     override static func primaryKey() -> String {
         return "ocId"
@@ -104,6 +106,10 @@ extension tableMetadata {
     
     var image: Bool {
         return classFile == NKCommon.TypeClassFile.image.rawValue
+    }
+    
+    var imageSize: CGSize {
+        CGSize(width: width, height: height)
     }
 }
 
@@ -159,6 +165,8 @@ extension DatabaseManager {
         metadata.urlBase = file.urlBase
         metadata.user = file.user
         metadata.userId = file.userId
+        metadata.width = Int(file.width)
+        metadata.height = Int(file.height)
 
         return metadata
     }

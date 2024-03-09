@@ -26,7 +26,9 @@ class DetailController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    weak var metadata : tableMetadata?
+    weak var store: StoreUtility?
+    weak var metadata: tableMetadata?
+    
     private var details = [MetadataDetail]()
     
     private static let logger = Logger(
@@ -48,13 +50,100 @@ class DetailController: UIViewController {
     }
     
     private func buildDetailsDatasource() {
-        guard metadata != nil else { return }
-        StoreUtility.setExif(metadata!) { ( data ) in
-            self.appendData(data: data)
+        
+        guard metadata != nil && store != nil else { return }
+        guard metadata!.classFile == "image" && store!.fileExists(metadata!) else { return }
+        
+        let imageSourceURL = URL(fileURLWithPath: store!.getCachePath(metadata!.ocId, metadata!.fileNameView)!)
+        
+        guard let originalSource = CGImageSourceCreateWithURL(imageSourceURL as CFURL, nil) else { return }
+        guard let fileProperties = CGImageSourceCopyProperties(originalSource, nil) else { return }
+        
+        Task { [weak self] in
+            guard let self = self else { return }
+            let detailDict = await self.buildExif(originalSource: originalSource, fileProperties: fileProperties)
+            self.appendData(data: detailDict)
         }
     }
     
+    private func buildExif(originalSource: CGImageSource, fileProperties: CFDictionary) async -> NSMutableDictionary {
+        
+        let details = NSMutableDictionary()
+        let properties = NSMutableDictionary(dictionary: fileProperties)
+
+        if let valFileSize = properties[kCGImagePropertyFileSize] {
+            details[kCGImagePropertyFileSize] = valFileSize
+        }
+        
+        guard let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else { return details }
+        let imageDict = NSMutableDictionary(dictionary: imageProperties)
+        
+        if let width = imageDict[kCGImagePropertyPixelWidth], let height = imageDict[kCGImagePropertyPixelHeight] {
+            details[kCGImagePropertyPixelWidth] = width
+            details[kCGImagePropertyPixelHeight] = height
+        }
+        
+        if let dpiWidth = imageDict[kCGImagePropertyDPIWidth], let dpiHeight = imageDict[kCGImagePropertyDPIHeight] {
+            details[kCGImagePropertyDPIWidth] = dpiWidth
+            details[kCGImagePropertyDPIHeight] = dpiHeight
+        }
+        
+        if let colorModel = imageDict[kCGImagePropertyColorModel] {
+            details[kCGImagePropertyColorModel] = colorModel
+        }
+        
+        if let depth = imageDict[kCGImagePropertyDepth] {
+            details[kCGImagePropertyDepth] = depth
+        }
+        
+        if let profile = imageDict[kCGImagePropertyProfileName] {
+            details[kCGImagePropertyProfileName] = profile
+        }
+        
+        /*for (key, value) in imageDict {
+            print(key)
+        }*/
+        
+        if let exif = imageDict[kCGImagePropertyExifDictionary] as? [NSString: AnyObject] {
+            
+            /*for (key, value) in exif {
+                print(key)
+            }*/
+            
+            if let date = exif[kCGImagePropertyExifDateTimeOriginal] {
+                details[kCGImagePropertyExifDateTimeOriginal] = date
+            }
+            
+            if let lensMake = exif[kCGImagePropertyExifLensMake] {
+                details[kCGImagePropertyExifLensMake] = lensMake
+            }
+            
+            if let lensModel = exif[kCGImagePropertyExifLensModel] {
+                details[kCGImagePropertyExifLensModel] = lensModel
+            }
+            
+            if let aperture = exif[kCGImagePropertyExifFNumber] as? Double {
+                details[kCGImagePropertyExifFNumber] = aperture
+            }
+            
+            if let exposure = exif[kCGImagePropertyExifExposureBiasValue] as? Int {
+                details[kCGImagePropertyExifExposureBiasValue] = exposure
+            }
+            
+            if let iso = (exif[kCGImagePropertyExifISOSpeedRatings] as? [Int])?[0] {
+                details[kCGImagePropertyExifISOSpeedRatings] = iso
+            }
+            
+            if let brightness = exif[kCGImagePropertyExifBrightnessValue] as? Double {
+                details[kCGImagePropertyExifBrightnessValue] = brightness
+            }
+        }
+        
+        return details
+    }
+    
     private func appendData(data: NSMutableDictionary) {
+        
         guard metadata != nil else { return }
         details.append(MetadataDetail(title: Strings.DetailName, detail: metadata!.fileNameView))
         details.append(MetadataDetail(title: Strings.DetailEditedDate, detail: (metadata!.date as Date).formatted(date: .abbreviated, time: .standard)))

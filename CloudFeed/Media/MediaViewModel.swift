@@ -466,7 +466,11 @@ final class MediaViewModel: NSObject {
     
     private func setImage(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath) async {
         
-        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+        //Self.logger.debug("setImage() - name: \(metadata.fileNameView) imageSize: \(metadata.imageSize.debugDescription)")
+        
+        let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+        
+        if FileManager().fileExists(atPath: previewPath) {
 
             if metadata.gif || metadata.svg {
                 await cell.setContentMode(aspectFit: true)
@@ -481,7 +485,7 @@ final class MediaViewModel: NSObject {
                 await cell.resetStatusIcon()
             }
             
-            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
+            let image = UIImage(contentsOfFile: previewPath)
             await cell.setImage(image)
             
         } else {
@@ -490,7 +494,7 @@ final class MediaViewModel: NSObject {
             await loadPreview(indexPath: indexPath)
 
             //only update datasource if preview was actually downloaded
-            if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+            if FileManager().fileExists(atPath: previewPath) {
                 applyUpdateForMetadata(metadata)
             }
         }
@@ -512,11 +516,14 @@ final class MediaViewModel: NSObject {
     
     private func loadSVG(metadata: tableMetadata) async {
         
-        if !StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
+        if !dataService.store.fileExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
             
             await dataService.download(metadata: metadata, selector: "")
             
-            NextcloudUtility.shared.loadSVGPreview(metadata: metadata)
+            let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+            let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
+            
+            ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
         }
     }
 }

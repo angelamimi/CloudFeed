@@ -30,10 +30,32 @@ import UIKit
 
 class DatabaseManager: NSObject {
 
-    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
-                                       category: String(describing: DatabaseManager.self))
+    let store = StoreUtility()
+    
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: DatabaseManager.self))
     
     func setup() -> Bool {
+        
+        let config = Realm.Configuration.defaultConfiguration
+        let fileUrl = config.fileURL?.description
+        
+        if FileManager.default.fileExists(atPath: fileUrl!) {
+            NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE FOUND in " + fileUrl!)
+        } else {
+            NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE NOT FOUND in " + fileUrl!)
+        }
+        
+        do {
+            _ = try Realm()
+        } catch let error as NSError {
+            NextcloudKit.shared.nkCommonInstance.writeLog("Could not open database: \(error)")
+            return true
+        }
+        
+        return false
+    }
+    
+    /*func setupOLD() -> Bool {
         
         let dirGroup = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Global.shared.groupIdentifier)
         let databaseFileUrlPath = dirGroup?.appendingPathComponent(Global.shared.databaseDirectory + "/" + Global.shared.databaseDefault)
@@ -86,13 +108,14 @@ class DatabaseManager: NSObject {
         }
         
         return true
-    }
+    }*/
     
     func clearTable(_ table: Object.Type, account: String? = nil) {
 
-        let realm = try! Realm()
+        guard let realm = try? Realm() else { return }
 
         do {
+            
             try realm.write {
                 var results: Results<Object>
 

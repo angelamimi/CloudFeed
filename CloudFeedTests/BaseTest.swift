@@ -59,9 +59,7 @@ class BaseTest: XCTestCase {
         XCTAssertNotNil(activeAccount)
         
         if Environment.current.setCurrentUser(account: activeAccount!.account, urlBase: activeAccount!.urlBase, user: activeAccount!.user, userId: activeAccount!.userId) {
-            let pwd = StoreUtility.getPassword(activeAccount!.account)
-            XCTAssertNotNil(pwd)
-            dataService?.setup(account: activeAccount!.account, user: activeAccount!.user, userId: activeAccount!.userId, password: pwd!, urlBase: activeAccount!.urlBase)
+            dataService?.setup(account: activeAccount!.account, user: activeAccount!.user, userId: activeAccount!.userId, urlBase: activeAccount!.urlBase)
         }
     }
     

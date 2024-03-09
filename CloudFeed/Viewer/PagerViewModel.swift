@@ -30,7 +30,7 @@ protocol PagerViewModelDelegate: AnyObject {
 final class PagerViewModel: NSObject {
 
     private let coordinator: ViewerCoordinator
-    private let dataService: DataService
+    let dataService: DataService
     
     private var currentIndex: Int
     private var metadatas: [tableMetadata]

@@ -73,7 +73,7 @@ final class ViewerViewModel {
     
     func loadImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
         
-        if !StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
+        if !dataService.store.fileExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
 
             if metadata.livePhoto, let videoMetadata = getMetadataLivePhoto(metadata: metadata) {
                 await downloadLivePhotoVideo(metadata: videoMetadata)
@@ -99,8 +99,8 @@ extension ViewerViewModel {
     
     private func getVideoURL(metadata: tableMetadata) -> URL? {
         
-        if StoreUtility.fileProviderStorageExists(metadata) {
-            return URL(fileURLWithPath: StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!)
+        if dataService.store.fileExists(metadata) {
+            return URL(fileURLWithPath: dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!)
         } else {
             guard let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
             return HTTPCache.shared.getProxyURL(stringURL: stringURL)
@@ -112,13 +112,13 @@ extension ViewerViewModel {
         if let image = getImage(metadata: metadata, viewWidth: viewWidth, viewHeight: viewHeight) {
             return image
         }
-        
+        print("getImageFromMetadata() - hasPreview: \(metadata.hasPreview)")
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue && !metadata.hasPreview {
-            NextcloudUtility.shared.createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
+            createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
         }
         
-        if StoreUtility.fileProviderStoragePreviewIconExists(metadata.ocId, etag: metadata.etag) {
-            let imagePreviewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
+        if dataService.store.previewExists(metadata.ocId, metadata.etag) {
+            let imagePreviewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
             return UIImage(contentsOfFile: imagePreviewPath)
         }
 
@@ -129,53 +129,90 @@ extension ViewerViewModel {
         
         var image: UIImage?
         
-        if StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
+        guard dataService.store.fileExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue else { return nil }
             
-            let previewPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
-            let imagePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
+        let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+        let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
+        
+        if metadata.gif {
             
-            if metadata.gif {
-                if !FileManager().fileExists(atPath: previewPath) {
-                    NextcloudUtility.shared.createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
-                }
-                
-                if let fileData = FileManager().contents(atPath: imagePath) {
-                    image = UIImage.gifImageWithData(fileData)
-                } else {
-                    image = UIImage(contentsOfFile: imagePath)
-                }
-            } else if metadata.svg {
-                
-                return NextcloudUtility.shared.loadSVGPreview(metadata: metadata)
-                
-            } else {
-                NextcloudUtility.shared.createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
-                image = UIImage(contentsOfFile: imagePath)
-                
-                let imageWidth : CGFloat = image?.size.width ?? 0
-                let imageHeight : CGFloat = image?.size.height ?? 0
-                
-                if image != nil && (imageWidth > viewWidth || imageHeight > viewHeight) {
-                    
-                    let filePath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!
-                    let fileData = FileManager().contents(atPath: filePath)
-                    
-                    if fileData != nil {
-                        var newSize : CGSize?
-                        if imageWidth > imageHeight {
-                            newSize = CGSize(width: viewWidth, height: viewWidth)
-                        } else {
-                            newSize = CGSize(width: viewHeight, height: viewHeight)
-                        }
-
-                        return UIImage.downsample(imageData: (fileData! as CFData), to: newSize!)
-                    }
-                }
-                    
-                return image
+            if !FileManager().fileExists(atPath: previewPath) {
+                createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
             }
+            
+            if let fileData = FileManager().contents(atPath: imagePath) {
+                image = UIImage.gifImageWithData(fileData)
+            } else {
+                image = UIImage(contentsOfFile: imagePath)
+            }
+            
+        } else if metadata.svg {
+            
+            return ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
+            
+        } else {
+            
+            createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
+            image = UIImage(contentsOfFile: imagePath)
+            
+            let imageWidth : CGFloat = image?.size.width ?? 0
+            let imageHeight : CGFloat = image?.size.height ?? 0
+            
+            if image != nil && (imageWidth > viewWidth || imageHeight > viewHeight) {
+                
+                let filePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
+                let fileData = FileManager().contents(atPath: filePath)
+                
+                if fileData != nil {
+                    var newSize : CGSize?
+                    if imageWidth > imageHeight {
+                        newSize = CGSize(width: viewWidth, height: viewWidth)
+                    } else {
+                        newSize = CGSize(width: viewHeight, height: viewHeight)
+                    }
+
+                    return UIImage.downsample(imageData: (fileData! as CFData), to: newSize!)
+                }
+            }
+                
+            return image
         }
         
         return image
+    }
+    
+    private func createImageFrom(fileNameView: String, ocId: String, etag: String, classFile: String) {
+        var originalImage, scaleImagePreview: UIImage?
+
+        let fileNamePath = dataService.store.getCachePath(ocId, fileNameView)!
+        let fileNamePathPreview = dataService.store.getPreviewPath(ocId, etag)
+
+        if dataService.store.fileSize(ocId, fileNameView) > 0
+            && FileManager().fileExists(atPath: fileNamePathPreview) {
+            return
+        }
+        
+        if classFile != NKCommon.TypeClassFile.image.rawValue && classFile != NKCommon.TypeClassFile.video.rawValue {
+            return
+        }
+
+        if classFile == NKCommon.TypeClassFile.image.rawValue {
+
+            originalImage = UIImage(contentsOfFile: fileNamePath)
+
+            scaleImagePreview = originalImage?.resizeImage(size: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
+
+            try? scaleImagePreview?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathPreview))
+
+        } else if classFile == NKCommon.TypeClassFile.video.rawValue {
+
+            let videoPath = NSTemporaryDirectory() + "tempvideo.mp4"
+            
+            FileSystemUtility.shared.linkItem(atPath: fileNamePath, toPath: videoPath)
+
+            originalImage = ImageUtility.imageFromVideo(url: URL(fileURLWithPath: videoPath), at: 0)
+
+            try? originalImage?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathPreview))
+        }
     }
 }

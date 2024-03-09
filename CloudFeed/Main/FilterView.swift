@@ -80,7 +80,7 @@ class FilterView: UIView {
     @objc private func executeFilter() {
         
         let calender = Calendar.current
-        var fromComponents = calender.dateComponents([.year, .month, .day], from: fromPicker.date)
+        let fromComponents = calender.dateComponents([.year, .month, .day], from: fromPicker.date)
         var toComponents = calender.dateComponents([.year, .month, .day], from: toPicker.date)
         
         toComponents.hour = 23

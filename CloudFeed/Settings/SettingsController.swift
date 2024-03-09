@@ -234,7 +234,7 @@ extension SettingsController: SettingsDelegate {
     
     func cacheCalculated(cacheSize: Int64) {
         
-        cacheSizeDescription = StoreUtility.transformedSize(cacheSize)
+        cacheSizeDescription = ByteCountFormatter.string(fromByteCount: cacheSize, countStyle: .binary)
         
         DispatchQueue.main.async { [weak self] in
             self?.tableView.reloadRows(at: [IndexPath(item: 1, section: 0)], with: .automatic)

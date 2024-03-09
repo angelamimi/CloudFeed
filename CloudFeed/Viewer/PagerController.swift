@@ -125,8 +125,8 @@ class PagerController: UIViewController, MediaViewController {
     
     private func getVideoURL(metadata: tableMetadata) -> URL? {
         
-        if StoreUtility.fileProviderStorageExists(metadata) {
-            return URL(fileURLWithPath: StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileNameView)!)
+        if viewModel.dataService.store.fileExists(metadata) {
+            return URL(fileURLWithPath: viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!)
         }
         return nil
     }
@@ -179,7 +179,7 @@ extension PagerController: UIGestureRecognizerDelegate {
             
             if let videoMetadata = viewModel.getMetadataLivePhoto(metadata: currentViewController.metadata) {
                 
-                if StoreUtility.fileProviderStorageExists(videoMetadata) {
+                if viewModel.dataService.store.fileExists(videoMetadata) {
                     playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
                 } else {
                     Task { [weak self] in

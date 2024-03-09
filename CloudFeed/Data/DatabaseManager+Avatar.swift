@@ -41,8 +41,7 @@ class tableAvatar: Object {
 
 extension DatabaseManager {
     
-    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
-                                       category: String(describing: DatabaseManager.self) + "Avatar")
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: DatabaseManager.self) + "Avatar")
     
     func addAvatar(fileName: String, etag: String) {
         
@@ -79,17 +78,27 @@ extension DatabaseManager {
     
     func getAvatarImage(fileName: String) -> UIImage? {
         
-        let realm = try! Realm()
-        let fileNameLocalPath = String(StoreUtility.getDirectoryUserData()) + "/" + fileName
+        let cachePath = store.getUserDirectory() + "/" + fileName
         
-        let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first
-        if result == nil {
-            FileSystemUtility.shared.deleteFile(filePath: fileNameLocalPath)
-            return nil
-        } else if result?.loaded == false {
-            return nil
+        do {
+            let realm = try Realm()
+            realm.refresh()
+            
+            let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first
+            if result == nil {
+                FileSystemUtility.shared.deleteFile(filePath: cachePath)
+                return nil
+            } else if result?.loaded == false {
+                return nil
+            }
+            
+            return UIImage(contentsOfFile: cachePath)
+            
+        } catch	let error as NSError {
+            Self.logger.debug("Failed to load avatar with error \(error.localizedDescription)")
         }
         
-        return UIImage(contentsOfFile: fileNameLocalPath)
+        FileSystemUtility.shared.deleteFile(filePath: cachePath)
+        return nil
     }
 }

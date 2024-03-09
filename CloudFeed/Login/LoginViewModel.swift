@@ -78,6 +78,7 @@ final class LoginViewModel: NSObject {
 
         dataService.clearDatabase(account: nil, removeAccount: true)
 
-        StoreUtility.initStorage()
+        //TODO: Init storage???
+        //StoreUtility.initStorage()
     }
 }

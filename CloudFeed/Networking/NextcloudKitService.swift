@@ -30,7 +30,7 @@ protocol NextcloudKitServiceProtocol: AnyObject {
     func getCapabilities() async -> (account: String?, data: Data?)
     
     func download(metadata: tableMetadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> NKError
-    func downloadPreview(fileNamePath: String, fileNamePreviewLocalPath: String, fileNameIconLocalPath: String, etagResource: String?) async
+    func downloadPreview(fileNamePath: String, fileNamePreviewLocalPath: String, etagResource: String?) async
     func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String?
     
     func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool)
@@ -95,7 +95,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
-    func downloadPreview(fileNamePath: String, fileNamePreviewLocalPath: String, fileNameIconLocalPath: String, etagResource: String?) async {
+    func downloadPreview(fileNamePath: String, fileNamePreviewLocalPath: String, etagResource: String?) async {
      
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
 
@@ -103,7 +103,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                                                           fileNamePreviewLocalPath: fileNamePreviewLocalPath,
                                                           widthPreview: Global.shared.sizePreview,
                                                           heightPreview: Global.shared.sizePreview,
-                                                          fileNameIconLocalPath: fileNameIconLocalPath,
+                                                          fileNameIconLocalPath: nil,
                                                           sizeIcon: Global.shared.sizeIcon,
                                                           etag: etagResource,
                                                           options: options)
@@ -123,6 +123,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                 etag: etag, options: options) { _, _, _, etag, error in
                     
                     guard let etag = etag, error == .success else {
+                        Self.logger.debug("downloadAvatar() - error: \(error.errorDescription)")
                         continuation.resume(returning: nil)
                         return
                     }

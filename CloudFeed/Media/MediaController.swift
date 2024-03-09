@@ -79,7 +79,7 @@ class MediaController: CollectionController {
         let metadata = viewModel.getItemAtIndexPath(indexPath)
         guard metadata != nil else { return }
         
-        setTitle(StoreUtility.getFormattedDate(metadata!.date as Date))
+        setTitle(getFormattedDate(metadata!.date as Date))
     }
     
     public func clear() {

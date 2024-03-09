@@ -58,7 +58,7 @@ extension DatabaseManager {
 
                 addObject.account = account
 
-                StoreUtility.setPassword(account, password: password)
+                //TODO: Test. Moved to setPassword calling function in dataService
 
                 addObject.urlBase = urlBase
                 addObject.user = user

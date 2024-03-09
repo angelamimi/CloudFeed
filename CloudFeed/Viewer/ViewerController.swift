@@ -51,8 +51,8 @@ class ViewerController: UIViewController {
         super.viewDidLoad()
         
         if viewModel.getMetadataLivePhoto(metadata: metadata) != nil {
-            statusImageView.image = NextcloudUtility.shared.loadImage(named: "livephoto", color: .label)
-            statusLabel.text = "LIVE"
+            statusImageView.image = UIImage(systemName: "livephoto")?.withTintColor(.label, renderingMode: .alwaysOriginal)
+            statusLabel.text = "LIVE" //TODO: Externalize text
             statusContainerView.isHidden = false
         } else {
             statusImageView.image = nil
@@ -249,6 +249,7 @@ class ViewerController: UIViewController {
         
         let detailController = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailViewController") as! DetailController
         
+        detailController.store = viewModel.dataService.store
         detailController.metadata = metadata
         
         if let sheet = detailController.sheetPresentationController {

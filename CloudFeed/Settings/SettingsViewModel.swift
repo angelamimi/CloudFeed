@@ -33,6 +33,7 @@ final class SettingsViewModel: NSObject {
     
     let delegate: SettingsDelegate
     let dataService: DataService
+    let store = StoreUtility()
     
     init(delegate: SettingsDelegate, dataService: DataService) {
         self.delegate = delegate
@@ -65,73 +66,71 @@ final class SettingsViewModel: NSObject {
     
     func clearCache() {
         
-        Task {[weak self] in
-            guard let self else { return }
-            guard let account = Environment.current.currentUser?.account else { return }
-            
-            URLCache.shared.removeAllCachedResponses()
-            URLCache.shared.diskCapacity = 0
-            URLCache.shared.memoryCapacity = 0
-            
-            dataService.clearDatabase(account: account, removeAccount: false)
-            
-            StoreUtility.removeGroupDirectoryProviderStorage()
-            StoreUtility.removeDirectoryUserData()
-            
-            StoreUtility.removeDocumentsDirectory()
-            
-            StoreUtility.removeTemporaryDirectory()
-            StoreUtility.initTemporaryDirectory()
-            
-            HTTPCache.shared.deleteAllCache()
-            
-            delegate.cacheCleared()
-        }
+        let store = dataService.store
+        
+        guard let account = Environment.current.currentUser?.account else { return }
+        
+        URLCache.shared.removeAllCachedResponses()
+        URLCache.shared.diskCapacity = 0
+        URLCache.shared.memoryCapacity = 0
+
+        dataService.clearDatabase(account: account, removeAccount: false)
+        
+        store.clearCache()
+        
+        //TODO: Was temporary dir ever needed?
+        //store.removeTemporaryDirectory()
+        
+        HTTPCache.shared.deleteAllCache()
+        
+        delegate.cacheCleared()
     }
     
     func reset() {
         
-        Task { [weak self] in
-            guard let self else { return }
-            
-            URLCache.shared.diskCapacity = 0
-            URLCache.shared.memoryCapacity = 0
-            
-            StoreUtility.removeGroupDirectoryProviderStorage()
-            
-            StoreUtility.removeDocumentsDirectory()
-            StoreUtility.removeTemporaryDirectory()
-            
-            StoreUtility.deleteAllChainStore()
-            
-            dataService.removeDatabase()
-            
-            exit(0)
-        }
+        let store = dataService.store
+        
+        URLCache.shared.diskCapacity = 0
+        URLCache.shared.memoryCapacity = 0
+        
+        store.clearCache()
+        store.removeDocumentsDirectory()
+        
+        //TODO: Make sure nothing is saved to temporary directory
+        //store.removeTemporaryDirectory()
+        
+        store.deleteAllChainStore()
+        
+        dataService.removeDatabase()
+        
+        exit(0)
     }
     
     func calculateCacheSize() {
+
+        //TODO: Revisit calulating cache size
+        let totalSize = FileSystemUtility.shared.getDirectorySize(directory: dataService.store.cacheDirectory)
         
-        Task { [weak self] in
-            guard let self else { return }
-            guard let directory = StoreUtility.getDirectoryProviderStorage() else { return }
-            
-            let totalSize = FileSystemUtility.shared.getDirectorySize(directory: directory)
-            
-            delegate.cacheCalculated(cacheSize: totalSize)
-        }
+        delegate.cacheCalculated(cacheSize: totalSize)
     }
     
     private func downloadAvatar(account: tableAccount) async {
         
         guard let user = Environment.current.currentUser?.user else { return }
         
-        await dataService.downloadAvatar(user: user, account: account)
+        let userBaseUrl = buildUserBaseUrl(account)
+        let fileName = userBaseUrl + "-" + user + ".png"
+        
+        await dataService.downloadAvatar(fileName: fileName, account: account)
+    }
+    
+    private func buildUserBaseUrl(_ account: tableAccount) -> String {
+        return account.user + "-" + (URL(string: account.urlBase)?.host ?? "")
     }
     
     private func loadAvatar(account: tableAccount) async -> UIImage? {
 
-        let userBaseUrl = NextcloudUtility.shared.getUserBaseUrl(account)
+        let userBaseUrl = buildUserBaseUrl(account)
         let image = loadUserImage(for: account.userId, userBaseUrl: userBaseUrl)
         
         return image
@@ -140,28 +139,15 @@ final class SettingsViewModel: NSObject {
     private func loadUserImage(for user: String, userBaseUrl: String) -> UIImage? {
         
         let fileName = userBaseUrl + "-" + user + ".png"
-        let localFilePath = String(StoreUtility.getDirectoryUserData()) + "/" + fileName
+        let localFilePath = store.getUserDirectory() + "/" + fileName
 
         if let localImage = UIImage(contentsOfFile: localFilePath) {
-            return createAvatar(image: localImage, size: 150)
+            print("loadUserImage() - found cached image")
+            return localImage
         } else if let loadedAvatar = dataService.getAvatarImage(fileName: fileName) {
             return loadedAvatar
         } else {
             return nil
         }
-    }
-    
-    private func createAvatar(image: UIImage, size: CGFloat) -> UIImage {
-        
-        var avatarImage = image
-        let rect = CGRect(x: 0, y: 0, width: size, height: size)
-
-        UIGraphicsBeginImageContextWithOptions(rect.size, false, 3.0)
-        UIBezierPath(roundedRect: rect, cornerRadius: rect.size.height).addClip()
-        avatarImage.draw(in: rect)
-        avatarImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
-        UIGraphicsEndImageContext()
-
-        return avatarImage
     }
 }

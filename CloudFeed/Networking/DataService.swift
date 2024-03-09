@@ -26,6 +26,8 @@ import UIKit
 
 class DataService: NSObject {
     
+    let store = StoreUtility()
+    
     private let nextcloudService: NextcloudKitServiceProtocol
     private let databaseManager: DatabaseManager
     
@@ -39,9 +41,12 @@ class DataService: NSObject {
         self.databaseManager = databaseManager
     }
     
-    func setup(account: String, user: String, userId: String, password: String, urlBase: String) {
+    func setup(account: String, user: String, userId: String, urlBase: String) {
         
-        nextcloudService.setupAccount(account: account, user: user, userId: userId, password: password, urlBase: urlBase)
+        let password = store.getPassword(account)
+        
+        //TODO: Test get password
+        nextcloudService.setupAccount(account: account, user: user, userId: userId, password: password!, urlBase: urlBase)
 
         NextcloudKit.shared.nkCommonInstance.levelLog = 0
         
@@ -79,6 +84,7 @@ class DataService: NSObject {
     
     func addAccount(_ account: String, urlBase: String, user: String, password: String) {
         databaseManager.addAccount(account, urlBase: urlBase, user: user, password: password)
+        store.setPassword(account, password: password)
     }
     
     
@@ -124,11 +130,15 @@ class DataService: NSObject {
         return databaseManager.getAvatarImage(fileName: fileName)
     }
     
-    func downloadAvatar(user: String, account: tableAccount) async {
+    func downloadAvatar(fileName: String, account: tableAccount) async {
         
-        let userBaseUrl = NextcloudUtility.shared.getUserBaseUrl(account)
-        let fileName = userBaseUrl + "-" + user + ".png"
-        let fileNameLocalPath = String(StoreUtility.getDirectoryUserData()) + "/" + fileName
+        let fileNameLocalPath = store.getUserDirectory() + "/" + fileName
+        
+        guard !FileManager.default.fileExists(atPath: fileNameLocalPath) else {
+            Self.logger.debug("downloadAvatar() - cached avatar found")
+            return
+        }
+        
         let etag = databaseManager.getAvatar(fileName: fileName)?.etag
         
         let etagResult = await nextcloudService.downloadAvatar(userId: account.userId, fileName: fileName, fileNameLocalPath: fileNameLocalPath, etag: etag)
@@ -156,7 +166,7 @@ class DataService: NSObject {
     
     private func toggleFavorite(metadata: tableMetadata) async -> tableMetadata? {
         
-        let fileName = StoreUtility.buildFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
+        let fileName = buildFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
         let favorite = !metadata.favorite
         let ocId = metadata.ocId
         
@@ -167,6 +177,19 @@ class DataService: NSObject {
         }
         
         return nil
+    }
+    
+    private func buildFileNamePath(metadataFileName: String, serverUrl: String, urlBase: String, userId: String, account: String) -> String {
+        
+        let homeServer = urlBase + Global.shared.davLocation + userId
+        
+        var fileName = "\(serverUrl.replacingOccurrences(of: homeServer, with: ""))/\(metadataFileName)"
+
+        if fileName.hasPrefix("/") {
+            fileName = (fileName as NSString).substring(from: 1)
+        }
+        
+        return fileName
     }
     
     func getFavorites() async -> Bool {
@@ -251,7 +274,7 @@ class DataService: NSObject {
     func download(metadata: tableMetadata, selector: String) async {
         
         let serverUrlFileName = metadata.serverUrl + "/" + metadata.fileName
-        let fileNameLocalPath = StoreUtility.getDirectoryProviderStorageOcId(metadata.ocId, fileNameView: metadata.fileName)!
+        let fileNameLocalPath = store.getCachePath(metadata.ocId, metadata.fileName)!
         
         if databaseManager.getMetadataFromOcId(metadata.ocId) == nil {
             databaseManager.addMetadata(tableMetadata.init(value: metadata))
@@ -262,7 +285,8 @@ class DataService: NSObject {
         
         if errorResult == .success {
             databaseManager.addLocalFile(metadata: metadata)
-            StoreUtility.setExif(metadata) { _ in }
+            //TODO: Does anything with exif need to be done here?
+            //store.setExif(metadata) { _ in }
         }
     }
     
@@ -270,35 +294,32 @@ class DataService: NSObject {
        
         var fileNamePath: String
         var fileNamePreviewLocalPath: String
-        var fileNameIconLocalPath: String
         
-        fileNamePath = StoreUtility.buildFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
-        fileNamePreviewLocalPath = StoreUtility.getDirectoryProviderStoragePreviewOcId(metadata.ocId, etag: metadata.etag)
-        fileNameIconLocalPath = StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)
-        
+        fileNamePath = buildFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
+        fileNamePreviewLocalPath = store.getPreviewPath(metadata.ocId, metadata.etag)
+
         var etagResource: String?
-        if FileManager.default.fileExists(atPath: fileNameIconLocalPath) && FileManager.default.fileExists(atPath: fileNamePreviewLocalPath) {
+        if FileManager.default.fileExists(atPath: fileNamePreviewLocalPath) {
             etagResource = metadata.etagResource
         }
         
-        await nextcloudService.downloadPreview(fileNamePath: fileNamePath, fileNamePreviewLocalPath: fileNamePreviewLocalPath,
-                                               fileNameIconLocalPath: fileNameIconLocalPath, etagResource: etagResource)
+        await nextcloudService.downloadPreview(fileNamePath: fileNamePath, fileNamePreviewLocalPath: fileNamePreviewLocalPath, etagResource: etagResource)
     }
     
     func downloadVideoPreview(metadata: tableMetadata) async {
-        
+
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue
-            && !FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+            && !FileManager().fileExists(atPath: store.getPreviewPath(metadata.ocId, metadata.etag)) {
             
             if let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
                 
                 let url = HTTPCache.shared.getProxyURL(stringURL: stringURL)
-                let image = NextcloudUtility.shared.imageFromVideo(url: url, at: 1)
+                let image = ImageUtility.imageFromVideo(url: url, at: 1)
                 
-                let fileNamePathIcon = StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)
+                let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
                 
                 //Save the preview image
-                try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathIcon))
+                try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: previewPath))
             }
         }
     }

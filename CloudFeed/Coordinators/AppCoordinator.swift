@@ -43,7 +43,7 @@ final class AppCoordinator: Coordinator {
         
         if let activeAccount = dataService.getActiveAccount() {
             if Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId) {
-                dataService.setup(account: activeAccount.account, user: activeAccount.user, userId: activeAccount.userId, password: StoreUtility.getPassword(activeAccount.account), urlBase: activeAccount.urlBase)
+                dataService.setup(account: activeAccount.account, user: activeAccount.user, userId: activeAccount.userId, urlBase: activeAccount.urlBase)
             }
         }
 
@@ -51,6 +51,7 @@ final class AppCoordinator: Coordinator {
             let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)
             loginServerCoordinator.start()
         } else {
+            //let cache
             let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
             mainCoordinator.start()
         }

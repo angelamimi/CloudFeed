@@ -238,8 +238,9 @@ final class FavoritesViewModel: NSObject {
         
         let ocId = metadata.ocId
         let etag = metadata.etag
+        let path = dataService.store.getPreviewPath(ocId, etag)
         
-        if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(ocId, etag: etag)) {
+        if FileManager().fileExists(atPath: path) {
             
             if metadata.gif || metadata.svg {
                 await cell.setContentMode(aspectFit: true)
@@ -253,7 +254,7 @@ final class FavoritesViewModel: NSObject {
                 await cell.resetStatusIcon()
             }
             
-            let image = UIImage(contentsOfFile: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag))
+            let image = UIImage(contentsOfFile: path)
             await cell.setImage(image)
             
         }  else {
@@ -262,7 +263,7 @@ final class FavoritesViewModel: NSObject {
             await loadPreview(indexPath: indexPath)
 
             //only update datasource if preview was actually downloaded
-            if FileManager().fileExists(atPath: StoreUtility.getDirectoryProviderStorageIconOcId(metadata.ocId, etag: metadata.etag)) {
+            if FileManager().fileExists(atPath: path) {
                 applyUpdateForMetadata(metadata)
             }
         }
@@ -397,11 +398,14 @@ final class FavoritesViewModel: NSObject {
     
     private func loadSVG(metadata: tableMetadata) async {
         
-        if !StoreUtility.fileProviderStorageExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
+        if !dataService.store.fileExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
             
             await dataService.download(metadata: metadata, selector: "")
             
-            NextcloudUtility.shared.loadSVGPreview(metadata: metadata)
+            let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
+            let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+            
+            ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
         }
     }
 }
