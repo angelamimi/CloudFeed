@@ -132,6 +132,7 @@ extension MockNextcloudKitService {
             file.path = fileJSON["path"] as! String
             file.serverUrl = fileJSON["serverUrl"] as! String
             file.classFile = fileJSON["classFile"] as! String
+            file.livePhotoFile = fileJSON["livePhotoFile"] as! String? ?? ""
             
             if fileJSON["date"] is String {
                 let dateFormatter = DateFormatter()
