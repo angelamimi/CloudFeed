@@ -33,7 +33,6 @@ final class SettingsViewModel: NSObject {
     
     let delegate: SettingsDelegate
     let dataService: DataService
-    let store = StoreUtility()
     
     init(delegate: SettingsDelegate, dataService: DataService) {
         self.delegate = delegate
@@ -139,7 +138,7 @@ final class SettingsViewModel: NSObject {
     private func loadUserImage(for user: String, userBaseUrl: String) -> UIImage? {
         
         let fileName = userBaseUrl + "-" + user + ".png"
-        let localFilePath = store.getUserDirectory() + "/" + fileName
+        let localFilePath = dataService.store.getUserDirectory() + "/" + fileName
 
         if let localImage = UIImage(contentsOfFile: localFilePath) {
             print("loadUserImage() - found cached image")

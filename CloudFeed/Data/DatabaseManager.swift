@@ -30,9 +30,13 @@ import UIKit
 
 class DatabaseManager: NSObject {
 
-    let store = StoreUtility()
+    let store: StoreUtility
     
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: DatabaseManager.self))
+    
+    init(store: StoreUtility) {
+        self.store = store
+    }
     
     func setup() -> Bool {
         

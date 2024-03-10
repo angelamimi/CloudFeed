@@ -31,7 +31,8 @@ final class AppCoordinator: Coordinator {
     
     func start() {
         
-        let dbManager = DatabaseManager()
+        let store = StoreUtility()
+        let dbManager = DatabaseManager(store: store)
         let error = dbManager.setup()
         
         if error {
