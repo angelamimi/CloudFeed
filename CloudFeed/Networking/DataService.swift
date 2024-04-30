@@ -45,7 +45,6 @@ class DataService: NSObject {
         
         let password = store.getPassword(account)
         
-        //TODO: Test get password
         nextcloudService.setupAccount(account: account, user: user, userId: userId, password: password!, urlBase: urlBase)
 
         NextcloudKit.shared.nkCommonInstance.levelLog = 0
@@ -285,41 +284,39 @@ class DataService: NSObject {
         
         if errorResult == .success {
             databaseManager.addLocalFile(metadata: metadata)
-            //TODO: Does anything with exif need to be done here?
-            //store.setExif(metadata) { _ in }
         }
     }
     
     func downloadPreview(metadata: tableMetadata) async {
        
         var fileNamePath: String
-        var fileNamePreviewLocalPath: String
+        var previewPath: String
+        var iconPath: String
         
         fileNamePath = buildFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
-        fileNamePreviewLocalPath = store.getPreviewPath(metadata.ocId, metadata.etag)
-
+        previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
+        iconPath = store.getIconPath(metadata.ocId, metadata.etag)
+        
         var etagResource: String?
-        if FileManager.default.fileExists(atPath: fileNamePreviewLocalPath) {
+        if FileManager.default.fileExists(atPath: iconPath) {
             etagResource = metadata.etagResource
         }
         
-        await nextcloudService.downloadPreview(fileNamePath: fileNamePath, fileNamePreviewLocalPath: fileNamePreviewLocalPath, etagResource: etagResource)
+        await nextcloudService.downloadPreview(fileNamePath: fileNamePath, previewPath: previewPath, iconPath: iconPath, etagResource: etagResource)
     }
     
     func downloadVideoPreview(metadata: tableMetadata) async {
-
-        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue
-            && !FileManager().fileExists(atPath: store.getPreviewPath(metadata.ocId, metadata.etag)) {
+            
+        if metadata.video && !FileManager().fileExists(atPath: store.getIconPath(metadata.ocId, metadata.etag)) {
             
             if let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
                 
                 let url = HTTPCache.shared.getProxyURL(stringURL: stringURL)
-                let image = ImageUtility.imageFromVideo(url: url, at: 1)
-                
-                let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
+                let image = await ImageUtility.imageFromVideo(url: url)
+                let path = store.getIconPath(metadata.ocId, metadata.etag)
                 
                 //Save the preview image
-                try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: previewPath))
+                try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
             }
         }
     }

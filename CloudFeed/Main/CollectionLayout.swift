@@ -23,15 +23,21 @@ import UIKit
 import os.log
 
 protocol CollectionLayoutDelegate: AnyObject {
-    func collectionView(_ collectionView: UICollectionView, sizeOfPhotoAtIndexPath indexPath: IndexPath) -> CGSize
+    func collectionView(_ collectionView: UICollectionView, sizeAtIndexPath indexPath: IndexPath) -> CGSize
 }
 
 class CollectionLayout: UICollectionViewFlowLayout {
     
     weak var delegate: CollectionLayoutDelegate!
-    var numberOfColumns: Int = 4
+    //var numberOfColumns: Int = 4
     
-    private var cellPadding: CGFloat = 4
+    var numberOfColumns: Int = 3 {
+        didSet {
+            invalidateLayout()
+        }
+    }
+    
+    private var cellPadding: CGFloat = 2
     private var cache = [UICollectionViewLayoutAttributes]()
     private var columnHeights: [[CGFloat]] = []
     private var contentHeight: CGFloat = 0
@@ -92,7 +98,7 @@ class CollectionLayout: UICollectionViewFlowLayout {
             
             let indexPath = IndexPath(item: item, section: 0)
 
-            var photoSize = delegate.collectionView(collectionView, sizeOfPhotoAtIndexPath: indexPath)
+            var photoSize = delegate.collectionView(collectionView, sizeAtIndexPath: indexPath)
             
             if (photoSize.width == 0 || photoSize.height == 0) {
                 photoSize = CGSize(width: 100, height: 100)

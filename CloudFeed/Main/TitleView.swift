@@ -86,27 +86,6 @@ class TitleView: UIView {
         filterButton.isHidden = true
     }
     
-    func hideMenu() {
-        menuButton.isHidden = true
-        
-        //shift the filter button over to fill the gap of the now hidden menu button
-        filterButtonTrailingConstraint.constant = menuButtonTrailingConstraint.constant
-        
-        UIView.animate(withDuration: 0.2) {
-            self.layoutIfNeeded()
-        }
-    }
-    
-    func showMenu() {
-        menuButton.isHidden = false
-        
-        setFilterButtonTrailingConstraint()
-        
-        UIView.animate(withDuration: 0.2) {
-            self.layoutIfNeeded()
-        }
-    }
-    
     func initMenu(allowEdit: Bool) {
         
         let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { [weak self] action in
@@ -216,20 +195,10 @@ class TitleView: UIView {
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
             updateMenuButtonWithSize(30)
             updateFilterButtonWithSize(30)
-            //filterButtonTrailingConstraint.constant = 30
+            filterButtonTrailingConstraint.constant = 76
         } else {
             updateMenuButtonWithSize(20)
             updateFilterButtonWithSize(20)
-            //filterButtonTrailingConstraint.constant = 56
-        }
-        
-        setFilterButtonTrailingConstraint()
-    }
-    
-    private func setFilterButtonTrailingConstraint() {
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            filterButtonTrailingConstraint.constant = 76
-        } else {
             filterButtonTrailingConstraint.constant = 56
         }
     }

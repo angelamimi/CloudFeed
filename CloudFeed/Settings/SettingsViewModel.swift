@@ -67,18 +67,11 @@ final class SettingsViewModel: NSObject {
         
         let store = dataService.store
         
-        guard let account = Environment.current.currentUser?.account else { return }
-        
-        URLCache.shared.removeAllCachedResponses()
-        URLCache.shared.diskCapacity = 0
-        URLCache.shared.memoryCapacity = 0
-
-        dataService.clearDatabase(account: account, removeAccount: false)
+        if let account = Environment.current.currentUser?.account {
+            dataService.clearDatabase(account: account, removeAccount: false)
+        }
         
         store.clearCache()
-        
-        //TODO: Was temporary dir ever needed?
-        //store.removeTemporaryDirectory()
         
         HTTPCache.shared.deleteAllCache()
         
@@ -89,15 +82,8 @@ final class SettingsViewModel: NSObject {
         
         let store = dataService.store
         
-        URLCache.shared.diskCapacity = 0
-        URLCache.shared.memoryCapacity = 0
-        
         store.clearCache()
         store.removeDocumentsDirectory()
-        
-        //TODO: Make sure nothing is saved to temporary directory
-        //store.removeTemporaryDirectory()
-        
         store.deleteAllChainStore()
         
         dataService.removeDatabase()
@@ -107,7 +93,6 @@ final class SettingsViewModel: NSObject {
     
     func calculateCacheSize() {
 
-        //TODO: Revisit calulating cache size
         let totalSize = FileSystemUtility.shared.getDirectorySize(directory: dataService.store.cacheDirectory)
         
         delegate.cacheCalculated(cacheSize: totalSize)

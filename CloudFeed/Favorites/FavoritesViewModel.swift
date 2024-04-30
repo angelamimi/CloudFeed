@@ -33,28 +33,36 @@ protocol FavoritesDelegate: AnyObject {
 
 final class FavoritesViewModel: NSObject {
     
-    var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
+    var pauseLoading: Bool = false
     
-    let delegate: FavoritesDelegate
-    let dataService: DataService
+    private var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
+    
+    private let delegate: FavoritesDelegate
+    private let dataService: DataService
+    private let cacheManager: CacheManager
+    
+    private var fetchTask: Task<Void, Never>? {
+        willSet {
+            fetchTask?.cancel()
+        }
+    }
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: FavoritesViewModel.self)
     )
     
-    init(delegate: FavoritesDelegate, dataService: DataService) {
+    init(delegate: FavoritesDelegate, dataService: DataService, cacheManager: CacheManager) {
         self.delegate = delegate
         self.dataService = dataService
+        self.cacheManager = cacheManager
     }
     
     func initDataSource(collectionView: UICollectionView) {
         
         dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            Task { [weak self] in
-                await self?.setImage(metadata: metadata, cell: cell, indexPath: indexPath)
-            }
+            self.populateCell(metadata: metadata, cell: cell, indexPath: indexPath, collectionView: collectionView)
             return cell
         }
 
@@ -126,10 +134,13 @@ final class FavoritesViewModel: NSObject {
         
         delegate.fetching()
                 
-        Task { [weak self] in
+        fetchTask = Task { [weak self] in
             guard let self else { return }
             
             let error = await dataService.getFavorites()
+            
+            if Task.isCancelled { return }
+            
             handleFavoriteResult(error: error)
             
             let resultMetadatas = dataService.paginateFavoriteMetadata()
@@ -141,10 +152,13 @@ final class FavoritesViewModel: NSObject {
         
         delegate.fetching()
                 
-        Task { [weak self] in
+        fetchTask = Task { [weak self] in
             guard let self else { return }
             
             let error = await dataService.getFavorites()
+            
+            if Task.isCancelled { return }
+            
             handleFavoriteResult(error: error)
             
             let resultMetadatas = await dataService.filterFavorites(from: from, to: to)
@@ -156,10 +170,13 @@ final class FavoritesViewModel: NSObject {
         
         delegate.fetching()
                 
-        Task { [weak self] in
+        fetchTask = Task { [weak self] in
             guard let self else { return }
             
             let error = await dataService.getFavorites()
+            
+            if Task.isCancelled { return }
+            
             handleFavoriteResult(error: error)
             
             processFavorites(from: from, to: to)
@@ -194,6 +211,17 @@ final class FavoritesViewModel: NSObject {
             self?.dataSource.apply(applySnapshot, animatingDifferences: true)
             self?.delegate.bulkEditFinished(error: applyError)
         }
+    }
+    
+    func refreshItems(_ refreshItems: [IndexPath]) {
+        
+        let items = refreshItems.compactMap { dataSource.itemIdentifier(for: $0) }
+        
+        //Self.logger.debug("refreshItems() - items count: \(items.count)")
+        
+        var snapshot = dataSource.snapshot()
+        snapshot.reconfigureItems(items)
+        dataSource.apply(snapshot)
     }
     
     private func handleFavoriteResult(error: Bool) {
@@ -234,37 +262,44 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func setImage(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath) async {
+    private func populateCell(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
         
-        let ocId = metadata.ocId
-        let etag = metadata.etag
-        let path = dataService.store.getPreviewPath(ocId, etag)
+        if metadata.gif || metadata.svg {
+            cell.setContentMode(aspectFit: true)
+        }
         
-        if FileManager().fileExists(atPath: path) {
+        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
+            cell.showVideoIcon()
+        } else if metadata.livePhoto {
+            cell.showLivePhotoIcon()
+        } else {
+            cell.resetStatusIcon()
+        }
+        
+        if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {
+            cell.setImage(cachedImage)
+        } else {
             
-            if metadata.gif || metadata.svg {
-                await cell.setContentMode(aspectFit: true)
-            }
+            let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             
-            if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
-                await cell.showVideoIcon()
-            } else if metadata.livePhoto {
-                await cell.showLivePhotoIcon()
-            } else {
-                await cell.resetStatusIcon()
-            }
-            
-            let image = UIImage(contentsOfFile: path)
-            await cell.setImage(image)
-            
-        }  else {
-            //Self.logger.debug("setImage() - ocid NOT FOUND indexPath: \(indexPath) ocId: \(ocId)")
-            await cell.setImage(nil)
-            await loadPreview(indexPath: indexPath)
-
-            //only update datasource if preview was actually downloaded
             if FileManager().fileExists(atPath: path) {
-                applyUpdateForMetadata(metadata)
+                
+                let image = UIImage(contentsOfFile: path)
+                cell.setImage(image)
+                
+                if image != nil {
+                    cacheManager.cache(metadata: metadata, image: image!)
+                }
+                
+            }  else {
+                
+                if !pauseLoading {
+                    Task {
+                        let thumbnail = await cacheManager.fetch(metadata: metadata, indexPath: indexPath)
+                        guard let cell = await collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
+                        await cell.setImage(thumbnail)
+                    }
+                }
             }
         }
         
@@ -275,15 +310,11 @@ final class FavoritesViewModel: NSObject {
         
         var snapshot = dataSource.snapshot()
         var displayed = snapshot.itemIdentifiers(inSection: 0)
-
-        //Self.logger.debug("syncFavs() - displayed count: \(displayed.count)")
         
         guard let result = dataService.processFavorites(displayedMetadatas: displayed, from: from, to: to) else {
             delegate.dataSourceUpdated(refresh: false)
             return
         }
-        
-        //Self.logger.debug("syncFavs() - delete: \(result.delete.count) add: \(result.add.count)")
         
         guard result.delete.count > 0 || result.add.count > 0 else {
             delegate.dataSourceUpdated(refresh: false)
@@ -403,9 +434,9 @@ final class FavoritesViewModel: NSObject {
             await dataService.download(metadata: metadata, selector: "")
             
             let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
-            let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+            let iconPath = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             
-            ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
+            ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: iconPath)
         }
     }
 }

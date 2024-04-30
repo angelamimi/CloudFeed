@@ -80,6 +80,6 @@ class Global: NSObject {
     
     // MARK: - Search
     //
-    let pageSize: Int         = 200
+    let pageSize: Int         = 1000
     let limit: Int            = 1000
 }

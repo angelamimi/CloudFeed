@@ -20,30 +20,10 @@
 //
 
 import AVFoundation
-import KTVHTTPCache
 import SVGKit
 import UIKit
 
 class ImageUtility: NSObject {
-    
-    static func imageFromVideo(url: URL, at time: TimeInterval) -> UIImage? {
-        
-        let asset = AVAsset(url: url)
-        let assetIG = AVAssetImageGenerator.init(asset: asset)
-        
-        assetIG.appliesPreferredTrackTransform = true
-        assetIG.apertureMode = AVAssetImageGenerator.ApertureMode.encodedPixels
-        
-        let cmTime = CMTime(seconds: time, preferredTimescale: 60)
-        let thumbnailImageRef: CGImage
-        do {
-            thumbnailImageRef = try assetIG.copyCGImage(at: cmTime, actualTime: nil)
-        } catch {
-            return nil
-        }
-        
-        return UIImage(cgImage: thumbnailImageRef)
-    }
     
     @discardableResult
     static func loadSVGPreview(metadata: tableMetadata, imagePath: String, previewPath: String) -> UIImage? {
@@ -54,14 +34,44 @@ class ImageUtility: NSObject {
         if let image = svgImage.uiImage {
             
             if !FileManager().fileExists(atPath: previewPath) {
-                do {
-                    try image.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
-                } catch { }
+                try? image.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
             }
             
             return image
         }
         
         return nil
+    }
+    
+    static func imageFromVideo(url: URL) async -> UIImage? {
+        
+        return await withCheckedContinuation { continuation in
+            getThumbnailImageFromVideoUrl(url: url) { (thumbNailImage) in
+                continuation.resume(returning: (thumbNailImage))
+            }
+        }
+    }
+    
+    private static func getThumbnailImageFromVideoUrl(url: URL, completion: @escaping ((_ image: UIImage?)->Void)) {
+            
+        DispatchQueue.global(qos: .background).async {
+            
+            let asset = AVAsset(url: url)
+            let imageGenerator = AVAssetImageGenerator(asset: asset)
+            let thumnailTime = CMTimeMake(value: 2, timescale: 1)
+            
+            imageGenerator.appliesPreferredTrackTransform = true
+            
+            autoreleasepool {
+                do {
+                    let cgThumbImage = try imageGenerator.copyCGImage(at: thumnailTime, actualTime: nil)
+                    let thumbNailImage = UIImage(cgImage: cgThumbImage)
+                    
+                    completion(thumbNailImage)
+                } catch {
+                    completion(nil)
+                }
+            }
+        }
     }
 }

@@ -50,7 +50,6 @@ class SettingsController: UIViewController {
         tableView.dataSource = self
         
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 60
         
         let backgroundColorView = UIView()
         backgroundColorView.backgroundColor = UIColor.systemGroupedBackground

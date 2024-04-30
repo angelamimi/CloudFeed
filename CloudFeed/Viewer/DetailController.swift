@@ -51,19 +51,26 @@ class DetailController: UIViewController {
     
     private func buildDetailsDatasource() {
         
-        guard metadata != nil && store != nil else { return }
-        guard metadata!.classFile == "image" && store!.fileExists(metadata!) else { return }
+        guard let metadata = metadata else { return }
         
-        let imageSourceURL = URL(fileURLWithPath: store!.getCachePath(metadata!.ocId, metadata!.fileNameView)!)
+        appendDetails(metadata: metadata)
         
-        guard let originalSource = CGImageSourceCreateWithURL(imageSourceURL as CFURL, nil) else { return }
-        guard let fileProperties = CGImageSourceCopyProperties(originalSource, nil) else { return }
-        
-        Task { [weak self] in
-            guard let self = self else { return }
-            let detailDict = await self.buildExif(originalSource: originalSource, fileProperties: fileProperties)
-            self.appendData(data: detailDict)
+        if metadata.image && store != nil && store!.fileExists(metadata) {
+            
+            let imageSourceURL = URL(fileURLWithPath: store!.getCachePath(metadata.ocId, metadata.fileNameView)!)
+            
+            guard let originalSource = CGImageSourceCreateWithURL(imageSourceURL as CFURL, nil) else { return }
+            guard let fileProperties = CGImageSourceCopyProperties(originalSource, nil) else { return }
+            
+            Task { [weak self] in
+                guard let self = self else { return }
+                let detailDict = await self.buildExif(originalSource: originalSource, fileProperties: fileProperties)
+                //self.appendDetails()
+                self.appendData(data: detailDict)
+            }
         }
+        
+        Self.logger.debug("buildDetailsDatasource() - size: \(self.metadata!.size)")
     }
     
     private func buildExif(originalSource: CGImageSource, fileProperties: CFDictionary) async -> NSMutableDictionary {
@@ -142,15 +149,22 @@ class DetailController: UIViewController {
         return details
     }
     
-    private func appendData(data: NSMutableDictionary) {
+    private func appendDetails(metadata: tableMetadata) {
         
-        guard metadata != nil else { return }
-        details.append(MetadataDetail(title: Strings.DetailName, detail: metadata!.fileNameView))
-        details.append(MetadataDetail(title: Strings.DetailEditedDate, detail: (metadata!.date as Date).formatted(date: .abbreviated, time: .standard)))
+        details.append(MetadataDetail(title: Strings.DetailName, detail: metadata.fileNameView))
+        details.append(MetadataDetail(title: Strings.DetailEditedDate, detail: (metadata.date as Date).formatted(date: .abbreviated, time: .standard)))
                        
+        if metadata.size > 0 {
+            let sizeString = ByteCountFormatter.string(fromByteCount: metadata.size, countStyle: .file)
+            details.append(MetadataDetail(title: Strings.DetailFileSize, detail: sizeString))
+        }
+        
         //Self.logger.debug("appendData() - date: \(self.metadata?.date)")
         //Self.logger.debug("appendData() - uploadDate: \(self.metadata?.uploadDate)")
         //Self.logger.debug("appendData() - creationDate: \(self.metadata?.creationDate)")
+    }
+    
+    private func appendData(data: NSMutableDictionary) {
         
         if let dateTaken = data[kCGImagePropertyExifDateTimeOriginal] {
             if let dateString = dateTaken as? String {
@@ -168,12 +182,12 @@ class DetailController: UIViewController {
             }
         }
         
-        if let rawFileSize = data[kCGImagePropertyFileSize] {
+        /*if let rawFileSize = data[kCGImagePropertyFileSize] {
             if let fileSize = rawFileSize as? Int64 {
                 let fileSizeString = ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file)
                 details.append(MetadataDetail(title: Strings.DetailFileSize, detail: fileSizeString))
             }
-        }
+        }*/
         
         if let width = data[kCGImagePropertyPixelWidth], let height = data[kCGImagePropertyPixelHeight] {
             details.append(MetadataDetail(title: Strings.DetailDimensions, detail: "\(width) x \(height)"))

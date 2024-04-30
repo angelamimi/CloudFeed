@@ -110,11 +110,11 @@ class PreviewController: UIViewController {
     
     private func playLiveVideoFromMetadata(_ metadata: tableMetadata) {
         
+        let urlVideo = self.getVideoURL(metadata: metadata)
+        
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             
-            let urlVideo = self.getVideoURL(metadata: metadata)
-
             if let url = urlVideo {
                 self.playLivePhoto(url)
             }

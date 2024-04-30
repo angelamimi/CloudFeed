@@ -49,19 +49,36 @@ class MediaController: CollectionController {
         initConstraints()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        findMedia()
+    override func viewWillAppear(_ animated: Bool) {
+        syncMedia()
     }
     
     override func enteringForeground() {
-        findMedia()
+        syncMedia()
+    }
+    
+    override func scrollSpeedChanged(isScrollingFast: Bool) {
+        viewModel.pauseLoading = isScrollingFast
+    }
+    
+    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        super.scrollViewDidEndDecelerating(scrollView)
+        
+        refreshVisibleItems()
+    }
+    
+    override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        super.scrollViewDidEndScrollingAnimation(scrollView)
+        
+        refreshVisibleItems()
     }
     
     override func refresh() {
+        
         if hasFilter() {
             viewModel.filter(toDate: filterToDate!, fromDate: filterFromDate!)
         } else {
-            viewModel.metadataSearch(toDate: Date(), fromDate: nil, offsetDate: nil, offsetName: nil, refresh: true)
+            viewModel.metadataSearch(toDate: Date.distantFuture, fromDate: Date.distantPast, offsetDate: nil, offsetName: nil, refresh: true)
         }
     }
     
@@ -82,20 +99,44 @@ class MediaController: CollectionController {
         setTitle(getFormattedDate(metadata!.date as Date))
     }
     
+    override func sizeAtIndexPath(indexPath: IndexPath) -> CGSize {
+        
+        //TODO: Enable size from metadata when values are accurate. API is returning wrong dimensions.
+        
+        /*guard let metadata = viewModel.getItemAtIndexPath(indexPath) else {
+            return CGSize()
+        }
+        
+        Self.logger.debug("sizeAtIndexPath() - name: \(metadata.fileNameView) width: \(metadata.width) height: \(metadata.height)")
+        
+        return CGSize(width: metadata.width, height: metadata.height)*/
+        return CGSize()
+    }
+    
     public func clear() {
         
         DispatchQueue.main.async { [weak self] in
             
             guard let self else { return }
+            
+            self.viewModel?.clearCache()
 
             self.scrollToTop()
-            self.hideMenu()
             self.setTitle("")
             self.viewModel?.resetDataSource()
         }
     }
     
-    private func findMedia() {
+    private func refreshVisibleItems() {
+        let visibleIndexPaths = collectionView.indexPathsForVisibleItems
+        viewModel.refreshItems(visibleIndexPaths)
+    }
+    
+    private func syncMedia() {
+        
+        if collectionView.isHidden == true && emptyView.isHidden == false {
+            emptyView.hide() //hiding empty view during sync looks better
+        }
         
         let syncDateRange = getSyncDateRange()
         
@@ -104,8 +145,7 @@ class MediaController: CollectionController {
         } else if syncDateRange.toDate != nil && syncDateRange.fromDate != nil {
             viewModel.sync(toDate: syncDateRange.toDate!, fromDate: syncDateRange.fromDate!)
         } else {
-            hideMenu()
-            viewModel.metadataSearch(toDate: Date(), fromDate: nil, offsetDate: nil, offsetName: nil, refresh: false)
+            viewModel.metadataSearch(toDate: Date.distantFuture, fromDate: Date.distantPast, offsetDate: nil, offsetName: nil, refresh: false)
         }
     }
     
@@ -239,11 +279,15 @@ extension MediaController: UICollectionViewDelegate {
 extension MediaController: MediaViewController {
     
     func zoomInGrid() {
-        zoomIn()
+        if viewModel.currentItemCount() > 0 {
+            zoomIn()
+        }
     }
     
     func zoomOutGrid() {
-        zoomOut(currentItemCount: viewModel.currentItemCount())
+        if viewModel.currentItemCount() > 0 {
+            zoomOut()
+        }
     }
     
     func filter() {
@@ -265,6 +309,10 @@ extension MediaController: Filterable {
     
     func filter(from: Date, to: Date) {
         
+        if emptyView.isHidden == false {
+            emptyView.hide() //looks better when searching again
+        }
+        
         coordinator.dismissFilter()
         
         if to < from {
@@ -285,6 +333,7 @@ extension MediaController: Filterable {
         coordinator.dismissFilter()
         
         hideEditFilter()
+        hideEmptyView()
         
         filterToDate = nil
         filterFromDate = nil

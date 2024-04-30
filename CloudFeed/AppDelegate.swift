@@ -29,9 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         initNavigationBar()
         
-        //TODO: May not need storage to be set up in app delegate
-        //StoreUtility.initStorage()
-        
         return true
     }
     

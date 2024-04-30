@@ -167,7 +167,7 @@ extension DatabaseManager {
         metadata.userId = file.userId
         metadata.width = Int(file.width)
         metadata.height = Int(file.height)
-
+        
         return metadata
     }
     

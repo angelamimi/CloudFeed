@@ -24,7 +24,7 @@ import AVKit
 import NextcloudKit
 import UIKit
 
-final class ViewerViewModel {
+final class ViewerViewModel: NSObject {
     
     let metadata: tableMetadata
     let dataService: DataService
@@ -54,7 +54,7 @@ final class ViewerViewModel {
     }
     
     func loadVideoFromUrl(_ url: URL, viewWidth: CGFloat, viewHeight: CGFloat) -> AVPlayerViewController {
-
+        
         let player = AVPlayer(url: url)
         let avpController = AVPlayerViewController()
         
@@ -81,12 +81,12 @@ final class ViewerViewModel {
             
             await dataService.download(metadata: metadata, selector: "")
             
-            let image = getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
+            let image = await getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
             return image
         }
         
         // Get image
-        let image = getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
+        let image = await getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
         return image
     }
     
@@ -98,23 +98,18 @@ final class ViewerViewModel {
 extension ViewerViewModel {
     
     private func getVideoURL(metadata: tableMetadata) -> URL? {
-        
-        if dataService.store.fileExists(metadata) {
-            return URL(fileURLWithPath: dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!)
-        } else {
-            guard let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
-            return HTTPCache.shared.getProxyURL(stringURL: stringURL)
-        }
+        guard let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
+        return HTTPCache.shared.getProxyURL(stringURL: stringURL)
     }
     
-    private func getImageFromMetadata(_ metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) -> UIImage? {
+    private func getImageFromMetadata(_ metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
         
-        if let image = getImage(metadata: metadata, viewWidth: viewWidth, viewHeight: viewHeight) {
+        if let image = await getImage(metadata: metadata, viewWidth: viewWidth, viewHeight: viewHeight) {
             return image
         }
-        print("getImageFromMetadata() - hasPreview: \(metadata.hasPreview)")
+
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue && !metadata.hasPreview {
-            createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
+            await createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
         }
         
         if dataService.store.previewExists(metadata.ocId, metadata.etag) {
@@ -125,7 +120,7 @@ extension ViewerViewModel {
         return nil
     }
     
-    private func getImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) -> UIImage? {
+    private func getImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
         
         var image: UIImage?
         
@@ -137,7 +132,7 @@ extension ViewerViewModel {
         if metadata.gif {
             
             if !FileManager().fileExists(atPath: previewPath) {
-                createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
+                await createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
             }
             
             if let fileData = FileManager().contents(atPath: imagePath) {
@@ -152,7 +147,7 @@ extension ViewerViewModel {
             
         } else {
             
-            createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
+            await createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
             image = UIImage(contentsOfFile: imagePath)
             
             let imageWidth : CGFloat = image?.size.width ?? 0
@@ -181,7 +176,8 @@ extension ViewerViewModel {
         return image
     }
     
-    private func createImageFrom(fileNameView: String, ocId: String, etag: String, classFile: String) {
+    private func createImageFrom(fileNameView: String, ocId: String, etag: String, classFile: String) async {
+        
         var originalImage, scaleImagePreview: UIImage?
 
         let fileNamePath = dataService.store.getCachePath(ocId, fileNameView)!
@@ -210,7 +206,7 @@ extension ViewerViewModel {
             
             FileSystemUtility.shared.linkItem(atPath: fileNamePath, toPath: videoPath)
 
-            originalImage = ImageUtility.imageFromVideo(url: URL(fileURLWithPath: videoPath), at: 0)
+            originalImage = await ImageUtility.imageFromVideo(url: URL(fileURLWithPath: videoPath))
 
             try? originalImage?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathPreview))
         }

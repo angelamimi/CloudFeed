@@ -54,11 +54,27 @@ class FavoritesController: CollectionController {
     }
 
     override func viewDidAppear(_ animated: Bool) {
-        fetchFavorites()
+        syncFavorites()
     }
     
     override func enteringForeground() {
-        fetchFavorites()
+        syncFavorites()
+    }
+    
+    override func scrollSpeedChanged(isScrollingFast: Bool) {
+        viewModel.pauseLoading = isScrollingFast
+    }
+    
+    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        super.scrollViewDidEndDecelerating(scrollView)
+        
+        refreshVisibleItems()
+    }
+    
+    override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        super.scrollViewDidEndScrollingAnimation(scrollView)
+        
+        refreshVisibleItems()
     }
     
     override func refresh() {
@@ -86,17 +102,39 @@ class FavoritesController: CollectionController {
         setTitle(getFormattedDate(metadata!.date as Date))
     }
     
+    override func sizeAtIndexPath(indexPath: IndexPath) -> CGSize {
+        
+        //TODO: Enable size from metadata when values are accurate. API is returning wrong dimensions.
+        
+        /*guard let metadata = viewModel.getItemAtIndexPath(indexPath) else {
+            return CGSize()
+        }
+        
+        Self.logger.debug("sizeAtIndexPath() - name: \(metadata.fileNameView) width: \(metadata.width) height: \(metadata.height)")
+        
+        return CGSize(width: metadata.width, height: metadata.height)*/
+        return CGSize()
+    }
+    
     public func clear() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.scrollToTop()
-            self.hideMenu()
             self.setTitle("")
             self.viewModel?.resetDataSource()
         }
     }
     
-    private func fetchFavorites() {
+    private func refreshVisibleItems() {
+        let visibleIndexPaths = collectionView.indexPathsForVisibleItems
+        viewModel.refreshItems(visibleIndexPaths)
+    }
+    
+    private func syncFavorites() {
+        
+        if collectionView.isHidden == true && emptyView.isHidden == false {
+            emptyView.hide() //hiding empty view during sync looks better
+        }
         
         let visibleDateRange = getVisibleItemData()
         
@@ -105,7 +143,6 @@ class FavoritesController: CollectionController {
         } else if visibleDateRange.toDate != nil || visibleDateRange.name != nil {
             viewModel.syncFavs(from: nil, to: nil)
         } else {
-            hideMenu()
             viewModel.fetch(refresh: false)
         }
     }
@@ -185,6 +222,7 @@ extension FavoritesController: FavoritesDelegate {
             self.collectionView.allowsMultipleSelection = false
 
             self.displayResults(refresh: false)
+            self.reloadSection()
             
             if self.hasFilter() {
                 self.showEditFilter()
@@ -245,12 +283,15 @@ extension FavoritesController: FavoritesDelegate {
 extension FavoritesController: MediaViewController {
     
     func zoomInGrid() {
-        zoomIn()
+        if viewModel.currentItemCount() > 0 {
+            zoomIn()
+        }
     }
     
     func zoomOutGrid() {
-        let count = viewModel.currentItemCount()
-        zoomOut(currentItemCount: count)
+        if viewModel.currentItemCount() > 0 {
+            zoomOut()
+        }
     }
     
     func titleTouched() {
@@ -293,6 +334,10 @@ extension FavoritesController: Filterable {
     
     func filter(from: Date, to: Date) {
         
+        if emptyView.isHidden == false {
+            emptyView.hide() //looks better when searching again
+        }
+        
         coordinator.dismissFilter()
         
         if to < from {
@@ -313,6 +358,7 @@ extension FavoritesController: Filterable {
         coordinator.dismissFilter()
         
         hideEditFilter()
+        hideEmptyView()
         
         filterToDate = nil
         filterFromDate = nil

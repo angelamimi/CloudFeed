@@ -73,12 +73,14 @@ extension MainCoordinator {
         let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
         let settingsViewController = settingsNavController.viewControllers[0] as! SettingsController
         
+        let cacheManager = CacheManager(dataService: dataService)
+        
         mediaViewController.coordinator = MediaCoordinator(navigationController: mediaNavController, dataService: dataService)
         favoritesViewController.coordinator = FavoritesCoordinator(navigationController: favoritesNavController, dataService: dataService)
         settingsViewController.coordinator = SettingsCoordinator(navigationController: settingsNavController, cacheDelegate: self)
         
-        mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService)
-        favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService)
+        mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService, cacheManager: cacheManager)
+        favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager)
         settingsViewController.viewModel = SettingsViewModel(delegate: settingsViewController, dataService: dataService)
     }
 }

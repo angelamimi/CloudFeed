@@ -87,7 +87,11 @@ class StoreUtility {
     }
     
     func getPreviewPath(_ ocId: String, _ etag: String) -> String {
-        return "\(self.getCachePathForOcId(ocId) ?? "")/\(etag).preview.\(Global.shared.extensionPreview)"
+        return "\(self.getCachePathForOcId(ocId) ?? "")/\(etag).small.\(Global.shared.extensionPreview)"
+    }
+    
+    func getIconPath(_ ocId: String, _ etag: String) -> String {
+        return "\(self.getCachePathForOcId(ocId) ?? "")/\(etag).ico.\(Global.shared.extensionPreview)"
     }
     
     func getCachePath(_ ocId: String, _ fileNameView: String) -> String? {

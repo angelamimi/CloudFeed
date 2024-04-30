@@ -10,15 +10,11 @@ import os.log
 
 class CacheManager {
     
-    private let dispatchQueue = DispatchQueue(label: "downloads")
-    private var downloads: [IndexPath: Operation] = [:]
-        
-    private var queue: OperationQueue = {
-        let queue = OperationQueue()
-        queue.name = "downloadQueue"
-        queue.maxConcurrentOperationCount = 5
-        return queue
-    }()
+    private let dataService: DataService
+    
+    private static let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier!,
+        category: String(describing: CacheManager.self))
     
     private var cache: NSCache<NSString, UIImage> = {
         let cache = NSCache<NSString, UIImage>()
@@ -26,124 +22,57 @@ class CacheManager {
         return cache
     }()
     
-    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: CacheManager.self))
-    
-    func suspend() {
-        queue.isSuspended = true
+    init(dataService: DataService) {
+        self.dataService = dataService
     }
     
-    func resume() {
-        queue.isSuspended = false
+    func clear() {
+        cache.removeAllObjects()
     }
     
-    func dump() {
-        dispatchQueue.sync {
-            let count = downloads.count
-            Self.logger.debug("dump() - current count: \(count)")
-
-            for dl in downloads {
-                let op = dl.value as Operation
-                let key = dl.key as IndexPath
-                Self.logger.debug("dump() - indexPath: \(key) isReady: \(op.isReady) isExecuting: \(op.isExecuting)")
-            }
-        }
+    func cache(metadata: tableMetadata, image: UIImage) {
+        cache.setObject(image, forKey: (metadata.ocId + metadata.etag) as NSString)
     }
     
-    func cached(metadataId: String) -> UIImage? {
-        return cache.object(forKey: metadataId as NSString)
+    func cached(ocId: String, etag: String) -> UIImage? {
+        return cache.object(forKey: ocId + etag as NSString)
     }
     
-    func fetch(metadata: tableMetadata, indexPath: IndexPath, completion: ((UIImage?) -> Void)? = nil) {
+    func fetch(metadata: tableMetadata, indexPath: IndexPath) async -> UIImage? {
         
-        Self.logger.debug("fetch() - beginning for \(indexPath) and id: \(metadata.ocId) suspended? \(self.queue.isSuspended)")
+        //Self.logger.debug("fetch() - downloading file: \(metadata.fileNameView)")
         
-        /*if let cachedImage = cache.object(forKey: metadata.metadataId as NSString) {
-            Self.logger.debug("fetch() - found image in cache. return. id: \(metadata.metadataId)")
-            completion?(cachedImage)
-            return
-        }*/
-        
-        /*guard !queue.isSuspended else {
-            Self.logger.debug("fetch() - operations suspended. return. id: \(metadata.ocId)")
-            completion?(nil)
-            return
-        }*/
-        
-        guard let completion = completion else {
-            return
+        if metadata.video {
+            await self.dataService.downloadVideoPreview(metadata: metadata)
+        } else if metadata.svg {
+            await self.loadSVG(metadata: metadata)
+        } else {
+            await self.dataService.downloadPreview(metadata: metadata)
         }
 
-        var downloadOperation: Operation?
+        //Self.logger.debug("fetch() - downloading complete. file: \(metadata.fileNameView)")
         
-        dispatchQueue.sync {
-            downloadOperation = downloads[indexPath]
+        let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
+        
+        if FileManager().fileExists(atPath: path) {
+            let image = UIImage(contentsOfFile: path)
+            if image != nil { cache(metadata: metadata, image: image!) }
+            return image
         }
-        
-        guard downloadOperation == nil else {
-            DispatchQueue.main.async {
-                completion(nil)
-            }
-            return
-        }
-        
-        /*guard let url = URL(string: metadata.metadataUrl) else {
-            Self.logger.debug("fetch() - invalid url. return. id: \(metadata.metadataId)")
-            completion?(nil)
-            return
-        }
-        
-        Self.logger.debug("fetch() - execute operation \(metadata.metadataId) url: \(metadata.metadataUrl)")
-        
-        let operation = ImageDownloadOperation(metadata.metadataId, url: url) { [weak self] (image: UIImage?) in
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else {
-                    Self.logger.debug("fetch() - can't download. return. id: \(metadata.metadataId)")
-                    completion?(nil)
-                    return
-                }
-                
-                if image == nil {
-                    Self.logger.debug("fetch() - download failed. return. id: \(metadata.metadataId)")
-                    dispatchQueue.async {
-                        self.downloads.removeValue(forKey: indexPath)
-                    }
-                    completion?(nil)
-                    return
-                }
-                
-                Self.logger.debug("fetch() - download successful. caching. id: \(metadata.metadataId)")
-                
-                self.cache.setObject(image!, forKey: metadata.metadataId as NSString)
-                
-                dispatchQueue.async {
-                    self.downloads.removeValue(forKey: indexPath)
-                }
-                completion?(image)
-            }
-        }
-        
-        dispatchQueue.async {
-            Self.logger.debug("fetch() - adding operation to downloads. id: \(metadata.ocId)")
-            self.downloads[indexPath] = operation
-        }
-        
-        dispatchQueue.sync {
-            let count = downloads.count
-            Self.logger.debug("fetch() - adding operation to queue. id: \(metadata.ocId) current count: \(count)")
-        }
-        
-        queue.addOperation(operation)*/
+         
+        return nil
     }
     
-    func cancel(_ indexPath: IndexPath) {
+    private func loadSVG(metadata: tableMetadata) async {
         
-        dispatchQueue.sync {
-            downloads[indexPath]?.cancel()
-        }
- 
-        dispatchQueue.async {
-            self.downloads.removeValue(forKey: indexPath)
+        if !dataService.store.fileExists(metadata) && metadata.image {
+            
+            await dataService.download(metadata: metadata, selector: "")
+            
+            let iconPath = dataService.store.getIconPath(metadata.ocId, metadata.etag)
+            let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
+            
+            ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: iconPath)
         }
     }
 }
-

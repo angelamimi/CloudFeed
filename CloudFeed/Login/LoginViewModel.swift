@@ -77,8 +77,5 @@ final class LoginViewModel: NSObject {
         KTVHTTPCache.cacheDeleteAllCaches()
 
         dataService.clearDatabase(account: nil, removeAccount: true)
-
-        //TODO: Init storage???
-        //StoreUtility.initStorage()
     }
 }

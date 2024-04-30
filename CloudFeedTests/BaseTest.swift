@@ -42,7 +42,8 @@ class BaseTest: XCTestCase {
     
     func initEnvironment() {
         
-        let dbman = MockDatabaseManager()
+        let store = StoreUtility()
+        let dbman = MockDatabaseManager(store: store)
         let _ = dbman.setup()
         
         nextCloudService = MockNextcloudKitService()

@@ -24,7 +24,7 @@ import NextcloudKit
 import UIKit
 
 final class MockNextcloudKitService: NextcloudKitServiceProtocol {
-    
+
     enum FavoritesMockAction: String {
         case withData = "mock-favorites"
         case empty = "empty"
@@ -57,7 +57,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return NKError.success
     }
     
-    func downloadPreview(fileNamePath: String, fileNamePreviewLocalPath: String, etagResource: String?) async {
+    func downloadPreview(fileNamePath: String, previewPath: String, iconPath: String, etagResource: String?) async {
         
     }
     

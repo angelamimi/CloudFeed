@@ -38,6 +38,10 @@ class CollectionController: UIViewController {
     var filterFromDate: Date?
     var filterToDate: Date?
     
+    var isScrollingFast = false
+    var lastOffsetTime: TimeInterval = 0
+    var lastOffset = CGPoint.zero
+    
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: FavoritesController.self)
@@ -63,6 +67,8 @@ class CollectionController: UIViewController {
     func loadMore() {}
     func refresh() {}
     func enteringForeground() {}
+    func scrollSpeedChanged(isScrollingFast: Bool) {}
+    func sizeAtIndexPath(indexPath: IndexPath) -> CGSize { return CGSize() }
     
     private func initObservers() {
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
@@ -90,20 +96,16 @@ class CollectionController: UIViewController {
         titleView?.title.text = title
     }
     
-    func showMenu() {
-        titleView?.showMenu()
-    }
-    
-    func hideMenu() {
-        titleView?.hideMenu()
-    }
-    
     func showEditFilter() {
         titleView?.showFilterButton()
     }
     
     func hideEditFilter() {
         titleView?.hideFilterButton()
+    }
+    
+    func hideEmptyView() {
+        emptyView.hide()
     }
     
     func isRefreshing() -> Bool {
@@ -150,21 +152,21 @@ class CollectionController: UIViewController {
     
     func zoomIn() {
         
-        guard let layout = collectionView.collectionViewLayout as? FlowLayout else { return }
+        guard let layout = collectionView.collectionViewLayout as? CollectionLayout else { return }
         
-        let columns = layout.cellsPerRow
+        let columns = layout.numberOfColumns
         
         if columns - 1 > 0 {
-            layout.cellsPerRow -= 1
+            layout.numberOfColumns -= 1
         }
     }
     
-    func zoomOut(currentItemCount: Int) {
+    func zoomOut() {
 
-        guard let layout = collectionView.collectionViewLayout as? FlowLayout else { return }
+        guard let layout = collectionView.collectionViewLayout as? CollectionLayout else { return }
         
-        if layout.cellsPerRow < 5 {
-            layout.cellsPerRow += 1
+        if layout.numberOfColumns < 5 {
+            layout.numberOfColumns += 1
         }
     }
     
@@ -172,8 +174,12 @@ class CollectionController: UIViewController {
         
         let cellsPerRow = UIDevice.current.userInterfaceIdiom == .pad ? 3 : 2
         
-        let layout = FlowLayout(cellsPerRow: cellsPerRow)
+        //let layout = FlowLayout(cellsPerRow: cellsPerRow)
+        //collectionView.collectionViewLayout = layout
         
+        let layout = CollectionLayout()
+        layout.delegate = self
+        layout.numberOfColumns = cellsPerRow
         collectionView.collectionViewLayout = layout
         
         refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
@@ -220,7 +226,6 @@ class CollectionController: UIViewController {
             emptyView.updateText(title: emptyViewTitle, description: emptyViewDescription)
             
             emptyView.show()
-            hideMenu()
             setTitle("")
             
         } else {
@@ -229,7 +234,6 @@ class CollectionController: UIViewController {
             emptyView.hide()
             
             if !isEditing {
-                showMenu()
                 setTitle()
             }
             
@@ -307,11 +311,12 @@ class CollectionController: UIViewController {
 extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        
         setTitle()
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-
+        
         setTitle()
 
         guard isEditing == false else { return }
@@ -324,5 +329,35 @@ extension CollectionController : UIScrollViewDelegate {
             loadMoreIndicator.startAnimating()
             loadMore()
         }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        let currentOffset = scrollView.contentOffset
+        let currentTime = Date.timeIntervalSinceReferenceDate
+        let diff = currentTime - lastOffsetTime
+        
+        if diff > 0.1 {
+            
+            let distance = Float(currentOffset.y - lastOffset.y)
+            let scrollSpeedNotAbs = Float((distance * 10.0) / 1000.0)
+            let scrollSpeed = fabsf(scrollSpeedNotAbs)
+            
+            scrollSpeedChanged(isScrollingFast: scrollSpeed > 2)
+
+            lastOffset = currentOffset
+            lastOffsetTime = currentTime
+        }
+
+        if currentOffset.x == 0 && currentOffset.y == 0 {
+            scrollSpeedChanged(isScrollingFast: false)
+        }
+    }
+}
+
+extension CollectionController: CollectionLayoutDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, sizeAtIndexPath indexPath: IndexPath) -> CGSize {
+        return sizeAtIndexPath(indexPath: indexPath)
     }
 }

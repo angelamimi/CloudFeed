@@ -54,12 +54,10 @@ extension DatabaseManager {
 
         do {
             try realm.write {
+                
                 let addObject = tableAccount()
 
                 addObject.account = account
-
-                //TODO: Test. Moved to setPassword calling function in dataService
-
                 addObject.urlBase = urlBase
                 addObject.user = user
                 addObject.userId = user
