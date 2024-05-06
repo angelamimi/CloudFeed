@@ -140,11 +140,11 @@ class CollectionController: UIViewController {
         titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: 70)
-            collectionViewTopConstraint?.constant = 70
+            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSizeLarge)
+            collectionViewTopConstraint?.constant = Global.shared.titleSizeLarge
         } else {
-            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: 50)
-            collectionViewTopConstraint?.constant = 50
+            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
+            collectionViewTopConstraint?.constant = Global.shared.titleSize
         }
         
         titleViewHeightAnchor?.isActive = true
@@ -264,11 +264,11 @@ class CollectionController: UIViewController {
     private func updateTitleConstraints() {
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            titleViewHeightAnchor?.constant = 70
-            collectionViewTopConstraint?.constant = 70
+            titleViewHeightAnchor?.constant = Global.shared.titleSizeLarge
+            collectionViewTopConstraint?.constant = Global.shared.titleSizeLarge
         } else {
-            titleViewHeightAnchor?.constant = 50
-            collectionViewTopConstraint?.constant = 50
+            titleViewHeightAnchor?.constant = Global.shared.titleSize
+            collectionViewTopConstraint?.constant = Global.shared.titleSize
         }
 
         titleView?.updateTitleSize()

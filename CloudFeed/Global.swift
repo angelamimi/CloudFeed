@@ -82,4 +82,9 @@ class Global: NSObject {
     //
     let pageSize: Int         = 1000
     let limit: Int            = 1000
+    
+    // MARK: - Title
+    //
+    let titleSize: CGFloat          = 50
+    let titleSizeLarge: CGFloat     = 70
 }

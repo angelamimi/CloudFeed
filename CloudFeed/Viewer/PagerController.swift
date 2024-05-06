@@ -115,9 +115,9 @@ class PagerController: UIViewController, MediaViewController {
     private func initConstraints() {
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: 70)
+            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSizeLarge)
         } else {
-            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: 50)
+            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
         }
         
         titleViewHeightAnchor?.isActive = true
@@ -182,9 +182,9 @@ class PagerController: UIViewController, MediaViewController {
     private func updateTitleConstraints() {
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            titleViewHeightAnchor?.constant = 70
+            titleViewHeightAnchor?.constant = Global.shared.titleSizeLarge
         } else {
-            titleViewHeightAnchor?.constant = 50
+            titleViewHeightAnchor?.constant = Global.shared.titleSize
         }
 
         titleView?.updateTitleSize()
