@@ -395,7 +395,7 @@ final class MediaViewModel: NSObject {
 
         //Self.logger.debug("populateCell() - file: \(metadata.fileNameView)")
         
-        if metadata.gif || metadata.svg {
+        if metadata.gif || metadata.svg || metadata.png {
             cell.setContentMode(aspectFit: true)
             cell.clearBackground()
         }

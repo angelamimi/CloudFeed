@@ -29,6 +29,8 @@ class PagerController: UIViewController, MediaViewController {
     var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
     
+    private var titleViewHeightAnchor: NSLayoutConstraint?
+    
     private weak var titleView: TitleView?
     
     weak var pageViewController: UIPageViewController? {
@@ -49,7 +51,6 @@ class PagerController: UIViewController, MediaViewController {
         titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
         titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
         titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-        titleView?.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
     
     override func viewDidLoad() {
@@ -81,6 +82,13 @@ class PagerController: UIViewController, MediaViewController {
         setFavoriteMenu(isFavorite: metadata.favorite)
         
         self.navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        initObservers()
+        initConstraints()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        updateTitleConstraints()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -96,6 +104,33 @@ class PagerController: UIViewController, MediaViewController {
     
     func cancel() {        
         navigationController?.popViewController(animated: true)
+    }
+    
+    private func initObservers() {
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
+            self?.willEnterForegroundNotification()
+        }
+    }
+    
+    private func initConstraints() {
+        
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: 70)
+        } else {
+            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: 50)
+        }
+        
+        titleViewHeightAnchor?.isActive = true
+    }
+    
+    private func cleanup() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+    
+    private func willEnterForegroundNotification() {
+        if isViewLoaded && view.window != nil {
+            updateTitleConstraints()
+        }
     }
 
     private func setFavoriteMenu(isFavorite: Bool) {
@@ -142,6 +177,17 @@ class PagerController: UIViewController, MediaViewController {
                 controller.playLivePhoto(url)
             }
         }
+    }
+    
+    private func updateTitleConstraints() {
+        
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            titleViewHeightAnchor?.constant = 70
+        } else {
+            titleViewHeightAnchor?.constant = 50
+        }
+
+        titleView?.updateTitleSize()
     }
 }
 

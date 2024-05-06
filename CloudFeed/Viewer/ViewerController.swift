@@ -52,7 +52,7 @@ class ViewerController: UIViewController {
         
         if viewModel.getMetadataLivePhoto(metadata: metadata) != nil {
             statusImageView.image = UIImage(systemName: "livephoto")?.withTintColor(.label, renderingMode: .alwaysOriginal)
-            statusLabel.text = "LIVE" //TODO: Externalize text
+            statusLabel.text = Strings.LiveTitle
             statusContainerView.isHidden = false
         } else {
             statusImageView.image = nil

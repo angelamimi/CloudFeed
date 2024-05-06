@@ -10,6 +10,7 @@
 "Ok.Action" = "Ok";
 "Cancel.Action" = "Cancel";
 "Error.Title" = "Error";
+"Live.Title" = "LIVE";
 
 /* Settings - Application reset dialog */
 "Reset.Title" = "Reset Application";
@@ -52,7 +53,7 @@
 "Fav.Error.Message" = "Failed to load favorites.";
 "Fav.Update.Error.Message" = "Save failed. Please try again.";
 "Fav.Empty.Title" = "No favorites yet";
-"Fav.Empty.Description" = "Files you favorite will display here";
+"Fav.Empty.Description" = "Your favorites will display here";
 "Fav.Empty.Filter.Title" = "None found";
 "Fav.Empty.Filter.Description" = "Your filter returned no favorites";
 "Fav.Add" = "Add to favorites";

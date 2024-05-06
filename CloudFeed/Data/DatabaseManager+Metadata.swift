@@ -96,6 +96,10 @@ extension tableMetadata {
         fileExtension == "gif" || contentType == "image/gif"
     }
     
+    var png: Bool {
+        fileExtension == "png" || contentType == "image/png"
+    }
+    
     var livePhoto: Bool {
         !livePhotoFile.isEmpty
     }

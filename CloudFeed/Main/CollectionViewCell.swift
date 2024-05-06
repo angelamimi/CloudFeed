@@ -118,10 +118,7 @@ class CollectionViewCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         
         backgroundColor = .secondarySystemBackground
-        
-        if (self.reuseIdentifier == "MainCollectionViewCell") {
-            imageFavorite.image = UIImage(systemName: "star.fill")
-            imageFavorite.isHidden = true
-        }
+
+        imageFavorite.isHidden = true
     }
 }

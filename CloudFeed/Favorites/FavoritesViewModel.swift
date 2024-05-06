@@ -264,7 +264,7 @@ final class FavoritesViewModel: NSObject {
     
     private func populateCell(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
         
-        if metadata.gif || metadata.svg {
+        if metadata.gif || metadata.svg || metadata.png {
             cell.setContentMode(aspectFit: true)
         }
         

@@ -29,6 +29,7 @@ extension Strings {
     public static let OkAction = NSLocalizedString("Ok.Action", comment: "")
     public static let CancelAction = NSLocalizedString("Cancel.Action", comment: "")
     public static let ErrorTitle = NSLocalizedString("Error.Title", comment: "")
+    public static let LiveTitle = NSLocalizedString("Live.Title", comment: "")
     
     //Settings - Application reset Dialog
     public static let ResetAction = NSLocalizedString("Reset.Action", comment: "")
