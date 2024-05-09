@@ -239,7 +239,7 @@ class CollectionController: UIViewController {
             
             if refresh && (hasFilter() || (collectionCount > 0 && collectionView.indexPathsForVisibleItems.count == 0)) {
                 //Self.logger.debug("displayResults() - visible items count: \(self.collectionView.indexPathsForVisibleItems.count)")
-                //TODO: Revisit
+
                 //When scrolled far in a long list, then filtered, the user ends up at a scroll position that
                 //doesn't display the newly filtered list. Screen appears blank. Enabling scroll to top may need
                 //more conditions around it or will scroll to top when the user is interacting with the list.
