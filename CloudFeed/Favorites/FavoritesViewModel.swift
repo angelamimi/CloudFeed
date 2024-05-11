@@ -264,10 +264,6 @@ final class FavoritesViewModel: NSObject {
     
     private func populateCell(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
         
-        if metadata.gif || metadata.svg || metadata.png {
-            cell.setContentMode(aspectFit: true)
-        }
-        
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             cell.showVideoIcon()
         } else if metadata.livePhoto {
@@ -277,7 +273,7 @@ final class FavoritesViewModel: NSObject {
         }
         
         if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {
-            cell.setImage(cachedImage)
+            cell.setImage(cachedImage, metadata.transparent)
         } else {
             
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
@@ -285,7 +281,7 @@ final class FavoritesViewModel: NSObject {
             if FileManager().fileExists(atPath: path) {
                 
                 let image = UIImage(contentsOfFile: path)
-                cell.setImage(image)
+                cell.setImage(image, metadata.transparent)
                 
                 if image != nil {
                     cacheManager.cache(metadata: metadata, image: image!)
@@ -297,7 +293,7 @@ final class FavoritesViewModel: NSObject {
                     Task {
                         let thumbnail = await cacheManager.fetch(metadata: metadata, indexPath: indexPath)
                         guard let cell = await collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
-                        await cell.setImage(thumbnail)
+                        await cell.setImage(thumbnail, metadata.transparent)
                     }
                 }
             }

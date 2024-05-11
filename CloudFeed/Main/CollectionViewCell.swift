@@ -75,7 +75,7 @@ class CollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func setImage(_ image: UIImage?) {
+    func setImage(_ image: UIImage?, _ isTransparent: Bool) {
         
         DispatchQueue.main.async { [weak self] in
             guard image != nil else {
@@ -83,30 +83,26 @@ class CollectionViewCell: UICollectionViewCell {
                 return
             }
             
-            //imageView.image = nil
-            
             guard let self else { return }
             
-            UIView.transition(with: self.imageView,
-                 duration: 0.5,
-                 options: .transitionCrossDissolve,
-                 animations: { [weak self] in self?.imageView.image = image }
-             )
+            var backgroundColor: UIColor?
             
-            self.imageView.image = image
+            if isTransparent {
+                imageView.contentMode = .scaleAspectFit
+                backgroundColor = .systemBackground
+            } else {
+                imageView.contentMode = .scaleAspectFill
+                backgroundColor = .clear
+            }
+            
+            UIView.transition(with: self.imageView,
+                              duration: 0.5,
+                              options: .transitionCrossDissolve, animations: { [weak self] in
+                self?.imageView.image = image
+                self?.imageView.backgroundColor = backgroundColor
+            }
+            )
         }
-    }
-    
-    func setContentMode(aspectFit: Bool) {
-        if aspectFit {
-            imageView.contentMode = .scaleAspectFit
-        } else {
-            imageView.contentMode = .scaleAspectFill
-        }
-    }
-    
-    func clearBackground() {
-        backgroundColor = .clear
     }
     
     private func initCell() {
@@ -116,6 +112,7 @@ class CollectionViewCell: UICollectionViewCell {
         imageFavorite.image = nil
         
         imageView.contentMode = .scaleAspectFill
+        imageView.backgroundColor = .clear
         
         backgroundColor = .secondarySystemBackground
 

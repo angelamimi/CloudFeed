@@ -392,13 +392,6 @@ final class MediaViewModel: NSObject {
     }
     
     private func populateCell(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
-
-        //Self.logger.debug("populateCell() - file: \(metadata.fileNameView)")
-        
-        if metadata.gif || metadata.svg || metadata.png {
-            cell.setContentMode(aspectFit: true)
-            cell.clearBackground()
-        }
         
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             cell.showVideoIcon()
@@ -409,8 +402,7 @@ final class MediaViewModel: NSObject {
         }
         
         if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {
-            //Self.logger.debug("populateCell - CACHED \(metadata.fileNameView)")
-            cell.setImage(cachedImage)
+            cell.setImage(cachedImage, metadata.transparent)
         } else {
             
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
@@ -418,18 +410,19 @@ final class MediaViewModel: NSObject {
             if FileManager().fileExists(atPath: path) {
 
                 let image = UIImage(contentsOfFile: path)
-                cell.setImage(image)
+                cell.setImage(image, metadata.transparent)
                 
                 if image != nil {
                     cacheManager.cache(metadata: metadata, image: image!)
                 }
+                
             } else {
                 
                 if !pauseLoading {
                     Task {
                         let thumbnail = await cacheManager.fetch(metadata: metadata, indexPath: indexPath)
                         guard let cell = await collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
-                        await cell.setImage(thumbnail)
+                        await cell.setImage(thumbnail, metadata.transparent)
                     }
                 }
             }

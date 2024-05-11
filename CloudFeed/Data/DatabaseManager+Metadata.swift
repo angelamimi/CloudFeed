@@ -100,6 +100,10 @@ extension tableMetadata {
         fileExtension == "png" || contentType == "image/png"
     }
     
+    var transparent: Bool {
+        svg || gif || png
+    }
+    
     var livePhoto: Bool {
         !livePhotoFile.isEmpty
     }
