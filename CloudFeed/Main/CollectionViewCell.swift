@@ -80,6 +80,7 @@ class CollectionViewCell: UICollectionViewCell {
         DispatchQueue.main.async { [weak self] in
             guard image != nil else {
                 self?.imageView.image = nil
+                self?.imageView.backgroundColor = .systemBackground
                 return
             }
             
@@ -97,10 +98,9 @@ class CollectionViewCell: UICollectionViewCell {
             
             UIView.transition(with: self.imageView,
                               duration: 0.5,
-                              options: .transitionCrossDissolve, animations: { [weak self] in
-                self?.imageView.image = image
-                self?.imageView.backgroundColor = backgroundColor
-            }
+                              options: .transitionCrossDissolve, 
+                              animations: { [weak self] in self?.imageView.image = image },
+                              completion: { [weak self] _ in self?.imageView.backgroundColor = backgroundColor }
             )
         }
     }
