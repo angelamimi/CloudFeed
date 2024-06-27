@@ -286,12 +286,14 @@ extension MediaController: MediaViewController {
     func zoomInGrid() {
         if viewModel.currentItemCount() > 0 {
             zoomIn()
+            refreshVisibleItems()
         }
     }
     
     func zoomOutGrid() {
         if viewModel.currentItemCount() > 0 {
             zoomOut()
+            refreshVisibleItems()
         }
     }
     
