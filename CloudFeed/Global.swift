@@ -56,6 +56,13 @@ class Global: NSObject {
     let capabilitiesVersionMajor: Array = ["ocs", "data", "version", "major"]
     
     
+    // MARK: - Layout
+    //
+    let layoutTypeSquare              = "layoutTypeSquare"
+    let layoutTypeAspectRatio         = "layoutTypeAspectRatio"
+    let layoutColumnCountDefault      = UIDevice.current.userInterfaceIdiom == .pad ? 3 : 2
+    
+    
     // MARK: - Icon/Preview
     //
     let extensionPreview        = "jpeg"

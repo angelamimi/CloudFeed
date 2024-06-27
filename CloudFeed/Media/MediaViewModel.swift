@@ -108,6 +108,22 @@ final class MediaViewModel: NSObject {
         return nil
     }
     
+    func getLayoutType() -> String {
+        return dataService.store.getMediaLayoutType()
+    }
+    
+    func updateLayoutType(_ type: String) {
+        dataService.store.setMediaLayoutType(type)
+    }
+    
+    func getColumnCount() -> Int {
+        return dataService.store.getMediaColumnCount()
+    }
+    
+    func saveColumnCount(_ columnCount: Int) {
+        dataService.store.setMediaColumnCount(columnCount)
+    }
+    
     func metadataSearch(toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool) {
 
         fetchTask = Task { [weak self] in

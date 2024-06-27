@@ -29,7 +29,12 @@ protocol CollectionLayoutDelegate: AnyObject {
 class CollectionLayout: UICollectionViewFlowLayout {
     
     weak var delegate: CollectionLayoutDelegate!
-    //var numberOfColumns: Int = 4
+    
+    var layoutType: String = "" {
+        didSet {
+            invalidateLayout()
+        }
+    }
     
     var numberOfColumns: Int = 3 {
         didSet {
@@ -98,14 +103,22 @@ class CollectionLayout: UICollectionViewFlowLayout {
             
             let indexPath = IndexPath(item: item, section: 0)
 
-            var photoSize = delegate.collectionView(collectionView, sizeAtIndexPath: indexPath)
+            var itemSize: CGSize!
             
-            if (photoSize.width == 0 || photoSize.height == 0) {
-                photoSize = CGSize(width: 100, height: 100)
+            if layoutType == Global.shared.layoutTypeAspectRatio {
+                
+                itemSize = delegate.collectionView(collectionView, sizeAtIndexPath: indexPath)
+                
+                if (itemSize.width == 0 || itemSize.height == 0) {
+                    itemSize = CGSize(width: 100, height: 100)
+                }
+                
+            } else {
+                itemSize = CGSize(width: 100, height: 100)
             }
             
             let cellWidth = columnWidth
-            var cellHeight = photoSize.height * cellWidth / photoSize.width
+            var cellHeight = itemSize.height * cellWidth / itemSize.width
             
             cellHeight = cellPadding * 2 + cellHeight
             
@@ -131,13 +144,16 @@ class CollectionLayout: UICollectionViewFlowLayout {
             cache.append(attributes)
             
             //contentHeight = max(contentHeight, frame.maxY)
-            contentHeight = frame.maxY
+            //contentHeight = frame.maxY
             yOffset[column] = yOffset[column] + cellHeight
           
             //section 0
             columnHeights[0][column] = attributes.frame.maxY + cellPadding
             
-            //Self.logger.debug("prepare() - contentHeight: \(self.contentHeight) cell height: \(self.columnHeights[0][column]) cellWidth:\(cellWidth)")
+            let maxFromColumnHeights = columnHeights[0].max()
+            contentHeight = maxFromColumnHeights ?? 0
+            
+            //Self.logger.debug("prepare() - column: \(column) maxFromColumnHeights: \(maxFromColumnHeights ?? 0) contentHeight: \(self.contentHeight) cell height: \(self.columnHeights[0][column]) cellWidth:\(cellWidth)")
         }
     }
     

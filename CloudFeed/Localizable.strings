@@ -66,6 +66,10 @@
 "Title.Edit" = "Edit";
 "Title.ZoomIn" = "Zoom In";
 "Title.ZoomOut" = "Zoom Out";
+"Title.Filter" = "Filter";
+"Title.SquareGrid" = "Square Grid";
+"Title.AspectRatioGrid" = "Aspect Ratio Grid";
+
 
 /* Image Detail and EXIF */
 "Detail.Name" = "Name";

@@ -85,6 +85,22 @@ final class FavoritesViewModel: NSObject {
         return snapshot.itemIdentifiers(inSection: 0)
     }
     
+    func getLayoutType() -> String {
+        return dataService.store.getFavoriteLayoutType()
+    }
+    
+    func updateLayoutType(_ type: String) {
+        dataService.store.setFavoriteLayoutType(type)
+    }
+    
+    func getColumnCount() -> Int {
+        return dataService.store.getFavoriteColumnCount()
+    }
+    
+    func saveColumnCount(_ columnCount: Int) {
+        dataService.store.setFavoriteColumnCount(columnCount)
+    }
+    
     func resetDataSource() {
         guard dataSource != nil else { return }
         var snapshot = dataSource.snapshot()

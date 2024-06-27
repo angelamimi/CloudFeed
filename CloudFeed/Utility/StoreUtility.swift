@@ -48,6 +48,74 @@ class StoreUtility {
         Keychain(service: Global.shared.keyChain)[key] = password
     }
     
+    func getMediaColumnCount() -> Int! {
+        
+        guard try! Keychain(service: Global.shared.keyChain).contains("mediaColumnCount") else {
+            let defaultCount = Global.shared.layoutColumnCountDefault
+            setMediaColumnCount(defaultCount)
+            return defaultCount
+        }
+        
+        if let value = Keychain(service: Global.shared.keyChain)["mediaColumnCount"], let result = Int(value) {
+            return result
+        }
+        
+        return Global.shared.layoutColumnCountDefault
+    }
+    
+    func setMediaColumnCount(_ count: Int) {
+        Keychain(service: Global.shared.keyChain)["mediaColumnCount"] = String(count)
+    }
+    
+    func getFavoriteColumnCount() -> Int! {
+        
+        guard try! Keychain(service: Global.shared.keyChain).contains("favoriteColumnCount") else {
+            let defaultCount = Global.shared.layoutColumnCountDefault
+            setFavoriteColumnCount(defaultCount)
+            return defaultCount
+        }
+        
+        if let value = Keychain(service: Global.shared.keyChain)["favoriteColumnCount"], let result = Int(value) {
+            return result
+        }
+        
+        return Global.shared.layoutColumnCountDefault
+    }
+    
+    func setFavoriteColumnCount(_ count: Int) {
+        Keychain(service: Global.shared.keyChain)["favoriteColumnCount"] = String(count)
+    }
+    
+    func getMediaLayoutType() -> String! {
+        
+        guard try! Keychain(service: Global.shared.keyChain).contains("mediaLayoutType") else {
+            let defaultLayoutType = Global.shared.layoutTypeSquare
+            setMediaLayoutType(defaultLayoutType)
+            return defaultLayoutType
+        }
+        
+        return Keychain(service: Global.shared.keyChain)["mediaLayoutType"]
+    }
+    
+    func setMediaLayoutType(_ type: String) {
+        Keychain(service: Global.shared.keyChain)["mediaLayoutType"] = type
+    }
+    
+    func getFavoriteLayoutType() -> String! {
+        
+        guard try! Keychain(service: Global.shared.keyChain).contains("favoriteLayoutType") else {
+            let defaultLayoutType = Global.shared.layoutTypeSquare
+            setMediaLayoutType(defaultLayoutType)
+            return defaultLayoutType
+        }
+        
+        return Keychain(service: Global.shared.keyChain)["favoriteLayoutType"]
+    }
+    
+    func setFavoriteLayoutType(_ type: String) {
+        Keychain(service: Global.shared.keyChain)["favoriteLayoutType"] = type
+    }
+    
     func getCacheDirectoryURL() -> URL? {
         return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
     }

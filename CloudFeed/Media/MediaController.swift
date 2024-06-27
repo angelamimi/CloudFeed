@@ -43,8 +43,8 @@ class MediaController: CollectionController {
         collectionView.delegate = self
         
         viewModel.initDataSource(collectionView: collectionView)
-        initTitleView(mediaView: self, allowEdit: false)
-        initCollectionView()
+        initTitleView(mediaView: self, allowEdit: false, layoutType: viewModel.getLayoutType())
+        initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
         initConstraints()
     }
@@ -55,6 +55,10 @@ class MediaController: CollectionController {
     
     override func enteringForeground() {
         syncMedia()
+    }
+    
+    override func columnCountChanged(columnCount: Int) {
+        viewModel.saveColumnCount(columnCount)
     }
     
     override func scrollSpeedChanged(isScrollingFast: Bool) {
@@ -101,16 +105,11 @@ class MediaController: CollectionController {
     
     override func sizeAtIndexPath(indexPath: IndexPath) -> CGSize {
         
-        //TODO: Enable size from metadata when values are accurate. API is returning wrong dimensions.
-        
-        /*guard let metadata = viewModel.getItemAtIndexPath(indexPath) else {
-            return CGSize()
+        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else {
+            return CGSize.zero
         }
-        
-        Self.logger.debug("sizeAtIndexPath() - name: \(metadata.fileNameView) width: \(metadata.width) height: \(metadata.height)")
-        
-        return CGSize(width: metadata.width, height: metadata.height)*/
-        return CGSize()
+
+        return calculateItemSize(width: metadata.width, height: metadata.height)
     }
     
     public func clear() {
@@ -277,6 +276,12 @@ extension MediaController: UICollectionViewDelegate {
 }
 
 extension MediaController: MediaViewController {
+    
+    func updateLayout(_ layout: String) {
+        viewModel.updateLayoutType(layout)
+        reloadMenu(allowEdit: false, layoutType: viewModel.getLayoutType())
+        updateLayoutType(layout)
+    }
     
     func zoomInGrid() {
         if viewModel.currentItemCount() > 0 {

@@ -30,6 +30,7 @@ protocol MediaViewController: AnyObject {
     func endEdit()
     func cancel()
     func titleTouched()
+    func updateLayout(_ layout: String)
 }
 
 class TitleView: UIView {
@@ -86,7 +87,7 @@ class TitleView: UIView {
         filterButton.isHidden = true
     }
     
-    func initMenu(allowEdit: Bool) {
+    func initMenu(allowEdit: Bool, layoutType: String) {
         
         let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { [weak self] action in
             self?.mediaView?.zoomInGrid()
@@ -96,8 +97,23 @@ class TitleView: UIView {
             self?.mediaView?.zoomOutGrid()
         }
         
-        let filter = UIAction(title: "Filter", image: UIImage(systemName: "calendar.badge.clock")) { [weak self] action in
+        let zoomMenu = UIMenu(title: "", options: .displayInline, children: [zoomIn, zoomOut])
+
+
+        let filter = UIAction(title: Strings.TitleFilter, image: UIImage(systemName: "calendar.badge.clock")) { [weak self] action in
             self?.mediaView?.filter()
+        }
+        
+        let layout: UIAction
+        
+        if layoutType == Global.shared.layoutTypeSquare {
+            layout = UIAction(title: Strings.TitleAspectRatioGrid, image: UIImage(systemName: "rectangle.grid.3x2")) { [weak self] action in
+                self?.mediaView?.updateLayout(Global.shared.layoutTypeAspectRatio)
+            }
+        } else {
+            layout = UIAction(title: Strings.TitleSquareGrid, image: UIImage(systemName: "square.grid.3x3")) { [weak self] action in
+                self?.mediaView?.updateLayout(Global.shared.layoutTypeSquare)
+            }
         }
     
         if allowEdit {
@@ -105,9 +121,9 @@ class TitleView: UIView {
                 self?.mediaView?.edit()
                 self?.beginEdit()
             }
-            menuButton.menu = UIMenu(children: [zoomIn, zoomOut, filter, edit])
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, edit])
         } else {
-            menuButton.menu = UIMenu(children: [zoomIn, zoomOut, filter])
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout])
         }
 
         backButtonConstraint.constant = 4

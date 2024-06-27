@@ -67,6 +67,7 @@ class CollectionController: UIViewController {
     func loadMore() {}
     func refresh() {}
     func enteringForeground() {}
+    func columnCountChanged(columnCount: Int) {}
     func scrollSpeedChanged(isScrollingFast: Bool) {}
     func sizeAtIndexPath(indexPath: IndexPath) -> CGSize { return CGSize() }
     
@@ -158,6 +159,7 @@ class CollectionController: UIViewController {
         
         if columns - 1 > 0 {
             layout.numberOfColumns -= 1
+            columnCountChanged(columnCount: layout.numberOfColumns)
         }
     }
     
@@ -167,19 +169,19 @@ class CollectionController: UIViewController {
         
         if layout.numberOfColumns < 5 {
             layout.numberOfColumns += 1
+            columnCountChanged(columnCount: layout.numberOfColumns)
         }
     }
     
-    func initCollectionView() {
-        
-        let cellsPerRow = UIDevice.current.userInterfaceIdiom == .pad ? 3 : 2
+    func initCollectionView(layoutType: String, columnCount: Int) {
         
         //let layout = FlowLayout(cellsPerRow: cellsPerRow)
         //collectionView.collectionViewLayout = layout
         
         let layout = CollectionLayout()
         layout.delegate = self
-        layout.numberOfColumns = cellsPerRow
+        layout.numberOfColumns = columnCount
+        layout.layoutType = layoutType
         collectionView.collectionViewLayout = layout
         
         refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
@@ -187,13 +189,13 @@ class CollectionController: UIViewController {
         collectionView.isPrefetchingEnabled = false
     }
     
-    func initTitleView(mediaView: MediaViewController, allowEdit: Bool) {
+    func initTitleView(mediaView: MediaViewController, allowEdit: Bool, layoutType: String) {
         
         titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
         self.view.addSubview(titleView!)
         
         titleView?.mediaView = mediaView
-        titleView?.initMenu(allowEdit: allowEdit)
+        titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType)
     }
     
     func initEmptyView(imageSystemName: String, title: String, description: String) {
@@ -202,6 +204,15 @@ class CollectionController: UIViewController {
         let image = UIImage(systemName: imageSystemName, withConfiguration: configuration)
         
         emptyView.display(image: image, title: title, description: description)
+    }
+    
+    func updateLayoutType(_ layoutType: String) {
+        guard let layout = collectionView.collectionViewLayout as? CollectionLayout else { return }
+        layout.layoutType = layoutType
+    }
+    
+    func reloadMenu(allowEdit: Bool, layoutType: String) {
+        titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType)
     }
     
     func displayResults(refresh: Bool, emptyViewTitle: String, emptyViewDescription: String) {
@@ -305,6 +316,20 @@ class CollectionController: UIViewController {
         }
 
         return datDate
+    }
+    
+    func calculateItemSize(width: Int, height: Int) -> CGSize {
+        
+        guard height > 0 && width > 0 else { return CGSize.zero }
+        
+        let ratio = Double(width) / Double(height)
+        
+        //prevent items from being too tall
+        if ratio < 0.25 {
+            return CGSize(width: width, height: width * 3)
+        }
+        
+        return CGSize(width: width, height: height)
     }
 }
 

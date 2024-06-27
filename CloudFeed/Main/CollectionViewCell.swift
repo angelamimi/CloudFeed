@@ -87,14 +87,27 @@ class CollectionViewCell: UICollectionViewCell {
             guard let self else { return }
             
             var backgroundColor: UIColor?
+
+            let ratio = image!.size.width / image!.size.height
             
-            if isTransparent {
+            //Self.logger.debug("setImage() - ratio: \(ratio) image size \(image?.size.width ?? 0), \(image?.size.height ?? 0)")
+            
+            /*if isTransparent {
+                Self.logger.debug("setImage() - isTransparent ratio: \(ratio) image size \(image?.size.width ?? 0), \(image?.size.height ?? 0)")
+                imageView.contentMode = .scaleAspectFit
+                backgroundColor = .systemBackground
+            } else if ratio < 0.3 {*/
+            /*if ratio < 0.5 {
+                Self.logger.debug("setImage() - tall ratio: \(ratio) image size \(image?.size.width ?? 0), \(image?.size.height ?? 0)")
                 imageView.contentMode = .scaleAspectFit
                 backgroundColor = .systemBackground
             } else {
                 imageView.contentMode = .scaleAspectFill
                 backgroundColor = .clear
-            }
+            }*/
+            
+            imageView.contentMode = .scaleAspectFill
+            backgroundColor = .clear
             
             UIView.transition(with: self.imageView,
                               duration: 0.5,

@@ -85,6 +85,9 @@ extension Strings {
     public static let TitleEdit = NSLocalizedString("Title.Edit", comment: "")
     public static let TitleZoomIn = NSLocalizedString("Title.ZoomIn", comment: "")
     public static let TitleZoomOut = NSLocalizedString("Title.ZoomOut", comment: "")
+    public static let TitleFilter = NSLocalizedString("Title.Filter", comment: "")
+    public static let TitleSquareGrid = NSLocalizedString("Title.SquareGrid", comment: "")
+    public static let TitleAspectRatioGrid = NSLocalizedString("Title.AspectRatioGrid", comment: "")
     
     //Image Detail and EXIF
     public static let DetailName = NSLocalizedString("Detail.Name", comment: "")
