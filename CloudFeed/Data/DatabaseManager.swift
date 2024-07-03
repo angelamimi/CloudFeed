@@ -59,61 +59,6 @@ class DatabaseManager: NSObject {
         return false
     }
     
-    /*func setupOLD() -> Bool {
-        
-        let dirGroup = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Global.shared.groupIdentifier)
-        let databaseFileUrlPath = dirGroup?.appendingPathComponent(Global.shared.databaseDirectory + "/" + Global.shared.databaseDefault)
-        
-        // Disable file protection for directory DB
-        // https://docs.mongodb.com/realm/sdk/ios/examples/configure-and-open-a-realm/#std-label-ios-open-a-local-realm
-        if let folderPathURL = dirGroup?.appendingPathComponent(Global.shared.databaseDirectory) {
-            let folderPath = folderPathURL.path
-            do {
-                try FileManager.default.setAttributes([FileAttributeKey.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: folderPath)
-            } catch {
-                Self.logger.error("FATAL ERROR for path: \(folderPath)")
-            }
-        }
-        
-        if let databaseFilePath = databaseFileUrlPath?.path {
-            if FileManager.default.fileExists(atPath: databaseFilePath) {
-                NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE FOUND in " + databaseFilePath)
-            } else {
-                NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE NOT FOUND in " + databaseFilePath)
-            }
-        }
-        
-        let config = Realm.Configuration(
-            fileURL: databaseFileUrlPath,
-            schemaVersion: Global.shared.databaseSchemaVersion
-        )
-
-        Realm.Configuration.defaultConfiguration = config
-        
-        //Self.logger.debug("init() - Realm configuration: \(Realm.Configuration.defaultConfiguration)")
-        
-        // Verify db. if corrupt, remove it
-        do {
-            _ = try Realm()
-        } catch {
-            if let databaseFileUrlPath = databaseFileUrlPath {
-                do {
-                    NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE CORRUPT: removed")
-                    try FileManager.default.removeItem(at: databaseFileUrlPath)
-                } catch {}
-            }
-        }
-
-        do {
-            _ = try Realm()
-            return false
-        } catch let error as NSError {
-            NextcloudKit.shared.nkCommonInstance.writeLog("Could not open database: \(error)")
-        }
-        
-        return true
-    }*/
-    
     func clearTable(_ table: Object.Type, account: String? = nil) {
 
         guard let realm = try? Realm() else { return }
