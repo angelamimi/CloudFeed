@@ -270,11 +270,9 @@ class DataService: NSObject {
     
     func downloadPreview(metadata: tableMetadata) async {
        
-        //var fileNamePath: String
         var previewPath: String
         var iconPath: String
         
-        //fileNamePath = buildFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
         previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
         iconPath = store.getIconPath(metadata.ocId, metadata.etag)
         
@@ -283,7 +281,7 @@ class DataService: NSObject {
             etagResource = metadata.etagResource
         }
         
-        await nextcloudService.downloadPreview(fileId: metadata.fileId, previewPath: previewPath, iconPath: iconPath, etagResource: etagResource)
+        await nextcloudService.downloadPreview(fileId: metadata.fileId, previewPath: previewPath, previewWidth: metadata.width, previewHeight: metadata.height, iconPath: iconPath, etagResource: etagResource)
     }
     
     func downloadVideoPreview(metadata: tableMetadata) async {

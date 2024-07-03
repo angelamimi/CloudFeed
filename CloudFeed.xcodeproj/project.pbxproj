@@ -57,6 +57,8 @@
 		392735B629BE4FE00058796A /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 392735B529BE4FE00058796A /* Login.storyboard */; };
 		392735B829BE50780058796A /* LoginWebController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735B729BE50780058796A /* LoginWebController.swift */; };
 		392735BA29BE52600058796A /* LoginServerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735B929BE52600058796A /* LoginServerController.swift */; };
+		3929A8872C35CEE6003B48CF /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 3929A8862C35CEE6003B48CF /* RealmSwift */; };
+		3929A8882C35CEE6003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 3929A8862C35CEE6003B48CF /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		394BCB0E29C7E25000C4F619 /* HttpCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394BCB0D29C7E25000C4F619 /* HttpCache.swift */; };
 		394BCB1329C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */; };
 		394BCB1429C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -109,6 +111,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		39356E722C35CDF6006BC0C5 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3929A8882C35CEE6003B48CF /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		394BCB1729C7E82100C4F619 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -220,6 +233,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3929A8872C35CEE6003B48CF /* RealmSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -488,6 +502,7 @@
 				3927357929BD1E830058796A /* Sources */,
 				3927357B29BD1E830058796A /* Resources */,
 				391579C52AB8D1CE00DFEAB1 /* Frameworks */,
+				39356E722C35CDF6006BC0C5 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -496,6 +511,7 @@
 			);
 			name = CloudFeedTests;
 			packageProductDependencies = (
+				3929A8862C35CEE6003B48CF /* RealmSwift */,
 			);
 			productName = CloudFeedTests;
 			productReference = 3927357D29BD1E830058796A /* CloudFeedTests.xctest */;
@@ -1025,6 +1041,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
+		};
+		3929A8862C35CEE6003B48CF /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 392718622C359F95001C57C0 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

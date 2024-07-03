@@ -251,12 +251,9 @@ extension MediaController: UICollectionViewDelegate {
         guard let image = cell.imageView.image else { return nil }
         guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return nil }
         
-        let imageSize = image.size
-        let width = self.view.bounds.width
-        let height = imageSize.height * (width / imageSize.width)
         let previewController = self.coordinator.getPreviewController(metadata: metadata)
         
-        previewController.preferredContentSize = CGSize(width: width, height: height)
+        previewController.preferredContentSize = image.size
 
         let config = UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: { previewController }, actionProvider: { [weak self] _ in
             guard let self else { return .init(children: []) }

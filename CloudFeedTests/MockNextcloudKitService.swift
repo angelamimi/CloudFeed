@@ -57,7 +57,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return NKError.success
     }
     
-    func downloadPreview(fileNamePath: String, previewPath: String, iconPath: String, etagResource: String?) async {
+    func downloadPreview(fileId fileNamePath: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async {
         
     }
     

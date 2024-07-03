@@ -30,7 +30,7 @@ protocol NextcloudKitServiceProtocol: AnyObject {
     func getCapabilities() async -> (account: String?, data: Data?)
     
     func download(metadata: tableMetadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> NKError
-    func downloadPreview(fileId: String, previewPath: String, iconPath: String, etagResource: String?) async
+    func downloadPreview(fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async
     func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String?
     
     func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool)
@@ -95,15 +95,26 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
-    func downloadPreview(fileId: String, previewPath: String, iconPath: String, etagResource: String?) async {
+    func downloadPreview(fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
+        
+        let width: Int
+        let height: Int
+        
+        if previewWidth == 0 || previewHeight == 0 {
+            width = Global.shared.sizePreview
+            height = Global.shared.sizePreview
+        } else {
+            width = previewWidth
+            height = previewHeight
+        }
         
         let _ = await NextcloudKit.shared.downloadPreview(fileId: fileId,
                                                           fileNamePreviewLocalPath: previewPath,
                                                           fileNameIconLocalPath: iconPath,
-                                                          widthPreview: Global.shared.sizePreview,
-                                                          heightPreview: Global.shared.sizePreview,
+                                                          widthPreview: width,
+                                                          heightPreview: height,
                                                           sizeIcon: Global.shared.sizeIcon,
                                                           etag: etagResource,
                                                           options: options)
