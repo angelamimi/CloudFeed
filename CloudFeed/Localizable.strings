@@ -69,6 +69,9 @@
 "Title.Filter" = "Filter";
 "Title.SquareGrid" = "Square Grid";
 "Title.AspectRatioGrid" = "Aspect Ratio Grid";
+"Title.AllItems" = "All Items";
+"Title.VideosOnly" = "Videos Only";
+"Title.ImagesOnly" = "Images Only";
 
 
 /* Image Detail and EXIF */

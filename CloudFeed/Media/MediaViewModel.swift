@@ -124,12 +124,12 @@ final class MediaViewModel: NSObject {
         dataService.store.setMediaColumnCount(columnCount)
     }
     
-    func metadataSearch(toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool) {
+    func metadataSearch(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool) {
 
         fetchTask = Task { [weak self] in
             guard let self else { return }
             
-            let results = await search(toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
+            let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
             
             guard let resultMetadatas = results.metadatas else {
                 delegate.searchResultReceived(resultItemCount: nil)
@@ -142,12 +142,12 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    func filter(toDate: Date, fromDate: Date) {
+    func filter(type: Global.FilterType, toDate: Date, fromDate: Date) {
         
         fetchTask = Task { [weak self] in
             guard let self else { return }
             
-            let results = await search(toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: Global.shared.limit)
+            let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: Global.shared.limit)
             
             if Task.isCancelled { return }
             
@@ -158,7 +158,7 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    func sync(toDate: Date, fromDate: Date) {
+    func sync(type: Global.FilterType, toDate: Date, fromDate: Date) {
         
         fetchTask = Task { [weak self] in
             guard let self else { return }
@@ -166,7 +166,7 @@ final class MediaViewModel: NSObject {
             //Self.logger.debug("sync() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
             //Self.logger.debug("sync() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
             
-            let results = await search(toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 0)
+            let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 0)
             
             if Task.isCancelled { return }
             
@@ -186,7 +186,7 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    func loadMore(filterFromDate: Date?) {
+    func loadMore(type: Global.FilterType, filterFromDate: Date?) {
         
         var offsetDate: Date?
         var offsetName: String?
@@ -207,9 +207,9 @@ final class MediaViewModel: NSObject {
         guard offsetDate != nil && offsetName != nil else { return }
         
         if filterFromDate == nil {
-            metadataSearch(toDate: offsetDate!, fromDate: Date.distantPast, offsetDate: offsetDate!, offsetName: offsetName!, refresh: false)
+            metadataSearch(type: type, toDate: offsetDate!, fromDate: Date.distantPast, offsetDate: offsetDate!, offsetName: offsetName!, refresh: false)
         } else {
-            metadataSearch(toDate: offsetDate!, fromDate: filterFromDate!, offsetDate: offsetDate!, offsetName: offsetName!, refresh: false)
+            metadataSearch(type: type, toDate: offsetDate!, fromDate: filterFromDate!, offsetDate: offsetDate!, offsetName: offsetName!, refresh: false)
         }
     }
 
@@ -352,14 +352,14 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    private func search(toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata]?, added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
+    private func search(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata]?, added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
         
         //Self.logger.debug("search() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
         //Self.logger.debug("search() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
         
         delegate.searching()
         
-        let result = await dataService.searchMedia(toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: limit)
+        let result = await dataService.searchMedia(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: limit)
         
         //Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
         

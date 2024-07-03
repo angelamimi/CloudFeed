@@ -134,7 +134,6 @@ class DataService: NSObject {
         let fileNameLocalPath = store.getUserDirectory() + "/" + fileName
         
         guard !FileManager.default.fileExists(atPath: fileNameLocalPath) else {
-            Self.logger.debug("downloadAvatar() - cached avatar found")
             return
         }
         
@@ -203,35 +202,18 @@ class DataService: NSObject {
         return false
     }
     
-    func filterFavorites(from: Date, to: Date) async -> [tableMetadata] {
+    func paginateFavoriteMetadata(type: Global.FilterType, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
         
         guard let account = Environment.current.currentUser?.account else { return [] }
         guard let mediaPath = getMediaPath() else { return [] }
         guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return [] }
         
-        return databaseManager.paginateFavoriteMetadata(account: account, startServerUrl: startServerUrl, fromDate: from, toDate: to)
-    }
-    
-    func paginateFavoriteMetadata() -> [tableMetadata] {
-        return paginateFavoriteMetadata(fromDate: nil, toDate: nil, offsetDate: nil, offsetName: nil)
-    }
-    
-    func paginateFavoriteMetadata(fromDate: Date?, toDate: Date?, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+        let predicate = buildMediaPredicateByType(favorite: true, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
         
-        guard let account = Environment.current.currentUser?.account else { return [] }
-        guard let mediaPath = getMediaPath() else { return [] }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return [] }
-        
-        if offsetDate == nil || offsetName == nil {
-            return databaseManager.paginateFavoriteMetadata(account: account, startServerUrl: startServerUrl)
-        } else if fromDate == nil || toDate == nil {
-            return databaseManager.paginateFavoriteMetadata(account: account, startServerUrl: startServerUrl, offsetDate: offsetDate!, offsetName: offsetName!)
-        } else {
-            return databaseManager.paginateFavoriteMetadata(account: account, startServerUrl: startServerUrl, fromDate: fromDate!, toDate: offsetDate!, offsetDate: offsetDate!, offsetName: offsetName!)
-        }
+        return databaseManager.paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
     }
     
-    func processFavorites(displayedMetadatas: [tableMetadata], from: Date?, to: Date?) -> (delete: [tableMetadata], add: [tableMetadata])? {
+    func processFavorites(displayedMetadatas: [tableMetadata], type: Global.FilterType, from: Date?, to: Date?) -> (delete: [tableMetadata], add: [tableMetadata])? {
         
         guard let account = Environment.current.currentUser?.account else { return nil }
         guard let mediaPath = getMediaPath() else { return nil }
@@ -241,11 +223,10 @@ class DataService: NSObject {
         var add: [tableMetadata] = []
         var savedFavorites: [tableMetadata] = []
 
-        if from == nil || to == nil {
-            savedFavorites = databaseManager.fetchFavoriteMetadata(account: account, startServerUrl: startServerUrl)
-        } else {
-            savedFavorites = databaseManager.fetchFilteredFavoriteMetadata(account: account, startServerUrl: startServerUrl, fromDate: from!, toDate: to!)
-        }
+        let predicate = buildMediaPredicateByType(favorite: true, type: type, account: account, startServerUrl: startServerUrl, fromDate: from ?? Date.distantPast, toDate: to ?? Date.distantFuture)
+        
+        savedFavorites = databaseManager.paginateMetadata(predicate: predicate, offsetDate: nil, offsetName: nil)
+        
         //Self.logger.debug("processFavorites() - savedFavorites count: \(savedFavorites.count) displayedMetadatas count: \(displayedMetadatas.count)")
         
         //if displayed but doesn't exist in db, flag for delete
@@ -323,7 +304,7 @@ class DataService: NSObject {
     
     // MARK: -
     // MARK: Search
-    func searchMedia(toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata], added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata], error: Bool) {
+    func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata], added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata], error: Bool) {
         
         guard let account = Environment.current.currentUser?.account else { return ([], [], [], [], true) }
         guard let mediaPath = getMediaPath() else { return ([], [], [], [], true) }
@@ -331,7 +312,7 @@ class DataService: NSObject {
         
         let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath,
                                                               toDate: toDate, fromDate: fromDate, limit: limit)
-        
+
         if searchResult.error {
             return ([], [], [], [], true)
         }
@@ -348,14 +329,12 @@ class DataService: NSObject {
         let metadatasResult = databaseManager.getMetadatas(predicate: predicate)
         
         //add, update, delete stored metadata
-        let processResult = databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
+        let result = databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
+        let typeResult = type == .all ? result : filterMediaResult(type: type, result: result)
         
-        //filter out videos of the live photo file pair
-        let storePredicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '')",
-                                        account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue,
-                                        fromDate as NSDate, toDate as NSDate, NKCommon.TypeClassFile.image.rawValue)
+        let storePredicate = buildMediaPredicateByType(favorite: false, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
         
-        var metadatas: [tableMetadata]
+        let metadatas: [tableMetadata]
 
         if limit == 0 {
             metadatas = databaseManager.fetchMetadata(predicate: storePredicate)
@@ -363,8 +342,53 @@ class DataService: NSObject {
             metadatas = databaseManager.paginateMetadata(predicate: storePredicate, offsetDate: offsetDate, offsetName: offsetName)
         }
         
-        //Self.logger.debug("searchMedia() - count: \(metadatas.count) added: \(processResult.added.count) updated: \(processResult.updated.count) deleted: \(processResult.deleted.count)")
-        return (metadatas, processResult.added, processResult.updated, processResult.deleted, false)
+        //Self.logger.debug("searchMedia() - count: \(metadatas.count) added: \(typeResult.added.count) updated: \(typeResult.updated.count) deleted: \(typeResult.deleted.count)")
+        return (metadatas, typeResult.added, typeResult.updated, typeResult.deleted, false)
+    }
+    
+    private func filterMediaResult(type: Global.FilterType, result: (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata])) -> (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]){
+        return (added: filterMetadataByType(type: type, metadataCollection: result.added),
+                updated: filterMetadataByType(type: type, metadataCollection: result.updated),
+                deleted: filterMetadataByType(type: type, metadataCollection: result.deleted))
+    }
+    
+    private func buildMediaPredicateByType(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> NSPredicate {
+        
+        let favoriteFormat = favorite ? "favorite == true AND " : ""
+        
+        switch type {
+        case .all:
+            //filter out videos of the live photo file pair
+            return NSPredicate(format: favoriteFormat + "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '')",
+                               account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue,
+                               fromDate as NSDate, toDate as NSDate, NKCommon.TypeClassFile.image.rawValue)
+        case .image:
+            return NSPredicate(format: favoriteFormat + "account == %@ AND serverUrl BEGINSWITH %@ AND classFile == %@ AND date >= %@ AND date <= %@",
+                               account, startServerUrl, NKCommon.TypeClassFile.image.rawValue,
+                               fromDate as NSDate, toDate as NSDate)
+        case .video:
+            return NSPredicate(format: favoriteFormat + "account == %@ AND serverUrl BEGINSWITH %@ AND classFile == %@ AND date >= %@ AND date <= %@ AND livePhotoFile == ''",
+                               account, startServerUrl, NKCommon.TypeClassFile.video.rawValue,
+                               fromDate as NSDate, toDate as NSDate)
+        }
+    }
+    
+    private func filterMetadataByType(type: Global.FilterType, metadataCollection: [tableMetadata]) -> [tableMetadata] {
+        
+        if type == .all {
+            return metadataCollection
+        } else {
+            return metadataCollection.filter {
+                switch type {
+                case .image:
+                    return $0.image
+                case .video:
+                    return $0.video && $0.livePhotoFile == ""
+                default:
+                    return false
+                }
+            }
+        }
     }
     
     private func getMediaPath() -> String? {

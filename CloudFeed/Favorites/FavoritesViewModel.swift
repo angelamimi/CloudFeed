@@ -109,7 +109,7 @@ final class FavoritesViewModel: NSObject {
         dataSource!.applySnapshotUsingReloadData(snapshot)
     }
     
-    func loadMore(filterFromDate: Date?, filterToDate: Date?) {
+    func loadMore(type: Global.FilterType, filterFromDate: Date?, filterToDate: Date?) {
         
         var offsetDate: Date?
         var offsetName: String?
@@ -131,7 +131,7 @@ final class FavoritesViewModel: NSObject {
         guard let offsetName = offsetName else { return }
         
         //Self.logger.debug("loadMore() - offsetName: \(offsetName) offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
-        sync(offsetDate: offsetDate, offsetName: offsetName, filterFromDate: filterFromDate, filterToDate: filterToDate)
+        sync(type: type, offsetDate: offsetDate, offsetName: offsetName, filterFromDate: filterFromDate, filterToDate: filterToDate)
     }
     
     func reload() {
@@ -146,7 +146,7 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    func fetch(refresh: Bool) {
+    func fetch(type: Global.FilterType, refresh: Bool) {
         
         delegate.fetching()
                 
@@ -159,12 +159,12 @@ final class FavoritesViewModel: NSObject {
             
             handleFavoriteResult(error: error)
             
-            let resultMetadatas = dataService.paginateFavoriteMetadata()
+            let resultMetadatas = dataService.paginateFavoriteMetadata(type: type, fromDate: Date.distantPast, toDate: Date.distantFuture, offsetDate: nil, offsetName: nil)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
         }
     }
     
-    func filter(from: Date, to: Date) {
+    func filter(type: Global.FilterType, from: Date, to: Date) {
         
         delegate.fetching()
                 
@@ -177,12 +177,12 @@ final class FavoritesViewModel: NSObject {
             
             handleFavoriteResult(error: error)
             
-            let resultMetadatas = await dataService.filterFavorites(from: from, to: to)
+            let resultMetadatas = dataService.paginateFavoriteMetadata(type: type, fromDate: from, toDate: to, offsetDate: nil, offsetName: nil)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: true)
         }
     }
     
-    func syncFavs(from: Date?, to: Date?) {
+    func syncFavs(type: Global.FilterType, from: Date?, to: Date?) {
         
         delegate.fetching()
                 
@@ -195,7 +195,7 @@ final class FavoritesViewModel: NSObject {
             
             handleFavoriteResult(error: error)
             
-            processFavorites(from: from, to: to)
+            processFavorites(type: type, from: from, to: to)
         }
     }
     
@@ -246,7 +246,7 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func sync(offsetDate: Date, offsetName: String, filterFromDate: Date?, filterToDate: Date?) {
+    private func sync(type: Global.FilterType, offsetDate: Date, offsetName: String, filterFromDate: Date?, filterToDate: Date?) {
         
         delegate.fetching()
         
@@ -255,7 +255,7 @@ final class FavoritesViewModel: NSObject {
 
             _ = await self.dataService.getFavorites()
             
-            let resultMetadatas = self.dataService.paginateFavoriteMetadata(fromDate: filterFromDate, toDate: filterToDate, offsetDate: offsetDate, offsetName: offsetName)
+            let resultMetadatas = self.dataService.paginateFavoriteMetadata(type: type, fromDate: filterFromDate ?? Date.distantPast, toDate: filterToDate ?? Date.distantFuture, offsetDate: offsetDate, offsetName: offsetName)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
         }
     }
@@ -318,12 +318,12 @@ final class FavoritesViewModel: NSObject {
         delegate.editCellUpdated(cell: cell, indexPath: indexPath)
     }
     
-    private func processFavorites(from: Date?, to: Date?) {
+    private func processFavorites(type: Global.FilterType, from: Date?, to: Date?) {
         
         var snapshot = dataSource.snapshot()
         var displayed = snapshot.itemIdentifiers(inSection: 0)
         
-        guard let result = dataService.processFavorites(displayedMetadatas: displayed, from: from, to: to) else {
+        guard let result = dataService.processFavorites(displayedMetadatas: displayed, type: type, from: from, to: to) else {
             delegate.dataSourceUpdated(refresh: false)
             return
         }

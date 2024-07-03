@@ -41,7 +41,7 @@ final class NextclouldServiceTests: BaseTest {
         
         XCTAssertTrue(error == false)
         
-        let favMetadatas = dataService?.paginateFavoriteMetadata(fromDate: nil, toDate: nil, offsetDate: nil, offsetName: nil)
+        let favMetadatas = dataService?.paginateFavoriteMetadata(type: .all, fromDate: Date.distantPast, toDate: Date.distantFuture, offsetDate: nil, offsetName: nil)
         
         XCTAssertNotNil(favMetadatas)
         XCTAssertEqual(favMetadatas?.count, 0)
@@ -55,7 +55,7 @@ final class NextclouldServiceTests: BaseTest {
         
         XCTAssertTrue(error == false)
 
-        let favMetadatas = dataService?.paginateFavoriteMetadata(fromDate: nil, toDate: nil, offsetDate: nil, offsetName: nil)
+        let favMetadatas = dataService?.paginateFavoriteMetadata(type: .all, fromDate: Date.distantPast, toDate: Date.distantFuture, offsetDate: nil, offsetName: nil)
         
         XCTAssertNotNil(favMetadatas)
         
@@ -70,7 +70,7 @@ final class NextclouldServiceTests: BaseTest {
         let toDate = Calendar.current.date(from: DateComponents.init(year: 2020, month: 7, day: 4, hour: 3, minute: 31, second: 25))
         let fromDate = Calendar.current.date(byAdding: .day, value: -30, to: toDate!)!
         
-        let result = await dataService?.searchMedia(toDate: toDate!, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20)
+        let result = await dataService?.searchMedia(type: .all, toDate: toDate!, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20)
         
         XCTAssertNotNil(result)
         
@@ -87,7 +87,7 @@ final class NextclouldServiceTests: BaseTest {
         let toDate = Date()
         let fromDate = Date()
         
-        let result = await dataService?.searchMedia(toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20)
+        let result = await dataService?.searchMedia(type: .all, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20)
         
         XCTAssertNotNil(result)
         
@@ -106,7 +106,7 @@ final class NextclouldServiceTests: BaseTest {
         let toDate = Date()
         let fromDate = Date()
         
-        let result = await dataService?.searchMedia(toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20)
+        let result = await dataService?.searchMedia(type: .all, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20)
         
         XCTAssertNotNil(result)
         

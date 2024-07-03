@@ -83,14 +83,14 @@ class FavoritesController: CollectionController {
     
     override func refresh() {
         if hasFilter() {
-            viewModel.filter(from: filterFromDate!, to: filterToDate!)
+            viewModel.filter(type: filterType, from: filterFromDate!, to: filterToDate!)
         } else {
-            viewModel.fetch(refresh: true)
+            viewModel.fetch(type: filterType, refresh: true)
         }
     }
     
     override func loadMore() {
-        viewModel.loadMore(filterFromDate: filterFromDate, filterToDate: filterToDate)
+        viewModel.loadMore(type: filterType, filterFromDate: filterFromDate, filterToDate: filterToDate)
     }
     
     override func setTitle() {
@@ -138,11 +138,11 @@ class FavoritesController: CollectionController {
         let visibleDateRange = getVisibleItemData()
         
         if hasFilter() {
-            viewModel.syncFavs(from: filterFromDate, to: filterToDate)
+            viewModel.syncFavs(type: filterType, from: filterFromDate, to: filterToDate)
         } else if visibleDateRange.toDate != nil || visibleDateRange.name != nil {
-            viewModel.syncFavs(from: nil, to: nil)
+            viewModel.syncFavs(type: filterType, from: nil, to: nil)
         } else {
-            viewModel.fetch(refresh: false)
+            viewModel.fetch(type: filterType, refresh: false)
         }
     }
     
@@ -281,6 +281,12 @@ extension FavoritesController: FavoritesDelegate {
 
 extension FavoritesController: MediaViewController {
     
+    func updateMediaType(_ type: Global.FilterType) {
+        filterType = type
+        clear()
+        syncFavorites()
+    }
+    
     func updateLayout(_ layout: String) {
         viewModel.updateLayoutType(layout)
         reloadMenu(allowEdit: true, layoutType: layout)
@@ -356,7 +362,7 @@ extension FavoritesController: Filterable {
             filterToDate = to
             filterFromDate = from
             
-            viewModel.filter(from: from, to: to)
+            viewModel.filter(type: filterType, from: from, to: to)
         }
     }
     

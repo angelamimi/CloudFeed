@@ -31,6 +31,7 @@ protocol MediaViewController: AnyObject {
     func cancel()
     func titleTouched()
     func updateLayout(_ layout: String)
+    func updateMediaType(_ type: Global.FilterType)
 }
 
 class TitleView: UIView {
@@ -87,7 +88,7 @@ class TitleView: UIView {
         filterButton.isHidden = true
     }
     
-    func initMenu(allowEdit: Bool, layoutType: String) {
+    func initMenu(allowEdit: Bool, layoutType: String, filterType: Global.FilterType) {
         
         let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { [weak self] action in
             self?.mediaView?.zoomInGrid()
@@ -100,7 +101,7 @@ class TitleView: UIView {
         let zoomMenu = UIMenu(title: "", options: .displayInline, children: [zoomIn, zoomOut])
 
 
-        let filter = UIAction(title: Strings.TitleFilter, image: UIImage(systemName: "calendar.badge.clock")) { [weak self] action in
+        let filter = UIAction(title: Strings.TitleFilter, image: UIImage(systemName: "line.3.horizontal.decrease.circle")) { [weak self] action in
             self?.mediaView?.filter()
         }
         
@@ -115,15 +116,41 @@ class TitleView: UIView {
                 self?.mediaView?.updateLayout(Global.shared.layoutTypeSquare)
             }
         }
+        
+        let allType = UIAction(title: Strings.TitleAllItems, image: UIImage(systemName: "photo.on.rectangle")) { [weak self] action in
+            self?.mediaView?.updateMediaType(.all)
+        }
+        
+        let imageType = UIAction(title: Strings.TitleImagesOnly, image: UIImage(systemName: "photo")) { [weak self] action in
+            self?.mediaView?.updateMediaType(.image)
+        }
+        
+        let videoType = UIAction(title: Strings.TitleVideosOnly, image: UIImage(systemName: "video")) { [weak self] action in
+            self?.mediaView?.updateMediaType(.video)
+        }
+        
+        switch filterType {
+        case .all:
+            allType.state = .on
+            break
+        case .image:
+            imageType.state = .on
+            break
+        case .video:
+            videoType.state = .on
+            break
+        }
+        
+        let typeMenu = UIMenu(title: "", options: [.displayInline, .singleSelection], children: [allType, imageType, videoType])
     
         if allowEdit {
             let edit = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { [weak self] action in
                 self?.mediaView?.edit()
                 self?.beginEdit()
             }
-            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, edit])
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, edit, typeMenu])
         } else {
-            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout])
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, typeMenu])
         }
 
         backButtonConstraint.constant = 4

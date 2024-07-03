@@ -51,7 +51,7 @@ final class MediaViewModelTests: BaseTest {
         
         let offsetDate = Calendar.current.date(from: DateComponents.init(year: 2020, month: 7, day: 4, hour: 3, minute: 31, second: 25))
 
-        mediaViewModel?.metadataSearch(toDate: offsetDate!, fromDate: Date.distantPast, offsetDate: offsetDate!, offsetName: nil, refresh: false)
+        mediaViewModel?.metadataSearch(type: .all, toDate: offsetDate!, fromDate: Date.distantPast, offsetDate: offsetDate!, offsetName: nil, refresh: false)
         
         //waitForExpectations(timeout: 10)
         

@@ -80,14 +80,14 @@ class MediaController: CollectionController {
     override func refresh() {
         
         if hasFilter() {
-            viewModel.filter(toDate: filterToDate!, fromDate: filterFromDate!)
+            viewModel.filter(type: filterType, toDate: filterToDate!, fromDate: filterFromDate!)
         } else {
-            viewModel.metadataSearch(toDate: Date.distantFuture, fromDate: Date.distantPast, offsetDate: nil, offsetName: nil, refresh: true)
+            viewModel.metadataSearch(type: filterType, toDate: Date.distantFuture, fromDate: Date.distantPast, offsetDate: nil, offsetName: nil, refresh: true)
         }
     }
     
     override func loadMore() {
-        viewModel.loadMore(filterFromDate: filterFromDate)
+        viewModel.loadMore(type: filterType, filterFromDate: filterFromDate)
     }
     
     override func setTitle() {
@@ -140,11 +140,11 @@ class MediaController: CollectionController {
         let syncDateRange = getSyncDateRange()
         
         if hasFilter() {
-            viewModel.sync(toDate: filterToDate!, fromDate: filterFromDate!)
+            viewModel.sync(type: filterType, toDate: filterToDate!, fromDate: filterFromDate!)
         } else if syncDateRange.toDate != nil && syncDateRange.fromDate != nil {
-            viewModel.sync(toDate: syncDateRange.toDate!, fromDate: syncDateRange.fromDate!)
+            viewModel.sync(type: filterType, toDate: syncDateRange.toDate!, fromDate: syncDateRange.fromDate!)
         } else {
-            viewModel.metadataSearch(toDate: Date.distantFuture, fromDate: Date.distantPast, offsetDate: nil, offsetName: nil, refresh: false)
+            viewModel.metadataSearch(type: filterType, toDate: Date.distantFuture, fromDate: Date.distantPast, offsetDate: nil, offsetName: nil, refresh: false)
         }
     }
     
@@ -277,6 +277,12 @@ extension MediaController: UICollectionViewDelegate {
 
 extension MediaController: MediaViewController {
     
+    func updateMediaType(_ type: Global.FilterType) {
+        filterType = type
+        clear()
+        syncMedia()
+    }
+    
     func updateLayout(_ layout: String) {
         viewModel.updateLayoutType(layout)
         reloadMenu(allowEdit: false, layoutType: viewModel.getLayoutType())
@@ -331,7 +337,7 @@ extension MediaController: Filterable {
             filterToDate = to
             filterFromDate = from
             
-            viewModel.filter(toDate: to, fromDate: from)
+            viewModel.filter(type: filterType, toDate: to, fromDate: from)
         }
     }
     

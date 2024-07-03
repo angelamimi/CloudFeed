@@ -37,6 +37,7 @@ class CollectionController: UIViewController {
     
     var filterFromDate: Date?
     var filterToDate: Date?
+    var filterType: Global.FilterType = .all
     
     var isScrollingFast = false
     var lastOffsetTime: TimeInterval = 0
@@ -195,7 +196,7 @@ class CollectionController: UIViewController {
         self.view.addSubview(titleView!)
         
         titleView?.mediaView = mediaView
-        titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType)
+        titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType, filterType: filterType)
     }
     
     func initEmptyView(imageSystemName: String, title: String, description: String) {
@@ -212,7 +213,7 @@ class CollectionController: UIViewController {
     }
     
     func reloadMenu(allowEdit: Bool, layoutType: String) {
-        titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType)
+        titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType, filterType: filterType)
     }
     
     func displayResults(refresh: Bool, emptyViewTitle: String, emptyViewDescription: String) {

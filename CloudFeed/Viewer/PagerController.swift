@@ -95,6 +95,7 @@ class PagerController: UIViewController, MediaViewController {
         self.titleView?.menuButton.menu = nil
     }
     
+    func updateMediaType(_ type: Global.FilterType) {}
     func updateLayout(_ layout: String) {}
     func zoomInGrid() {}
     func zoomOutGrid() {}

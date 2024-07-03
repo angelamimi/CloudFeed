@@ -267,41 +267,6 @@ extension DatabaseManager {
         return nil
     }
     
-    func paginateFavoriteMetadata(account: String, startServerUrl: String) -> [tableMetadata] {
-        
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
-                                    account, startServerUrl, NKCommon.TypeClassFile.image.rawValue)
-
-        return paginateMetadata(predicate: predicate, offsetDate: nil, offsetName: nil)
-    }
-    
-    func paginateFavoriteMetadata(account: String, startServerUrl: String, offsetDate: Date, offsetName: String) -> [tableMetadata] {
-        
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
-                                    account, startServerUrl, offsetDate as NSDate,
-                                    NKCommon.TypeClassFile.image.rawValue)
-
-        return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
-    }
-    
-    func paginateFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [tableMetadata] {
-        
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
-                                    account, startServerUrl, fromDate as NSDate, toDate as NSDate,
-                                    NKCommon.TypeClassFile.image.rawValue)
-        
-        return paginateMetadata(predicate: predicate, offsetDate: nil, offsetName: nil)
-    }
-    
-    func paginateFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date, offsetName: String) -> [tableMetadata] {
-        
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
-                                    account, startServerUrl, fromDate as NSDate, toDate as NSDate,
-                                    NKCommon.TypeClassFile.image.rawValue)
-        
-        return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
-    }
-    
     func paginateMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
 
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
@@ -309,23 +274,6 @@ extension DatabaseManager {
                                     NKCommon.TypeClassFile.image.rawValue)
         
         return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
-    }
-    
-    func fetchFavoriteMetadata(account: String, startServerUrl: String) -> [tableMetadata] {
-        
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
-                                    account, startServerUrl, NKCommon.TypeClassFile.image.rawValue)
-        
-        return fetchMetadata(predicate: predicate)
-    }
-    
-    func fetchFilteredFavoriteMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [tableMetadata] {
-        
-        let predicate = NSPredicate(format: "favorite == true AND account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
-                                    account, startServerUrl, fromDate as NSDate, toDate as NSDate,
-                                    NKCommon.TypeClassFile.image.rawValue)
-        
-        return fetchMetadata(predicate: predicate)
     }
     
     func fetchMetadata(predicate: NSPredicate) -> [tableMetadata] {
@@ -347,7 +295,7 @@ extension DatabaseManager {
         realm.refresh()
         
         let sortProperties = [SortDescriptor(keyPath: "date", ascending: false),
-                              SortDescriptor(keyPath:  "fileNameView", ascending: false)]
+                              SortDescriptor(keyPath: "fileNameView", ascending: false)]
         
         let results = realm.objects(tableMetadata.self).filter(predicate).sorted(by: sortProperties)
         

@@ -94,4 +94,12 @@ class Global: NSObject {
     //
     let titleSize: CGFloat          = 50
     let titleSizeLarge: CGFloat     = 70
+    
+    // MARK: - Filter
+    //
+    enum FilterType {
+        case image
+        case video
+        case all
+    }
 }
