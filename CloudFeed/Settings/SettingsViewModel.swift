@@ -126,7 +126,6 @@ final class SettingsViewModel: NSObject {
         let localFilePath = dataService.store.getUserDirectory() + "/" + fileName
 
         if let localImage = UIImage(contentsOfFile: localFilePath) {
-            print("loadUserImage() - found cached image")
             return localImage
         } else if let loadedAvatar = dataService.getAvatarImage(fileName: fileName) {
             return loadedAvatar
