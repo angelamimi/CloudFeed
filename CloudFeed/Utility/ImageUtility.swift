@@ -43,6 +43,28 @@ class ImageUtility: NSObject {
         return nil
     }
     
+    static func getPreviewSize(width: Int, height: Int) -> CGSize {
+        
+        var previewWidth = Double(Global.shared.sizePreview)
+        var previewHeight = Double(Global.shared.sizePreview)
+        
+        guard width > 0 && height > 0 else {
+            return CGSize(width: previewWidth, height: previewHeight)
+        }
+
+        let ratio: Double
+        
+        if width >= height {
+            ratio = Double(width) / Double(height)
+            previewHeight = previewWidth / ratio
+        } else {
+            ratio = Double(height) / Double(width)
+            previewWidth = previewHeight / ratio
+        }
+        
+        return CGSize(width: previewWidth, height: previewHeight)
+    }
+    
     static func imageFromVideo(url: URL) async -> UIImage? {
         
         return await withCheckedContinuation { continuation in

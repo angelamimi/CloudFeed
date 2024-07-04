@@ -98,23 +98,13 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     func downloadPreview(fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
-        
-        let width: Int
-        let height: Int
-        
-        if previewWidth == 0 || previewHeight == 0 {
-            width = Global.shared.sizePreview
-            height = Global.shared.sizePreview
-        } else {
-            width = previewWidth
-            height = previewHeight
-        }
+        let size = ImageUtility.getPreviewSize(width: previewWidth, height: previewHeight)
         
         let _ = await NextcloudKit.shared.downloadPreview(fileId: fileId,
                                                           fileNamePreviewLocalPath: previewPath,
                                                           fileNameIconLocalPath: iconPath,
-                                                          widthPreview: width,
-                                                          heightPreview: height,
+                                                          widthPreview: Int(size.width),
+                                                          heightPreview: Int(size.height),
                                                           sizeIcon: Global.shared.sizeIcon,
                                                           etag: etagResource,
                                                           options: options)
