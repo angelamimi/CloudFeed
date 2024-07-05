@@ -146,7 +146,6 @@ class TitleView: UIView {
         if allowEdit {
             let edit = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { [weak self] action in
                 self?.mediaView?.edit()
-                self?.beginEdit()
             }
             menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, edit, typeMenu])
         } else {

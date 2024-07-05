@@ -315,6 +315,7 @@ extension FavoritesController: MediaViewController {
     
     func edit() {
         if viewModel.currentItemCount() > 0 {
+            titleBeginEdit()
             isEditing = true
             collectionView.allowsMultipleSelection = true
             reloadSection()

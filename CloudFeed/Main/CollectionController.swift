@@ -216,6 +216,10 @@ class CollectionController: UIViewController {
         titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType, filterType: filterType)
     }
     
+    func titleBeginEdit() {
+        titleView?.beginEdit()
+    }
+    
     func displayResults(refresh: Bool, emptyViewTitle: String, emptyViewDescription: String) {
         
         let collectionCount = collectionView.numberOfItems(inSection: 0)
