@@ -22,6 +22,7 @@
 import UIKit
 
 protocol PagerViewModelDelegate: AnyObject {
+    func detailVisibilityChanged(visible: Bool)
     func finishedPaging(metadata: tableMetadata)
     func finishedUpdatingFavorite(isFavorite: Bool)
     func saveFavoriteError()
@@ -34,6 +35,7 @@ final class PagerViewModel: NSObject {
     
     private var currentIndex: Int
     private var metadatas: [tableMetadata]
+    private var detailsVisible: Bool = false
     
     internal var nextIndex: Int?
     weak var delegate: PagerViewModelDelegate?
@@ -52,7 +54,6 @@ final class PagerViewModel: NSObject {
     func initViewer() -> ViewerController {
         let metadata = currentMetadata()
         let viewerMedia = initViewer(index: currentIndex, metadata: metadata)
-        
         return viewerMedia
     }
     
@@ -85,7 +86,17 @@ final class PagerViewModel: NSObject {
 extension PagerViewModel {
     
     private func initViewer(index: Int, metadata: tableMetadata) -> ViewerController {
-        return coordinator.getViewerController(for: index, metadata: metadata)
+        let controller = coordinator.getViewerController(for: index, metadata: metadata)
+        controller.delegate = self
+        return controller
+    }
+}
+
+extension PagerViewModel: ViewerDetailsDelegate {
+    
+    func detailVisibilityChanged(visible: Bool) {
+        detailsVisible = visible
+        delegate?.detailVisibilityChanged(visible: visible)
     }
 }
 
@@ -109,6 +120,8 @@ extension PagerViewModel: UIPageViewControllerDelegate {
     func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
         guard let nextViewController = pendingViewControllers.first as? ViewerController else { return }
         nextIndex = nextViewController.index
+        
+        nextViewController.detailsVisible = detailsVisible
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {

@@ -25,6 +25,10 @@ import UIKit
 import NextcloudKit
 import os.log
 
+protocol ViewerDetailsDelegate: AnyObject {
+    func detailVisibilityChanged(visible: Bool)
+}
+
 class ViewerController: UIViewController {
     
     var viewModel: ViewerViewModel!
@@ -32,11 +36,22 @@ class ViewerController: UIViewController {
     @IBOutlet weak var statusImageView: UIImageView!
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var imageViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var detailView: UIView!
     @IBOutlet weak var statusContainerView: UIView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
+    @IBOutlet weak var fileDateLabel: UILabel!
+    @IBOutlet weak var fileNameLabel: UILabel!
+    
+    weak var delegate: ViewerDetailsDelegate?
+    weak var videoView: UIView?
+    weak var videoViewHeightConstraint: NSLayoutConstraint?
+    
     var metadata: tableMetadata = tableMetadata()
     var index: Int = 0
+    
+    var detailsVisible = false
     
     private var panRecognizer: UIPanGestureRecognizer?
     private var doubleTapRecognizer: UITapGestureRecognizer?
@@ -69,6 +84,16 @@ class ViewerController: UIViewController {
         } else {
             reloadImage()
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if detailsVisible {
+            showDetails(animate: false)
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -116,13 +141,25 @@ class ViewerController: UIViewController {
     
     private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
 
+        videoView = avpController.view
+        
         if self.children.count == 0 {
             addChild(avpController)
         }
         
         //titleView, live photo container, and activity indicator
-        if self.view.subviews.count == 3 {
-            self.view.addSubview(avpController.view)
+        if self.view.subviews.count == 4 && videoView != nil {
+            self.view.addSubview(videoView!)
+            
+            videoView?.translatesAutoresizingMaskIntoConstraints = false
+            let widthConstraint = NSLayoutConstraint(item: videoView!, attribute: .width, relatedBy: .equal, toItem: self.view, attribute: .width, multiplier: 1, constant: 0)
+            let heightConstraint = NSLayoutConstraint(item: videoView!, attribute: .height, relatedBy: .equal, toItem: self.view, attribute: .height, multiplier: 1, constant: 0)
+            let topConstraint = NSLayoutConstraint(item: videoView!, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 0)
+            let leftConstraint = NSLayoutConstraint(item: videoView!, attribute: .left, relatedBy: .equal, toItem: self.view, attribute: .left, multiplier: 1, constant: 0)
+            let rightConstraint = NSLayoutConstraint(item: videoView!, attribute: .right, relatedBy: .equal, toItem: self.view, attribute: .right, multiplier: 1, constant: 0)
+            NSLayoutConstraint.activate([widthConstraint, heightConstraint, topConstraint, leftConstraint, rightConstraint])
+            NSLayoutConstraint.activate([widthConstraint])
+            videoViewHeightConstraint = heightConstraint
         }
         
         avpController.didMove(toParent: self)
@@ -158,8 +195,11 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
+
         if swipeGesture.direction == .up {
-            showDetails()
+            showDetails(animate: true)
+        } else {
+            hideDetails()
         }
     }
     
@@ -236,16 +276,18 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func setDetailTableVisibility(visible: Bool) {
+    //TODO: CLEANUP
+    /*private func setDetailTableVisibility(visible: Bool) {
 
         if (visible) {
             let detailViewController = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailViewController") as! DetailController
             detailViewController.metadata = metadata
             self.present(detailViewController, animated: true, completion: nil)
         }
-    }
-    
-    private func showDetails() {
+    }*/
+
+    /*
+    private func showDetailsOLD() {
         
         let detailController = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailViewController") as! DetailController
         
@@ -261,5 +303,99 @@ class ViewerController: UIViewController {
         }
         
         present(detailController, animated: true)
+    }
+    */
+    
+    private func showDetails(animate: Bool) {
+        
+        delegate?.detailVisibilityChanged(visible: true)
+        
+        let heightOffset: CGFloat
+        let height = view.frame.height
+        let halfHeight = height / 2
+        
+        //video view is added at runtime, which ends up in front of detail view. bring detail view back to front
+        view.bringSubviewToFront(detailView)
+        
+        if detailView.frame.origin.y < height {
+            
+            //details visible. snap to half or full detail
+            if detailView.frame.origin.y > halfHeight {
+                //not up to half height. snap to half height
+                heightOffset = -(halfHeight)
+            } else {
+                //more than half height. show full details
+                heightOffset = -(max(detailView.frame.height, halfHeight))
+            }
+        } else {
+            //details not visible yet. snap top of detail visible
+            heightOffset = -(halfHeight)
+        }
+
+        if animate {
+            
+            UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
+                self.imageView.contentMode = .scaleAspectFill
+                self.videoView?.contentMode = .scaleAspectFill
+            })
+            
+            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
+                self.imageViewHeightConstraint?.constant = heightOffset
+                self.videoViewHeightConstraint?.constant = heightOffset
+                self.view.layoutIfNeeded()
+            })
+            
+        } else {
+            self.imageView.contentMode = .scaleAspectFill
+            self.imageViewHeightConstraint?.constant = heightOffset
+            
+            self.videoView?.contentMode = .scaleAspectFill
+            self.videoViewHeightConstraint?.constant = heightOffset
+            
+            self.view.layoutIfNeeded()
+        }
+        
+        populateDetails()
+    }
+    
+    private func hideDetails() {
+        
+        delegate?.detailVisibilityChanged(visible: false)
+        
+        UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
+            self.imageViewHeightConstraint?.constant = 0
+            self.videoViewHeightConstraint?.constant = 0
+            self.view.layoutIfNeeded()
+        })
+        
+        UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
+            self.imageView.contentMode = .scaleAspectFit
+            self.videoView?.contentMode = .scaleAspectFit
+        })
+    }
+
+    private func populateDetails() {
+        
+        fileNameLabel.text = metadata.fileNameView
+        
+        var formattedDate = ""
+        let formatter = DateFormatter()
+        let date = metadata.date as Date
+
+        formatter.dateFormat = "EEEE"
+        let dayString = formatter.string(from: date)
+        formattedDate.append(dayString)
+        formattedDate.append(" • ")
+
+        formatter.dateFormat = "MMM d, yyyy"
+        let dateString = formatter.string(from: date)
+        formattedDate.append(dateString)
+        formattedDate.append(" • ")
+
+        formatter.dateFormat = "h:mm:ss a"
+        let timeString = formatter.string(from: date)
+        formattedDate.append(timeString)
+        
+        fileDateLabel.text = formattedDate
     }
 }

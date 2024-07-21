@@ -195,6 +195,17 @@ class PagerController: UIViewController, MediaViewController {
 
 extension PagerController: PagerViewModelDelegate {
     
+    func detailVisibilityChanged(visible: Bool) {
+        if visible {
+            titleViewHeightAnchor?.constant = 0
+            titleView?.updateTitleSize()
+            titleView?.isHidden = true
+        } else {
+            titleView?.isHidden = false
+            updateTitleConstraints()
+        }
+    }
+
     func finishedPaging(metadata: tableMetadata) {
         DispatchQueue.main.async { [weak self] in
             self?.titleView?.title.text = metadata.fileNameView
