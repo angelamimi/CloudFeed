@@ -126,7 +126,6 @@
                                 <variation key="heightClass=compact-widthClass=regular">
                                     <mask key="constraints">
                                         <include reference="8h1-xU-fn8"/>
-                                        <exclude reference="p8q-3g-swu"/>
                                     </mask>
                                 </variation>
                             </view>
