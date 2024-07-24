@@ -106,7 +106,6 @@
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="GSh-Al-7oU" secondAttribute="bottom" constant="30" id="5fe-lK-FQZ"/>
                                     <constraint firstAttribute="width" constant="400" id="8h1-xU-fn8"/>
-                                    <constraint firstItem="59L-EL-w2Q" firstAttribute="width" secondItem="nF6-AV-sGu" secondAttribute="width" id="Anp-Cj-kgC"/>
                                     <constraint firstAttribute="trailing" secondItem="px8-OB-OXA" secondAttribute="trailing" constant="16" id="Bl0-xB-Fdy"/>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="260" id="JnB-Pf-diC"/>
                                     <constraint firstItem="px8-OB-OXA" firstAttribute="bottom" secondItem="GSh-Al-7oU" secondAttribute="top" id="Pu1-41-5nj"/>
@@ -122,14 +121,12 @@
                                 <variation key="default">
                                     <mask key="constraints">
                                         <exclude reference="8h1-xU-fn8"/>
-                                        <exclude reference="Anp-Cj-kgC"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=compact-widthClass=regular">
                                     <mask key="constraints">
                                         <include reference="8h1-xU-fn8"/>
                                         <exclude reference="p8q-3g-swu"/>
-                                        <exclude reference="Anp-Cj-kgC"/>
                                     </mask>
                                 </variation>
                             </view>
