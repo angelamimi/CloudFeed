@@ -33,6 +33,8 @@ class PagerController: UIViewController, MediaViewController {
     
     private weak var titleView: TitleView?
     
+    private var detailsVisible: Bool = false
+    
     weak var pageViewController: UIPageViewController? {
         return self.children[0] as? UIPageViewController
     }
@@ -95,6 +97,17 @@ class PagerController: UIViewController, MediaViewController {
         self.titleView?.menuButton.menu = nil
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        if detailsVisible {
+            hideTitle()
+        } else {
+            titleView?.isHidden = false
+            updateTitleConstraints()
+        }
+    }
+    
     func updateMediaType(_ type: Global.FilterType) {}
     func updateLayout(_ layout: String) {}
     func zoomInGrid() {}
@@ -115,6 +128,12 @@ class PagerController: UIViewController, MediaViewController {
     }
     
     private func initConstraints() {
+        
+        //TODO: Wasn't working when app started in landscape mode. Got error stating conflicting constraints that don't actually conflict.
+        titleView?.translatesAutoresizingMaskIntoConstraints = false
+        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
             titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSizeLarge)
@@ -191,18 +210,27 @@ class PagerController: UIViewController, MediaViewController {
 
         titleView?.updateTitleSize()
     }
+    
+    private func showTitle() {
+        titleView?.isHidden = false
+        updateTitleConstraints()
+    }
+    
+    private func hideTitle() {
+        titleViewHeightAnchor?.constant = 0
+        titleView?.updateTitleSize()
+        titleView?.isHidden = true
+    }
 }
 
 extension PagerController: PagerViewModelDelegate {
     
     func detailVisibilityChanged(visible: Bool) {
+        detailsVisible = visible
         if visible {
-            titleViewHeightAnchor?.constant = 0
-            titleView?.updateTitleSize()
-            titleView?.isHidden = true
+            hideTitle()
         } else {
-            titleView?.isHidden = false
-            updateTitleConstraints()
+            showTitle()
         }
     }
 
