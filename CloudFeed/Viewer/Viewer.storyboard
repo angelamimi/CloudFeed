@@ -197,12 +197,6 @@
                         </variation>
                         <variation key="heightClass=compact-widthClass=regular">
                             <mask key="constraints">
-                                <include reference="uXT-dj-6P6"/>
-                                <include reference="fni-Al-I0J"/>
-                                <include reference="2t2-uN-rfx"/>
-                                <include reference="qvw-9n-KQ1"/>
-                                <include reference="qjz-7J-fNR"/>
-                                <include reference="rDh-Ce-v7J"/>
                                 <exclude reference="M2A-YP-eGT"/>
                                 <include reference="4LF-eQ-rqx"/>
                             </mask>
