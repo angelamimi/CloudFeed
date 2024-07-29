@@ -54,6 +54,11 @@ final class PagerViewModel: NSObject {
     func initViewer() -> ViewerController {
         let metadata = currentMetadata()
         let viewerMedia = initViewer(index: currentIndex, metadata: metadata)
+        
+        if metadata.image && dataService.store.fileExists(metadata) {
+            viewerMedia.path = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
+        }
+        
         return viewerMedia
     }
     

@@ -41,12 +41,9 @@ class ViewerController: UIViewController {
     @IBOutlet weak var detailViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var detailViewWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var detailViewLeadingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var detailView: UIView!
+    @IBOutlet weak var detailView: DetailView!
     @IBOutlet weak var statusContainerView: UIView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
-    @IBOutlet weak var fileDateLabel: UILabel!
-    @IBOutlet weak var fileNameLabel: UILabel!
     
     weak var delegate: ViewerDetailsDelegate?
     weak var videoView: UIView?
@@ -54,6 +51,7 @@ class ViewerController: UIViewController {
     weak var videoViewRightConstraint: NSLayoutConstraint?
     
     var metadata: tableMetadata = tableMetadata()
+    var path: String?
     var index: Int = 0
     
     var detailsVisible = false
@@ -61,6 +59,11 @@ class ViewerController: UIViewController {
     private var panRecognizer: UIPanGestureRecognizer?
     private var doubleTapRecognizer: UITapGestureRecognizer?
     private var initialCenter: CGPoint = .zero
+    
+    private var transitioned: Bool = false
+    private var orientation: UIDeviceOrientation?
+    
+    //private let queue = DispatchQueue(label: "orientation")
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -86,6 +89,9 @@ class ViewerController: UIViewController {
         
         initGestureRecognizers()
 
+        
+        
+
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             loadVideo()
         } else {
@@ -94,18 +100,62 @@ class ViewerController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
+        //queue.sync(flags: .barrier) {
+            orientation = UIDevice.current.orientation
+        //}
+        
+        transitioned = false
+        
         if detailsVisible {
             showDetails(animate: false)
         }
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        Self.logger.debug("viewWillTransition() - detailsVisible: \(self.detailsVisible) orientation: \(UIDevice.current.orientation.rawValue) current orientation: \(self.orientation?.rawValue ?? 0) size: \(size.width), \(size.height)")
+    
+        
+        //Self.logger.debug("viewWillTransition() - safe area insets: \(self.view.safeAreaInsets.left) \(self.view.safeAreaInsets.top) \(self.view.safeAreaInsets.right) \(self.view.safeAreaInsets.bottom)")
+        
+        //let keyWindow = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }.last
+        //guard let insets = keyWindow?.safeAreaInsets else { return }
+        //Self.logger.debug("viewWillTransition() - safe area insets: \(insets.left) \(insets.top) \(insets.right) \(insets.bottom)")
+        
+        Self.logger.debug("viewWillTransition() - safeAreaLayoutGuide \(self.view.safeAreaLayoutGuide.layoutFrame.minX) \(self.view.safeAreaLayoutGuide.layoutFrame.minY) \(self.view.safeAreaLayoutGuide.layoutFrame.size.width) \(self.view.safeAreaLayoutGuide.layoutFrame.size.height)")
+        
+        transitioned = true
+        
+        
+        /*if self.detailsVisible && UIDevice.current.orientation != self.orientation {
+            self.showDetails(animate: false)
+        }
+        
+        orientation = UIDevice.current.orientation*/
     }
 
     open override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        //Self.logger.debug("viewDidLayoutSubviews() - current size: \(self.view.frame.size.width), \(self.view.frame.size.height)")
+        Self.logger.debug("viewDidLayoutSubviews() - detailsVisible: \(self.detailsVisible) orientation: \(UIDevice.current.orientation.rawValue) current orientation: \(self.orientation?.rawValue ?? 0) current size: \(self.view.frame.size.width), \(self.view.frame.size.height)")
         
-        if detailsVisible {
-            showDetails(animate: false)
+        if transitioned {
+            transitioned = false
+            //queue.async {
+                if self.detailsVisible && UIDevice.current.orientation != self.orientation {
+                    //DispatchQueue.main.async {
+                        self.showDetails(animate: false)
+                    //}
+                }
+            //}
+            
+            //queue.sync(flags: .barrier) {
+                orientation = UIDevice.current.orientation
+           // }
+            
+            
         }
     }
     
@@ -312,16 +362,42 @@ class ViewerController: UIViewController {
         detailsVisible = true
         delegate?.detailVisibilityChanged(visible: true)
         
-        //video view is added at runtime, which ends up in front of detail view. bring detail view back to front
-        view.bringSubviewToFront(detailView)
-        
-        if isPortrait() {
-            showVerticalDetails(animate: animate)
-        } else {
-            showHorizontalDetails(animate: animate)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            
+            let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
+            
+            controller.metadata = metadata
+            controller.modalPresentationStyle = .popover
+
+            if let popover = controller.popoverPresentationController {
+                popover.sourceView = imageView
+                popover.sourceRect = CGRect(x: view.frame.width, y: 0, width: 100, height: 100)
+                popover.permittedArrowDirections = []
+               
+                let sheet = popover.adaptiveSheetPresentationController
+                sheet.largestUndimmedDetentIdentifier = .large
+                sheet.detents = [.medium(), .large()]
+                sheet.prefersGrabberVisible = true
+            }
+
+            present(controller, animated: true)
+            
+        } else if UIDevice.current.userInterfaceIdiom == .phone {
+            
+            //video view is added at runtime, which ends up in front of detail view. bring detail view back to front
+            view.bringSubviewToFront(detailView)
+            
+            if isPortrait() {
+                showVerticalDetails(animate: animate)
+            } else {
+                showHorizontalDetails(animate: animate)
+            }
+            
+            detailView?.metadata = metadata
+            detailView?.path = path
+            
+            detailView?.populateDetails()
         }
-        
-        populateDetails()
     }
     
     private func hideDetails(animate: Bool) {
@@ -329,17 +405,23 @@ class ViewerController: UIViewController {
         detailsVisible = false
         delegate?.detailVisibilityChanged(visible: false)
         
-        if isPortrait() {
-            hideVerticalDetails(animate: animate)
-        } else {
-            hideHorizontalDetails(animate: animate)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            
+            Self.logger.debug("hideDetails() - pad")
+            
+        } else if UIDevice.current.userInterfaceIdiom == .phone {
+            
+            if isPortrait() {
+                hideVerticalDetails(animate: animate)
+            } else {
+                hideHorizontalDetails(animate: animate)
+            }
         }
     }
     
     private func showVerticalDetails(animate: Bool) {
         
         let heightOffset: CGFloat
-        //let height = view.frame.height
         let height = view.frame.size.height
         let halfHeight = height / 2
         
@@ -397,13 +479,13 @@ class ViewerController: UIViewController {
     
     private func updateVerticalConstraintsShow(heightOffset: CGFloat) {
         
-        self.imageViewTrailingConstraint?.constant = 0
-        self.videoViewRightConstraint?.constant = 0
+        imageViewTrailingConstraint?.constant = 0
+        videoViewRightConstraint?.constant = 0
 
-        self.detailViewTopConstraint?.constant = 0
+        detailViewTopConstraint?.constant = 0
         
-        self.imageViewHeightConstraint?.constant = heightOffset
-        self.videoViewHeightConstraint?.constant = heightOffset
+        imageViewHeightConstraint?.constant = heightOffset
+        videoViewHeightConstraint?.constant = heightOffset
         
         detailViewLeadingConstraint?.constant = 0
         detailViewWidthConstraint?.constant = view.frame.width
@@ -413,9 +495,9 @@ class ViewerController: UIViewController {
     
     private func updateVerticalConstraintsHide() {
         
-        self.detailViewTopConstraint?.constant = 0
-        self.imageViewHeightConstraint?.constant = 0
-        self.videoViewHeightConstraint?.constant = 0
+        detailViewTopConstraint?.constant = 0
+        imageViewHeightConstraint?.constant = 0
+        videoViewHeightConstraint?.constant = 0
         
         self.view.layoutIfNeeded()
     }
@@ -505,30 +587,5 @@ class ViewerController: UIViewController {
     private func updateContentMode(contentMode: UIView.ContentMode) {
         imageView.contentMode = contentMode
         videoView?.contentMode = contentMode
-    }
-
-    private func populateDetails() {
-        
-        fileNameLabel.text = metadata.fileNameView
-        
-        var formattedDate = ""
-        let formatter = DateFormatter()
-        let date = metadata.date as Date
-
-        formatter.dateFormat = "EEEE"
-        let dayString = formatter.string(from: date)
-        formattedDate.append(dayString)
-        formattedDate.append(" • ")
-
-        formatter.dateFormat = "MMM d, yyyy"
-        let dateString = formatter.string(from: date)
-        formattedDate.append(dateString)
-        formattedDate.append(" • ")
-
-        formatter.dateFormat = "h:mm:ss a"
-        let timeString = formatter.string(from: date)
-        formattedDate.append(timeString)
-        
-        fileDateLabel.text = formattedDate
     }
 }
