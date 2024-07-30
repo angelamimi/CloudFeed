@@ -125,8 +125,6 @@ extension PagerViewModel: UIPageViewControllerDelegate {
     func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
         guard let nextViewController = pendingViewControllers.first as? ViewerController else { return }
         nextIndex = nextViewController.index
-        
-        nextViewController.detailsVisible = detailsVisible
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {

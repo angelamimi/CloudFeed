@@ -54,16 +54,13 @@ class ViewerController: UIViewController {
     var path: String?
     var index: Int = 0
     
-    var detailsVisible = false
+    //var detailsVisible = false
     
     private var panRecognizer: UIPanGestureRecognizer?
     private var doubleTapRecognizer: UITapGestureRecognizer?
     private var initialCenter: CGPoint = .zero
     
     private var transitioned: Bool = false
-    private var orientation: UIDeviceOrientation?
-    
-    //private let queue = DispatchQueue(label: "orientation")
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -89,9 +86,6 @@ class ViewerController: UIViewController {
         
         initGestureRecognizers()
 
-        
-        
-
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             loadVideo()
         } else {
@@ -100,63 +94,38 @@ class ViewerController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        
-        //queue.sync(flags: .barrier) {
-            orientation = UIDevice.current.orientation
-        //}
-        
-        transitioned = false
-        
-        if detailsVisible {
-            showDetails(animate: false)
-        }
+
+        //don't have real size until laying out subviews. flag for processing
+        transitioned = true
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         
-        Self.logger.debug("viewWillTransition() - detailsVisible: \(self.detailsVisible) orientation: \(UIDevice.current.orientation.rawValue) current orientation: \(self.orientation?.rawValue ?? 0) size: \(size.width), \(size.height)")
-    
-        
-        //Self.logger.debug("viewWillTransition() - safe area insets: \(self.view.safeAreaInsets.left) \(self.view.safeAreaInsets.top) \(self.view.safeAreaInsets.right) \(self.view.safeAreaInsets.bottom)")
-        
-        //let keyWindow = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }.last
-        //guard let insets = keyWindow?.safeAreaInsets else { return }
-        //Self.logger.debug("viewWillTransition() - safe area insets: \(insets.left) \(insets.top) \(insets.right) \(insets.bottom)")
-        
-        Self.logger.debug("viewWillTransition() - safeAreaLayoutGuide \(self.view.safeAreaLayoutGuide.layoutFrame.minX) \(self.view.safeAreaLayoutGuide.layoutFrame.minY) \(self.view.safeAreaLayoutGuide.layoutFrame.size.width) \(self.view.safeAreaLayoutGuide.layoutFrame.size.height)")
-        
+        //orientation change. don't have real size until laying out subviews. flag for processing
         transitioned = true
-        
-        
-        /*if self.detailsVisible && UIDevice.current.orientation != self.orientation {
-            self.showDetails(animate: false)
-        }
-        
-        orientation = UIDevice.current.orientation*/
     }
 
     open override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        Self.logger.debug("viewDidLayoutSubviews() - detailsVisible: \(self.detailsVisible) orientation: \(UIDevice.current.orientation.rawValue) current orientation: \(self.orientation?.rawValue ?? 0) current size: \(self.view.frame.size.width), \(self.view.frame.size.height)")
+        //Self.logger.debug("viewDidLayoutSubviews() - transitioned: \(self.transitioned) detailsVisible: \(self.detailsVisible) current size: \(self.view.frame.size.width), \(self.view.frame.size.height) safe height: \(self.view.safeAreaLayoutGuide.layoutFrame.height)")
         
         if transitioned {
             transitioned = false
-            //queue.async {
-                if self.detailsVisible && UIDevice.current.orientation != self.orientation {
-                    //DispatchQueue.main.async {
-                        self.showDetails(animate: false)
-                    //}
-                }
-            //}
             
-            //queue.sync(flags: .barrier) {
-                orientation = UIDevice.current.orientation
-           // }
-            
-            
+            if parentDetailsVisible() {
+                showDetails(animate: false)
+            } else {
+                imageViewHeightConstraint.constant = view.frame.height
+                videoViewHeightConstraint?.constant = view.frame.height
+            }
         }
+    }
+    
+    private func parentDetailsVisible() -> Bool {
+        guard let pagerController = parent?.parent as? PagerController else { return false }
+        return pagerController.detailsVisible
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -217,7 +186,7 @@ class ViewerController: UIViewController {
 
             videoView?.translatesAutoresizingMaskIntoConstraints = false
 
-            let heightConstraint = NSLayoutConstraint(item: videoView!, attribute: .height, relatedBy: .equal, toItem: self.view, attribute: .height, multiplier: 1, constant: 0)
+            let heightConstraint = NSLayoutConstraint(item: videoView!, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: view.frame.height)
             let topConstraint = NSLayoutConstraint(item: videoView!, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 0)
             let leftConstraint = NSLayoutConstraint(item: videoView!, attribute: .left, relatedBy: .equal, toItem: self.view, attribute: .left, multiplier: 1, constant: 0)
             let rightConstraint = NSLayoutConstraint(item: videoView!, attribute: .right, relatedBy: .equal, toItem: self.view, attribute: .right, multiplier: 1, constant: 0)
@@ -359,7 +328,7 @@ class ViewerController: UIViewController {
     
     private func showDetails(animate: Bool) {
         
-        detailsVisible = true
+        //detailsVisible = true
         delegate?.detailVisibilityChanged(visible: true)
         
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -402,7 +371,7 @@ class ViewerController: UIViewController {
     
     private func hideDetails(animate: Bool) {
         
-        detailsVisible = false
+        //detailsVisible = false
         delegate?.detailVisibilityChanged(visible: false)
         
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -425,22 +394,19 @@ class ViewerController: UIViewController {
         let height = view.frame.size.height
         let halfHeight = height / 2
         
-        //Self.logger.debug("showVerticalDetails() - detail height: \(self.detailView.frame.height)")
-        //Self.logger.debug("showVerticalDetails() - current size: \(self.view.frame.size.width), \(self.view.frame.size.height)")
-        
         if detailView.frame.origin.y < height {
             
             //details visible. snap to half or full detail
-            if detailView.frame.origin.y > halfHeight {
+            if Int(detailView.frame.origin.y) > Int(halfHeight) {
                 //not up to half height. snap to half height
-                heightOffset = -(halfHeight)
+                heightOffset = halfHeight
             } else {
-                //more than half height. show full details
-                heightOffset = -(max(detailView.frame.height, halfHeight))
+                //more than half height. show full details\
+                heightOffset = min(view.frame.height - detailView.frame.height, halfHeight)
             }
         } else {
             //details not visible yet. snap top of detail visible
-            heightOffset = -(halfHeight)
+            heightOffset = halfHeight
         }
 
         if animate {
@@ -483,47 +449,46 @@ class ViewerController: UIViewController {
         videoViewRightConstraint?.constant = 0
 
         detailViewTopConstraint?.constant = 0
-        
+
         imageViewHeightConstraint?.constant = heightOffset
         videoViewHeightConstraint?.constant = heightOffset
         
         detailViewLeadingConstraint?.constant = 0
         detailViewWidthConstraint?.constant = view.frame.width
         
-        self.view.layoutIfNeeded()
+        view.layoutIfNeeded()
     }
     
     private func updateVerticalConstraintsHide() {
         
         detailViewTopConstraint?.constant = 0
-        imageViewHeightConstraint?.constant = 0
-        videoViewHeightConstraint?.constant = 0
+        imageViewHeightConstraint?.constant = view.frame.height
+        videoViewHeightConstraint?.constant = view.frame.height
         
-        self.view.layoutIfNeeded()
+        view.layoutIfNeeded()
     }
     
     private func showHorizontalDetails(animate: Bool) {
         
         let trailingOffset: CGFloat
-        let width = view.frame.width
+        let topOffset: CGFloat
         let height = view.frame.height
-        let halfWidth = width / 2
-        
-        //Self.logger.debug("showHorizontalDetails()")
+        let halfWidth = view.frame.width / 2
         
         if detailView.frame.origin.y < height {
-            
-            //details visible. TODO: may need more panning
+            //details visible. show more if can
             trailingOffset = (halfWidth)
+            topOffset = max(detailView.frame.height, view.frame.height)
         } else {
             //details not visible yet. snap top of detail visible
             trailingOffset = (halfWidth)
+            topOffset = height
         }
         
         if animate {
             
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
-                self.updateHorizontalConstraintsShow(height: height, trailingOffset: trailingOffset)
+                self.updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset)
             })
             
             UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
@@ -531,7 +496,7 @@ class ViewerController: UIViewController {
             })
             
         } else {
-            updateHorizontalConstraintsShow(height: height, trailingOffset: trailingOffset)
+            updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset)
             updateContentMode(contentMode: .scaleAspectFill)
         }
     }
@@ -554,16 +519,13 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func updateHorizontalConstraintsShow(height: CGFloat, trailingOffset: CGFloat) {
+    private func updateHorizontalConstraintsShow(height: CGFloat, topOffset: CGFloat, trailingOffset: CGFloat) {
         
-        detailViewTopConstraint?.constant = height
+        detailViewTopConstraint?.constant = topOffset
         
-        imageViewHeightConstraint?.constant = 0
-        videoViewHeightConstraint?.constant = 0
-        
-        //Self.logger.debug("updateHorizontalConstraintsShow() - trailingOffset: \(trailingOffset) super width: \(self.view.frame.width)")
-        //Self.logger.debug("updateHorizontalConstraintsShow() - detailView width: \(self.detailView.frame.width)")
-                          
+        imageViewHeightConstraint?.constant = height
+        videoViewHeightConstraint?.constant = height
+                         
         imageViewTrailingConstraint?.constant = trailingOffset
         videoViewRightConstraint?.constant = -trailingOffset
         

@@ -29,11 +29,10 @@ class PagerController: UIViewController, MediaViewController {
     var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
     
+    var detailsVisible: Bool = false
+    
     private var titleViewHeightAnchor: NSLayoutConstraint?
-    
     private weak var titleView: TitleView?
-    
-    private var detailsVisible: Bool = false
     
     weak var pageViewController: UIPageViewController? {
         return self.children[0] as? UIPageViewController

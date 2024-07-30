@@ -40,7 +40,7 @@ class DetailView: UIView {
     
     func populateDetails() {
         
-        print("populateDetails()")
+        //print("populateDetails()")
         
         fileNameLabel.text = metadata!.fileNameView
         fileDateLabel.text = formatDate(metadata!.date as Date)
