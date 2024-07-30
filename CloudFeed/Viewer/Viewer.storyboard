@@ -81,7 +81,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JHA-Xd-uSt">
-                                <rect key="frame" x="0.0" y="109" width="76.333333333333329" height="28"/>
+                                <rect key="frame" x="8" y="117" width="76.333333333333329" height="28"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="uI2-yM-R6H">
                                         <rect key="frame" x="8.0000000000000036" y="4" width="58.333333333333343" height="20"/>
@@ -120,13 +120,13 @@
                         <viewLayoutGuide key="safeArea" id="POo-Li-FDE"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="JHA-Xd-uSt" firstAttribute="top" secondItem="POo-Li-FDE" secondAttribute="top" constant="50" identifier="Status container top to safe area top" id="1Vf-rW-uGX"/>
+                            <constraint firstItem="JHA-Xd-uSt" firstAttribute="top" secondItem="POo-Li-FDE" secondAttribute="top" constant="58" identifier="Status container top to safe area top" id="1Vf-rW-uGX"/>
                             <constraint firstItem="gnc-Wf-rti" firstAttribute="leading" secondItem="POo-Li-FDE" secondAttribute="leading" identifier="Image leading to safe area leading" id="2t2-uN-rfx"/>
                             <constraint firstItem="nF6-AV-sGu" firstAttribute="height" secondItem="POo-Li-FDE" secondAttribute="height" identifier="Detail view height same as safe area height" id="4LF-eQ-rqx"/>
                             <constraint firstItem="nF6-AV-sGu" firstAttribute="leading" secondItem="POo-Li-FDE" secondAttribute="leading" identifier="Detail leading to safe area" id="M2A-YP-eGT"/>
                             <constraint firstItem="POo-Li-FDE" firstAttribute="trailing" secondItem="gnc-Wf-rti" secondAttribute="trailing" identifier="Image trailing to safe area trailing" id="fni-Al-I0J"/>
                             <constraint firstItem="gnc-Wf-rti" firstAttribute="top" secondItem="POo-Li-FDE" secondAttribute="top" identifier="Image view top same as safe area top" id="qvw-9n-KQ1"/>
-                            <constraint firstItem="JHA-Xd-uSt" firstAttribute="leading" secondItem="POo-Li-FDE" secondAttribute="leading" identifier="Status container leading to safe area leading" id="rDh-Ce-v7J"/>
+                            <constraint firstItem="JHA-Xd-uSt" firstAttribute="leading" secondItem="POo-Li-FDE" secondAttribute="leading" constant="8" identifier="Status container leading to safe area leading" id="rDh-Ce-v7J"/>
                             <constraint firstItem="gnc-Wf-rti" firstAttribute="bottom" secondItem="nF6-AV-sGu" secondAttribute="top" identifier="Image view bottom to detail view top" id="t8w-dB-kZ8"/>
                         </constraints>
                         <variation key="default">
@@ -149,6 +149,7 @@
                         <outlet property="imageView" destination="gnc-Wf-rti" id="Cuh-lC-UtQ"/>
                         <outlet property="imageViewHeightConstraint" destination="u4l-oU-PNv" id="bfm-zB-LO9"/>
                         <outlet property="imageViewTrailingConstraint" destination="fni-Al-I0J" id="3sR-Q9-UIm"/>
+                        <outlet property="statusContainerTopConstraint" destination="1Vf-rW-uGX" id="Ela-4G-725"/>
                         <outlet property="statusContainerView" destination="JHA-Xd-uSt" id="jTu-eG-FGr"/>
                         <outlet property="statusImageView" destination="7NT-a3-48h" id="73D-6C-PQe"/>
                         <outlet property="statusLabel" destination="DLS-kx-jTd" id="qC1-Wp-OgV"/>

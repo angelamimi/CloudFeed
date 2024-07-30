@@ -36,14 +36,16 @@ class ViewerController: UIViewController {
     @IBOutlet weak var statusImageView: UIImageView!
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var detailView: DetailView!
+    @IBOutlet weak var statusContainerView: UIView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     @IBOutlet weak var imageViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewTrailingConstraint: NSLayoutConstraint!
     @IBOutlet weak var detailViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var detailViewWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var detailViewLeadingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var detailView: DetailView!
-    @IBOutlet weak var statusContainerView: UIView!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var statusContainerTopConstraint: NSLayoutConstraint!
     
     weak var delegate: ViewerDetailsDelegate?
     weak var videoView: UIView?
@@ -84,7 +86,9 @@ class ViewerController: UIViewController {
         
         imageView.isUserInteractionEnabled = true
         
+        initObservers()
         initGestureRecognizers()
+        setStatusContainerContraints()
 
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             loadVideo()
@@ -123,9 +127,8 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func parentDetailsVisible() -> Bool {
-        guard let pagerController = parent?.parent as? PagerController else { return false }
-        return pagerController.detailsVisible
+    deinit {
+        cleanup()
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -179,10 +182,12 @@ class ViewerController: UIViewController {
             addChild(avpController)
         }
         
-        //titleView, live photo container, and activity indicator
+        //titleView, live photo container, activity indicator, and detail view
         if self.view.subviews.count == 4 && videoView != nil {
 
             self.view.addSubview(videoView!)
+            
+            view.bringSubviewToFront(statusContainerView)
 
             videoView?.translatesAutoresizingMaskIntoConstraints = false
 
@@ -202,6 +207,36 @@ class ViewerController: UIViewController {
         if autoPlay {
             avpController.player?.play()
         }
+    }
+    
+    private func parentDetailsVisible() -> Bool {
+        guard let pagerController = parent?.parent as? PagerController else { return false }
+        return pagerController.detailsVisible
+    }
+    
+    private func setStatusContainerContraints() {
+        
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            statusContainerTopConstraint.constant = Global.shared.titleSizeLarge + 8
+        } else {
+            statusContainerTopConstraint.constant = Global.shared.titleSize + 8
+        }
+    }
+    
+    private func initObservers() {
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
+            self?.willEnterForegroundNotification()
+        }
+    }
+    
+    private func willEnterForegroundNotification() {
+        if viewModel.getMetadataLivePhoto(metadata: metadata) != nil {
+            setStatusContainerContraints()
+        }
+    }
+    
+    private func cleanup() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     private func initGestureRecognizers() {
@@ -328,8 +363,9 @@ class ViewerController: UIViewController {
     
     private func showDetails(animate: Bool) {
         
-        //detailsVisible = true
         delegate?.detailVisibilityChanged(visible: true)
+        
+        statusContainerView.isHidden = true
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             
@@ -371,8 +407,9 @@ class ViewerController: UIViewController {
     
     private func hideDetails(animate: Bool) {
         
-        //detailsVisible = false
         delegate?.detailVisibilityChanged(visible: false)
+        
+        statusContainerView.isHidden = false
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             

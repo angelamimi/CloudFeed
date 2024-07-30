@@ -107,6 +107,10 @@ class PagerController: UIViewController, MediaViewController {
         }
     }
     
+    deinit {
+        cleanup()
+    }
+    
     func updateMediaType(_ type: Global.FilterType) {}
     func updateLayout(_ layout: String) {}
     func zoomInGrid() {}
