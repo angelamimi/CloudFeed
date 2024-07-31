@@ -239,26 +239,42 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uns-6d-V3K" customClass="DetailView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <rect key="frame" x="0.0" y="59" width="400" height="500"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="500" identifier="Detail view height fixed" id="45T-QZ-VI9"/>
+                                    <constraint firstAttribute="width" constant="400" identifier="Popover detail view 400" id="HIQ-zf-XH7"/>
+                                </constraints>
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="rK7-NA-i7O"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="rK7-NA-i7O" firstAttribute="bottom" secondItem="uns-6d-V3K" secondAttribute="bottom" identifier="Detail view bottom to safe area bottom" id="0eH-kJ-hEZ"/>
-                            <constraint firstItem="uns-6d-V3K" firstAttribute="top" secondItem="rK7-NA-i7O" secondAttribute="top" identifier="Detail view top to safe area top" id="gfw-2Q-N5L"/>
-                            <constraint firstItem="uns-6d-V3K" firstAttribute="leading" secondItem="rK7-NA-i7O" secondAttribute="leading" identifier="Detail view leading to safe area leading" id="nzm-Tl-Urb"/>
-                            <constraint firstItem="rK7-NA-i7O" firstAttribute="trailing" secondItem="uns-6d-V3K" secondAttribute="trailing" identifier="Detail view trailing to safe area trailing" id="oEm-ck-UWa"/>
+                            <constraint firstItem="rK7-NA-i7O" firstAttribute="bottom" secondItem="uns-6d-V3K" secondAttribute="bottom" identifier="Popover detail view bottom to safe area bottom" id="0eH-kJ-hEZ"/>
+                            <constraint firstItem="uns-6d-V3K" firstAttribute="width" secondItem="rK7-NA-i7O" secondAttribute="width" identifier="Popover detail view width" id="4IN-jr-0dN"/>
+                            <constraint firstItem="uns-6d-V3K" firstAttribute="height" secondItem="rK7-NA-i7O" secondAttribute="height" identifier="Popover detail view height" id="gDH-Gt-mOo"/>
+                            <constraint firstItem="uns-6d-V3K" firstAttribute="top" secondItem="rK7-NA-i7O" secondAttribute="top" identifier="Popover detail view top to safe area top" id="gfw-2Q-N5L"/>
+                            <constraint firstItem="uns-6d-V3K" firstAttribute="leading" secondItem="rK7-NA-i7O" secondAttribute="leading" identifier="Popover detail view leading to safe area leading" id="nzm-Tl-Urb"/>
+                            <constraint firstItem="rK7-NA-i7O" firstAttribute="trailing" secondItem="uns-6d-V3K" secondAttribute="trailing" identifier="Popover detail view trailing to safe area trailing" id="oEm-ck-UWa"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="oEm-ck-UWa"/>
+                                <exclude reference="0eH-kJ-hEZ"/>
+                                <exclude reference="4IN-jr-0dN"/>
+                                <exclude reference="gDH-Gt-mOo"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
                         <outlet property="detailView" destination="uns-6d-V3K" id="5pI-Xl-PfQ"/>
+                        <outlet property="detailViewHeightConstraint" destination="45T-QZ-VI9" id="8vv-Av-4Ig"/>
+                        <outlet property="detailViewWidthConstraint" destination="HIQ-zf-XH7" id="3Wu-AS-ggc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xdP-Yo-YSL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2991.6030534351144" y="-92.253521126760575"/>
+            <point key="canvasLocation" x="2931" y="-92"/>
         </scene>
     </scenes>
     <resources>

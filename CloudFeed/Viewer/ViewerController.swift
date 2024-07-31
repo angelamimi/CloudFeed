@@ -56,8 +56,6 @@ class ViewerController: UIViewController {
     var path: String?
     var index: Int = 0
     
-    //var detailsVisible = false
-    
     private var panRecognizer: UIPanGestureRecognizer?
     private var doubleTapRecognizer: UITapGestureRecognizer?
     private var initialCenter: CGPoint = .zero
@@ -72,7 +70,7 @@ class ViewerController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if viewModel.getMetadataLivePhoto(metadata: metadata) != nil {
+        if viewModel.isLivePhoto() {
             statusImageView.image = UIImage(systemName: "livephoto")?.withTintColor(.label, renderingMode: .alwaysOriginal)
             statusLabel.text = Strings.LiveTitle
             statusContainerView.isHidden = false
@@ -113,15 +111,13 @@ class ViewerController: UIViewController {
     open override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        //Self.logger.debug("viewDidLayoutSubviews() - transitioned: \(self.transitioned) detailsVisible: \(self.detailsVisible) current size: \(self.view.frame.size.width), \(self.view.frame.size.height) safe height: \(self.view.safeAreaLayoutGuide.layoutFrame.height)")
-        
         if transitioned {
             transitioned = false
             
             if parentDetailsVisible() {
                 showDetails(animate: false)
             } else {
-                imageViewHeightConstraint.constant = view.frame.height
+                imageViewHeightConstraint?.constant = view.frame.height
                 videoViewHeightConstraint?.constant = view.frame.height
             }
         }
@@ -230,7 +226,7 @@ class ViewerController: UIViewController {
     }
     
     private func willEnterForegroundNotification() {
-        if viewModel.getMetadataLivePhoto(metadata: metadata) != nil {
+        if viewModel.isLivePhoto() {
             setStatusContainerContraints()
         }
     }
@@ -361,6 +357,29 @@ class ViewerController: UIViewController {
         }
     }
     
+    private func presentDetailPopover() {
+        
+        let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
+        
+        controller.metadata = metadata
+        controller.modalPresentationStyle = .popover
+        controller.preferredContentSize = CGSize(width: 400, height: 500)
+        
+        if let popover = controller.popoverPresentationController {
+            
+            popover.sourceView = imageView
+            popover.sourceRect = CGRect(x: view.frame.width, y: 0, width: 100, height: 100)
+            popover.permittedArrowDirections = []
+           
+            let sheet = popover.adaptiveSheetPresentationController
+            sheet.largestUndimmedDetentIdentifier = .large
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        present(controller, animated: true)
+    }
+    
     private func showDetails(animate: Bool) {
         
         delegate?.detailVisibilityChanged(visible: true)
@@ -369,24 +388,18 @@ class ViewerController: UIViewController {
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             
-            let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
+            imageViewHeightConstraint?.constant = view.frame.height
+            videoViewHeightConstraint?.constant = view.frame.height
             
-            controller.metadata = metadata
-            controller.modalPresentationStyle = .popover
-
-            if let popover = controller.popoverPresentationController {
-                popover.sourceView = imageView
-                popover.sourceRect = CGRect(x: view.frame.width, y: 0, width: 100, height: 100)
-                popover.permittedArrowDirections = []
-               
-                let sheet = popover.adaptiveSheetPresentationController
-                sheet.largestUndimmedDetentIdentifier = .large
-                sheet.detents = [.medium(), .large()]
-                sheet.prefersGrabberVisible = true
+            if presentedViewController == nil {
+                presentDetailPopover()
+            } else {
+                presentedViewController?.dismiss(animated: false, completion: {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.presentDetailPopover()
+                    }
+                })
             }
-
-            present(controller, animated: true)
-            
         } else if UIDevice.current.userInterfaceIdiom == .phone {
             
             //video view is added at runtime, which ends up in front of detail view. bring detail view back to front
@@ -409,13 +422,11 @@ class ViewerController: UIViewController {
         
         delegate?.detailVisibilityChanged(visible: false)
         
-        statusContainerView.isHidden = false
+        if viewModel.isLivePhoto() {
+            statusContainerView.isHidden = false
+        }
         
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            
-            Self.logger.debug("hideDetails() - pad")
-            
-        } else if UIDevice.current.userInterfaceIdiom == .phone {
+        if UIDevice.current.userInterfaceIdiom == .phone {
             
             if isPortrait() {
                 hideVerticalDetails(animate: animate)

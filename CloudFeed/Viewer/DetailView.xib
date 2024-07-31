@@ -44,7 +44,7 @@
                     <rect key="frame" x="16" y="524" width="365" height="200"/>
                     <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="200" id="Tvj-Yn-rAW"/>
+                        <constraint firstAttribute="height" constant="200" identifier="Camera view height" id="Tvj-Yn-rAW"/>
                     </constraints>
                 </view>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="feS-2x-jOT" userLabel="Filler Stack View">
@@ -64,16 +64,16 @@
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="feS-2x-jOT" secondAttribute="trailing" id="9T1-yv-IA3"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="YhN-iX-Isg" secondAttribute="trailing" constant="16" id="Nha-ZE-dFU"/>
-                <constraint firstItem="Npf-m5-tBN" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="PVB-nN-3Kk"/>
-                <constraint firstItem="YhN-iX-Isg" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="Q1w-VI-5cX"/>
-                <constraint firstItem="Npf-m5-tBN" firstAttribute="bottom" secondItem="feS-2x-jOT" secondAttribute="top" id="Xla-Pk-muo"/>
-                <constraint firstItem="Npf-m5-tBN" firstAttribute="top" secondItem="YhN-iX-Isg" secondAttribute="bottom" constant="16" id="Ztm-pv-6gZ"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="Npf-m5-tBN" secondAttribute="trailing" constant="16" id="bNH-9i-Tcd"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="feS-2x-jOT" secondAttribute="bottom" id="kkb-yd-J9H"/>
-                <constraint firstItem="YhN-iX-Isg" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="wRw-fs-Tld"/>
-                <constraint firstItem="feS-2x-jOT" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="zPX-CE-MWd"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="feS-2x-jOT" secondAttribute="trailing" identifier="Filler stack view trailing to safe view trailing" id="9T1-yv-IA3"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="YhN-iX-Isg" secondAttribute="trailing" constant="16" identifier="FIle stack view trailing to safe area trailing" id="Nha-ZE-dFU"/>
+                <constraint firstItem="Npf-m5-tBN" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" identifier="Camera view leading to safe area leading" id="PVB-nN-3Kk"/>
+                <constraint firstItem="YhN-iX-Isg" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" identifier="File stack view top to safe area top" id="Q1w-VI-5cX"/>
+                <constraint firstItem="Npf-m5-tBN" firstAttribute="bottom" secondItem="feS-2x-jOT" secondAttribute="top" identifier="Camera view bottom to Filler stack view top" id="Xla-Pk-muo"/>
+                <constraint firstItem="Npf-m5-tBN" firstAttribute="top" secondItem="YhN-iX-Isg" secondAttribute="bottom" constant="16" identifier="Camera view top to file stack view bottom" id="Ztm-pv-6gZ"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="Npf-m5-tBN" secondAttribute="trailing" constant="16" identifier="Camera view trailing to safe area trailing" id="bNH-9i-Tcd"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="feS-2x-jOT" secondAttribute="bottom" identifier="Filler stack view bottom to safe area bottom" id="kkb-yd-J9H"/>
+                <constraint firstItem="YhN-iX-Isg" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" identifier="File stack view leading to safe area leading" id="wRw-fs-Tld"/>
+                <constraint firstItem="feS-2x-jOT" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" identifier="Filler stack view leading to safe area leading" id="zPX-CE-MWd"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <point key="canvasLocation" x="129.00763358778624" y="-16.197183098591552"/>

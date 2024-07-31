@@ -33,7 +33,11 @@ final class ViewerViewModel: NSObject {
         self.metadata = metadata
         self.dataService = dataService
     }
-
+    
+    func isLivePhoto() -> Bool {
+        return getMetadataLivePhoto(metadata: metadata) != nil
+    }
+    
     func getMetadataLivePhoto(metadata: tableMetadata) -> tableMetadata? {
         return dataService.getMetadataLivePhoto(metadata: metadata)
     }
@@ -85,7 +89,6 @@ final class ViewerViewModel: NSObject {
             return image
         }
         
-        // Get image
         let image = await getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
         return image
     }

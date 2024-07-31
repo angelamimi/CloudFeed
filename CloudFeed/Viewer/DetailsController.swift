@@ -12,6 +12,9 @@ class DetailsController: UIViewController {
     
     @IBOutlet weak var detailView: DetailView!
     
+    @IBOutlet weak var detailViewWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var detailViewHeightConstraint: NSLayoutConstraint!
+    
     weak var store: StoreUtility?
     weak var metadata: tableMetadata?
     
@@ -26,9 +29,14 @@ class DetailsController: UIViewController {
         bindDetailView()
     }
     
+    override func viewDidLayoutSubviews() {
+        if view.frame.size.width > 0 {
+            detailViewHeightConstraint.constant = view.frame.size.height
+            detailViewWidthConstraint.constant = view.frame.size.width
+        }
+    }
+    
     private func bindDetailView() {
-        
-        Self.logger.debug("bindDetailView()")
         
         guard let metadata = metadata else { return }
         
