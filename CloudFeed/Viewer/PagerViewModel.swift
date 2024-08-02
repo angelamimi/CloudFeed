@@ -54,11 +54,6 @@ final class PagerViewModel: NSObject {
     func initViewer() -> ViewerController {
         let metadata = currentMetadata()
         let viewerMedia = initViewer(index: currentIndex, metadata: metadata)
-        
-        if metadata.image && dataService.store.fileExists(metadata) {
-            viewerMedia.path = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
-        }
-        
         return viewerMedia
     }
     
@@ -91,8 +86,16 @@ final class PagerViewModel: NSObject {
 extension PagerViewModel {
     
     private func initViewer(index: Int, metadata: tableMetadata) -> ViewerController {
+        
         let controller = coordinator.getViewerController(for: index, metadata: metadata)
+        
         controller.delegate = self
+        
+        if metadata.image && dataService.store.fileExists(metadata) {
+            controller.path = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
+            print("initViewer() - path: \(controller.path ?? "")")
+        }
+        
         return controller
     }
 }

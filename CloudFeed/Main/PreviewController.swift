@@ -87,8 +87,15 @@ class PreviewController: UIViewController {
     }
     
     private func loadVideo() {
-        guard let avpController = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height) else { return }
-        setupVideoController(avpController: avpController, autoPlay: true)
+        //guard let avpController = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height) else { return }
+        //setupVideoController(avpController: avpController, autoPlay: true)
+        
+        let result = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+        
+        if result.playerController != nil {
+            setupVideoController(avpController: result.playerController!, autoPlay: true)
+        }
+        
         activityIndicator.stopAnimating()
     }
     

@@ -46,15 +46,15 @@ final class ViewerViewModel: NSObject {
         return dataService.getMetadataFromOcId(ocId)
     }
     
-    func loadVideo(viewWidth: CGFloat, viewHeight: CGFloat) -> AVPlayerViewController? {
+    func loadVideo(viewWidth: CGFloat, viewHeight: CGFloat) -> (url: URL?, playerController: AVPlayerViewController?) {
         
         let urlVideo = getVideoURL(metadata: metadata)
         
         if let url = urlVideo {
-            return loadVideoFromUrl(url, viewWidth: viewWidth, viewHeight: viewHeight)
+            return (url, loadVideoFromUrl(url, viewWidth: viewWidth, viewHeight: viewHeight))
         }
         
-        return nil
+        return (nil, nil)
     }
     
     func loadVideoFromUrl(_ url: URL, viewWidth: CGFloat, viewHeight: CGFloat) -> AVPlayerViewController {
