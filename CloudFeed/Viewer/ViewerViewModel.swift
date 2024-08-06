@@ -96,6 +96,11 @@ final class ViewerViewModel: NSObject {
     func downloadLivePhotoVideo(metadata: tableMetadata) async {
         await dataService.download(metadata: metadata, selector: "")
     }
+    
+    func getFilePath(_ metadata: tableMetadata) -> String? {
+        guard dataService.store.fileExists(metadata) else { return nil }
+        return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
+    }
 }
 
 extension ViewerViewModel {

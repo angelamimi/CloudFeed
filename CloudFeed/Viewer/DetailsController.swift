@@ -43,7 +43,6 @@ class DetailsController: UIViewController {
         detailView.metadata = metadata
         
         if metadata.image && store != nil && store!.fileExists(metadata) {
-            //detailView.path = store!.getCachePath(metadata.ocId, metadata.fileNameView)
             if let path = store!.getCachePath(metadata.ocId, metadata.fileNameView) {
                 detailView.url = URL(fileURLWithPath: path)
             }

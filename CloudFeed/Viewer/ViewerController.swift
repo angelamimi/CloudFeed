@@ -89,12 +89,6 @@ class ViewerController: UIViewController {
         setStatusContainerContraints()
         
         Self.logger.debug("viewDidLoad()")
-
-        /*if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
-            loadVideo()
-        } else {
-            reloadImage()
-        }*/
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -171,9 +165,16 @@ class ViewerController: UIViewController {
         Task { [weak self] in
             guard let self else { return }
             
-            let image = await viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+            let image = await self.viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
             
             //Self.logger.debug("loadImage() - have image? \(image != nil) for ocId: \(metadata.ocId)")
+            self.path = self.viewModel.getFilePath(metadata)
+            if self.path != nil && self.parentDetailsVisible() {
+                //TODO: Check viewercontroller has details visible, not parent?
+                //self.detailView.url = URL.init(string: self.path!)
+                self.detailView.url = URL(fileURLWithPath: self.path!)
+                self.detailView?.populateDetails()
+            }
             
             if image != nil && self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
                 
