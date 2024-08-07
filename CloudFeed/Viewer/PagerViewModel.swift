@@ -87,15 +87,12 @@ extension PagerViewModel {
     
     private func initViewer(index: Int, metadata: tableMetadata) -> ViewerController {
         
-        print("initViewer() - !! name: \(metadata.fileNameView) file exists: \(self.dataService.store.fileExists(metadata))")
-        
         let controller = coordinator.getViewerController(for: index, metadata: metadata)
         
         controller.delegate = self
         
         if metadata.image && dataService.store.fileExists(metadata) {
             controller.path = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
-            print("initViewer() - path: \(controller.path ?? "")")
         }
         
         return controller

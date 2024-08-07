@@ -14,13 +14,25 @@
                 <outlet property="aperatureLabel" destination="Vfn-Mg-pgJ" id="6nH-a8-TYg"/>
                 <outlet property="cameraLabel" destination="x9M-ZG-hZS" id="K3w-gz-mcx"/>
                 <outlet property="cameraView" destination="Npf-m5-tBN" id="AzW-0E-oiH"/>
+                <outlet property="divider1Label" destination="Mld-Pp-6Do" id="BuY-C2-jEd"/>
+                <outlet property="divider2Label" destination="o3V-Y9-p60" id="Wab-Er-Nky"/>
+                <outlet property="divider3Label" destination="cHd-XY-hab" id="Ayu-wI-nkR"/>
+                <outlet property="divider4Label" destination="C2o-pO-xDs" id="7ss-Ym-va5"/>
+                <outlet property="divider5Label" destination="nDL-GM-2wf" id="KbS-q4-sXH"/>
+                <outlet property="durationLabel" destination="cPO-5m-foL" id="Hqd-GD-Wis"/>
+                <outlet property="durationLabelWidthConstraint" destination="DQr-eG-noi" id="Fto-8W-ft0"/>
                 <outlet property="exposureLabel" destination="iAf-dD-zZ1" id="pnD-97-t1w"/>
                 <outlet property="exposureTimeLabel" destination="yFj-Vj-Hmw" id="2Ee-Hb-oAZ"/>
+                <outlet property="exposureTimeLabelWidthConstraint" destination="Bj1-2i-Z49" id="FaH-Ae-TPL"/>
                 <outlet property="fileDateLabel" destination="HLA-7S-wTg" id="XrW-v8-Kpr"/>
                 <outlet property="fileNameLabel" destination="y5V-cf-Wmp" id="e5j-N7-kJF"/>
                 <outlet property="focalLengthLabel" destination="oDb-7C-4cH" id="X4s-cc-5HR"/>
+                <outlet property="fpsLabel" destination="2TD-ZB-yaQ" id="GAI-o3-xDw"/>
+                <outlet property="fpsLabelWidthConstraint" destination="bbY-Np-OKD" id="aUv-RE-OlA"/>
                 <outlet property="isoLabel" destination="gei-ae-rtk" id="fhG-MO-rjH"/>
+                <outlet property="isoLabelWidthConstraint" destination="ljb-Ir-3bK" id="lOb-Cl-PNj"/>
                 <outlet property="lensLabel" destination="Vku-zE-MVR" id="uqD-16-Nsj"/>
+                <outlet property="metadataStackView" destination="Tff-op-Ovl" id="i5Y-hN-tx2"/>
                 <outlet property="sizeLabel" destination="fhR-TL-HoQ" id="0Vw-c4-4AC"/>
             </connections>
         </placeholder>
@@ -94,60 +106,84 @@
                             <rect key="frame" x="0.0" y="92" width="365" height="30"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gei-ae-rtk" userLabel="ISO Label">
-                                    <rect key="frame" x="16" y="0.0" width="50" height="30"/>
+                                    <rect key="frame" x="16" y="0.0" width="40" height="30"/>
                                     <constraints>
-                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="40" id="ljb-Ir-3bK"/>
+                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="40" identifier="ISO label width" id="ljb-Ir-3bK"/>
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <color key="textColor" systemColor="secondaryLabelColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mld-Pp-6Do">
-                                    <rect key="frame" x="74.333333333333329" y="0.0" width="4" height="30"/>
+                                    <rect key="frame" x="58" y="0.0" width="0.0" height="30"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <color key="textColor" systemColor="systemGray5Color"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oDb-7C-4cH" userLabel="Focal Length Label">
-                                    <rect key="frame" x="86.666666666666671" y="0.0" width="50.000000000000014" height="30"/>
+                                    <rect key="frame" x="60" y="0.0" width="31" height="30"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <color key="textColor" systemColor="secondaryLabelColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="o3V-Y9-p60">
-                                    <rect key="frame" x="145" y="0.0" width="4" height="30"/>
+                                    <rect key="frame" x="93" y="0.0" width="0.0" height="30"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <color key="textColor" systemColor="systemGray5Color"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iAf-dD-zZ1" userLabel="Exposure Label">
-                                    <rect key="frame" x="157.66666666666666" y="0.0" width="50" height="30"/>
+                                    <rect key="frame" x="95" y="0.0" width="0.0" height="30"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <color key="textColor" systemColor="secondaryLabelColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cHd-XY-hab">
-                                    <rect key="frame" x="216" y="0.0" width="4" height="30"/>
+                                    <rect key="frame" x="97" y="0.0" width="0.0" height="30"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <color key="textColor" systemColor="systemGray5Color"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vfn-Mg-pgJ" userLabel="Aperature Label">
-                                    <rect key="frame" x="228.33333333333334" y="0.0" width="50.000000000000028" height="30"/>
+                                    <rect key="frame" x="99" y="0.0" width="0.0" height="30"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <color key="textColor" systemColor="secondaryLabelColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="C2o-pO-xDs">
-                                    <rect key="frame" x="286.66666666666669" y="0.0" width="4" height="30"/>
+                                    <rect key="frame" x="101" y="0.0" width="0.0" height="30"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <color key="textColor" systemColor="systemGray5Color"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yFj-Vj-Hmw" userLabel="Exposure Time Label">
-                                    <rect key="frame" x="299" y="0.0" width="50" height="30"/>
+                                    <rect key="frame" x="103" y="0.0" width="40" height="30"/>
                                     <constraints>
-                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="40" id="Bj1-2i-Z49"/>
+                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="40" identifier="Exposure time label width" id="Bj1-2i-Z49"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                    <color key="textColor" systemColor="secondaryLabelColor"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2TD-ZB-yaQ" userLabel="FPS Label">
+                                    <rect key="frame" x="145" y="0.0" width="100" height="30"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="100" identifier="FPS label width" id="bbY-Np-OKD"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                    <color key="textColor" systemColor="secondaryLabelColor"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nDL-GM-2wf">
+                                    <rect key="frame" x="247" y="0.0" width="0.0" height="30"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <color key="textColor" systemColor="systemGray5Color"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cPO-5m-foL" userLabel="Duration Label">
+                                    <rect key="frame" x="249" y="0.0" width="100" height="30"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="100" identifier="Duration label width" id="DQr-eG-noi"/>
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <color key="textColor" systemColor="secondaryLabelColor"/>
@@ -168,10 +204,10 @@
                         <constraint firstItem="rys-VD-zkh" firstAttribute="leading" secondItem="Npf-m5-tBN" secondAttribute="leading" id="Huk-Vq-SIs"/>
                         <constraint firstItem="YrH-Yc-3br" firstAttribute="top" secondItem="Npf-m5-tBN" secondAttribute="top" id="NnH-Rs-SQW"/>
                         <constraint firstAttribute="height" constant="122" identifier="Camera view height" id="Tvj-Yn-rAW"/>
-                        <constraint firstItem="Tff-op-Ovl" firstAttribute="leading" secondItem="Npf-m5-tBN" secondAttribute="leading" id="Y5A-83-LhO"/>
+                        <constraint firstItem="Tff-op-Ovl" firstAttribute="leading" secondItem="Npf-m5-tBN" secondAttribute="leading" identifier="Camera view leading to metadata stack view leading" id="Y5A-83-LhO"/>
                         <constraint firstItem="YrH-Yc-3br" firstAttribute="bottom" secondItem="rys-VD-zkh" secondAttribute="top" constant="-1" id="pq9-ib-uNH"/>
                         <constraint firstAttribute="trailing" secondItem="YrH-Yc-3br" secondAttribute="trailing" id="tjU-Fg-qjE"/>
-                        <constraint firstAttribute="trailing" secondItem="Tff-op-Ovl" secondAttribute="trailing" id="uCk-x8-pwe"/>
+                        <constraint firstAttribute="trailing" secondItem="Tff-op-Ovl" secondAttribute="trailing" identifier="Camera view trailing to metadata stack view trailing" id="uCk-x8-pwe"/>
                         <constraint firstItem="YrH-Yc-3br" firstAttribute="leading" secondItem="Npf-m5-tBN" secondAttribute="leading" id="vlz-1p-Usy"/>
                     </constraints>
                 </view>

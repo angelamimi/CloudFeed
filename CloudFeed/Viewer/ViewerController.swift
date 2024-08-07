@@ -87,12 +87,9 @@ class ViewerController: UIViewController {
         initObservers()
         initGestureRecognizers()
         setStatusContainerContraints()
-        
-        Self.logger.debug("viewDidLoad()")
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        Self.logger.debug("viewWillAppear()")
         
         //don't have real size until laying out subviews. flag for processing
         transitioned = true
@@ -428,7 +425,7 @@ class ViewerController: UIViewController {
                 showHorizontalDetails(animate: animate)
             }
             
-            Self.logger.debug("showDetails() - path: \(self.path ?? "")")
+            Self.logger.debug("showDetails() - path? \(self.path != nil)")
             
             detailView?.metadata = metadata
             //detailView?.path = path
