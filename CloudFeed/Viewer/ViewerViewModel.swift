@@ -101,6 +101,10 @@ final class ViewerViewModel: NSObject {
         guard dataService.store.fileExists(metadata) else { return nil }
         return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
     }
+    
+    func fileExists(_ metadata: tableMetadata) -> Bool {
+        return dataService.store.fileExists(metadata)
+    }
 }
 
 extension ViewerViewModel {

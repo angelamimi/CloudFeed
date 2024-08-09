@@ -41,8 +41,7 @@ class DetailView: UIView {
     @IBOutlet weak var divider4Label: UILabel!
     @IBOutlet weak var divider5Label: UILabel!
     
-    weak var metadata: tableMetadata?
-    var path: String?
+    var metadata: tableMetadata?
     var url: URL?
     
     private static let logger = Logger(
@@ -69,7 +68,7 @@ class DetailView: UIView {
 
         cameraView.clipsToBounds = true
         cameraView.layer.cornerRadius = 8
-    
+
         fileNameLabel.text = "No name information"
         fileDateLabel.text = "No date information"
         cameraLabel.text = "No camera information"
@@ -92,10 +91,13 @@ class DetailView: UIView {
     
     func populateDetails() {
         
+        //Self.logger.debug("populateDetails() - url? \(self.url != nil) file: \(self.metadata!.fileNameView)")
+        
         guard metadata != nil else { return }
         
-        fileNameLabel.text = metadata!.fileNameView
-        fileDateLabel.text = formatDate(metadata!.date as Date)
+        //Self.logger.debug("populateDetails() - file: \(self.metadata!.fileNameView)")
+                          
+        populateMetadataDetails()
         
         if metadata!.video {
             setVideoLabelVisibility()
@@ -104,6 +106,16 @@ class DetailView: UIView {
             setImageLabelVisibility()
             populateImageDetails()
         }
+    }
+    
+    func populateMetadataDetails() {
+        
+        guard metadata != nil else { return }
+        
+        //Self.logger.debug("populateMetadataDetails() - file: \(self.metadata!.fileNameView)")
+                          
+        fileNameLabel.text = metadata!.fileNameView
+        fileDateLabel.text = formatDate(metadata!.date as Date)
     }
     
     private func setImageLabelVisibility() {
@@ -160,7 +172,7 @@ class DetailView: UIView {
         
         let asset = AVAsset(url: url!)
                 
-        populateVideoDetail(asset: asset)
+        populateVideoDetail(metadata: metadata!, asset: asset)
         populateVideoMetadata(asset: asset)
     }
     
@@ -280,7 +292,7 @@ class DetailView: UIView {
         }
     }
     
-    private func populateVideoDetail(asset: AVAsset) {
+    private func populateVideoDetail(metadata: tableMetadata, asset: AVAsset) {
         
         Task {
         
@@ -297,7 +309,7 @@ class DetailView: UIView {
                     setFrameRateText("\(displayFrameRate) FPS")
                 }
                 
-                await populateVideoSize(videoTrack: videoTrack)
+                await populateVideoSize(metadata: metadata, videoTrack: videoTrack)
 
             } else {
                 //Self.logger.debug("populateVideoDetails() - no video tracks found")
@@ -309,7 +321,7 @@ class DetailView: UIView {
         
         Task.detached { [weak self] in
 
-            let avMetadataItems: [AVMetadataItem]? = try? await asset.load(.metadata)
+            guard let avMetadataItems: [AVMetadataItem]? = try? await asset.load(.metadata) else { return }
             var make: String?
             var model: String?
             
@@ -332,17 +344,17 @@ class DetailView: UIView {
         }
     }
     
-    private func populateVideoSize(videoTrack: AVAssetTrack) async {
+    private func populateVideoSize(metadata: tableMetadata, videoTrack: AVAssetTrack) async {
         
         var formattedFileSize: String?
         var rawSize = try? await videoTrack.load(.naturalSize).applying(videoTrack.load(.preferredTransform))
         
         if rawSize == nil {
-            rawSize = CGSize(width: metadata!.width, height: metadata!.height)
+            rawSize = CGSize(width: metadata.width, height: metadata.height)
         }
         
-        if metadata!.size > 0 {
-            formattedFileSize = ByteCountFormatter.string(fromByteCount: metadata!.size, countStyle: .file)
+        if metadata.size > 0 {
+            formattedFileSize = ByteCountFormatter.string(fromByteCount: metadata.size, countStyle: .file)
         }
         
         if !hasText(formattedFileSize) && !hasSize(rawSize) {

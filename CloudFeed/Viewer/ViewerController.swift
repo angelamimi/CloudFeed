@@ -87,6 +87,10 @@ class ViewerController: UIViewController {
         initObservers()
         initGestureRecognizers()
         setStatusContainerContraints()
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            detailView.removeFromSuperview()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -141,6 +145,16 @@ class ViewerController: UIViewController {
         let result = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
         
         detailView.url = result.url
+        self.path = result.url?.absoluteString
+        
+        //Self.logger.debug("result.url? \(result.url != nil) parentDetailsVisible: \(self.parentDetailsVisible())")
+        //Self.logger.debug("path: \(self.path ?? "NONE")")
+        
+        if self.path != nil && self.parentDetailsVisible() { //TODO: Check viewercontroller has details visible, not parent?
+            self.updateDetailsForPath(self.path!)
+        }
+        
+        //Self.logger.debug("loadVideo() - Check for iphone or ipad. just set url for detail view")
         
         if let playerController = result.playerController {
             
@@ -162,15 +176,16 @@ class ViewerController: UIViewController {
         Task { [weak self] in
             guard let self else { return }
             
+            //Self.logger.debug("loadImage() - file: \(metadata.fileNameView)")
+            
             let image = await self.viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
             
-            //Self.logger.debug("loadImage() - have image? \(image != nil) for ocId: \(metadata.ocId)")
             self.path = self.viewModel.getFilePath(metadata)
-            if self.path != nil && self.parentDetailsVisible() {
-                //TODO: Check viewercontroller has details visible, not parent?
-                //self.detailView.url = URL.init(string: self.path!)
-                self.detailView.url = URL(fileURLWithPath: self.path!)
-                self.detailView?.populateDetails()
+            
+            //Self.logger.debug("loadImage() - path? \(self.path != nil) parent details visible? \(self.parentDetailsVisible()) file: \(metadata.fileNameView)")
+            
+            if self.path != nil && self.parentDetailsVisible() { //TODO: Check viewercontroller has details visible, not parent?
+                self.updateDetailsForPath(self.path!)
             }
             
             if image != nil && self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
@@ -184,6 +199,52 @@ class ViewerController: UIViewController {
         }
     }
     
+    private func updateDetailsForPath(_ path: String) {
+        
+        //Self.logger.debug("updateDetailsForPath() - path? \(path.count > 0) file: \(self.metadata.fileNameView)")
+        
+        let url: URL?
+        
+        if metadata.video {
+            url = URL.init(string: path)
+        } else if metadata.image {
+            url = URL.init(filePath: path)
+        } else {
+            url = nil
+        }
+        
+        guard url != nil else { return }
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if let popover = presentedViewController as? DetailsController {
+                //Self.logger.debug("updateDetailsForPath() - file: \(self.metadata.fileNameView) have popover. calling populateDetails isBeingDismissed: \(popover.isBeingDismissed)")
+                
+                if !popover.isBeingDismissed {
+                    popover.metadata = metadata
+                    popover.populateDetails(url: url!)
+                } else {
+                    presentedViewController?.dismiss(animated: false, completion: {
+                        DispatchQueue.main.async { [weak self] in
+                            self?.presentDetailPopover()
+                        }
+                    })
+                }
+            }
+        } else {
+            detailView?.metadata = metadata
+            detailView?.url = url!
+            detailView?.populateDetails()
+        }
+    }
+    
+    private func getViewCompareCount() -> Int {
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            return 4 //titleView, live photo container, activity indicator, and detail view
+        } else {
+            return 3 //titleView, live photo container, activity indicator
+        }
+    }
+    
     private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
 
         videoView = avpController.view
@@ -192,8 +253,7 @@ class ViewerController: UIViewController {
             addChild(avpController)
         }
         
-        //titleView, live photo container, activity indicator, and detail view
-        if self.view.subviews.count == 4 && videoView != nil {
+        if self.view.subviews.count == getViewCompareCount() && videoView != nil {
 
             self.view.addSubview(videoView!)
             
@@ -371,24 +431,35 @@ class ViewerController: UIViewController {
         }
     }
     
+    private func getUrl() -> URL? {
+        
+        if metadata.image, let path = viewModel.getFilePath(metadata) {
+            return URL.init(filePath: path)
+        } else if metadata.video && path != nil && !path!.isEmpty {
+            return URL.init(string: path!)
+        }
+        return nil
+    }
+    
     private func presentDetailPopover() {
         
         let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
         
+        controller.url = getUrl()
         controller.metadata = metadata
         controller.modalPresentationStyle = .popover
-        controller.preferredContentSize = CGSize(width: 400, height: 500)
-        
+        controller.preferredContentSize = CGSize(width: 400, height: 220)
+    
         if let popover = controller.popoverPresentationController {
             
             popover.sourceView = imageView
             popover.sourceRect = CGRect(x: view.frame.width, y: 0, width: 100, height: 100)
             popover.permittedArrowDirections = []
-           
+            
             let sheet = popover.adaptiveSheetPresentationController
             sheet.largestUndimmedDetentIdentifier = .large
             sheet.detents = [.medium(), .large()]
-            sheet.prefersGrabberVisible = true
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = true //TODO: Does this setting do anything??
         }
         
         present(controller, animated: true)
@@ -408,6 +479,7 @@ class ViewerController: UIViewController {
             if presentedViewController == nil {
                 presentDetailPopover()
             } else {
+                //Self.logger.debug("showDetails() - isBeingDismissed: \(self.presentedViewController!.isBeingDismissed)")
                 presentedViewController?.dismiss(animated: false, completion: {
                     DispatchQueue.main.async { [weak self] in
                         self?.presentDetailPopover()
@@ -425,12 +497,14 @@ class ViewerController: UIViewController {
                 showHorizontalDetails(animate: animate)
             }
             
-            Self.logger.debug("showDetails() - path? \(self.path != nil)")
+            //Self.logger.debug("showDetails() - path? \(self.path != nil)")
             
             detailView?.metadata = metadata
-            //detailView?.path = path
-            if path != nil {
-                detailView.url = URL(fileURLWithPath: path!)
+
+            if path == nil {
+                detailView?.url = nil
+            } else {
+                detailView?.url = getUrl()
             }
             
             detailView?.populateDetails()
