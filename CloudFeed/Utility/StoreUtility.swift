@@ -201,7 +201,7 @@ class StoreUtility {
                 }
             }
         } catch let error {
-            Self.logger.debug("Failed to clear cache with error: \(error.localizedDescription)")
+            Self.logger.error("Failed to clear cache with error: \(error.localizedDescription)")
         }
     }
     

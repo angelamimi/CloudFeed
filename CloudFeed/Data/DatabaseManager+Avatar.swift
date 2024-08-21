@@ -95,7 +95,7 @@ extension DatabaseManager {
             return UIImage(contentsOfFile: cachePath)
             
         } catch	let error as NSError {
-            Self.logger.debug("Failed to load avatar with error \(error.localizedDescription)")
+            Self.logger.error("Failed to load avatar with error \(error.localizedDescription)")
         }
         
         FileSystemUtility.shared.deleteFile(filePath: cachePath)

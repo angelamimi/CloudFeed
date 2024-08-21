@@ -22,7 +22,6 @@
 import UIKit
 
 protocol PagerViewModelDelegate: AnyObject {
-    func detailVisibilityChanged(visible: Bool)
     func finishedPaging(metadata: tableMetadata)
     func finishedUpdatingFavorite(isFavorite: Bool)
     func saveFavoriteError()
@@ -35,10 +34,10 @@ final class PagerViewModel: NSObject {
     
     private var currentIndex: Int
     private var metadatas: [tableMetadata]
-    private var detailsVisible: Bool = false
     
     internal var nextIndex: Int?
     weak var delegate: PagerViewModelDelegate?
+    weak var viewerDelegate: ViewerDelegate?
     
     init(coordinator: ViewerCoordinator, dataService: DataService, currentIndex: Int = 0, metadatas: [tableMetadata]) {
         self.coordinator = coordinator
@@ -88,22 +87,14 @@ extension PagerViewModel {
     private func initViewer(index: Int, metadata: tableMetadata) -> ViewerController {
         
         let controller = coordinator.getViewerController(for: index, metadata: metadata)
-        
-        controller.delegate = self
+
+        controller.delegate = viewerDelegate
         
         if metadata.image && dataService.store.fileExists(metadata) {
             controller.path = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
         }
         
         return controller
-    }
-}
-
-extension PagerViewModel: ViewerDetailsDelegate {
-    
-    func detailVisibilityChanged(visible: Bool) {
-        detailsVisible = visible
-        delegate?.detailVisibilityChanged(visible: visible)
     }
 }
 

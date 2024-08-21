@@ -64,7 +64,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gnc-Wf-rti">
+                            <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gnc-Wf-rti">
                                 <rect key="frame" x="0.0" y="59" width="393" height="300"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
@@ -268,7 +268,6 @@
                     </view>
                     <connections>
                         <outlet property="detailView" destination="uns-6d-V3K" id="5pI-Xl-PfQ"/>
-                        <outlet property="detailViewWidthConstraint" destination="HIQ-zf-XH7" id="3Wu-AS-ggc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xdP-Yo-YSL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

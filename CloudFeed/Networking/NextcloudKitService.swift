@@ -124,7 +124,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                 etag: etag, options: options) { _, _, _, etag, error in
                     
                     guard let etag = etag, error == .success else {
-                        Self.logger.debug("downloadAvatar() - error: \(error.errorDescription)")
+                        Self.logger.error("downloadAvatar() - error: \(error.errorDescription)")
                         continuation.resume(returning: nil)
                         return
                     }

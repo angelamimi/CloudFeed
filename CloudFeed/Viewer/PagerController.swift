@@ -30,6 +30,7 @@ class PagerController: UIViewController, MediaViewController {
     var viewModel: PagerViewModel!
     
     var detailsVisible: Bool = false
+    var status: Global.ViewerStatus = .title
     
     private var titleViewHeightAnchor: NSLayoutConstraint?
     private weak var titleView: TitleView?
@@ -60,13 +61,13 @@ class PagerController: UIViewController, MediaViewController {
         pageViewController?.delegate = viewModel
         pageViewController?.dataSource = viewModel
         
-        let longtapGestureRecognizer = UILongPressGestureRecognizer()
-        longtapGestureRecognizer.delaysTouchesBegan = true
-        longtapGestureRecognizer.minimumPressDuration = 0.3
-        longtapGestureRecognizer.delegate = self
-        longtapGestureRecognizer.addTarget(self, action: #selector(didLongpressGestureEvent(gestureRecognizer:)))
+        let longPress = UILongPressGestureRecognizer()
+        longPress.delaysTouchesBegan = true
+        longPress.minimumPressDuration = 0.3
+        longPress.delegate = self
+        longPress.addTarget(self, action: #selector(handleLongPress(gestureRecognizer:)))
         
-        pageViewController?.view.addGestureRecognizer(longtapGestureRecognizer)
+        pageViewController?.view.addGestureRecognizer(longPress)
         
         let metadata = viewModel.currentMetadata()
         let viewerMedia = viewModel.initViewer()
@@ -98,7 +99,7 @@ class PagerController: UIViewController, MediaViewController {
     
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        
+        Self.logger.debug("viewWillTransition()")
         if detailsVisible {
             hideTitle()
         } else {
@@ -122,6 +123,16 @@ class PagerController: UIViewController, MediaViewController {
     
     func cancel() {        
         navigationController?.popViewController(animated: true)
+    }
+    
+    func isTitleVisible() -> Bool {
+        Self.logger.debug("isTitleVisible() - titleView? \(self.titleView != nil)")
+        if titleView == nil {
+            return false
+        } else {
+            Self.logger.debug("isTitleVisible() - titleView hidden? \(!self.titleView!.isHidden)")
+            return !titleView!.isHidden
+        }
     }
     
     private func initObservers() {
@@ -154,6 +165,7 @@ class PagerController: UIViewController, MediaViewController {
     private func willEnterForegroundNotification() {
         if isViewLoaded && view.window != nil {
             updateTitleConstraints()
+            currentViewController?.willEnterForeground()
         }
     }
 
@@ -226,16 +238,37 @@ class PagerController: UIViewController, MediaViewController {
     }
 }
 
-extension PagerController: PagerViewModelDelegate {
+extension PagerController: ViewerDelegate {
+    
+    func hideAll() {
+        detailsVisible = false
+        hideTitle()
+    }
+    
+    func singleTapped() {
+        
+        detailsVisible = false
+
+        if isTitleVisible() {
+            hideTitle()
+        } else {
+            showTitle()
+        }
+    }
     
     func detailVisibilityChanged(visible: Bool) {
+        Self.logger.debug("detailVisibilityChanged() - visible: \(visible)")
         detailsVisible = visible
+        
         if visible {
             hideTitle()
         } else {
             showTitle()
         }
     }
+}
+
+extension PagerController: PagerViewModelDelegate {
 
     func finishedPaging(metadata: tableMetadata) {
         DispatchQueue.main.async { [weak self] in
@@ -256,9 +289,10 @@ extension PagerController: PagerViewModelDelegate {
 }
 
 extension PagerController: UIGestureRecognizerDelegate {
-
-    @objc func didLongpressGestureEvent(gestureRecognizer: UITapGestureRecognizer) {
+    
+    @objc private func handleLongPress(gestureRecognizer: UITapGestureRecognizer) {
         
+        guard detailsVisible == false else { return }
         guard let currentViewController = currentViewController else { return }
         
         if !currentViewController.metadata.livePhoto { return }
@@ -279,7 +313,7 @@ extension PagerController: UIGestureRecognizerDelegate {
                 }
             }
         } else if gestureRecognizer.state == .ended {
-            //Self.logger.debug("didLongpressGestureEvent() - ended")
+            currentViewController.liveLongPressEnded()
         }
     }
 }

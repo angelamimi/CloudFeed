@@ -102,4 +102,12 @@ class Global: NSObject {
         case video
         case all
     }
+    
+    // MARK: - Viewer
+    //
+    enum ViewerStatus {
+        case fullscreen //title hidden. details hidden.
+        case details    //title hidden. details visible.
+        case title      //title visible. details hidden.
+    }
 }

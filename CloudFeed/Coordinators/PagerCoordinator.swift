@@ -38,6 +38,7 @@ final class PagerCoordinator {
         let viewModel = PagerViewModel(coordinator: viewerCoordinator, dataService: dataService, currentIndex: currentIndex, metadatas: metadatas)
         
         viewModel.delegate = viewerPager
+        viewModel.viewerDelegate = viewerPager
         
         viewerPager.viewModel = viewModel
         viewerPager.coordinator = self

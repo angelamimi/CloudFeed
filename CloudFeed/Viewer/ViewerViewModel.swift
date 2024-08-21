@@ -69,8 +69,8 @@ final class ViewerViewModel: NSObject {
         avpController.view.frame.size.width = viewWidth
         
         avpController.videoGravity = .resizeAspect
-        
-        avpController.showsPlaybackControls = true
+        avpController.allowsPictureInPicturePlayback = false
+        //avpController.showsPlaybackControls = true
         
         return avpController
     }

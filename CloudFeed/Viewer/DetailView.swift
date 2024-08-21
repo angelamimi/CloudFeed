@@ -3,11 +3,29 @@
 //  CloudFeed
 //
 //  Created by Angela Jarosz on 7/25/24.
+//  Copyright © 2024 Angela Jarosz. All rights reserved.
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
 import UIKit
 import AVFoundation
 import os.log
+
+protocol DetailViewDelegate: AnyObject {
+    func layoutUpdated(height: CGFloat)
+}
 
 class DetailView: UIView {
     
@@ -43,6 +61,8 @@ class DetailView: UIView {
     
     var metadata: tableMetadata?
     var url: URL?
+    
+    var delegate: DetailViewDelegate?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -91,12 +111,8 @@ class DetailView: UIView {
     
     func populateDetails() {
         
-        //Self.logger.debug("populateDetails() - url? \(self.url != nil) file: \(self.metadata!.fileNameView)")
-        
         guard metadata != nil else { return }
         
-        //Self.logger.debug("populateDetails() - file: \(self.metadata!.fileNameView)")
-                          
         populateMetadataDetails()
         
         if metadata!.video {
@@ -112,10 +128,12 @@ class DetailView: UIView {
         
         guard metadata != nil else { return }
         
-        //Self.logger.debug("populateMetadataDetails() - file: \(self.metadata!.fileNameView)")
-                          
         fileNameLabel.text = metadata!.fileNameView
         fileDateLabel.text = formatDate(metadata!.date as Date)
+    }
+    
+    override func layoutSubviews() {
+        delegate?.layoutUpdated(height: self.frame.height)
     }
     
     private func setImageLabelVisibility() {
@@ -358,7 +376,7 @@ class DetailView: UIView {
         }
         
         if !hasText(formattedFileSize) && !hasSize(rawSize) {
-            //TODO: Set text for missing size info?
+
         } else if hasText(formattedFileSize) && !hasSize(rawSize) {
             setFileSizeText(formattedFileSize!)
         } else if !hasText(formattedFileSize) && hasSize(rawSize) {
@@ -376,9 +394,7 @@ class DetailView: UIView {
             setMakeModelText(make!)
         } else if !hasText(make) && hasText(model) {
             setMakeModelText(model!)
-        } /*else {
-            setMakeModelText("No camera information") //TODO: externalize text
-        }*/
+        }
     }
      
     private func setMakeModelText(_ text: String) {
@@ -416,7 +432,7 @@ class DetailView: UIView {
     private func populateDisplayTime(_ seconds: Double?) {
         
         if seconds == nil || seconds! == 0 {
-            Self.logger.debug("getDisplayTime() - nothing to convert")
+            //Self.logger.debug("getDisplayTime() - nothing to convert")
         } else {
             let duration = Duration.seconds(seconds!)
             let formatted = duration.formatted(.time(pattern: .hourMinuteSecond(padHourToLength: 1, fractionalSecondsLength: 0)))

@@ -3,6 +3,20 @@
 //  CloudFeed
 //
 //  Created by Angela Jarosz on 7/26/24.
+//  Copyright © 2024 Angela Jarosz. All rights reserved.
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
 import UIKit
@@ -11,9 +25,6 @@ import os.log
 class DetailsController: UIViewController {
     
     @IBOutlet weak var detailView: DetailView!
-    
-    @IBOutlet weak var detailViewWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var detailViewHeightConstraint: NSLayoutConstraint!
     
     var metadata: tableMetadata?
     var url: URL?
@@ -25,65 +36,56 @@ class DetailsController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        detailView.delegate = self
         
-        //Self.logger.debug("viewDidLoad")
-        
-        let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
-        swipeUpRecognizer.direction = .up
-        
-        let swipeDownRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
-        swipeDownRecognizer.direction = .down
-        
-        view.addGestureRecognizer(swipeUpRecognizer)
-        view.addGestureRecognizer(swipeDownRecognizer)
-        
-        
+        addGestures()
         bindDetailView()
     }
     
-    @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
-
-        if swipeGesture.direction == .up {
-            Self.logger.debug("handleSwipe() - up")
-            self.preferredContentSize = CGSize(width: 400, height: 220)
-        } else {
-            Self.logger.debug("handleSwipe() - down")
-            self.preferredContentSize = CGSize(width: 400, height: 600)
-        }
-    }
-    
-    override func viewDidLayoutSubviews() {
-        //TODO: Why did this with frame?
-       /* if view.frame.size.width > 0 {
-            detailViewHeightConstraint.constant = view.frame.size.height
-            detailViewWidthConstraint.constant = view.frame.size.width
-        }*/
-    }
-    
     func populateDetails(url: URL) {
-        Self.logger.debug("populateDetails() - file: \(self.metadata?.fileNameView ?? "nil metadata?????") calling populateDetails")
-        
-        //guard let metadata = metadata else { return }
+
+        guard let metadata = metadata else { return }
         
         detailView.metadata = metadata
         detailView.url = url
         
         detailView.populateDetails()
+    }
+    
+    @objc 
+    private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
+        dismiss(animated: false)
     }
     
     private func bindDetailView() {
         
         guard let metadata = metadata else { return }
-        
-        //Self.logger.debug("bindDetailView() - file: \(metadata.fileNameView)")
  
         detailView.metadata = metadata
         detailView.url = url
         
         detailView.populateDetails()
+    }
+    
+    private func addGestures() {
         
-        Self.logger.debug("bindDetailView() - file: \(metadata.fileNameView) size: \(self.view.frame.size.debugDescription) detail size: \(self.detailView.frame.size.debugDescription)")
+        let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
+        let swipeDownRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
+        
+        swipeUpRecognizer.direction = .up
+        swipeDownRecognizer.direction = .down
+        
+        view.addGestureRecognizer(swipeUpRecognizer)
+        view.addGestureRecognizer(swipeDownRecognizer)
+    }
+}
 
-        //self.preferredContentSize = CGSize(width: 400, height: self.detailView.frame.size.height)
+extension DetailsController : DetailViewDelegate {
+    
+    func layoutUpdated(height: CGFloat) {
+        if height > view.frame.height {
+            self.preferredContentSize = CGSize(width: 400, height: height)
+        }
     }
 }
