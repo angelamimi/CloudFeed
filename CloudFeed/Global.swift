@@ -105,9 +105,9 @@ class Global: NSObject {
     
     // MARK: - Viewer
     //
-    enum ViewerStatus {
-        case fullscreen //title hidden. details hidden.
-        case details    //title hidden. details visible.
-        case title      //title visible. details hidden.
+    enum ViewerStatus: String {
+        case fullscreen = "fullscreen"  //title hidden. details hidden.
+        case details = "details"        //title hidden. details visible.
+        case title = "title"            //title visible. details hidden.
     }
 }

@@ -26,9 +26,8 @@ import NextcloudKit
 import os.log
 
 protocol ViewerDelegate: AnyObject {
-    func detailVisibilityChanged(visible: Bool)
-    func hideAll()
     func singleTapped()
+    func updateStatus(status: Global.ViewerStatus)
 }
 
 class ViewerController: UIViewController {
@@ -106,7 +105,6 @@ class ViewerController: UIViewController {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        Self.logger.debug("viewWillDisappear()")
         disappearing = true
     }
     
@@ -116,7 +114,7 @@ class ViewerController: UIViewController {
         if !view.frame.size.equalTo(size) {
             size = view.frame.size
             
-            if parentDetailsVisible() {
+            if currentStatus() == .details {
                 showDetails(animate: false)
             } else {
                 imageViewHeightConstraint?.constant = view.frame.height
@@ -132,19 +130,18 @@ class ViewerController: UIViewController {
     func willEnterForeground() {
         if presentedViewController != nil {
             presentedViewController?.dismiss(animated: false)
-            delegate?.detailVisibilityChanged(visible: false)
+            delegate?.updateStatus(status: .title)
         }
     }
     
     func playLivePhoto(_ url: URL) {
         
-        Self.logger.debug("playLivePhoto() - calling hideAll")
         hideAll()
         
         if playerViewController == nil {
             let avpController = viewModel.loadVideoFromUrl(url, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
             avpController.showsPlaybackControls = false
-            setupVideoController(avpController: avpController, autoPlay: true, allowTap: true)
+            setupVideoController(avpController: avpController, autoPlay: true)
         } else {
             playerViewController!.player?.play()
         }
@@ -156,7 +153,7 @@ class ViewerController: UIViewController {
     }
     
     private func hideAll() {
-        delegate?.hideAll()
+        delegate?.updateStatus(status: .fullscreen)
         
         if metadata.livePhoto {
             statusContainerView.isHidden = true
@@ -170,7 +167,7 @@ class ViewerController: UIViewController {
         detailView.url = result.url
         path = result.url?.absoluteString
         
-        if path != nil && parentDetailsVisible() {
+        if path != nil && currentStatus() == .details {
             updateDetailsForPath(path!)
         }
         
@@ -178,7 +175,7 @@ class ViewerController: UIViewController {
             
             playerController.showsPlaybackControls = true
             
-            setupVideoController(avpController: playerController, autoPlay: false, allowTap: true)
+            setupVideoController(avpController: playerController, autoPlay: false)
         }
     }
     
@@ -200,7 +197,7 @@ class ViewerController: UIViewController {
             
             self.path = self.viewModel.getFilePath(metadata)
             
-            if self.path != nil && self.parentDetailsVisible() { //TODO: Check viewercontroller has details visible, not parent?
+            if self.path != nil && self.currentStatus() == .details { //TODO: Check viewercontroller has details visible, not parent?
                 self.updateDetailsForPath(self.path!)
             }
             
@@ -219,8 +216,8 @@ class ViewerController: UIViewController {
         activityIndicator.stopAnimating()
         
         if metadata.livePhoto {
-            Self.logger.debug("handleImageLoaded() - parentTitleVisible: \(self.parentTitleVisible())")
-            statusContainerView.isHidden = !parentTitleVisible()
+            let status = currentStatus()
+            statusContainerView.isHidden = status == .details || status == .fullscreen
         }
     }
     
@@ -268,13 +265,7 @@ class ViewerController: UIViewController {
         }
     }
     
-    @objc private func handleSingleVideoTap(tapGesture: UITapGestureRecognizer) {
-        if !detailsVisible() {
-            delegate?.singleTapped()
-        }
-    }
-    
-    private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool, allowTap: Bool) {
+    private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
 
         videoView = avpController.view
         
@@ -284,21 +275,24 @@ class ViewerController: UIViewController {
         
         if self.view.subviews.count == getViewCompareCount() && videoView != nil {
             
-            if allowTap {
-                let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleSingleVideoTap(tapGesture:)))
+            let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleSingleVideoTap(tapGesture:)))
                 
-                tapRecognizer.cancelsTouchesInView = false
-                tapRecognizer.delegate = self
-                tapRecognizer.numberOfTapsRequired = 1
+            tapRecognizer.cancelsTouchesInView = false
+            tapRecognizer.delegate = self
+            tapRecognizer.numberOfTapsRequired = 1
                 
-                avpController.view.addGestureRecognizer(tapRecognizer)
-            }
+            avpController.view.addGestureRecognizer(tapRecognizer)
             
             avpController.view.backgroundColor = .clear
             
             view.addSubview(videoView!)
             
             view.bringSubviewToFront(statusContainerView)
+            
+            if metadata.livePhoto {
+                //make sure can't see both the imageview and videoview at the same time. looks bad when showing/hiding details
+                imageView.isHidden = true
+            }
 
             videoView?.translatesAutoresizingMaskIntoConstraints = false
 
@@ -322,15 +316,9 @@ class ViewerController: UIViewController {
         playerViewController = avpController
     }
     
-    private func parentDetailsVisible() -> Bool {
-        guard let pagerController = parent?.parent as? PagerController else { return false }
-        return pagerController.detailsVisible
-    }
-    
-    private func parentTitleVisible() -> Bool {
-        Self.logger.debug("parentTitleVisible() - parent? \(self.parent?.parent != nil)")
-        guard let pagerController = parent?.parent as? PagerController else { return false }
-        return pagerController.isTitleVisible()
+    private func currentStatus() -> Global.ViewerStatus {
+        guard let pagerController = parent?.parent as? PagerController else { return .title }
+        return pagerController.status
     }
     
     private func setStatusContainerContraints() {
@@ -390,7 +378,9 @@ class ViewerController: UIViewController {
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
 
         if swipeGesture.direction == .up {
-            showDetails(animate: true)
+            if !detailsVisible() {
+                showDetails(animate: true)
+            }
         } else {
             if metadata.video && UIDevice.current.userInterfaceIdiom == .pad {
                 //skip hiding details. see handlePresentationControllerDidDismiss
@@ -401,7 +391,7 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handleSingleTap(tapGesture: UITapGestureRecognizer) {
-        Self.logger.debug("handleSingleTap()")
+        
         if UIDevice.current.userInterfaceIdiom == .pad {
             
             if presentedViewController == nil {
@@ -409,7 +399,7 @@ class ViewerController: UIViewController {
                 toggleStatusVisibility()
             } else {
                 presentedViewController?.dismiss(animated: true)
-                hideDetails(animate: true, hideStatus: true)
+                hideDetails(animate: true, hideStatus: false)
             }
         } else {
 
@@ -430,20 +420,24 @@ class ViewerController: UIViewController {
     
     private func handlePresentationControllerDidDismiss() {
 
-        Self.logger.debug("handlePresentationControllerDidDismiss() - disappearing: \(self.disappearing)")
         guard disappearing == false else { return }
         
         if metadata.video {
-            Self.logger.debug("handlePresentationControllerDidDismiss() - calling hideAll")
-            //usability. making sure video controls are not covered after dismissing details popover
-            delegate?.hideAll()
+            //usability. making sure video controls are not covered by the title bar after dismissing details popover
+            delegate?.updateStatus(status: .fullscreen)
         } else {
-            Self.logger.debug("handlePresentationControllerDidDismiss() - calling detailVisibilityChanged with false")
-            delegate?.detailVisibilityChanged(visible: false)
+            delegate?.updateStatus(status: .title)
             
             if metadata.livePhoto {
                 statusContainerView.isHidden = false
             }
+        }
+    }
+    
+    @objc private func handleSingleVideoTap(tapGesture: UITapGestureRecognizer) {
+        if !detailsVisible() {
+            delegate?.singleTapped()
+            toggleStatusVisibility()
         }
     }
     
@@ -581,7 +575,7 @@ class ViewerController: UIViewController {
     
     private func showDetails(animate: Bool) {
 
-        delegate?.detailVisibilityChanged(visible: true)
+        delegate?.updateStatus(status: .details)
         
         statusContainerView.isHidden = true
         
@@ -612,6 +606,10 @@ class ViewerController: UIViewController {
             //video view is added at runtime, which ends up in front of detail view. bring detail view back to front
             view.bringSubviewToFront(detailView)
             
+            /*if metadata.livePhoto && videoView != nil {
+                view.sendSubviewToBack(videoView!)
+            }*/
+            
             if isPortrait() {
                 showVerticalDetails(animate: animate)
             } else {
@@ -632,11 +630,9 @@ class ViewerController: UIViewController {
     
     private func hideDetails(animate: Bool, hideStatus: Bool) {
         
-        Self.logger.debug("hideDetails() - calling detailVisibilityChanged with false")
+        delegate?.updateStatus(status: .title)
         
-        delegate?.detailVisibilityChanged(visible: false)
-        
-        if viewModel.isLivePhoto() {
+        if metadata.livePhoto {
             statusContainerView.isHidden = hideStatus
         }
         
@@ -673,14 +669,14 @@ class ViewerController: UIViewController {
     
         if animate {
             
-            UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
+            UIView.transition(with: imageView, duration: 0.2, options: .transitionCrossDissolve, animations: {
                 self.updateContentMode(contentMode: .scaleAspectFill)
             })
             
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
                 self.updateVerticalConstraintsShow(heightOffset: heightOffset)
             })
-            
+
         } else {
             updateContentMode(contentMode: .scaleAspectFill)
             updateVerticalConstraintsShow(heightOffset: heightOffset)
@@ -812,9 +808,11 @@ class ViewerController: UIViewController {
         imageView.contentMode = contentMode
         videoView?.contentMode = contentMode
         
-        if metadata.video && playerViewController != nil {
+        //TODO: Didn't always finish updating, which caused visual issue when scrolling to the next page
+        /*if metadata.video && playerViewController != nil {
+            Self.logger.debug("updateContentMode() - contentMode: \(contentMode == .scaleAspectFill ? "fill" : "fit")")
             playerViewController?.videoGravity = contentMode == .scaleAspectFill ? .resizeAspectFill : .resizeAspect
-        }
+        }*/
     }
 }
 

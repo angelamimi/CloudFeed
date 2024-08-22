@@ -28,8 +28,6 @@ class PagerController: UIViewController, MediaViewController {
     
     var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
-    
-    var detailsVisible: Bool = false
     var status: Global.ViewerStatus = .title
     
     private var titleViewHeightAnchor: NSLayoutConstraint?
@@ -99,12 +97,12 @@ class PagerController: UIViewController, MediaViewController {
     
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        Self.logger.debug("viewWillTransition()")
-        if detailsVisible {
-            hideTitle()
-        } else {
+
+        if status == .title {
             titleView?.isHidden = false
             updateTitleConstraints()
+        } else {
+            hideTitle()
         }
     }
     
@@ -126,11 +124,9 @@ class PagerController: UIViewController, MediaViewController {
     }
     
     func isTitleVisible() -> Bool {
-        Self.logger.debug("isTitleVisible() - titleView? \(self.titleView != nil)")
         if titleView == nil {
             return false
         } else {
-            Self.logger.debug("isTitleVisible() - titleView hidden? \(!self.titleView!.isHidden)")
             return !titleView!.isHidden
         }
     }
@@ -240,30 +236,29 @@ class PagerController: UIViewController, MediaViewController {
 
 extension PagerController: ViewerDelegate {
     
-    func hideAll() {
-        detailsVisible = false
-        hideTitle()
+    func updateStatus(status: Global.ViewerStatus) {
+        self.status = status
+        
+        if status == .title {
+            showTitle()
+        } else {
+            hideTitle()
+        }
     }
     
     func singleTapped() {
         
-        detailsVisible = false
-
-        if isTitleVisible() {
-            hideTitle()
-        } else {
+        if status == .details {
+            status = .title
             showTitle()
-        }
-    }
-    
-    func detailVisibilityChanged(visible: Bool) {
-        Self.logger.debug("detailVisibilityChanged() - visible: \(visible)")
-        detailsVisible = visible
-        
-        if visible {
-            hideTitle()
-        } else {
+        } else if status == .fullscreen {
+            status = .title
             showTitle()
+        } else {
+            status = .fullscreen
+            if isTitleVisible() {
+                hideTitle()
+            }
         }
     }
 }
@@ -292,7 +287,7 @@ extension PagerController: UIGestureRecognizerDelegate {
     
     @objc private func handleLongPress(gestureRecognizer: UITapGestureRecognizer) {
         
-        guard detailsVisible == false else { return }
+        guard status != .details else { return }
         guard let currentViewController = currentViewController else { return }
         
         if !currentViewController.metadata.livePhoto { return }
