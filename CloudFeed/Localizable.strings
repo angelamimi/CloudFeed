@@ -80,8 +80,8 @@
 "Detail.CreatedDate" = "Created";
 "Detail.FileSize" = "File Size";
 "Detail.Dimensions" = "Dimensions";
-"Detail.LenseMake" = "Lense Make";
-"Detail.LenseModel" = "Lense Model";
+"Detail.LensMake" = "Lens Make";
+"Detail.LensModel" = "Lens Model";
 "Detail.ColorSpace" = "Color Space";
 "Detail.DPI" = "Resolution";
 "Detail.Profile" = "Profile";
@@ -91,3 +91,10 @@
 "Detail.ISO" = "ISO";
 "Detail.Brightness" = "Brightness";
 "Detail.ShutterSpeed" = "Shutter Speed";
+
+"Detail.Name.None" = "No name information";
+"Detail.Date.None" = "No date information";
+"Detail.Camera.None" = "No camera information";
+"Detail.Size.None" = "No size information";
+"Detail.Lens.None" = "No lens information";
+

@@ -98,8 +98,8 @@ extension Strings {
     public static let DetailCreatedDate = NSLocalizedString("Detail.CreatedDate", comment: "")
     public static let DetailFileSize = NSLocalizedString("Detail.FileSize", comment: "")
     public static let DetailDimensions = NSLocalizedString("Detail.Dimensions", comment: "")
-    public static let DetailLenseMake = NSLocalizedString("Detail.LenseMake", comment: "")
-    public static let DetailLenseModel = NSLocalizedString("Detail.LenseModel", comment: "")
+    public static let DetailLensMake = NSLocalizedString("Detail.LensMake", comment: "")
+    public static let DetailLensModel = NSLocalizedString("Detail.LensModel", comment: "")
     public static let DetailColorSpace = NSLocalizedString("Detail.ColorSpace", comment: "")
     public static let DetailDPI = NSLocalizedString("Detail.DPI", comment: "")
     public static let DetailProfile = NSLocalizedString("Detail.Profile", comment: "")
@@ -109,4 +109,10 @@ extension Strings {
     public static let DetailISO = NSLocalizedString("Detail.ISO", comment: "")
     public static let DetailBrightness = NSLocalizedString("Detail.Brightness", comment: "")
     public static let DetailShutterSpeed = NSLocalizedString("Detail.ShutterSpeed", comment: "")
+    
+    public static let DetailNameNone = NSLocalizedString("Detail.Name.None", comment: "")
+    public static let DetailDateNone = NSLocalizedString("Detail.Date.None", comment: "")
+    public static let DetailCameraNone = NSLocalizedString("Detail.Camera.None", comment: "")
+    public static let DetailSizeNone = NSLocalizedString("Detail.Size.None", comment: "")
+    public static let DetailLensNone = NSLocalizedString("Detail.Lens.None", comment: "")
 }

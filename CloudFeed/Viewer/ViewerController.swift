@@ -197,7 +197,7 @@ class ViewerController: UIViewController {
             
             self.path = self.viewModel.getFilePath(metadata)
             
-            if self.path != nil && self.currentStatus() == .details { //TODO: Check viewercontroller has details visible, not parent?
+            if self.path != nil && self.currentStatus() == .details { 
                 self.updateDetailsForPath(self.path!)
             }
             

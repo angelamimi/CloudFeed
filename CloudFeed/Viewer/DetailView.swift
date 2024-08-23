@@ -35,6 +35,11 @@ class DetailView: UIView {
     @IBOutlet weak var fileNameLabel: UILabel!
     @IBOutlet weak var cameraView: UIView!
     @IBOutlet weak var cameraLabel: UILabel!
+    
+    @IBOutlet weak var typeView: UIView!
+    @IBOutlet weak var typeLabel: UILabel!
+    @IBOutlet weak var typeImageView: UIImageView!
+    
     @IBOutlet weak var lensLabel: UILabel!
     @IBOutlet weak var sizeLabel: UILabel!
 
@@ -88,12 +93,15 @@ class DetailView: UIView {
 
         cameraView.clipsToBounds = true
         cameraView.layer.cornerRadius = 8
+        
+        typeView.clipsToBounds = true
+        typeView.layer.cornerRadius = 3
 
-        fileNameLabel.text = "No name information"
-        fileDateLabel.text = "No date information"
-        cameraLabel.text = "No camera information"
-        sizeLabel.text = "No size information"
-        lensLabel.text = "No lens information" //TODO: Externalize text
+        fileNameLabel.text = Strings.DetailNameNone
+        fileDateLabel.text = Strings.DetailDateNone
+        cameraLabel.text = Strings.DetailCameraNone
+        sizeLabel.text = Strings.DetailSizeNone
+        lensLabel.text = Strings.DetailLensNone
         
         isoLabel.text = "-"
         focalLengthLabel.text = "-"
@@ -128,8 +136,19 @@ class DetailView: UIView {
         
         guard metadata != nil else { return }
         
-        fileNameLabel.text = metadata!.fileNameView
+        fileNameLabel.text = (metadata!.fileNameView as NSString).deletingPathExtension
         fileDateLabel.text = formatDate(metadata!.date as Date)
+        
+        if metadata!.video {
+            typeView.isHidden = true
+            typeImageView.image = UIImage(systemName: "video")
+        } else if metadata!.livePhoto {
+            typeImageView.image = UIImage(systemName: "livephoto")
+            typeLabel.text = metadata!.fileExtension.uppercased()
+        } else {
+            typeImageView.isHidden = true
+            typeLabel.text = metadata!.fileExtension.uppercased()
+        }
     }
     
     override func layoutSubviews() {
@@ -221,9 +240,16 @@ class DetailView: UIView {
         let make = tiff[kCGImagePropertyTIFFMake] as? String
         let model = tiff[kCGImagePropertyTIFFModel] as? String
         
-        //TODO: Account for one or the other too
-        if make != nil && make != nil {
-            cameraLabel.text = "\(make ?? "") \(model ?? "")"
+        if make != nil && model != nil {
+            if model!.starts(with: make!) {
+                cameraLabel.text = model
+            } else {
+                cameraLabel.text = "\(make!) \(model!)"
+            }
+        } else if make == nil && model != nil {
+            cameraLabel.text = model
+        } else if make != nil && model == nil {
+            cameraLabel.text = make
         }
     }
     
@@ -259,7 +285,7 @@ class DetailView: UIView {
         let finalFormattedSize: String
         
         if formattedFileSize == nil && formattedPixels == nil {
-            finalFormattedSize = "No size information" //TODO: Externalize text
+            finalFormattedSize = Strings.DetailSizeNone
         } else if formattedFileSize != nil && formattedPixels == nil {
             finalFormattedSize = formattedFileSize!
         } else if formattedFileSize == nil && formattedPixels != nil {
@@ -273,17 +299,20 @@ class DetailView: UIView {
     
     private func populateImageExifInfo(_ exif: [NSString: AnyObject]) {
         
-        /*if let lensMake = exif[kCGImagePropertyExifLensMake] as? String {
-         Self.logger.debug("lensMake: \(lensMake)")
-        }
+        let make = exif[kCGImagePropertyExifLensMake] as? String
+        let model = exif[kCGImagePropertyExifLensModel] as? String
         
-        if let lensModel = exif[kCGImagePropertyExifLensModel] as? String {
-         Self.logger.debug("lensModel: \(lensModel)")
+        if make != nil && model != nil {
+            if model!.starts(with: make!) {
+                lensLabel.text = model
+            } else {
+                lensLabel.text = "\(make!) \(model!)"
+            }
+        } else if make == nil && model != nil {
+            lensLabel.text = model
+        } else if make != nil && model == nil {
+            lensLabel.text = make
         }
-        
-        if let lensSpecification = exif[kCGImagePropertyExifLensSpecification] as? String {
-         Self.logger.debug("lensSpecification: \(lensSpecification)")
-        }*/
         
         if let iso = exif[kCGImagePropertyExifISOSpeedRatings] as? [Int] {
             if iso.isEmpty || iso.count == 0 {

@@ -215,11 +215,11 @@ class DetailController: UIViewController {
         }
         
         if let lensMake = data[kCGImagePropertyExifLensMake] {
-            details.append(MetadataDetail(title: Strings.DetailLenseMake, detail: lensMake as? String))
+            details.append(MetadataDetail(title: Strings.DetailLensMake, detail: lensMake as? String))
         }
         
         if let lensModel = data[kCGImagePropertyExifLensModel] {
-            details.append(MetadataDetail(title: Strings.DetailLenseModel, detail: lensModel as? String))
+            details.append(MetadataDetail(title: Strings.DetailLensModel, detail: lensModel as? String))
         }
         
         if let aperture = data[kCGImagePropertyExifFNumber] as? Double {

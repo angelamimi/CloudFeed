@@ -76,7 +76,7 @@ class PagerController: UIViewController, MediaViewController {
         self.view.addSubview(titleView!)
         
         titleView?.mediaView = self
-        titleView?.title.text = metadata.fileNameView
+        titleView?.title.text = getFileName(metadata)
         titleView?.initNavigation()
         
         setFavoriteMenu(isFavorite: metadata.favorite)
@@ -232,6 +232,10 @@ class PagerController: UIViewController, MediaViewController {
         titleView?.updateTitleSize()
         titleView?.isHidden = true
     }
+    
+    private func getFileName(_ metadata: tableMetadata) -> String {
+        return (metadata.fileNameView as NSString).deletingPathExtension
+    }
 }
 
 extension PagerController: ViewerDelegate {
@@ -267,7 +271,7 @@ extension PagerController: PagerViewModelDelegate {
 
     func finishedPaging(metadata: tableMetadata) {
         DispatchQueue.main.async { [weak self] in
-            self?.titleView?.title.text = metadata.fileNameView
+            self?.titleView?.title.text = self?.getFileName(metadata)
         }
         setFavoriteMenu(isFavorite: metadata.favorite)
     }
