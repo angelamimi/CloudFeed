@@ -260,24 +260,6 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func loadPreview(indexPath: IndexPath) async {
-        
-        guard let metadata = await dataSource.itemIdentifier(for: indexPath) else { return }
-        
-        await self.loadPreviewImageForMetadata(metadata, indexPath: indexPath)
-    }
-    
-    private func loadPreviewImageForMetadata(_ metadata: tableMetadata, indexPath: IndexPath) async {
-
-        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
-            await self.dataService.downloadVideoPreview(metadata: metadata)
-        } else if metadata.svg {
-            await loadSVG(metadata: metadata)
-        } else {
-            await self.dataService.downloadPreview(metadata: metadata)
-        }
-    }
-    
     private func populateCell(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
         
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {

@@ -81,18 +81,16 @@ class ImageUtility: NSObject {
             let asset = AVAsset(url: url)
             let imageGenerator = AVAssetImageGenerator(asset: asset)
             let thumnailTime = CMTimeMake(value: 2, timescale: 1)
-            
+            //TODO: Set maximumSize
             imageGenerator.appliesPreferredTrackTransform = true
             
-            autoreleasepool {
-                do {
-                    let cgThumbImage = try imageGenerator.copyCGImage(at: thumnailTime, actualTime: nil)
-                    let thumbNailImage = UIImage(cgImage: cgThumbImage)
-                    
-                    completion(thumbNailImage)
-                } catch {
-                    completion(nil)
-                }
+            do {
+                let cgThumbImage = try imageGenerator.copyCGImage(at: thumnailTime, actualTime: nil)
+                let thumbNailImage = UIImage(cgImage: cgThumbImage)
+                
+                completion(thumbNailImage)
+            } catch {
+                completion(nil)
             }
         }
     }

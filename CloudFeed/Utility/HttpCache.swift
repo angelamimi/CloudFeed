@@ -37,6 +37,11 @@ class HTTPCache: NSObject {
         KTVHTTPCache.cacheDeleteAllCaches()
     }
     
+    func getProxyURL(url: URL) -> URL {
+
+        return KTVHTTPCache.proxyURL(withOriginalURL: url)
+    }
+    
     func getProxyURL(stringURL: String) -> URL {
 
         return KTVHTTPCache.proxyURL(withOriginalURL: URL(string: stringURL))

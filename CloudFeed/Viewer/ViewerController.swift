@@ -139,8 +139,13 @@ class ViewerController: UIViewController {
         hideAll()
         
         if playerViewController == nil {
-            let avpController = viewModel.loadVideoFromUrl(url, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+
+            let player = AVPlayer(url: url)
+            let avpController = AVPlayerViewController()
+            
+            avpController.player = player
             avpController.showsPlaybackControls = false
+            
             setupVideoController(avpController: avpController, autoPlay: true)
         } else {
             playerViewController!.player?.play()
@@ -160,22 +165,52 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func loadVideo() {
-        
-        let result = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
-        
-        detailView.url = result.url
-        path = result.url?.absoluteString
-        
-        if path != nil && currentStatus() == .details {
-            updateDetailsForPath(path!)
+    /*private func loadVideoOLD() {
+        //TODO: weak self
+        Task { 
+            let result = await viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+            
+            detailView.url = result.url
+            path = result.url?.absoluteString
+            
+            if path != nil && currentStatus() == .details {
+                updateDetailsForPath(path!)
+            }
+            
+            if let playerController = result.playerController {
+                playerController.showsPlaybackControls = true
+                setupVideoController(avpController: playerController, autoPlay: false)
+            }
         }
-        
-        if let playerController = result.playerController {
+    }*/
+    
+    private func loadVideo() {
+        //TODO: Self
+        Task { [weak self] in
+            guard let self else { return }
             
-            playerController.showsPlaybackControls = true
+            let videoURL = await viewModel.getVideoURL(metadata: self.metadata)
             
-            setupVideoController(avpController: playerController, autoPlay: false)
+            detailView.url = videoURL
+            path = videoURL?.absoluteString
+            
+            if path != nil && currentStatus() == .details {
+                updateDetailsForPath(path!)
+            }
+            
+            guard videoURL != nil else { return }
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                
+                let player = AVPlayer(url: videoURL!)
+                let avpController = AVPlayerViewController()
+                
+                avpController.player = player
+                avpController.showsPlaybackControls = true
+                
+                self.setupVideoController(avpController: avpController, autoPlay: false)
+            }
         }
     }
     
@@ -284,6 +319,12 @@ class ViewerController: UIViewController {
             avpController.view.addGestureRecognizer(tapRecognizer)
             
             avpController.view.backgroundColor = .clear
+
+            avpController.view.frame.size.height = imageView.frame.height
+            avpController.view.frame.size.width = imageView.frame.width
+            
+            avpController.videoGravity = .resizeAspect
+            avpController.allowsPictureInPicturePlayback = false
             
             view.addSubview(videoView!)
             
@@ -296,7 +337,7 @@ class ViewerController: UIViewController {
 
             videoView?.translatesAutoresizingMaskIntoConstraints = false
 
-            let heightConstraint = NSLayoutConstraint(item: videoView!, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: view.frame.height)
+            let heightConstraint = NSLayoutConstraint(item: videoView!, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: imageView.frame.height)
             let topConstraint = NSLayoutConstraint(item: videoView!, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 0)
             let leftConstraint = NSLayoutConstraint(item: videoView!, attribute: .left, relatedBy: .equal, toItem: self.view, attribute: .left, multiplier: 1, constant: 0)
             let rightConstraint = NSLayoutConstraint(item: videoView!, attribute: .right, relatedBy: .equal, toItem: self.view, attribute: .right, multiplier: 1, constant: 0)

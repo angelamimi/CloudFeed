@@ -63,6 +63,8 @@ final class MediaViewModel: NSObject {
 
         dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
+            
+            Self.logger.debug("initDataSource() - file: \(metadata.fileNameView) indexPath: \(indexPath.debugDescription) calling populateCell")
             self.populateCell(metadata: metadata, cell: cell, indexPath: indexPath, collectionView: collectionView)
             return cell
         }
@@ -435,8 +437,10 @@ final class MediaViewModel: NSObject {
             } else {
                 
                 if !pauseLoading {
-                    Task {
-                        let thumbnail = await cacheManager.fetch(metadata: metadata, indexPath: indexPath)
+                    Task { [weak self] in
+                        guard let self else { return }
+                        //Self.logger.debug("populateCell() - file: \(metadata.fileNameView) calling fetch")
+                        let thumbnail = await self.cacheManager.fetch(metadata: metadata, indexPath: indexPath)
                         guard let cell = await collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
                         await cell.setImage(thumbnail, metadata.transparent)
                     }

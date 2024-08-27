@@ -27,18 +27,19 @@ protocol NextcloudKitServiceProtocol: AnyObject {
     
     func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String)
     func setupVersion(serverVersionMajor: Int)
-    func getCapabilities() async -> (account: String?, data: Data?)
+    func getCapabilities(account: String) async -> (account: String?, data: Data?)
     
     func download(metadata: tableMetadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> NKError
-    func downloadPreview(fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async
-    func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String?
+    func downloadPreview(account: String, fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String?
+    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String?
+    func getDirectDownload(metadata: tableMetadata) async -> URL?
     
     func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool)
     
     func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> NKError
-    func listingFavorites() async -> (account: String, files: [NKFile]?)
+    func listingFavorites(account: String) async -> (account: String, files: [NKFile]?)
     
-    func getUserProfile() async -> (profileDisplayName: String, profileEmail: String)
+    func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String)
 }
 
 class NextcloudKitService : NextcloudKitServiceProtocol {
@@ -58,12 +59,12 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
         NextcloudKit.shared.setup(nextcloudVersion: serverVersionMajor)
     }
     
-    func getCapabilities() async -> (account: String?, data: Data?) {
+    func getCapabilities(account: String) async -> (account: String?, data: Data?) {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.getCapabilities(options: options) { account, data, error in
+            NextcloudKit.shared.getCapabilities(account: account, options: options) { account, data, error in
                 continuation.resume(returning: (account, data))
             }
         }
@@ -80,6 +81,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
             NextcloudKit.shared.download(
                 serverUrlFileName: serverUrlFileName,
                 fileNameLocalPath: fileNameLocalPath,
+                account: metadata.account,
                 options: options,
                 requestHandler: { request in }) { (account, etag, date, _, allHeaderFields, afError, error) in
                     
@@ -95,22 +97,31 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
-    func downloadPreview(fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async {
+    func downloadPreview(account: String, fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String? {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         let size = ImageUtility.getPreviewSize(width: previewWidth, height: previewHeight)
         
-        let _ = await NextcloudKit.shared.downloadPreview(fileId: fileId,
-                                                          fileNamePreviewLocalPath: previewPath,
-                                                          fileNameIconLocalPath: iconPath,
-                                                          widthPreview: Int(size.width),
-                                                          heightPreview: Int(size.height),
-                                                          sizeIcon: Global.shared.sizeIcon,
-                                                          etag: etagResource,
-                                                          options: options)
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.downloadPreview(fileId: fileId,
+                                                fileNamePreviewLocalPath: previewPath,
+                                                fileNameIconLocalPath: iconPath,
+                                                widthPreview: Int(size.width),
+                                                heightPreview: Int(size.height),
+                                                sizeIcon: Global.shared.sizeIcon,
+                                                etag: etagResource,
+                                                account: account,
+                                                options: options) { _, imagePreview, _, _, etag, error in
+                if error == .success, imagePreview != nil {
+                    continuation.resume(returning: etag)
+                } else {
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
     }
     
-    func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String? {
+    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String? {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
@@ -121,7 +132,9 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                 fileNameLocalPath: fileNameLocalPath,
                 sizeImage: Global.shared.avatarSize,
                 avatarSizeRounded: Global.shared.avatarSizeRounded,
-                etag: etag, options: options) { _, _, _, etag, error in
+                etag: etag, 
+                account: account,
+                options: options) { _, _, _, etag, error in
                     
                     guard let etag = etag, error == .success else {
                         Self.logger.error("downloadAvatar() - error: \(error.errorDescription)")
@@ -133,6 +146,27 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
+    //TODO: Cleanup
+    func getDirectDownload(metadata: tableMetadata) async -> URL? {
+        
+        return await withCheckedContinuation { continuation in
+            
+            NextcloudKit.shared.getDirectDownload(fileId: metadata.fileId, account: metadata.account) { _, url, _, error in
+                if error == .success && url != nil {
+                    if let url = URL(string: url!) {
+                        Self.logger.debug("getDirectDownload() - file: \(metadata.fileName) url: \(url.absoluteString)")
+                        continuation.resume(returning: url)
+                    } else {
+                        Self.logger.debug("getDirectDownload() - invalid url")
+                        continuation.resume(returning: nil)
+                    }
+                } else {
+                    Self.logger.debug("getDirectDownload() - ERROR")
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
     
     // MARK: -
     // MARK: Search
@@ -152,6 +186,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
                 elementDate: "d:getlastmodified/",
                 limit: limit,
                 showHiddenFiles: false,
+                account: account,
                 options: options) { responseAccount, files, data, error in
                     
                     //Self.logger.debug("searchMedia() - files count: \(files.count) toDate: \(toDate.formatted(date: .abbreviated, time: .standard)) fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
@@ -176,7 +211,7 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> NKError {
         
         return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.setFavorite(fileName: fileName, favorite: favorite) { favAccount, error in
+            NextcloudKit.shared.setFavorite(fileName: fileName, favorite: favorite, account: account) { favAccount, error in
                 if error == .success && account == favAccount {
                     continuation.resume(returning: error)
                     return
@@ -186,12 +221,12 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
-    func listingFavorites() async -> (account: String, files: [NKFile]?) {
+    func listingFavorites(account: String) async -> (account: String, files: [NKFile]?) {
 
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.listingFavorites(showHiddenFiles: false, options: options) { account, files, data, error in
+            NextcloudKit.shared.listingFavorites(showHiddenFiles: false, account: account, options: options) { account, files, data, error in
                 guard error == .success else {
                     continuation.resume(returning: (account, nil))
                     return
@@ -205,12 +240,12 @@ class NextcloudKitService : NextcloudKitServiceProtocol {
     
     // MARK: -
     // MARK: Profile
-    func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
+    func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String) {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.getUserProfile(options: options) { account, userProfile, data, error in
+            NextcloudKit.shared.getUserProfile(account: account, options: options) { account, userProfile, data, error in
                 guard error == .success, let userProfile = userProfile else {
                     // Ops the server has Unauthorized
                     Self.logger.error("[ERROR] The server has response with Unauthorized \(error.errorCode)")

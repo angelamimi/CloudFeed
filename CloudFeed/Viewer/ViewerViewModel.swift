@@ -46,33 +46,31 @@ final class ViewerViewModel: NSObject {
         return dataService.getMetadataFromOcId(ocId)
     }
     
-    func loadVideo(viewWidth: CGFloat, viewHeight: CGFloat) -> (url: URL?, playerController: AVPlayerViewController?) {
+    /*func loadVideo(viewWidth: CGFloat, viewHeight: CGFloat) async -> (url: URL?, playerController: AVPlayerViewController?) {
         
-        let urlVideo = getVideoURL(metadata: metadata)
+        let urlVideo = await getVideoURL(metadata: metadata)
+        
+        //print("\(urlVideo!.absoluteString)")
         
         if let url = urlVideo {
             return (url, loadVideoFromUrl(url, viewWidth: viewWidth, viewHeight: viewHeight))
         }
         
         return (nil, nil)
-    }
+    }*/
     
-    func loadVideoFromUrl(_ url: URL, viewWidth: CGFloat, viewHeight: CGFloat) -> AVPlayerViewController {
+    func getVideoURL(metadata: tableMetadata) async -> URL? {
+        //guard let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
+        //return HTTPCache.shared.getProxyURL(stringURL: stringURL)
         
-        let player = AVPlayer(url: url)
-        let avpController = AVPlayerViewController()
+        //return await dataService.getDirectDownload(metadata: metadata)
+        print("getVideoURL() - file: \(metadata.fileNameView) calling getDirectDownload()")
+        if let url = await dataService.getDirectDownload(metadata: metadata) {
+            print("getVideoURL() - file: \(metadata.fileName) url: \(url.absoluteString)")
+            return HTTPCache.shared.getProxyURL(url: url)
+        }
         
-        avpController.player = player
-        avpController.view.backgroundColor = UIColor.systemBackground
-        
-        avpController.view.frame.size.height = viewHeight
-        avpController.view.frame.size.width = viewWidth
-        
-        avpController.videoGravity = .resizeAspect
-        avpController.allowsPictureInPicturePlayback = false
-        //avpController.showsPlaybackControls = true
-        
-        return avpController
+        return nil
     }
     
     func loadImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
@@ -108,11 +106,6 @@ final class ViewerViewModel: NSObject {
 }
 
 extension ViewerViewModel {
-    
-    private func getVideoURL(metadata: tableMetadata) -> URL? {
-        guard let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
-        return HTTPCache.shared.getProxyURL(stringURL: stringURL)
-    }
     
     private func getImageFromMetadata(_ metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
         

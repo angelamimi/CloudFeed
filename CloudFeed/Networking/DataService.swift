@@ -57,7 +57,7 @@ class DataService: NSObject {
         Task { [weak self] in
             guard let self else { return }
             
-            let (account, data) = await nextcloudService.getCapabilities()
+            let (account, data) = await nextcloudService.getCapabilities(account: account)
             guard account != nil && data != nil else { return }
             databaseManager.addCapabilitiesJSon(account: account!, data: data!)
         }
@@ -139,7 +139,7 @@ class DataService: NSObject {
         
         let etag = databaseManager.getAvatar(fileName: fileName)?.etag
         
-        let etagResult = await nextcloudService.downloadAvatar(userId: account.userId, fileName: fileName, fileNameLocalPath: fileNameLocalPath, etag: etag)
+        let etagResult = await nextcloudService.downloadAvatar(account: account.account, userId: account.userId, fileName: fileName, fileNameLocalPath: fileNameLocalPath, etag: etag)
         
         guard etagResult != nil else { return }
         databaseManager.addAvatar(fileName: fileName, etag: etagResult!)
@@ -192,7 +192,8 @@ class DataService: NSObject {
     
     func getFavorites() async -> Bool {
         
-        let listingResult = await nextcloudService.listingFavorites()
+        guard let account = Environment.current.currentUser?.account else { return false }
+        let listingResult = await nextcloudService.listingFavorites(account: account)
         
         guard listingResult.files != nil else { return true }
         
@@ -269,7 +270,7 @@ class DataService: NSObject {
     }
     
     func downloadPreview(metadata: tableMetadata) async {
-       
+        
         var previewPath: String
         var iconPath: String
         
@@ -281,16 +282,18 @@ class DataService: NSObject {
             etagResource = metadata.etagResource
         }
         
-        await nextcloudService.downloadPreview(fileId: metadata.fileId, previewPath: previewPath, previewWidth: metadata.width, previewHeight: metadata.height, iconPath: iconPath, etagResource: etagResource)
+        if let etag = await nextcloudService.downloadPreview(account: metadata.account, fileId: metadata.fileId, previewPath: previewPath,
+                                                             previewWidth: metadata.width, previewHeight: metadata.height, iconPath: iconPath, 
+                                                             etagResource: etagResource) {
+            await databaseManager.setMetadataEtagResource(ocId: metadata.ocId, etagResource: etag)
+        }
     }
     
     func downloadVideoPreview(metadata: tableMetadata) async {
-            
+            //TODO: TEST
         if metadata.video && !FileManager().fileExists(atPath: store.getIconPath(metadata.ocId, metadata.etag)) {
-            
-            if let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-                
-                let url = HTTPCache.shared.getProxyURL(stringURL: stringURL)
+            Self.logger.debug("downloadVideoPreview() - file: \(metadata.fileNameView) calling getDirectDownload()")
+            if let url = await getDirectDownload(metadata: metadata) {
                 let image = await ImageUtility.imageFromVideo(url: url)
                 let path = store.getIconPath(metadata.ocId, metadata.etag)
                 
@@ -298,6 +301,10 @@ class DataService: NSObject {
                 try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
             }
         }
+    }
+    
+    func getDirectDownload(metadata: tableMetadata) async -> URL? {
+        return await nextcloudService.getDirectDownload(metadata: metadata)
     }
     
     // MARK: -
@@ -412,7 +419,8 @@ class DataService: NSObject {
     // MARK: -
     // MARK: Profile
     func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
-        return await nextcloudService.getUserProfile()
+        guard let account = Environment.current.currentUser?.account else { return ("", "") }
+        return await nextcloudService.getUserProfile(account: account)
     }
 
 }

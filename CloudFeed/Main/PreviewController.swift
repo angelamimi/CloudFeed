@@ -81,7 +81,13 @@ class PreviewController: UIViewController {
     }
     
     func playLivePhoto(_ url: URL) {
-        let avpController = viewModel.loadVideoFromUrl(url, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+        //let avpController = viewModel.loadVideoFromUrl(url, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+        
+        let player = AVPlayer(url: url)
+        let avpController = AVPlayerViewController()
+        
+        avpController.player = player
+        
         setupVideoController(avpController: avpController, autoPlay: true)
         activityIndicator.stopAnimating()
     }
@@ -89,14 +95,36 @@ class PreviewController: UIViewController {
     private func loadVideo() {
         //guard let avpController = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height) else { return }
         //setupVideoController(avpController: avpController, autoPlay: true)
-        
-        let result = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
-        
-        if result.playerController != nil {
-            setupVideoController(avpController: result.playerController!, autoPlay: true)
+        //TODO: weak self
+        Task {
+            /*let result = await viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+            
+            if result.playerController != nil {
+                setupVideoController(avpController: result.playerController!, autoPlay: true)
+            }
+            
+            activityIndicator.stopAnimating()*/
+            
+            
+            guard let videoURL = await viewModel.getVideoURL(metadata: self.metadata) else {
+                activityIndicator.stopAnimating()
+                return
+            }
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                
+                let player = AVPlayer(url: videoURL)
+                let avpController = AVPlayerViewController()
+                
+                avpController.player = player
+                avpController.showsPlaybackControls = false
+                
+                self.setupVideoController(avpController: avpController, autoPlay: false)
+                
+                self.activityIndicator.stopAnimating()
+            }
         }
-        
-        activityIndicator.stopAnimating()
     }
     
     private func loadLiveVideo() {
@@ -139,8 +167,8 @@ class PreviewController: UIViewController {
     
     private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
 
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
+        //DispatchQueue.main.async { [weak self] in
+         //   guard let self else { return }
 
             if self.children.count == 0 {
                 self.addChild(avpController)
@@ -152,10 +180,19 @@ class PreviewController: UIViewController {
             
             avpController.didMove(toParent: self)
             
+            avpController.view.backgroundColor = .clear
+            
+            avpController.view.frame.size.height = view.frame.height
+            avpController.view.frame.size.width = view.frame.width
+            
+            avpController.videoGravity = .resizeAspect
+            avpController.allowsPictureInPicturePlayback = false
+            avpController.showsPlaybackControls = false
+            
             if autoPlay {
                 avpController.player?.play()
             }
-        }
+        //}
     }
     
     private func viewImage(metadata: tableMetadata) {

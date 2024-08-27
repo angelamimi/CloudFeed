@@ -49,7 +49,11 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         
     }
     
-    func getCapabilities() async -> (account: String?, data: Data?) {
+    func getDirectDownload(metadata: CloudFeed.tableMetadata) async -> URL? {
+        return nil
+    }
+    
+    func getCapabilities(account: String) async -> (account: String?, data: Data?) {
         return (account: nil, data: nil)
     }
     
@@ -57,11 +61,11 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return NKError.success
     }
     
-    func downloadPreview(fileId fileNamePath: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async {
-        
+    func downloadPreview(account: String, fileId fileNamePath: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String? {
+        return etagResource
     }
     
-    func downloadAvatar(userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String? {
+    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String? {
         return nil
     }
     
@@ -83,7 +87,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return NKError.success
     }
     
-    func listingFavorites() async -> (account: String, files: [NKFile]?) {
+    func listingFavorites(account: String) async -> (account: String, files: [NKFile]?) {
         
         switch listingFavoritesAction {
         case .error:
@@ -97,7 +101,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         }
     }
     
-    func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
+    func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String) {
         return (profileDisplayName: "", profileEmail: "")
     }
 }
@@ -138,7 +142,7 @@ extension MockNextcloudKitService {
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
                 let date = dateFormatter.date(from: fileJSON["date"] as! String)
-                file.date = (date as? NSDate)!
+                file.date = date!
             }
             
             resultFiles.append(file)
