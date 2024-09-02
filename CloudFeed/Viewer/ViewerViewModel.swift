@@ -60,14 +60,10 @@ final class ViewerViewModel: NSObject {
     }*/
     
     func getVideoURL(metadata: tableMetadata) async -> URL? {
-        //guard let stringURL = (metadata.serverUrl + "/" + metadata.fileName).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
-        //return HTTPCache.shared.getProxyURL(stringURL: stringURL)
-        
-        //return await dataService.getDirectDownload(metadata: metadata)
-        print("getVideoURL() - file: \(metadata.fileNameView) calling getDirectDownload()")
+
         if let url = await dataService.getDirectDownload(metadata: metadata) {
-            print("getVideoURL() - file: \(metadata.fileName) url: \(url.absoluteString)")
-            return HTTPCache.shared.getProxyURL(url: url)
+            print("getVideoURL() - file: \(metadata.fileNameView) url: \(url.absoluteString)")
+            return url
         }
         
         return nil

@@ -22,6 +22,7 @@
 import AVFoundation
 import AVKit
 import UIKit
+import MobileVLCKit
 import NextcloudKit
 import os.log
 
@@ -64,6 +65,8 @@ class ViewerController: UIViewController {
     private var initialCenter: CGPoint = .zero
     private var size = CGSize.zero
     private var disappearing = false
+    
+    private var mediaPlayer: VLCMediaPlayer?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -203,15 +206,47 @@ class ViewerController: UIViewController {
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 
-                let player = AVPlayer(url: videoURL!)
+                self.setupVideoController(url: videoURL!)
+                
+                /*let player = AVPlayer(url: videoURL!)
                 let avpController = AVPlayerViewController()
                 
                 avpController.player = player
                 avpController.showsPlaybackControls = true
                 
-                self.setupVideoController(avpController: avpController, autoPlay: false)
+                self.setupVideoController(avpController: avpController, autoPlay: false)*/
             }
         }
+    }
+    
+    var dialogProvider: VLCDialogProvider?
+    
+    private func setupVideoController(url: URL) {
+        
+        let logger = VLCConsoleLogger()
+        logger.level = .warning
+        logger.formatter.contextFlags = .levelContextModule
+        
+        //mediaPlayer = VLCMediaPlayer()
+        let media = VLCMedia(url: url)
+
+        //media.addOption("--network-caching=500")
+        
+        let thumbnailer = VLCMediaThumbnailer(media: media, andDelegate: self)
+        thumbnailer.fetchThumbnail()
+        
+        /*dialogProvider = VLCDialogProvider(library: VLCLibrary.shared(), customUI: true)
+        dialogProvider?.customRenderer = self
+        
+        mediaPlayer!.libraryInstance.loggers = [logger]
+        mediaPlayer!.media = media
+        mediaPlayer!.drawable = imageView
+        mediaPlayer!.delegate = self
+        
+        if self.view.subviews.count == getViewCompareCount() {
+            //view.addSubview(videoView)
+            mediaPlayer!.pause()
+        }*/
     }
     
     private func reloadImage() {
@@ -878,6 +913,74 @@ extension ViewerController: UIPopoverPresentationControllerDelegate {
   
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         handlePresentationControllerDidDismiss()
+    }
+}
+
+extension ViewerController: VLCMediaThumbnailerDelegate {
+    
+    func mediaThumbnailerDidTimeOut(_ mediaThumbnailer: VLCMediaThumbnailer) {
+        Self.logger.debug("mediaThumbnailerDidTimeOut()")
+    }
+    
+    func mediaThumbnailer(_ mediaThumbnailer: VLCMediaThumbnailer, didFinishThumbnail thumbnail: CGImage) {
+        Self.logger.debug("mediaThumbnailer.didFinishThumbnail()")
+        imageView.image = UIImage(cgImage: thumbnail)
+    }
+}
+
+extension ViewerController: VLCMediaPlayerDelegate {
+    
+    func mediaPlayerStateChanged(_ aNotification: Notification) {
+        Self.logger.debug("mediaPlayerStateChanged() - state: \(self.mediaPlayer!.state.rawValue)")
+        
+        switch mediaPlayer!.state {
+        case .stopped:
+            Self.logger.debug("mediaPlayerStateChanged() - State: STOPPED")
+        case .opening:
+            Self.logger.debug("mediaPlayerStateChanged() - State: OPENING")
+        case .buffering:
+            Self.logger.debug("mediaPlayerStateChanged() - State: BUFFERING")
+        case .ended:
+            Self.logger.debug("mediaPlayerStateChanged() - State: ENDED")
+        case .error:
+            Self.logger.debug("mediaPlayerStateChanged() - State: ERROR")
+        case .playing:
+            Self.logger.debug("mediaPlayerStateChanged() - State: PLAYING")
+        case .paused:
+            Self.logger.debug("mediaPlayerStateChanged() - State: PAUSED")
+        case .esAdded:
+            Self.logger.debug("mediaPlayerStateChanged() - State: ESADDED")
+        default:
+            Self.logger.debug("mediaPlayerStateChanged() - State: BEEP BOP BOOP")
+        }
+    }
+}
+
+extension ViewerController: VLCCustomDialogRendererProtocol {
+    
+    func showLogin(withTitle title: String, message: String, defaultUsername username: String?, askingForStorage: Bool, withReference reference: NSValue) {
+        Self.logger.debug("showLogin")
+    }
+    
+    func showQuestion(withTitle title: String, message: String, type questionType: VLCDialogQuestionType, cancel cancelString: String?, action1String: String?, action2String: String?, withReference reference: NSValue) {
+        Self.logger.debug("showQuestion")
+    }
+    
+    func showProgress(withTitle title: String, message: String, isIndeterminate: Bool, position: Float, cancel cancelString: String?, withReference reference: NSValue) {
+        Self.logger.debug("showProgress")
+    }
+    
+    func updateProgress(withReference reference: NSValue, message: String?, position: Float) {
+        Self.logger.debug("updateProgress")
+    }
+    
+    func cancelDialog(withReference reference: NSValue) {
+        Self.logger.debug("cancelDialog")
+    }
+    
+    
+    func showError(withTitle error: String, message: String) {
+        Self.logger.debug("ERROR WEEEEEEEEEEEEEE! \(error) \(message)")
     }
 }
 

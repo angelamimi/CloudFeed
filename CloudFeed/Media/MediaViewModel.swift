@@ -63,8 +63,6 @@ final class MediaViewModel: NSObject {
 
         dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            
-            Self.logger.debug("initDataSource() - file: \(metadata.fileNameView) indexPath: \(indexPath.debugDescription) calling populateCell")
             self.populateCell(metadata: metadata, cell: cell, indexPath: indexPath, collectionView: collectionView)
             return cell
         }

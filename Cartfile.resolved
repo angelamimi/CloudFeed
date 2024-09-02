@@ -1,5 +1,2 @@
-github "Alamofire/Alamofire" "5.2.2"
-github "SwiftyJSON/SwiftyJSON" "5.0.0"
+binary "https://code.videolan.org/videolan/VLCKit/raw/master/Packaging/MobileVLCKit.json" "3.6.0"
 github "marinofaggiana/KTVHTTPCache" "2.0.7"
-github "nextcloud/NextcloudKit" "a5bad2b6238ac25b3a59c9e7d91826b4f74c16c3"
-github "yahoojapan/SwiftyXMLParser" "5.2.1"

@@ -1,1 +1,2 @@
 github "https://github.com/marinofaggiana/KTVHTTPCache" "2.0.7"
+binary "https://code.videolan.org/videolan/VLCKit/raw/master/Packaging/MobileVLCKit.json" ~> 3.6.0

@@ -88,6 +88,8 @@
 		398DA7282AC6199500F98E7F /* mock-search.json in Resources */ = {isa = PBXBuildFile; fileRef = 398DA7272AC6199500F98E7F /* mock-search.json */; };
 		3999915A2ACCE1CB00D2A934 /* NextcloudServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399991592ACCE1CB00D2A934 /* NextcloudServiceTests.swift */; };
 		3999915C2ACE1E7D00D2A934 /* MediaViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3999915B2ACE1E7D00D2A934 /* MediaViewModelTests.swift */; };
+		39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; };
+		39A896402C7FED9C003827B8 /* MobileVLCKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F0C29C53FD300704670 /* CollectionViewCell.swift */; };
 		39B03F0F29C53FD300704670 /* CollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39B03F0D29C53FD300704670 /* CollectionViewCell.xib */; };
 		39B03F1229C636B500704670 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F1129C636B500704670 /* SettingsController.swift */; };
@@ -132,6 +134,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				39A896402C7FED9C003827B8 /* MobileVLCKit.xcframework in Embed Frameworks */,
 				3929A8892C35EB5A003B48CF /* RealmSwift in Embed Frameworks */,
 				394BCB1629C7E82100C4F619 /* KTVHTTPCache.xcframework in Embed Frameworks */,
 				394BCB1429C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Embed Frameworks */,
@@ -220,6 +223,7 @@
 		398DA7272AC6199500F98E7F /* mock-search.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-search.json"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.json; };
 		399991592ACCE1CB00D2A934 /* NextcloudServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudServiceTests.swift; sourceTree = "<group>"; };
 		3999915B2ACE1E7D00D2A934 /* MediaViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaViewModelTests.swift; sourceTree = "<group>"; };
+		39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MobileVLCKit.xcframework; path = Carthage/Build/MobileVLCKit.xcframework; sourceTree = "<group>"; };
 		39B03F0C29C53FD300704670 /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
 		39B03F0D29C53FD300704670 /* CollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionViewCell.xib; sourceTree = "<group>"; };
 		39B03F1129C636B500704670 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
@@ -252,6 +256,7 @@
 				392718662C35A181001C57C0 /* SVGKitSwift in Frameworks */,
 				392718642C359F95001C57C0 /* RealmSwift in Frameworks */,
 				392735B029BE3DED0058796A /* KeychainAccess in Frameworks */,
+				39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */,
 				394BCB1529C7E82100C4F619 /* KTVHTTPCache.xcframework in Frameworks */,
 				394BCB1329C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Frameworks */,
 				3927359C29BD3D510058796A /* NextcloudKit in Frameworks */,
@@ -449,6 +454,7 @@
 		394BCB1029C7E82100C4F619 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */,
 				391579C32AB8D18900DFEAB1 /* XCTest.framework */,
 				394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */,
 				394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */,
