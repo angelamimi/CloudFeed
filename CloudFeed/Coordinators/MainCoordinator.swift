@@ -21,7 +21,7 @@
 
 import UIKit
 
-final class MainCoordinator : Coordinator {
+final class MainCoordinator : NSObject, Coordinator {
     
     private let window: UIWindow
     private let tabBarController: UITabBarController
@@ -30,6 +30,10 @@ final class MainCoordinator : Coordinator {
         
         self.window = window
         self.tabBarController = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! UITabBarController
+        
+        super.init()
+        
+        tabBarController.delegate = self
         
         initTabCoordinators(dataService: dataService)
     }
@@ -40,22 +44,27 @@ final class MainCoordinator : Coordinator {
     }
 }
 
+extension MainCoordinator: UITabBarControllerDelegate {
+    
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        if let nav = viewController as? UINavigationController {
+            nav.popToRootViewController(animated: false)
+        }
+    }
+}
+
 extension MainCoordinator: CacheDelegate {
     
     func cacheCleared() {
+
+        let mediaNavController = tabBarController.viewControllers?[0] as! UINavigationController
+        let favoritesNavController = tabBarController.viewControllers?[1] as! UINavigationController
         
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            
-            let mediaNavController = self.tabBarController.viewControllers?[0] as! UINavigationController
-            let favoritesNavController = self.tabBarController.viewControllers?[1] as! UINavigationController
-            
-            let mediaViewController = mediaNavController.viewControllers[0] as! MediaController
-            let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
-            
-            mediaViewController.clear()
-            favoritesViewController.clear()
-        }
+        let mediaViewController = mediaNavController.viewControllers[0] as! MediaController
+        let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
+        
+        mediaViewController.clear()
+        favoritesViewController.clear()
     }
 }
 

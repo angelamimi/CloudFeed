@@ -20,9 +20,10 @@
 //
 
 import UIKit
-import AVFoundation
+@preconcurrency import AVFoundation
 import os.log
 
+@MainActor
 protocol DetailViewDelegate: AnyObject {
     func layoutUpdated(height: CGFloat)
 }
@@ -64,7 +65,8 @@ class DetailView: UIView {
     @IBOutlet weak var divider4Label: UILabel!
     @IBOutlet weak var divider5Label: UILabel!
     
-    var metadata: tableMetadata?
+    //var metadata: tableMetadata?
+    var metadata: Metadata?
     var url: URL?
     
     var delegate: DetailViewDelegate?
@@ -139,15 +141,17 @@ class DetailView: UIView {
         fileNameLabel.text = (metadata!.fileNameView as NSString).deletingPathExtension
         fileDateLabel.text = formatDate(metadata!.date as Date)
         
+        typeLabel.text = metadata!.fileExtension.uppercased()
+        
         if metadata!.video {
-            typeView.isHidden = true
+            //typeView.isHidden = true
             typeImageView.image = UIImage(systemName: "video")
         } else if metadata!.livePhoto {
             typeImageView.image = UIImage(systemName: "livephoto")
-            typeLabel.text = metadata!.fileExtension.uppercased()
+            //typeLabel.text = metadata!.fileExtension.uppercased()
         } else {
             typeImageView.isHidden = true
-            typeLabel.text = metadata!.fileExtension.uppercased()
+            //typeLabel.text = metadata!.fileExtension.uppercased()
         }
     }
     
@@ -339,7 +343,8 @@ class DetailView: UIView {
         }
     }
     
-    private func populateVideoDetail(metadata: tableMetadata, asset: AVAsset) {
+    //private func populateVideoDetail(metadata: tableMetadata, asset: AVAsset) {
+    private func populateVideoDetail(metadata: Metadata, asset: AVAsset) {
         
         Task {
         
@@ -366,7 +371,9 @@ class DetailView: UIView {
     
     private func populateVideoMetadata(asset: AVAsset) {
         
-        Task.detached { [weak self] in
+        //Task.detached { [weak self] in
+        Task { [weak self] in
+            
 
             guard let avMetadataItems: [AVMetadataItem]? = try? await asset.load(.metadata) else { return }
             var make: String?
@@ -387,11 +394,13 @@ class DetailView: UIView {
                 }
             }
             
-            await self?.populateVideoCameraMakeModel(make: make, model: model)
+            //await self?.populateVideoCameraMakeModel(make: make, model: model)
+            self?.populateVideoCameraMakeModel(make: make, model: model)
         }
     }
     
-    private func populateVideoSize(metadata: tableMetadata, videoTrack: AVAssetTrack) async {
+    //private func populateVideoSize(metadata: tableMetadata, videoTrack: AVAssetTrack) async {
+    private func populateVideoSize(metadata: Metadata, videoTrack: AVAssetTrack) async {
         
         var formattedFileSize: String?
         var rawSize = try? await videoTrack.load(.naturalSize).applying(videoTrack.load(.preferredTransform))

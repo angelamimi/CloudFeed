@@ -171,7 +171,7 @@ class MediaController: CollectionController {
         }
     }
     
-    private func favoriteMenuAction(metadata: tableMetadata) -> UIAction {
+    private func favoriteMenuAction(metadata: Metadata) -> UIAction {
         
         if metadata.favorite {
             return UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.fill")) { [weak self] _ in
@@ -184,7 +184,7 @@ class MediaController: CollectionController {
         }
     }
     
-    private func toggleFavorite(metadata: tableMetadata) {
+    private func toggleFavorite(metadata: Metadata) {
         
         DispatchQueue.main.async { [weak self] in
             self?.activityIndicator.startAnimating()

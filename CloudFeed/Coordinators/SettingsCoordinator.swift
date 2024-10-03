@@ -21,10 +21,12 @@
 
 import UIKit
 
+@MainActor
 protocol CacheDelegate: AnyObject {
     func cacheCleared()
 }
 
+@MainActor
 final class SettingsCoordinator {
     
     let navigationController: UINavigationController

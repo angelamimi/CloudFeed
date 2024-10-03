@@ -21,7 +21,7 @@
 
 import UIKit
 
-final class LoginWebCoordinator : Coordinator {
+final class LoginWebCoordinator : NSObject, Coordinator {
     
     private let window: UIWindow
     private let navigationController: UINavigationController

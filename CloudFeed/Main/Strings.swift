@@ -67,6 +67,7 @@ extension Strings {
     public static let MediaFilter = NSLocalizedString("Media.Filter", comment: "")
     public static let MediaRemoveFilter = NSLocalizedString("Media.RemoveFilter", comment: "")
     public static let MediaInvalidFilter = NSLocalizedString("Media.InvalidFilter", comment: "")
+    public static let MediaVideoErrorMessage = NSLocalizedString("Media.Video.Error.Message", comment: "")
     
     //Favorites
     public static let FavErrorMessage = NSLocalizedString("Fav.Error.Message", comment: "")

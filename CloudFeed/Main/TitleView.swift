@@ -22,6 +22,7 @@
 import UIKit
 import os.log
 
+@MainActor
 protocol MediaViewController: AnyObject {
     func zoomInGrid()
     func zoomOutGrid()
@@ -35,7 +36,7 @@ protocol MediaViewController: AnyObject {
 }
 
 class TitleView: UIView {
-
+    
     @IBOutlet weak var menuButton: UIButton!
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var doneButton: UIButton!
@@ -57,27 +58,31 @@ class TitleView: UIView {
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: TitleView.self)
     )
-
+    
     override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        MainActor.assumeIsolated {
 
-        initButtons()
-        initTitle()
-        initText()
-        
-        doneButton.isHidden = true
-        doneButton.addTarget(self, action: #selector(endEdit), for: .touchUpInside)
-        
-        cancelButton.isHidden = true
-        cancelButton.addTarget(self, action: #selector(cancelEdit), for: .touchUpInside)
-        
-        backButton.isHidden = true
-        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
-        
-        filterButton.isHidden = true
-        filterButton.addTarget(self, action: #selector(editFilter), for: .touchUpInside)
-        
-        let guestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(titleTouched))
-        title.addGestureRecognizer(guestureRecognizer)
+            initButtons()
+            initTitle()
+            initText()
+            
+            doneButton.isHidden = true
+            doneButton.addTarget(self, action: #selector(endEdit), for: .touchUpInside)
+            
+            cancelButton.isHidden = true
+            cancelButton.addTarget(self, action: #selector(cancelEdit), for: .touchUpInside)
+            
+            backButton.isHidden = true
+            backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
+            
+            filterButton.isHidden = true
+            filterButton.addTarget(self, action: #selector(editFilter), for: .touchUpInside)
+            
+            let guestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(titleTouched))
+            title.addGestureRecognizer(guestureRecognizer)
+        }
     }
     
     func showFilterButton() {
@@ -93,14 +98,14 @@ class TitleView: UIView {
         let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { [weak self] action in
             self?.mediaView?.zoomInGrid()
         }
-
+        
         let zoomOut = UIAction(title: Strings.TitleZoomOut, image: UIImage(systemName: "minus.magnifyingglass")) { [weak self] action in
             self?.mediaView?.zoomOutGrid()
         }
         
         let zoomMenu = UIMenu(title: "", options: .displayInline, children: [zoomIn, zoomOut])
-
-
+        
+        
         let filter = UIAction(title: Strings.TitleFilter, image: UIImage(systemName: "line.3.horizontal.decrease.circle")) { [weak self] action in
             self?.mediaView?.filter()
         }
@@ -125,7 +130,7 @@ class TitleView: UIView {
             self?.mediaView?.updateMediaType(.image)
         }
         
-        let videoType = UIAction(title: Strings.TitleVideosOnly, image: UIImage(systemName: "video")) { [weak self] action in
+        let videoType = UIAction(title: Strings.TitleVideosOnly, image: UIImage(systemName: "play.circle")) { [weak self] action in
             self?.mediaView?.updateMediaType(.video)
         }
         
@@ -142,7 +147,7 @@ class TitleView: UIView {
         }
         
         let typeMenu = UIMenu(title: "", options: [.displayInline, .singleSelection], children: [allType, imageType, videoType])
-    
+        
         if allowEdit {
             let edit = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { [weak self] action in
                 self?.mediaView?.edit()
@@ -151,7 +156,7 @@ class TitleView: UIView {
         } else {
             menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, typeMenu])
         }
-
+        
         backButtonConstraint.constant = 4
     }
     
@@ -162,6 +167,8 @@ class TitleView: UIView {
     
     func initNavigation() {
         
+        Self.logger.debug("initNavigation() - showing back button")
+        
         title.isHidden = false
         backButton.isHidden = false
         
@@ -170,11 +177,11 @@ class TitleView: UIView {
     }
     
     func beginEdit() {
-
+        
         menuButton.isHidden = true
         title.isHidden = true
         filterButton.isHidden = true
-
+        
         doneButton.isHidden = false
         cancelButton.isHidden = false
     }
@@ -189,7 +196,7 @@ class TitleView: UIView {
     }
     
     @objc func endEdit() {
-
+        
         menuButton.isHidden = false
         title.isHidden = false
         
@@ -200,7 +207,7 @@ class TitleView: UIView {
     }
     
     @objc func cancelEdit() {
-
+        
         menuButton.isHidden = false
         title.isHidden = false
         
@@ -211,7 +218,7 @@ class TitleView: UIView {
     }
     
     @objc func goBack() {
-       mediaView?.cancel()
+        mediaView?.cancel()
     }
     
     @objc func titleTouched() {

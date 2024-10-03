@@ -21,6 +21,7 @@
 
 import Foundation
 
+@MainActor
 public class Environment: NSObject {
     
     static let current = Environment()

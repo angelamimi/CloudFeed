@@ -24,7 +24,7 @@ import os.log
 import UIKit
 import WebKit
 
-class LoginWebController: UIViewController, WKNavigationDelegate {
+class LoginWebController: UIViewController {
     
     var coordinator: LoginWebCoordinator!
     var viewModel: LoginViewModel!
@@ -81,10 +81,14 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
         
+        Self.logger.debug("didReceiveServerRedirectForProvisionalNavigation() - boop")
+        
         guard let url = webView.url else { return }
         guard urlBase != nil else { return }
         
         let urlString: String = url.absoluteString.lowercased()
+        
+        Self.logger.debug("didReceiveServerRedirectForProvisionalNavigation() - urlString: \(urlString)")
 
         // prevent http redirection
         if urlBase!.lowercased().hasPrefix(Global.shared.http) && urlString.lowercased().hasPrefix(Global.shared.https) {
@@ -94,6 +98,7 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         
         if urlString.hasPrefix(Global.shared.prefix) == true && urlString.contains(Global.shared.urlValidation) == true {
             webView.stopLoading()
+            Self.logger.debug("didReceiveServerRedirectForProvisionalNavigation() - process result")
             processResult(url: url)
         }
     }
@@ -110,21 +115,6 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
         Self.logger.error("didFailProvisionalNavigation() - errorMessage: \(errorMessage)")
 
         coordinator.showInvalidURLPrompt()
-    }
-    
-    func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-
-        DispatchQueue.global().async {
-            if let serverTrust = challenge.protectionSpace.serverTrust {
-                completionHandler(Foundation.URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: serverTrust))
-            } else {
-                completionHandler(URLSession.AuthChallengeDisposition.useCredential, nil)
-            }
-        }
-    }
-    
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        decisionHandler(.allow)
     }
     
     private func processResult(url: URL) {
@@ -147,9 +137,10 @@ class LoginWebController: UIViewController, WKNavigationDelegate {
             let server: String = server.replacingOccurrences(of: "/server:", with: "")
             let username: String = user.replacingOccurrences(of: "user:", with: "").replacingOccurrences(of: "+", with: " ")
             let password: String = password.replacingOccurrences(of: "password:", with: "")
-
+            Self.logger.debug("processResult() - show login")
             viewModel.login(server: server, username: username, password: password)
         } else {
+            Self.logger.debug("processResult() - parse failed")
             coordinator.showInitFailedPrompt()
         }
     }
@@ -164,5 +155,51 @@ extension LoginWebController: LoginDelegate {
     func loginError() {
         coordinator.showInitFailedPrompt()
     }
+}
+
+extension LoginWebController: WKNavigationDelegate {
+    
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
+        Self.logger.debug("decidePolicyFor() - navigationAction: \(navigationAction.debugDescription)")
+        return .allow
+    }
+    
+    func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping @MainActor (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        
+        //Task { @MainActor in
+            if let serverTrust = challenge.protectionSpace.serverTrust {
+                Self.logger.debug("didReceive-URLAuthenticationChallenge() - serverTrust")
+                completionHandler(Foundation.URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: serverTrust))
+            } else {
+                Self.logger.debug("didReceive-URLAuthenticationChallenge() -")
+                completionHandler(URLSession.AuthChallengeDisposition.useCredential, nil)
+            }
+        //}
+    }
+    
+    /*func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+
+        //DispatchQueue.global().async {
+        //TODO: Don't know why this was wrapped in the first place.
+        Task { @MainActor in
+            if let serverTrust = challenge.protectionSpace.serverTrust {
+                completionHandler(Foundation.URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: serverTrust))
+            } else {
+                completionHandler(URLSession.AuthChallengeDisposition.useCredential, nil)
+            }
+        //}
+        }
+    }*/
+    
+    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping @MainActor (WKNavigationResponsePolicy) -> Void) {
+        Self.logger.debug("decidePolicyFor-WKNavigationResponse() - allow")
+        decisionHandler(.allow)
+    }
+    
+    /*
+     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+         decisionHandler(.allow)
+     }
+     */
 }
 

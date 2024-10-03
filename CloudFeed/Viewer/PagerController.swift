@@ -107,7 +107,7 @@ class PagerController: UIViewController, MediaViewController {
     }
     
     deinit {
-        cleanup()
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     func updateMediaType(_ type: Global.FilterType) {}
@@ -133,7 +133,9 @@ class PagerController: UIViewController, MediaViewController {
     
     private func initObservers() {
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            self?.willEnterForegroundNotification()
+            DispatchQueue.main.async { [weak self] in
+                self?.willEnterForegroundNotification()
+            }
         }
     }
     
@@ -142,8 +144,12 @@ class PagerController: UIViewController, MediaViewController {
         //TODO: Wasn't working when app started in landscape mode. Got error stating conflicting constraints that don't actually conflict.
         titleView?.translatesAutoresizingMaskIntoConstraints = false
         titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        
+        //titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        //titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        
+        titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
+        titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
             titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSizeLarge)
@@ -152,10 +158,6 @@ class PagerController: UIViewController, MediaViewController {
         }
         
         titleViewHeightAnchor?.isActive = true
-    }
-    
-    private func cleanup() {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     private func willEnterForegroundNotification() {
@@ -190,7 +192,7 @@ class PagerController: UIViewController, MediaViewController {
         viewModel.toggleFavorite(isFavorite: isFavorite)
     }
     
-    private func getVideoURL(metadata: tableMetadata) -> URL? {
+    private func getVideoURL(metadata: Metadata) -> URL? {
         
         if viewModel.dataService.store.fileExists(metadata) {
             return URL(fileURLWithPath: viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!)
@@ -198,7 +200,7 @@ class PagerController: UIViewController, MediaViewController {
         return nil
     }
     
-    private func playLiveVideoFromMetadata(controller: ViewerController, metadata: tableMetadata) {
+    private func playLiveVideoFromMetadata(controller: ViewerController, metadata: Metadata) {
         
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -233,13 +235,17 @@ class PagerController: UIViewController, MediaViewController {
         titleView?.isHidden = true
     }
     
-    private func getFileName(_ metadata: tableMetadata) -> String {
+    private func getFileName(_ metadata: Metadata) -> String {
         return (metadata.fileNameView as NSString).deletingPathExtension
     }
 }
 
 extension PagerController: ViewerDelegate {
     
+    func videoError() {
+        coordinator.showVideoError()
+    }
+
     func updateStatus(status: Global.ViewerStatus) {
         self.status = status
         
@@ -269,7 +275,7 @@ extension PagerController: ViewerDelegate {
 
 extension PagerController: PagerViewModelDelegate {
 
-    func finishedPaging(metadata: tableMetadata) {
+    func finishedPaging(metadata: Metadata) {
         DispatchQueue.main.async { [weak self] in
             self?.titleView?.title.text = self?.getFileName(metadata)
         }
@@ -290,7 +296,7 @@ extension PagerController: PagerViewModelDelegate {
 extension PagerController: UIGestureRecognizerDelegate {
     
     @objc private func handleLongPress(gestureRecognizer: UITapGestureRecognizer) {
-        
+
         guard status != .details else { return }
         guard let currentViewController = currentViewController else { return }
         

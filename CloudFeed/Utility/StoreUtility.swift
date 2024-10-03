@@ -19,11 +19,12 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import Foundation
+import UIKit
 import ImageIO
 import KeychainAccess
 import os.log
 
+//@MainActor
 class StoreUtility {
     
     private static let logger = Logger(
@@ -48,10 +49,12 @@ class StoreUtility {
         Keychain(service: Global.shared.keyChain)[key] = password
     }
     
+    @MainActor
     func getMediaColumnCount() -> Int! {
+
+        let defaultCount = UIDevice.current.userInterfaceIdiom == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
         
         guard try! Keychain(service: Global.shared.keyChain).contains("mediaColumnCount") else {
-            let defaultCount = Global.shared.layoutColumnCountDefault
             setMediaColumnCount(defaultCount)
             return defaultCount
         }
@@ -60,17 +63,20 @@ class StoreUtility {
             return result
         }
         
-        return Global.shared.layoutColumnCountDefault
+        return defaultCount
     }
     
     func setMediaColumnCount(_ count: Int) {
         Keychain(service: Global.shared.keyChain)["mediaColumnCount"] = String(count)
     }
-    
+
+    @MainActor
     func getFavoriteColumnCount() -> Int! {
         
+        let defaultCount = UIDevice.current.userInterfaceIdiom == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
+        
         guard try! Keychain(service: Global.shared.keyChain).contains("favoriteColumnCount") else {
-            let defaultCount = Global.shared.layoutColumnCountDefault
+            //let defaultCount = Global.shared.layoutColumnCountDefault
             setFavoriteColumnCount(defaultCount)
             return defaultCount
         }
@@ -79,7 +85,7 @@ class StoreUtility {
             return result
         }
         
-        return Global.shared.layoutColumnCountDefault
+        return defaultCount
     }
     
     func setFavoriteColumnCount(_ count: Int) {
@@ -162,6 +168,10 @@ class StoreUtility {
         return "\(self.getCachePathForOcId(ocId) ?? "")/\(etag).ico.\(Global.shared.extensionPreview)"
     }
     
+    func getImagePath(_ ocId: String, _ etag: String) -> String {
+        return "\(self.getCachePathForOcId(ocId) ?? "")/\(etag).full.\(Global.shared.extensionPreview)"
+    }
+    
     func getCachePath(_ ocId: String, _ fileNameView: String) -> String? {
         
         let fileNamePath = "\(getCachePathForOcId(ocId) ?? "")/\(fileNameView)"
@@ -173,7 +183,8 @@ class StoreUtility {
         return fileNamePath
     }
     
-    func fileExists(_ metadata: tableMetadata) -> Bool {
+    //func fileExists(_ metadata: tableMetadata) -> Bool {
+    func fileExists(_ metadata: Metadata) -> Bool {
         
         let filePath: String! = getCachePath(metadata.ocId, metadata.fileNameView)
         

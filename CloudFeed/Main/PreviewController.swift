@@ -29,7 +29,7 @@ class PreviewController: UIViewController {
     
     private var imageView = UIImageView()
     private var activityIndicator = UIActivityIndicatorView(style: .large)
-    private var metadata: tableMetadata!
+    private var metadata: Metadata!
     
     var viewModel: ViewerViewModel!
     
@@ -38,7 +38,7 @@ class PreviewController: UIViewController {
         category: String(describing: PreviewController.self)
     )
     
-    init(metadata: tableMetadata) {
+    init(metadata: Metadata) {
         super.init(nibName: nil, bundle: nil)
         
         self.metadata = metadata
@@ -120,7 +120,7 @@ class PreviewController: UIViewController {
                 avpController.player = player
                 avpController.showsPlaybackControls = false
                 
-                self.setupVideoController(avpController: avpController, autoPlay: false)
+                self.setupVideoController(avpController: avpController, autoPlay: true)
                 
                 self.activityIndicator.stopAnimating()
             }
@@ -143,7 +143,7 @@ class PreviewController: UIViewController {
         }
     }
     
-    private func playLiveVideoFromMetadata(_ metadata: tableMetadata) {
+    private func playLiveVideoFromMetadata(_ metadata: Metadata) {
         
         let urlVideo = self.getVideoURL(metadata: metadata)
         
@@ -156,7 +156,7 @@ class PreviewController: UIViewController {
         }
     }
     
-    private func getVideoURL(metadata: tableMetadata) -> URL? {
+    private func getVideoURL(metadata: Metadata) -> URL? {
         
         if viewModel.dataService.store.fileExists(metadata) {
             return URL(fileURLWithPath: viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!)
@@ -195,7 +195,7 @@ class PreviewController: UIViewController {
         //}
     }
     
-    private func viewImage(metadata: tableMetadata) {
+    private func viewImage(metadata: Metadata) {
         
         if metadata.gif {
             processGIF(metadata: metadata)
@@ -216,7 +216,7 @@ class PreviewController: UIViewController {
         }
     }
     
-    private func processGIF(metadata: tableMetadata) {
+    private func processGIF(metadata: Metadata) {
         
         Task { [weak self] in
             guard let self else { return }
@@ -229,7 +229,7 @@ class PreviewController: UIViewController {
         }
     }
     
-    private func processSVG(metadata: tableMetadata) {
+    private func processSVG(metadata: Metadata) {
         
         guard let imagePath = viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView) else { return }
         let previewPath = viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)

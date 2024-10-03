@@ -26,7 +26,8 @@ import UIKit
 class ImageUtility: NSObject {
     
     @discardableResult
-    static func loadSVGPreview(metadata: tableMetadata, imagePath: String, previewPath: String) -> UIImage? {
+    //static func loadSVGPreview(metadata: tableMetadata, imagePath: String, previewPath: String) -> UIImage? {
+    static func loadSVGPreview(metadata: Metadata, imagePath: String, previewPath: String) -> UIImage? {
         
         guard metadata.svg else { return nil }
         guard let svgImage = SVGKImage(contentsOfFile: imagePath) else { return nil }
@@ -65,24 +66,44 @@ class ImageUtility: NSObject {
         return CGSize(width: previewWidth, height: previewHeight)
     }
     
-    static func imageFromVideo(url: URL) async -> UIImage? {
+    static func imageFromVideo(url: URL, size: CGSize) async -> UIImage? {
+        
+        let asset = AVURLAsset(url: url)
+        let generator = AVAssetImageGenerator(asset: asset)
+        let time = CMTimeMake(value: 2, timescale: 1)
+        
+        generator.appliesPreferredTrackTransform = true
+        generator.maximumSize = size
+
+        //let cgImage = try? await generator.image(at: .zero).image
+        let cgImage = try? await generator.image(at: time).image
+        
+        if cgImage == nil {
+            return nil
+        } else {
+            return UIImage(cgImage: cgImage!)
+        }
+    }
+    
+    /*static func imageFromVideo(url: URL, size: CGSize) async -> UIImage? {
         
         return await withCheckedContinuation { continuation in
-            getThumbnailImageFromVideoUrl(url: url) { (thumbNailImage) in
+            getThumbnailImageFromVideoUrl(url: url, size: size) { (thumbNailImage) in
                 continuation.resume(returning: (thumbNailImage))
             }
         }
     }
     
-    private static func getThumbnailImageFromVideoUrl(url: URL, completion: @escaping ((_ image: UIImage?)->Void)) {
+    private static func getThumbnailImageFromVideoUrl(url: URL, size: CGSize, completion: @escaping ((_ image: UIImage?) -> Void)) {
             
         DispatchQueue.global(qos: .background).async {
             
             let asset = AVAsset(url: url)
             let imageGenerator = AVAssetImageGenerator(asset: asset)
             let thumnailTime = CMTimeMake(value: 2, timescale: 1)
-            //TODO: Set maximumSize
+
             imageGenerator.appliesPreferredTrackTransform = true
+            imageGenerator.maximumSize = size
             
             do {
                 let cgThumbImage = try imageGenerator.copyCGImage(at: thumnailTime, actualTime: nil)
@@ -93,5 +114,5 @@ class ImageUtility: NSObject {
                 completion(nil)
             }
         }
-    }
+    }*/
 }

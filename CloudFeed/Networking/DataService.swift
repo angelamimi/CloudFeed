@@ -21,10 +21,11 @@
 
 import Alamofire
 import os.log
-import NextcloudKit
+@preconcurrency import NextcloudKit
 import UIKit
 
-class DataService: NSObject {
+@MainActor
+final class DataService: NSObject {
     
     let store = StoreUtility()
     
@@ -100,25 +101,25 @@ class DataService: NSObject {
     
     // MARK: -
     // MARK: Metadata
-    func getMetadata(predicate: NSPredicate) -> tableMetadata? {
+    func getMetadata(predicate: NSPredicate) -> Metadata? {
         return databaseManager.getMetadata(predicate: predicate)
     }
     
-    func getMetadata(account: String, startServerUrl: String) -> tableMetadata? {
+    func getMetadata(account: String, startServerUrl: String) -> Metadata? {
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue)
         
         return databaseManager.getMetadata(predicate: predicate, sorted: "date", ascending: true)
     }
     
-    func getMetadata(predicate: NSPredicate, sorted: String, ascending: Bool) -> tableMetadata? {
+    func getMetadata(predicate: NSPredicate, sorted: String, ascending: Bool) -> Metadata? {
         return databaseManager.getMetadata(predicate: predicate, sorted: sorted, ascending: ascending)
     }
     
-    func getMetadataFromOcId(_ ocId: String?) -> tableMetadata? {
+    func getMetadataFromOcId(_ ocId: String?) -> Metadata? {
         return databaseManager.getMetadataFromOcId(ocId)
     }
     
-    func getMetadataLivePhoto(metadata: tableMetadata) -> tableMetadata? {
+    func getMetadataLivePhoto(metadata: Metadata) -> Metadata? {
         return databaseManager.getMetadataLivePhoto(metadata: metadata)
     }
     
@@ -139,7 +140,10 @@ class DataService: NSObject {
         
         let etag = databaseManager.getAvatar(fileName: fileName)?.etag
         
-        let etagResult = await nextcloudService.downloadAvatar(account: account.account, userId: account.userId, fileName: fileName, fileNameLocalPath: fileNameLocalPath, etag: etag)
+        let avatarSize = Global.shared.avatarSizeBase * Int(UIScreen.main.scale)
+        
+        let etagResult = await nextcloudService.downloadAvatar(account: account.account, userId: account.userId, fileName: fileName,
+                                                               fileNameLocalPath: fileNameLocalPath, etag: etag, avatarSize: avatarSize, avatarSizeRounded: Global.shared.avatarSizeRounded)
         
         guard etagResult != nil else { return }
         databaseManager.addAvatar(fileName: fileName, etag: etagResult!)
@@ -148,7 +152,7 @@ class DataService: NSObject {
     
     // MARK: -
     // MARK: Favorites
-    func toggleFavoriteMetadata(_ metadata: tableMetadata) async -> tableMetadata? {
+    func toggleFavoriteMetadata(_ metadata: Metadata) async -> Metadata? {
         
         if let metadataLive = databaseManager.getMetadataLivePhoto(metadata: metadata) {
             let result = await toggleFavorite(metadata: metadataLive)
@@ -162,7 +166,7 @@ class DataService: NSObject {
         }
     }
     
-    private func toggleFavorite(metadata: tableMetadata) async -> tableMetadata? {
+    private func toggleFavorite(metadata: Metadata) async -> Metadata? {
         
         let fileName = buildFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
         let favorite = !metadata.favorite
@@ -170,11 +174,11 @@ class DataService: NSObject {
         
         let error = await nextcloudService.setFavorite(fileName: fileName, favorite: favorite, ocId: ocId, account: metadata.account)
         
-        if error == .success {
+        if error {
+            return nil
+        } else {
             return databaseManager.setMetadataFavorite(ocId: ocId, favorite: favorite)
         }
-        
-        return nil
     }
     
     private func buildFileNamePath(metadataFileName: String, serverUrl: String, urlBase: String, userId: String, account: String) -> String {
@@ -197,13 +201,14 @@ class DataService: NSObject {
         
         guard listingResult.files != nil else { return true }
         
-        let convertResult = await databaseManager.convertFilesToMetadatas(listingResult.files!)
-        databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: convertResult)
+        //let convertResult = await databaseManager.convertFilesToMetadatas(listingResult.files!)
+        //databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: convertResult)
+        databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: listingResult.files!)
         
         return false
     }
     
-    func paginateFavoriteMetadata(type: Global.FilterType, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
+    func paginateFavoriteMetadata(type: Global.FilterType, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [Metadata] {
         
         guard let account = Environment.current.currentUser?.account else { return [] }
         guard let mediaPath = getMediaPath() else { return [] }
@@ -214,15 +219,15 @@ class DataService: NSObject {
         return databaseManager.paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
     }
     
-    func processFavorites(displayedMetadatas: [tableMetadata], type: Global.FilterType, from: Date?, to: Date?) -> (delete: [tableMetadata], add: [tableMetadata])? {
+    func processFavorites(displayedMetadatas: [Metadata], type: Global.FilterType, from: Date?, to: Date?) -> (delete: [Metadata], add: [Metadata])? {
         
         guard let account = Environment.current.currentUser?.account else { return nil }
         guard let mediaPath = getMediaPath() else { return nil }
         guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return nil }
 
-        var delete: [tableMetadata] = []
-        var add: [tableMetadata] = []
-        var savedFavorites: [tableMetadata] = []
+        var delete: [Metadata] = []
+        var add: [Metadata] = []
+        var savedFavorites: [Metadata] = []
 
         let predicate = buildMediaPredicateByType(favorite: true, type: type, account: account, startServerUrl: startServerUrl, fromDate: from ?? Date.distantPast, toDate: to ?? Date.distantFuture)
         
@@ -252,24 +257,25 @@ class DataService: NSObject {
     
     // MARK: -
     // MARK: Download
-    func download(metadata: tableMetadata, selector: String) async {
+    func download(metadata: Metadata, selector: String) async {
         
         let serverUrlFileName = metadata.serverUrl + "/" + metadata.fileName
         let fileNameLocalPath = store.getCachePath(metadata.ocId, metadata.fileName)!
         
         if databaseManager.getMetadataFromOcId(metadata.ocId) == nil {
-            databaseManager.addMetadata(tableMetadata.init(value: metadata))
+            //databaseManager.addMetadata(tableMetadata.init(value: metadata))
+            databaseManager.addMetadata(metadata)
         }
         
-        let errorResult = await nextcloudService.download(metadata: metadata, selector: selector,
+        let error = await nextcloudService.download(metadata: metadata, selector: selector,
                                                           serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath)
         
-        if errorResult == .success {
+        if error == false {
             databaseManager.addLocalFile(metadata: metadata)
         }
     }
     
-    func downloadPreview(metadata: tableMetadata) async {
+    func downloadPreview(metadata: Metadata) async {
         
         var previewPath: String
         var iconPath: String
@@ -285,17 +291,44 @@ class DataService: NSObject {
         if let etag = await nextcloudService.downloadPreview(account: metadata.account, fileId: metadata.fileId, previewPath: previewPath,
                                                              previewWidth: metadata.width, previewHeight: metadata.height, iconPath: iconPath, 
                                                              etagResource: etagResource) {
-            await databaseManager.setMetadataEtagResource(ocId: metadata.ocId, etagResource: etag)
+            databaseManager.setMetadataEtagResource(ocId: metadata.ocId, etagResource: etag)
         }
     }
     
-    func downloadVideoPreview(metadata: tableMetadata) async {
-            //TODO: TEST
-        if metadata.video && !FileManager().fileExists(atPath: store.getIconPath(metadata.ocId, metadata.etag)) {
-            Self.logger.debug("downloadVideoPreview() - file: \(metadata.fileNameView) calling getDirectDownload()")
+    func getVideoFrame(metadata: Metadata) -> UIImage? {
+        
+        let path = store.getImagePath(metadata.ocId, metadata.etag)
+        
+        if FileManager().fileExists(atPath: path) {
+            return UIImage(contentsOfFile: path)
+        }
+        
+        return nil
+    }
+    
+    func downloadVideoFrame(metadata: Metadata, url: URL, size: CGSize) async -> UIImage? {
+        
+        let path = store.getImagePath(metadata.ocId, metadata.etag)
+        
+        if FileManager().fileExists(atPath: path) {
+            return UIImage(contentsOfFile: path)
+        } else {
+            let image = await ImageUtility.imageFromVideo(url: url, size: size)
+            try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
+            
+            return image
+        }
+    }
+    
+    func downloadVideoPreview(metadata: Metadata) async {
+        
+        let path = store.getIconPath(metadata.ocId, metadata.etag)
+
+        if metadata.video && !FileManager().fileExists(atPath: path) {
+
             if let url = await getDirectDownload(metadata: metadata) {
-                let image = await ImageUtility.imageFromVideo(url: url)
-                let path = store.getIconPath(metadata.ocId, metadata.etag)
+                
+                let image = await ImageUtility.imageFromVideo(url: url, size: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon))
                 
                 //Save the preview image
                 try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
@@ -303,13 +336,13 @@ class DataService: NSObject {
         }
     }
     
-    func getDirectDownload(metadata: tableMetadata) async -> URL? {
+    func getDirectDownload(metadata: Metadata) async -> URL? {
         return await nextcloudService.getDirectDownload(metadata: metadata)
     }
     
     // MARK: -
     // MARK: Search
-    func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata], added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata], error: Bool) {
+    /*func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata], added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata], error: Bool) {
         
         guard let account = Environment.current.currentUser?.account else { return ([], [], [], [], true) }
         guard let mediaPath = getMediaPath() else { return ([], [], [], [], true) }
@@ -334,8 +367,9 @@ class DataService: NSObject {
         let metadatasResult = databaseManager.getMetadatas(predicate: predicate)
         
         //add, update, delete stored metadata
-        let result = databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
-        let typeResult = type == .all ? result : filterMediaResult(type: type, result: result)
+        let result = await databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
+
+        let typeResult = filterMediaResult(type: type, result: result)
         
         let storePredicate = buildMediaPredicateByType(favorite: false, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
         
@@ -349,13 +383,76 @@ class DataService: NSObject {
         
         //Self.logger.debug("searchMedia() - count: \(metadatas.count) added: \(typeResult.added.count) updated: \(typeResult.updated.count) deleted: \(typeResult.deleted.count)")
         return (metadatas, typeResult.added, typeResult.updated, typeResult.deleted, false)
+    }*/
+    
+    func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [Metadata], added: [Metadata], updated: [Metadata], deleted: [Metadata], error: Bool) {
+        
+        guard let account = Environment.current.currentUser?.account else { return ([], [], [], [], true) }
+        guard let mediaPath = getMediaPath() else { return ([], [], [], [], true) }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return ([], [], [], [], true) }
+        
+        let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath,
+                                                              toDate: toDate, fromDate: fromDate, limit: limit)
+
+        if searchResult.error {
+            return ([], [], [], [], true)
+        }
+        
+        //convert to metadata
+        //let metadataCollection = searchResult.files.count == 0 ? [] : await databaseManager.convertFilesToMetadatas(searchResult.files)
+        let metadataCollection = searchResult.files
+        
+        //get stored metadata
+        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@",
+                                    account, startServerUrl,
+                                    NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue,
+                                    fromDate as NSDate, toDate as NSDate)
+        
+        let metadatasResult = databaseManager.getMetadatas(predicate: predicate)
+        
+        //add, update, delete stored metadata
+        let result = databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
+
+        let typeResult = filterMediaResult(type: type, result: result)
+        
+        let storePredicate = buildMediaPredicateByType(favorite: false, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
+        
+        let metadatas: [Metadata]
+
+        if limit == 0 {
+            metadatas = databaseManager.fetchMetadata(predicate: storePredicate)
+        } else {
+            metadatas = databaseManager.paginateMetadata(predicate: storePredicate, offsetDate: offsetDate, offsetName: offsetName)
+        }
+        
+        //Self.logger.debug("searchMedia() - count: \(metadatas.count) added: \(typeResult.added.count) updated: \(typeResult.updated.count) deleted: \(typeResult.deleted.count)")
+        return (metadatas, typeResult.added, typeResult.updated, typeResult.deleted, false)
     }
     
-    private func filterMediaResult(type: Global.FilterType, result: (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata])) -> (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]){
+    private func filterMediaResult(type: Global.FilterType, result: (added: [Metadata], updated: [Metadata], deleted: [Metadata])) -> (added: [Metadata], updated: [Metadata], deleted: [Metadata]){
         return (added: filterMetadataByType(type: type, metadataCollection: result.added),
                 updated: filterMetadataByType(type: type, metadataCollection: result.updated),
                 deleted: filterMetadataByType(type: type, metadataCollection: result.deleted))
     }
+    
+    /*private func filterMediaResultOLD(type: Global.FilterType, result: (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata])) -> (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]){
+        return (added: filterMetadataByType(type: type, metadataCollection: result.added),
+                updated: filterMetadataByType(type: type, metadataCollection: result.updated),
+                deleted: filterMetadataByType(type: type, metadataCollection: result.deleted))
+    }
+    
+    private func filterMediaResult(type: Global.FilterType, result: (added: [String], updated: [String], deleted: [tableMetadata])) -> (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]){
+        
+        let fetched = databaseManager.getMetadatas(addedOcIds: result.added, updatedOcIds: result.updated)
+        
+        if type == .all {
+            return (added: fetched.added, updated: fetched.updated, deleted: result.deleted)
+        } else {
+            return (added: filterMetadataByType(type: type, metadataCollection: fetched.added),
+                    updated: filterMetadataByType(type: type, metadataCollection: fetched.updated),
+                    deleted: filterMetadataByType(type: type, metadataCollection: result.deleted))
+        }
+    }*/
     
     private func buildMediaPredicateByType(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> NSPredicate {
         
@@ -378,7 +475,8 @@ class DataService: NSObject {
         }
     }
     
-    private func filterMetadataByType(type: Global.FilterType, metadataCollection: [tableMetadata]) -> [tableMetadata] {
+    //private func filterMetadataByType(type: Global.FilterType, metadataCollection: [tableMetadata]) -> [tableMetadata] {
+    private func filterMetadataByType(type: Global.FilterType, metadataCollection: [Metadata]) -> [Metadata] {
         
         if type == .all {
             return metadataCollection

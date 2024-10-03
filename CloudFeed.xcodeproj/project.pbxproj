@@ -60,6 +60,7 @@
 		3929A8872C35CEE6003B48CF /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 3929A8862C35CEE6003B48CF /* RealmSwift */; };
 		3929A8882C35CEE6003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 3929A8862C35CEE6003B48CF /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		3929A8892C35EB5A003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 392718632C359F95001C57C0 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		393D18932C8C9B5100971014 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393D18922C8C9B5100971014 /* ControlsView.swift */; };
 		394BCB0E29C7E25000C4F619 /* HttpCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394BCB0D29C7E25000C4F619 /* HttpCache.swift */; };
 		394BCB1329C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */; };
 		394BCB1429C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -104,6 +105,7 @@
 		39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */; };
 		39EED48A2B56F9C100475802 /* DatabaseManager+Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */; };
 		39EED48C2B56FF2B00475802 /* DatabaseManager+Capabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */; };
+		39FE2FE92C8B85F000CE51AC /* ControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39FE2FE82C8B85F000CE51AC /* ControlsView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -198,6 +200,7 @@
 		392735B729BE50780058796A /* LoginWebController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWebController.swift; sourceTree = "<group>"; };
 		392735B929BE52600058796A /* LoginServerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerController.swift; sourceTree = "<group>"; };
 		392735BD29BE738F0058796A /* CloudFeed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudFeed.entitlements; sourceTree = "<group>"; };
+		393D18922C8C9B5100971014 /* ControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsView.swift; sourceTree = "<group>"; };
 		394BCB0D29C7E25000C4F619 /* HttpCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpCache.swift; sourceTree = "<group>"; };
 		394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVCocoaHTTPServer.xcframework; path = Carthage/Build/KTVCocoaHTTPServer.xcframework; sourceTree = "<group>"; };
 		394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVHTTPCache.xcframework; path = Carthage/Build/KTVHTTPCache.xcframework; sourceTree = "<group>"; };
@@ -238,6 +241,7 @@
 		39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Avatar.swift"; sourceTree = "<group>"; };
 		39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Capabilities.swift"; sourceTree = "<group>"; };
+		39FE2FE82C8B85F000CE51AC /* ControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ControlsView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -307,8 +311,10 @@
 			isa = PBXGroup;
 			children = (
 				39271D5F29D905DA00522DFD /* Viewer.storyboard */,
+				39FE2FE82C8B85F000CE51AC /* ControlsView.xib */,
 				397B5C392C52E9B200EC7923 /* DetailView.xib */,
 				397B5C3B2C52F4B800EC7923 /* DetailView.swift */,
+				393D18922C8C9B5100971014 /* ControlsView.swift */,
 				39271D6329D9091600522DFD /* DetailCell.swift */,
 				39271D6129D908B100522DFD /* DetailController.swift */,
 				397B5C3D2C54625400EC7923 /* DetailsController.swift */,
@@ -590,6 +596,7 @@
 				395C14E52B1C03FF00074EB8 /* Assets.xcassets in Resources */,
 				39E570762B5DE98100548E02 /* FilterView.xib in Resources */,
 				3966634329DE190D005727D4 /* Acknowledgements.plist in Resources */,
+				39FE2FE92C8B85F000CE51AC /* ControlsView.xib in Resources */,
 				39271D5729D79E7900522DFD /* TitleView.xib in Resources */,
 				39271D4A29D7922D00522DFD /* Media.storyboard in Resources */,
 				3927357229BD1E820058796A /* Main.storyboard in Resources */,
@@ -673,6 +680,7 @@
 				397B5C3E2C54625400EC7923 /* DetailsController.swift in Sources */,
 				391579AA2AB3D8B800DFEAB1 /* SettingsViewModel.swift in Sources */,
 				3972EE9E2ADEC27F0020EEC7 /* CollectionController.swift in Sources */,
+				393D18932C8C9B5100971014 /* ControlsView.swift in Sources */,
 				39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */,
 				39271D5B29D8D7CD00522DFD /* FavoritesController.swift in Sources */,
 				39271D7529DA66D800522DFD /* UIImage+Extensions.swift in Sources */,
@@ -878,7 +886,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -917,7 +925,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -1012,7 +1020,7 @@
 			repositoryURL = "https://github.com/realm/realm-swift.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 10.53.0;
+				minimumVersion = 20.0.0;
 			};
 		};
 		39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */ = {

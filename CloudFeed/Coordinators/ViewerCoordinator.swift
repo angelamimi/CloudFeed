@@ -21,6 +21,7 @@
 
 import UIKit
 
+@MainActor
 final class ViewerCoordinator {
     
     private let dataService: DataService
@@ -29,7 +30,7 @@ final class ViewerCoordinator {
         self.dataService = dataService
     }
     
-    func getViewerController(for index: Int, metadata: tableMetadata) -> ViewerController {
+    func getViewerController(for index: Int, metadata: Metadata) -> ViewerController {
         
         let viewerMedia = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(identifier: "ViewerController") as! ViewerController
         let viewModel = ViewerViewModel(dataService: dataService, metadata: metadata)

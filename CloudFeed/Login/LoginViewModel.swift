@@ -23,11 +23,13 @@ import KTVHTTPCache
 import os.log
 import UIKit
 
+@MainActor
 protocol LoginDelegate: AnyObject {
     func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String)
     func loginError()
 }
 
+@MainActor
 final class LoginViewModel: NSObject {
     
     let delegate: LoginDelegate

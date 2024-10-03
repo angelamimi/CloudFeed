@@ -21,6 +21,7 @@
 
 import UIKit
 
+@MainActor
 final class PagerCoordinator {
     
     private let navigationController: UINavigationController
@@ -31,7 +32,7 @@ final class PagerCoordinator {
         self.dataService = dataService
     }
     
-    func start(currentIndex: Int, metadatas: [tableMetadata]) {
+    func start(currentIndex: Int, metadatas: [Metadata]) {
         
         let viewerCoordinator = ViewerCoordinator(dataService: dataService)
         let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
@@ -49,6 +50,15 @@ final class PagerCoordinator {
     func showFavoriteUpdateFailedError() {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.FavUpdateErrorMessage, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default))
+        
+        navigationController.present(alertController, animated: true)
+    }
+    
+    func showVideoError() {
+        
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaVideoErrorMessage, preferredStyle: .alert)
         
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default))
         

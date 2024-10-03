@@ -21,7 +21,7 @@
 
 import UIKit
 
-
+@MainActor
 protocol SettingsDelegate: AnyObject {
     func avatarLoaded(image: UIImage?)
     func cacheCleared()
@@ -29,6 +29,7 @@ protocol SettingsDelegate: AnyObject {
     func profileResultReceived(profileName: String, profileEmail: String)
 }
 
+@MainActor
 final class SettingsViewModel: NSObject {
     
     let delegate: SettingsDelegate
@@ -93,7 +94,7 @@ final class SettingsViewModel: NSObject {
     
     func calculateCacheSize() {
 
-        let totalSize = FileSystemUtility.shared.getDirectorySize(directory: dataService.store.cacheDirectory)
+        let totalSize = FileSystemUtility.getDirectorySize(directory: dataService.store.cacheDirectory)
         
         delegate.cacheCalculated(cacheSize: totalSize)
     }

@@ -24,6 +24,7 @@ import os.log
 import SVGKit
 import UIKit
 
+@MainActor
 protocol MediaDelegate: AnyObject {
     func dataSourceUpdated(refresh: Bool)
     func favoriteUpdated(error: Bool)
@@ -32,11 +33,13 @@ protocol MediaDelegate: AnyObject {
     func searchResultReceived(resultItemCount: Int?)
 }
 
+@MainActor
 final class MediaViewModel: NSObject {
     
     var pauseLoading: Bool = false
     
-    private var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
+    //private var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
+    private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata>!
     
     private let delegate: MediaDelegate
     private let dataService: DataService
@@ -61,7 +64,8 @@ final class MediaViewModel: NSObject {
     
     func initDataSource(collectionView: UICollectionView) {
 
-        dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
+        //dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Int, Metadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: Metadata) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
             self.populateCell(metadata: metadata, cell: cell, indexPath: indexPath, collectionView: collectionView)
             return cell
@@ -88,16 +92,16 @@ final class MediaViewModel: NSObject {
         return snapshot.numberOfItems(inSection: 0)
     }
     
-    func getItems() -> [tableMetadata] {
+    func getItems() -> [Metadata] {
         let snapshot = dataSource.snapshot()
         return snapshot.itemIdentifiers(inSection: 0)
     }
     
-    func getItemAtIndexPath(_ indexPath: IndexPath) -> tableMetadata? {
+    func getItemAtIndexPath(_ indexPath: IndexPath) -> Metadata? {
         return dataSource.itemIdentifier(for: indexPath)
     }
     
-    func getLastItem() -> tableMetadata? {
+    func getLastItem() -> Metadata? {
         
         let snapshot = dataSource.snapshot()
 
@@ -224,7 +228,7 @@ final class MediaViewModel: NSObject {
         dataSource.apply(snapshot)
     }
 
-    func toggleFavorite(metadata: tableMetadata) {
+    func toggleFavorite(metadata: Metadata) {
         
         Task { [weak self] in
             guard let self else { return }
@@ -235,13 +239,15 @@ final class MediaViewModel: NSObject {
                 self.delegate.favoriteUpdated(error: true)
             } else {
 
-                metadata.favorite = result!.favorite
+                //TODO: Can't change the metadata parameter, so did a var copy??
+                var localMetada = metadata
+                localMetada.favorite = result!.favorite
                 
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
                     
                     var snapshot = self.dataSource.snapshot()
-                    snapshot.reconfigureItems([metadata])
+                    snapshot.reconfigureItems([localMetada])
                     
                     self.dataSource.apply(snapshot, animatingDifferences: false)
                     self.delegate.favoriteUpdated(error: false)
@@ -250,11 +256,11 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    private func getAddedMetadata(metadatas: [tableMetadata]) -> [tableMetadata] {
+    private func getAddedMetadata(metadatas: [Metadata]) -> [Metadata] {
 
         let snapshot = dataSource.snapshot()
         let currentMetadatas = snapshot.itemIdentifiers(inSection: 0)
-        var addedFavorites: [tableMetadata] = []
+        var addedFavorites: [Metadata] = []
         
         for fetchedMetadata in metadatas {
             if currentMetadatas.first(where: { $0.ocId == fetchedMetadata.ocId }) == nil {
@@ -265,13 +271,13 @@ final class MediaViewModel: NSObject {
         return addedFavorites
     }
     
-    private func getUpdatedFavorites(metadatas: [tableMetadata]) -> [tableMetadata] {
+    private func getUpdatedFavorites(metadatas: [Metadata]) -> [Metadata] {
         
         let snapshot = dataSource.snapshot()
         let currentMetadatas = snapshot.itemIdentifiers(inSection: 0)
-        var upadatedFavorites: [tableMetadata] = []
+        var upadatedFavorites: [Metadata] = []
         
-        for currentMetadata in currentMetadatas {
+        for var currentMetadata in currentMetadatas {
             if let result = metadatas.first(where: { $0.ocId == currentMetadata.ocId }) {
                 if result.favorite != currentMetadata.favorite {
                     currentMetadata.favorite = result.favorite
@@ -283,7 +289,7 @@ final class MediaViewModel: NSObject {
         return upadatedFavorites
     }
     
-    private func syncDatasource(added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
+    private func syncDatasource(added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
         
         var snapshot = dataSource.snapshot()
         let displayedMetadata = snapshot.itemIdentifiers(inSection: 0)
@@ -297,7 +303,8 @@ final class MediaViewModel: NSObject {
             }
             
             for update in updated {
-                if let displayed = displayedMetadata.first(where: { $0.ocId == update.ocId }) {
+                //TODO: was let. had to change to var
+                if var displayed = displayedMetadata.first(where: { $0.ocId == update.ocId }) {
                     displayed.favorite = update.favorite
                     displayed.fileNameView = update.fileNameView
                     snapshot.reloadItems([displayed])
@@ -352,7 +359,7 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    private func search(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata]?, added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
+    private func search(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [Metadata]?, added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
         
         //Self.logger.debug("search() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
         //Self.logger.debug("search() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
@@ -372,11 +379,11 @@ final class MediaViewModel: NSObject {
         return (sorted, result.added, result.updated, result.deleted)
     }
     
-    private func applyDatasourceChanges(metadatas: [tableMetadata], refresh: Bool) {
+    private func applyDatasourceChanges(metadatas: [Metadata], refresh: Bool) {
 
         var snapshot = dataSource.snapshot()
-        var ocIdAdd : [tableMetadata] = []
-        var ocIdUpdate : [tableMetadata] = []
+        var ocIdAdd : [Metadata] = []
+        var ocIdUpdate : [Metadata] = []
         
         if refresh {
             snapshot.deleteAllItems()
@@ -407,13 +414,16 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    private func populateCell(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
+    private func populateCell(metadata: Metadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
         
-        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
+        if metadata.video {
+            Self.logger.debug("populateCell() - show video icon \(metadata.fileNameView)")
             cell.showVideoIcon()
         } else if metadata.livePhoto {
+            Self.logger.debug("populateCell() - show video icon \(metadata.fileNameView)")
             cell.showLivePhotoIcon()
         } else {
+            Self.logger.debug("populateCell() - reset icon \(metadata.fileNameView)")
             cell.resetStatusIcon()
         }
         
@@ -424,7 +434,7 @@ final class MediaViewModel: NSObject {
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             
             if FileManager().fileExists(atPath: path) {
-
+                    
                 let image = UIImage(contentsOfFile: path)
                 cell.setImage(image, metadata.transparent)
                 
@@ -439,15 +449,15 @@ final class MediaViewModel: NSObject {
                         guard let self else { return }
                         //Self.logger.debug("populateCell() - file: \(metadata.fileNameView) calling fetch")
                         let thumbnail = await self.cacheManager.fetch(metadata: metadata, indexPath: indexPath)
-                        guard let cell = await collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
-                        await cell.setImage(thumbnail, metadata.transparent)
+                        guard let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
+                        cell.setImage(thumbnail, metadata.transparent)
                     }
                 }
             }
         }
     }
     
-    private func applyUpdateForMetadata(_ metadata: tableMetadata) {
+    private func applyUpdateForMetadata(_ metadata: Metadata) {
         
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -461,7 +471,7 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    private func loadSVG(metadata: tableMetadata) async {
+    private func loadSVG(metadata: Metadata) async {
 
         if !dataService.store.fileExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
             

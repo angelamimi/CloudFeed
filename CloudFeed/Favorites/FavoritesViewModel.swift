@@ -23,6 +23,7 @@ import NextcloudKit
 import os.log
 import UIKit
 
+@MainActor
 protocol FavoritesDelegate: AnyObject {
     func fetching()
     func dataSourceUpdated(refresh: Bool)
@@ -31,11 +32,12 @@ protocol FavoritesDelegate: AnyObject {
     func editCellUpdated(cell: CollectionViewCell, indexPath: IndexPath)
 }
 
+@MainActor
 final class FavoritesViewModel: NSObject {
     
     var pauseLoading: Bool = false
     
-    private var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
+    private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata>!
     
     private let delegate: FavoritesDelegate
     private let dataService: DataService
@@ -60,7 +62,7 @@ final class FavoritesViewModel: NSObject {
     
     func initDataSource(collectionView: UICollectionView) {
         
-        dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Int, Metadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: Metadata) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
             self.populateCell(metadata: metadata, cell: cell, indexPath: indexPath, collectionView: collectionView)
             return cell
@@ -71,7 +73,7 @@ final class FavoritesViewModel: NSObject {
         dataSource.applySnapshotUsingReloadData(snapshot)
     }
     
-    func getItemAtIndexPath(_ indexPath: IndexPath) -> tableMetadata? {
+    func getItemAtIndexPath(_ indexPath: IndexPath) -> Metadata? {
         return dataSource.itemIdentifier(for: indexPath)
     }
     
@@ -80,7 +82,7 @@ final class FavoritesViewModel: NSObject {
         return snapshot.numberOfItems(inSection: 0)
     }
     
-    func getItems() -> [tableMetadata] {
+    func getItems() -> [Metadata] {
         let snapshot = dataSource.snapshot()
         return snapshot.itemIdentifiers(inSection: 0)
     }
@@ -206,7 +208,7 @@ final class FavoritesViewModel: NSObject {
         
         for indexPath in indexPaths {
             
-            guard let metadata = await dataSource.itemIdentifier(for: indexPath) else { continue }
+            guard let metadata = dataSource.itemIdentifier(for: indexPath) else { continue }
             
             let result = await dataService.toggleFavoriteMetadata(metadata)
             
@@ -260,7 +262,7 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func populateCell(metadata: tableMetadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
+    private func populateCell(metadata: Metadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
         
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             cell.showVideoIcon()
@@ -290,8 +292,8 @@ final class FavoritesViewModel: NSObject {
                 if !pauseLoading {
                     Task {
                         let thumbnail = await cacheManager.fetch(metadata: metadata, indexPath: indexPath)
-                        guard let cell = await collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
-                        await cell.setImage(thumbnail, metadata.transparent)
+                        guard let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
+                        cell.setImage(thumbnail, metadata.transparent)
                     }
                 }
             }
@@ -369,7 +371,7 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func applyUpdateForMetadata(_ metadata: tableMetadata) {
+    private func applyUpdateForMetadata(_ metadata: Metadata) {
         
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -383,10 +385,10 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func applyDatasourceChanges(metadatas: [tableMetadata], refresh: Bool) async {
+    private func applyDatasourceChanges(metadatas: [Metadata], refresh: Bool) async {
         
-        var ocIdAdd : [tableMetadata] = []
-        var ocIdUpdate : [tableMetadata] = []
+        var ocIdAdd : [Metadata] = []
+        var ocIdUpdate : [Metadata] = []
         var snapshot = dataSource.snapshot()
         
         if refresh {
@@ -421,7 +423,7 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func loadSVG(metadata: tableMetadata) async {
+    private func loadSVG(metadata: Metadata) async {
         
         if !dataService.store.fileExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
             

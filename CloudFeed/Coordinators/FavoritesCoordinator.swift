@@ -21,6 +21,7 @@
 
 import UIKit
 
+@MainActor
 final class FavoritesCoordinator {
     
     private let navigationController: UINavigationController
@@ -34,13 +35,13 @@ final class FavoritesCoordinator {
 
 extension FavoritesCoordinator {
     
-    func getPreviewController(metadata: tableMetadata) -> PreviewController {
+    func getPreviewController(metadata: Metadata) -> PreviewController {
         let previewController = PreviewController(metadata: metadata)
         previewController.viewModel = ViewerViewModel(dataService: dataService, metadata: metadata)
         return previewController
     }
     
-    func showViewerPager(currentIndex: Int, metadatas: [tableMetadata]) {
+    func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
         let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService)
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }

@@ -21,12 +21,15 @@
 
 import UIKit
 
-class Global: NSObject {
+//@MainActor
+//class Global: NSObject {
+final class Global: Sendable {
     
-    static let shared: Global = {
+    /*static let shared: Global = {
         let instance = Global()
         return instance
-    }()
+    }()*/
+    static let shared = Global()
     
     let keyChain                      = "com.angelamimi.cloudfeed"
     let userAgent                     = "CloudFeed-iOS"
@@ -60,7 +63,9 @@ class Global: NSObject {
     //
     let layoutTypeSquare              = "layoutTypeSquare"
     let layoutTypeAspectRatio         = "layoutTypeAspectRatio"
-    let layoutColumnCountDefault      = UIDevice.current.userInterfaceIdiom == .pad ? 3 : 2
+    //let layoutColumnCountDefault    = UIDevice.current.userInterfaceIdiom == .pad ? 3 : 2
+    let layoutColumnCountDefaultPad   = 3
+    let layoutColumnCountDefault      = 2
     
     
     // MARK: - Icon/Preview
@@ -68,7 +73,8 @@ class Global: NSObject {
     let extensionPreview        = "jpeg"
     let sizePreview: Int        = 1024
     let sizeIcon: Int           = 512
-    let avatarSize: Int         = 128 * Int(UIScreen.main.scale)
+    //let avatarSize: Int       = 128 * Int(UIScreen.main.scale)
+    let avatarSizeBase: Int     = 128
     let avatarSizeRounded: Int  = 128
     
     

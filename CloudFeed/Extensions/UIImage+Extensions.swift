@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 import Accelerate
 
+@MainActor
 extension UIImage {
 
     /// Downsamles a image using ImageIO. Has better memory perfomance than redrawing using UIKit

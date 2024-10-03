@@ -86,7 +86,8 @@ extension DatabaseManager {
             
             let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first
             if result == nil {
-                FileSystemUtility.shared.deleteFile(filePath: cachePath)
+                //FileSystemUtility.shared.deleteFile(filePath: cachePath)
+                FileSystemUtility.deleteFile(filePath: cachePath)
                 return nil
             } else if result?.loaded == false {
                 return nil
@@ -98,7 +99,8 @@ extension DatabaseManager {
             Self.logger.error("Failed to load avatar with error \(error.localizedDescription)")
         }
         
-        FileSystemUtility.shared.deleteFile(filePath: cachePath)
+        //FileSystemUtility.shared.deleteFile(filePath: cachePath)
+        FileSystemUtility.deleteFile(filePath: cachePath)
         return nil
     }
 }

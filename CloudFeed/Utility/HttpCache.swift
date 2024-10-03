@@ -24,6 +24,7 @@
 import UIKit
 import KTVHTTPCache
 
+@MainActor
 class HTTPCache: NSObject {
     
     @objc static let shared: HTTPCache = {

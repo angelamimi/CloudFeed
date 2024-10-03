@@ -8,29 +8,34 @@
 import UIKit
 import os.log
 
-class CacheManager {
+@MainActor
+final class CacheManager {
     
     private let dataService: DataService
+    
+    private let cache: NSCache<NSString, UIImage>
+    /*private var cache: NSCache<NSString, UIImage> = {
+        let cache = NSCache<NSString, UIImage>()
+        cache.countLimit = 100
+        return cache
+    }()*/
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: CacheManager.self))
     
-    private var cache: NSCache<NSString, UIImage> = {
-        let cache = NSCache<NSString, UIImage>()
-        cache.countLimit = 100
-        return cache
-    }()
-    
     init(dataService: DataService) {
         self.dataService = dataService
+        
+        cache = NSCache<NSString, UIImage>()
+        cache.countLimit = 300 //TODO: Very low limit
     }
     
     func clear() {
         cache.removeAllObjects()
     }
     
-    func cache(metadata: tableMetadata, image: UIImage) {
+    func cache(metadata: Metadata, image: UIImage) {
         cache.setObject(image, forKey: (metadata.ocId + metadata.etag) as NSString)
     }
     
@@ -38,7 +43,7 @@ class CacheManager {
         return cache.object(forKey: ocId + etag as NSString)
     }
     
-    func fetch(metadata: tableMetadata, indexPath: IndexPath) async -> UIImage? {
+    func fetch(metadata: Metadata, indexPath: IndexPath) async -> UIImage? {
         
         //Self.logger.debug("fetch() - downloading file: \(metadata.fileNameView)")
         
@@ -63,7 +68,7 @@ class CacheManager {
         return nil
     }
     
-    private func loadSVG(metadata: tableMetadata) async {
+    private func loadSVG(metadata: Metadata) async {
         
         if !dataService.store.fileExists(metadata) && metadata.image {
             

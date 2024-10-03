@@ -21,32 +21,37 @@
 
 import UIKit
 
+@MainActor
 protocol PagerViewModelDelegate: AnyObject {
-    func finishedPaging(metadata: tableMetadata)
+    func finishedPaging(metadata: Metadata)
     func finishedUpdatingFavorite(isFavorite: Bool)
     func saveFavoriteError()
 }
 
+@MainActor
 final class PagerViewModel: NSObject {
 
     private let coordinator: ViewerCoordinator
     let dataService: DataService
     
     private var currentIndex: Int
-    private var metadatas: [tableMetadata]
+    //private var metadatas: [tableMetadata]
+    private var metadatas: [Metadata]
     
     internal var nextIndex: Int?
     weak var delegate: PagerViewModelDelegate?
     weak var viewerDelegate: ViewerDelegate?
     
-    init(coordinator: ViewerCoordinator, dataService: DataService, currentIndex: Int = 0, metadatas: [tableMetadata]) {
+    //init(coordinator: ViewerCoordinator, dataService: DataService, currentIndex: Int = 0, metadatas: [tableMetadata]) {
+    init(coordinator: ViewerCoordinator, dataService: DataService, currentIndex: Int = 0, metadatas: [Metadata]) {
         self.coordinator = coordinator
         self.dataService = dataService
         self.currentIndex = currentIndex
         self.metadatas = metadatas
     }
     
-    func currentMetadata() -> tableMetadata {
+    //func currentMetadata() -> tableMetadata {
+    func currentMetadata() -> Metadata {
         return metadatas[currentIndex]
     }
     
@@ -73,18 +78,18 @@ final class PagerViewModel: NSObject {
         }
     }
     
-    func getMetadataLivePhoto(metadata: tableMetadata) -> tableMetadata? {
+    func getMetadataLivePhoto(metadata: Metadata) -> Metadata? {
         return dataService.getMetadataLivePhoto(metadata: metadata)
     }
     
-    func downloadLivePhotoVideo(metadata: tableMetadata) async {
+    func downloadLivePhotoVideo(metadata: Metadata) async {
         await dataService.download(metadata: metadata, selector: "")
     }
 }
 
 extension PagerViewModel {
     
-    private func initViewer(index: Int, metadata: tableMetadata) -> ViewerController {
+    private func initViewer(index: Int, metadata: Metadata) -> ViewerController {
         
         let controller = coordinator.getViewerController(for: index, metadata: metadata)
 

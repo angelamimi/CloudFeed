@@ -21,7 +21,7 @@
 
 import UIKit
 
-final class AppCoordinator: Coordinator {
+final class AppCoordinator: NSObject, Coordinator {
     
     let window: UIWindow
     

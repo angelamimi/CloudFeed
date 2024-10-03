@@ -21,7 +21,7 @@
 
 import UIKit
 
-final class LoginServerCoordinator : Coordinator {
+final class LoginServerCoordinator : NSObject, Coordinator {
     
     private let window: UIWindow
     private let navigationController: UINavigationController

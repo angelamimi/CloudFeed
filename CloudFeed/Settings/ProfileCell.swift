@@ -30,11 +30,14 @@ class ProfileCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
-        profileImageView.layer.masksToBounds = true
+        MainActor.assumeIsolated {
+            
+            profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
+            profileImageView.layer.masksToBounds = true
         
-        profileNameLabel.font = UIFont.preferredFont(forTextStyle: .body)
-        profileEmailLabel.font = UIFont.preferredFont(forTextStyle: .body)
+            profileNameLabel.font = UIFont.preferredFont(forTextStyle: .body)
+            profileEmailLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        }
     }
 
     func updateProfileImage(_ image: UIImage?) {

@@ -26,19 +26,19 @@ import UIKit
 import PhotosUI
 import os.log
 
-class FileSystemUtility: NSObject {
+class FileSystemUtility { //: NSObject {
     
-    @objc static let shared: FileSystemUtility = {
+    /*@objc static let shared: FileSystemUtility = {
         let instance = FileSystemUtility()
         return instance
-    }()
+    }()*/
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: FileSystemUtility.self)
     )
     
-    func getDirectorySize(directory: String) -> Int64 {
+    static func getDirectorySize(directory: String) -> Int64 {
         
         let url = URL(fileURLWithPath: directory)
         let manager = FileManager.default
@@ -57,18 +57,12 @@ class FileSystemUtility: NSObject {
         return totalSize
     }
     
-    func deleteFile(filePath: String) {
+    static func deleteFile(filePath: String) {
         
         do {
             try FileManager.default.removeItem(atPath: filePath)
         } catch {
             Self.logger.error("deleteFile() - removeItem error: \(error.localizedDescription)")
         }
-    }
-    
-    func linkItem(atPath: String, toPath: String) {
-
-        try? FileManager.default.removeItem(atPath: toPath)
-        try? FileManager.default.linkItem(atPath: atPath, toPath: toPath)
     }
 }

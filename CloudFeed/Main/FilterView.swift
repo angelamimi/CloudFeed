@@ -21,6 +21,7 @@
 
 import UIKit
 
+@MainActor
 protocol Filterable: AnyObject {
     func filter(from: Date, to: Date)
     func removeFilter()

@@ -49,7 +49,7 @@ extension DatabaseManager {
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
                                        category: String(describing: DatabaseManager.self) + "LocalFile")
     
-    func addLocalFile(metadata: tableMetadata) {
+    func addLocalFile(metadata: Metadata) {
         
         let realm = try! Realm()
         

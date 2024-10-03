@@ -35,12 +35,17 @@ class CollectionViewCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        initCell()
+        
+        MainActor.assumeIsolated {
+            self.initCell()
+        }
     }
     
     override func prepareForReuse() {
-        imageView.image = nil
         initCell()
+        /*DispatchQueue.main.async {
+            self.initCell()
+        }*/
     }
     
     func resetStatusIcon() {
@@ -48,7 +53,7 @@ class CollectionViewCell: UICollectionViewCell {
     }
     
     func showVideoIcon() {
-        imageStatus.image = UIImage(systemName: "video.fill")
+        imageStatus.image = UIImage(systemName: "play.fill")
     }
     
     func showLivePhotoIcon() {
@@ -80,12 +85,12 @@ class CollectionViewCell: UICollectionViewCell {
         DispatchQueue.main.async { [weak self] in
             guard image != nil else {
                 self?.imageView.image = nil
-                self?.imageView.backgroundColor = .systemBackground
+                self?.imageView.backgroundColor = .secondarySystemBackground //.systemBackground
                 return
             }
             
             guard let self else { return }
-            
+            //TODO: Don't need isTransparent?
             var backgroundColor: UIColor?
             
             imageView.contentMode = .scaleAspectFill

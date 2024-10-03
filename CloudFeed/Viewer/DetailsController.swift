@@ -26,7 +26,7 @@ class DetailsController: UIViewController {
     
     @IBOutlet weak var detailView: DetailView!
     
-    var metadata: tableMetadata?
+    var metadata: Metadata?
     var url: URL?
     
     private static let logger = Logger(

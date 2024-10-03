@@ -27,7 +27,9 @@ class DetailController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     weak var store: StoreUtility?
-    weak var metadata: tableMetadata?
+    
+    //weak var metadata: tableMetadata?
+    var metadata: Metadata?
     
     private var details = [MetadataDetail]()
     
@@ -149,7 +151,7 @@ class DetailController: UIViewController {
         return details
     }
     
-    private func appendDetails(metadata: tableMetadata) {
+    private func appendDetails(metadata: Metadata) {
         
         details.append(MetadataDetail(title: Strings.DetailName, detail: metadata.fileNameView))
         details.append(MetadataDetail(title: Strings.DetailEditedDate, detail: (metadata.date as Date).formatted(date: .abbreviated, time: .standard)))

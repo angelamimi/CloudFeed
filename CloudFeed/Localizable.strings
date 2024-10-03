@@ -48,6 +48,7 @@
 "Media.Filter" = "Apply Filter";
 "Media.RemoveFilter" = "Remove Filter";
 "Media.InvalidFilter" = "Invalid filter. From Date must not be greater than To Date.";
+"Media.Video.Error.Message" = "Failed to load video";
 
 /* Favorites */
 "Fav.Error.Message" = "Failed to load favorites.";

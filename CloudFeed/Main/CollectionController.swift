@@ -61,7 +61,8 @@ class CollectionController: UIViewController {
     }
     
     deinit {
-        cleanup()
+        //cleanup()
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     func setTitle() {}
@@ -74,13 +75,15 @@ class CollectionController: UIViewController {
     
     private func initObservers() {
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            self?.willEnterForegroundNotification()
+            DispatchQueue.main.async { [weak self] in
+                self?.willEnterForegroundNotification()
+            }
         }
     }
     
-    private func cleanup() {
+    /*private func cleanup() {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
-    }
+    }*/
     
     private func willEnterForegroundNotification() {
         if isViewLoaded && view.window != nil {
@@ -138,8 +141,8 @@ class CollectionController: UIViewController {
 
         titleView?.translatesAutoresizingMaskIntoConstraints = false
         titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
+        titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
             titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSizeLarge)

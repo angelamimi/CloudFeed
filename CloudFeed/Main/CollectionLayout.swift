@@ -22,6 +22,7 @@
 import UIKit
 import os.log
 
+@MainActor
 protocol CollectionLayoutDelegate: AnyObject {
     func collectionView(_ collectionView: UICollectionView, sizeAtIndexPath indexPath: IndexPath) -> CGSize
 }
