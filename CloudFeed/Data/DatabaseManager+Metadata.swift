@@ -27,7 +27,12 @@ import RealmSwift
 import NextcloudKit
 import os.log
 
-struct Metadata: Hashable {
+struct Metadata: Sendable, Identifiable {
+    
+    var id: String {
+        return ocId
+    }
+
     var account: String
     var checksums: String
     var chunk: Bool
@@ -67,18 +72,6 @@ struct Metadata: Hashable {
     var height: Int
     var width: Int
     
-    func hash(into hasher: inout Hasher) {
-        //TODO: Implement hash???
-        hasher.combine(ocId)
-    }
-    
-    /* //TODO: See equals for tableMetadata
-     static func == (lhs: Metadata, rhs: Metadata) -> Bool {
-         return lhs.dbName == rhs.dbName && lhs.petName == rhs.petName
-     }
-     
-     */
-    
     init(obj: tableMetadata) {
         account = obj.account
         checksums = obj.checksums
@@ -95,7 +88,7 @@ struct Metadata: Hashable {
         favorite = obj.favorite
         fileId = obj.fileId
         fileName = obj.fileName
-        fileNameView = obj.fileName
+        fileNameView = obj.fileNameView
         hasPreview = obj.hasPreview
         iconName = obj.iconName
         iconUrl = obj.iconUrl
@@ -176,9 +169,9 @@ class tableMetadata: Object {
     override func isEqual(_ object: Any?) -> Bool {
         if let object = object as? tableMetadata {
             return self.fileId == object.fileId
-                    && self.account == object.account
-                    && self.path == object.path
-                    && self.fileName == object.fileName
+            && self.account == object.account
+            && self.path == object.path
+            && self.fileName == object.fileName
         } else {
             return false
         }
@@ -226,50 +219,51 @@ class tableMetadata: Object {
     override static func primaryKey() -> String {
         return "ocId"
     }
+}
+
+extension tableMetadata {
     
-    override init() {
+    convenience init(obj: Metadata) {
+        self.init()
         
-    }
-    
-    init(metadata: Metadata) {
-        account = metadata.account
-        checksums = metadata.checksums
-        chunk = metadata.chunk
-        contentType = metadata.contentType
-        creationDate = metadata.creationDate
-        dataFingerprint = metadata.dataFingerprint
-        date = metadata.date
-        directory = metadata.directory
-        downloadURL = metadata.downloadURL
-        e2eEncrypted = metadata.e2eEncrypted
-        etag = metadata.etag
-        etagResource = metadata.etagResource
-        favorite = metadata.favorite
-        fileId = metadata.fileId
-        fileName = metadata.fileName
-        fileNameView = metadata.fileName
-        hasPreview = metadata.hasPreview
-        iconName = metadata.iconName
-        iconUrl = metadata.iconUrl
-        livePhotoFile = metadata.livePhotoFile
-        name = metadata.name
-        note = metadata.note
-        ocId = metadata.ocId
-        path = metadata.path
-        quotaUsedBytes = metadata.quotaUsedBytes
-        quotaAvailableBytes = metadata.quotaAvailableBytes
-        resourceType = metadata.resourceType
-        serverUrl = metadata.serverUrl
-        size = metadata.size
-        status = metadata.status
-        classFile = metadata.classFile
-        uploadDate = metadata.uploadDate
-        url = metadata.url
-        urlBase = metadata.urlBase
-        user = metadata.user
-        userId = metadata.userId
-        width = metadata.width
-        height = metadata.height
+        account = obj.account
+        checksums = obj.checksums
+        chunk = obj.chunk
+        contentType = obj.contentType
+        creationDate = obj.creationDate
+        dataFingerprint = obj.dataFingerprint
+        date = obj.date
+        directory = obj.directory
+        downloadURL = obj.downloadURL
+        e2eEncrypted = obj.e2eEncrypted
+        etag = obj.etag
+        etagResource = obj.etagResource
+        favorite = obj.favorite
+        fileId = obj.fileId
+        fileName = obj.fileName
+        fileNameView = obj.fileNameView
+        hasPreview = obj.hasPreview
+        iconName = obj.iconName
+        iconUrl = obj.iconUrl
+        livePhotoFile = obj.livePhotoFile
+        name = obj.name
+        note = obj.note
+        ocId = obj.ocId
+        path = obj.path
+        quotaUsedBytes = obj.quotaUsedBytes
+        quotaAvailableBytes = obj.quotaAvailableBytes
+        resourceType = obj.resourceType
+        serverUrl = obj.serverUrl
+        size = obj.size
+        status = obj.status
+        classFile = obj.classFile
+        uploadDate = obj.uploadDate
+        url = obj.url
+        urlBase = obj.urlBase
+        user = obj.user
+        userId = obj.userId
+        width = obj.width
+        height = obj.height
     }
 }
 
@@ -320,12 +314,13 @@ extension DatabaseManager {
     }*/
 
     //func convertFileToMetadata(_ file: NKFile) -> tableMetadata {
-    //func convertFileToMetadata(_ file: NKFile) -> Metadata {
+    /*func convertFileToMetadata(_ file: NKFile) -> Metadata {
 
         //let metadata = tableMetadata()
    //     var metadata = Metadata.init(file: file)
 
-        /*
+        let metadata = Metadata()
+
         metadata.account = file.account
         metadata.checksums = file.checksums
         metadata.contentType = file.contentType
@@ -367,18 +362,16 @@ extension DatabaseManager {
         metadata.userId = file.userId
         metadata.width = Int(file.width)
         metadata.height = Int(file.height)
-        */
         
-        //return metadata
-    //}
+        return metadata
+    }*/
     
     @discardableResult
     //func addMetadata(_ metadata: tableMetadata) -> tableMetadata? {
     func addMetadata(_ metadata: Metadata) -> Metadata? {
 
         let realm = try! Realm()
-        //let result = tableMetadata.init(value: metadata)
-        let result = tableMetadata.init(metadata: metadata)
+        let result = tableMetadata.init(value: metadata)
 
         do {
             try realm.write {
@@ -393,7 +386,7 @@ extension DatabaseManager {
     }
     
     //func convertFilesToMetadatas(_ files: [NKFile]) async -> [tableMetadata] {
-    /*func convertFilesToMetadatas(_ files: [NKFile]) async -> [Metadata] {
+   /* func convertFilesToMetadatas(_ files: [NKFile]) -> [Metadata] {
 
         //var metadatas: [tableMetadata] = []
         var metadatas: [Metadata] = []
@@ -664,7 +657,7 @@ extension DatabaseManager {
                             
                             updatedOcIds.append(metadata.ocId)
                             //realm.add(tableMetadata.init(value: metadata), update: .all)
-                            realm.add(tableMetadata.init(metadata: metadata), update: .all)
+                            realm.add(tableMetadata.init(obj: metadata), update: .all)
                         }
                     } else {
                         
@@ -678,7 +671,7 @@ extension DatabaseManager {
                         }
                         
                         //realm.add(tableMetadata.init(value: metadata), update: .all)
-                        realm.add(tableMetadata.init(metadata: metadata), update: .all)
+                        realm.add(tableMetadata.init(obj: metadata), update: .all)
                     }
                 }
             }
@@ -793,7 +786,7 @@ extension DatabaseManager {
         do {
             try realm.write {
                 let result = realm.objects(tableMetadata.self).filter("ocId == %@", ocId).first
-                result?.favorite = favorite
+                result?.favorite = favorite //TODO: WILL CHANGING VALUE WORK??
             }
         } catch let error {
             Self.logger.error("Could not write to database: \(error)")
@@ -815,7 +808,8 @@ extension DatabaseManager {
                 }
                 for metadata in metadatas {
                     //realm.add(metadata, update: .all)
-                    realm.add(tableMetadata.init(metadata: metadata), update: .all)
+                    //realm.add(Metadata.init(metadata: metadata), update: .all)
+                    realm.add(tableMetadata.init(obj: metadata), update: .all) //TODO: DOES THIS WORK OR NEED ANOTHER INIT?
                 }
             }
         } catch let error {

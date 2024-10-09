@@ -39,11 +39,13 @@ final class MediaViewModel: NSObject {
     var pauseLoading: Bool = false
     
     //private var dataSource: UICollectionViewDiffableDataSource<Int, tableMetadata>!
-    private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata>!
+    private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata.ID>!
     
     private let delegate: MediaDelegate
     private let dataService: DataService
     private let cacheManager: CacheManager
+    
+    private var metadatas: [Metadata.ID: Metadata] = [:]
     
     private var fetchTask: Task<Void, Never>? {
         willSet {
@@ -65,9 +67,9 @@ final class MediaViewModel: NSObject {
     func initDataSource(collectionView: UICollectionView) {
 
         //dataSource = UICollectionViewDiffableDataSource<Int, tableMetadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: tableMetadata) -> UICollectionViewCell? in
-        dataSource = UICollectionViewDiffableDataSource<Int, Metadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: Metadata) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Int, Metadata.ID>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadataId: Metadata.ID) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            self.populateCell(metadata: metadata, cell: cell, indexPath: indexPath, collectionView: collectionView)
+            self.populateCell(metadataId: metadataId, cell: cell, indexPath: indexPath, collectionView: collectionView)
             return cell
         }
         
@@ -93,12 +95,25 @@ final class MediaViewModel: NSObject {
     }
     
     func getItems() -> [Metadata] {
+        //let snapshot = dataSource.snapshot()
+        //return snapshot.itemIdentifiers(inSection: 0)
         let snapshot = dataSource.snapshot()
-        return snapshot.itemIdentifiers(inSection: 0)
+        var items: [Metadata] = []
+        for id in snapshot.itemIdentifiers(inSection: 0) {
+            if let metadata = metadatas[id] {
+                items.append(metadata)
+            }
+        }
+        
+        return items
     }
     
     func getItemAtIndexPath(_ indexPath: IndexPath) -> Metadata? {
-        return dataSource.itemIdentifier(for: indexPath)
+        //return dataSource.itemIdentifier(for: indexPath)
+        if let id = dataSource.itemIdentifier(for: indexPath) {
+            return metadataForId(id)
+        }
+        return nil
     }
     
     func getLastItem() -> Metadata? {
@@ -106,7 +121,10 @@ final class MediaViewModel: NSObject {
         let snapshot = dataSource.snapshot()
 
         if (snapshot.numberOfItems(inSection: 0) > 0) {
-            return snapshot.itemIdentifiers(inSection: 0).last
+            //return snapshot.itemIdentifiers(inSection: 0).last
+            if let id = snapshot.itemIdentifiers(inSection: 0).last {
+                return metadataForId(id)
+            }
         }
         
         return nil
@@ -198,13 +216,14 @@ final class MediaViewModel: NSObject {
         let snapshot = dataSource.snapshot()
         
         if (snapshot.numberOfItems(inSection: 0) > 0) {
-            let metadata = snapshot.itemIdentifiers(inSection: 0).last
-            if metadata != nil {
-                /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
-                 but might lose items with dates in the same second */
-                offsetDate = metadata!.date as Date
-                offsetName = metadata!.fileNameView
-                //Self.logger.debug("loadMore() - offsetName: \(offsetName!) offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
+            if let id = snapshot.itemIdentifiers(inSection: 0).last {
+                if let metadata = metadataForId(id) {
+                    /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
+                     but might lose items with dates in the same second */
+                    offsetDate = metadata.date as Date
+                    offsetName = metadata.fileNameView
+                    //Self.logger.debug("loadMore() - offsetName: \(offsetName!) offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
+                }
             }
         }
         
@@ -239,21 +258,30 @@ final class MediaViewModel: NSObject {
                 self.delegate.favoriteUpdated(error: true)
             } else {
 
-                //TODO: Can't change the metadata parameter, so did a var copy??
-                var localMetada = metadata
-                localMetada.favorite = result!.favorite
+                //TODO: !!! Can't change the metadata parameter, so did a var copy??
+                var localMetadata = metadata
+                localMetadata.favorite = result!.favorite //TODO: Set favorite in array?
+                metadatas[localMetadata.id] = localMetadata
                 
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
                     
                     var snapshot = self.dataSource.snapshot()
-                    snapshot.reconfigureItems([localMetada])
+                    snapshot.reconfigureItems([localMetadata.id])
                     
                     self.dataSource.apply(snapshot, animatingDifferences: false)
                     self.delegate.favoriteUpdated(error: false)
                 }
             }
         }
+    }
+    
+    private func metadataForId(_ id: Metadata.ID) -> Metadata? {
+        /*if let index = metadatas.firstIndex(where: { $0.id == id }) {
+            return metadatas[index]
+        }
+        return nil*/
+        return metadatas[id]
     }
     
     private func getAddedMetadata(metadatas: [Metadata]) -> [Metadata] {
@@ -263,7 +291,8 @@ final class MediaViewModel: NSObject {
         var addedFavorites: [Metadata] = []
         
         for fetchedMetadata in metadatas {
-            if currentMetadatas.first(where: { $0.ocId == fetchedMetadata.ocId }) == nil {
+            //if currentMetadatas.first(where: { $0.ocId == fetchedMetadata.ocId }) == nil {
+            if currentMetadatas.first(where: { $0 == fetchedMetadata.id }) == nil {
                 addedFavorites.append(fetchedMetadata)
             }
         }
@@ -274,16 +303,19 @@ final class MediaViewModel: NSObject {
     private func getUpdatedFavorites(metadatas: [Metadata]) -> [Metadata] {
         
         let snapshot = dataSource.snapshot()
-        let currentMetadatas = snapshot.itemIdentifiers(inSection: 0)
+        let currentMetadataIds = snapshot.itemIdentifiers(inSection: 0)
         var upadatedFavorites: [Metadata] = []
         
-        for var currentMetadata in currentMetadatas {
-            if let result = metadatas.first(where: { $0.ocId == currentMetadata.ocId }) {
-                if result.favorite != currentMetadata.favorite {
-                    currentMetadata.favorite = result.favorite
-                    upadatedFavorites.append(currentMetadata)
+        for currentMetadataId in currentMetadataIds {
+            if let result = metadatas.first(where: { $0.id == currentMetadataId }) {
+                
+                if var currentMetadata = metadataForId(currentMetadataId) {
+
+                    if result.favorite != currentMetadata.favorite {
+                        currentMetadata.favorite = result.favorite //TODO: Upate favorite here or in array?
+                        upadatedFavorites.append(currentMetadata)
+                    }
                 }
-                    
             }
         }
         return upadatedFavorites
@@ -297,16 +329,105 @@ final class MediaViewModel: NSObject {
         if displayedMetadata.count > 0 {
         
             for delete in deleted {
+                if displayedMetadata.contains(delete.id) {
+                    snapshot.deleteItems([delete.id])
+                }
+                //TODO: Delete from underlying source too?
+                metadatas.removeValue(forKey: delete.id)
+            }
+            
+            for update in updated {
+                if let displayed = displayedMetadata.first(where: { $0 == update.id }) {
+                    //if let displayedIndex = metadatas.firstIndex(where: { $0.id == displayed }) {
+                    if metadatas.keys.contains(displayed) {
+                        metadatas[displayed]?.favorite = update.favorite
+                        //displayed.favorite = update.favorite
+                        //displayed.fileNameView = update.fileNameView
+                        
+                        snapshot.reloadItems([displayed])
+                    }
+                }
+            }
+        }
+        
+        if added.count > 0 {
+            
+            if snapshot.numberOfItems == 0 {
+                for add in added {
+                    if !snapshot.itemIdentifiers.contains(add.id) {
+                        //TODO: !!! TEST ALSO ADDED TO UNDERLYING DICT
+                        //metadatas.append(add)
+                        metadatas[add.id] = add
+                        snapshot.appendItems([add.id])
+                    }
+                }
+            } else {
+                
+                //find where each item to be added fits in the visible collection by date and possibly name
+                for result in added {
+                    
+                    if snapshot.itemIdentifiers.contains(result.id) {
+                        //Self.logger.debug("syncDatasource() - \(result.fileNameView) exists. do not add again.")
+                        continue
+                    }
+                    
+                    //metadatas.append(result)
+                    metadatas[result.id] = result
+                    
+                    for visibleItem in displayedMetadata {
+                        
+                        let visibleMetadata = metadataForId(visibleItem)
+                        
+                        if visibleMetadata == nil {
+                            break
+                        }
+                        
+                        let resultTime = result.date.timeIntervalSinceReferenceDate
+                        let visibleTime = visibleMetadata!.date.timeIntervalSinceReferenceDate
+                        
+                        if resultTime > visibleTime {
+                            snapshot.insertItems([result.id], beforeItem: visibleItem)
+                            break
+                        } else if resultTime == visibleTime {
+                            if result.fileNameView > visibleMetadata!.fileNameView {
+                                snapshot.insertItems([result.id], beforeItem: visibleItem)
+                                break
+                            }
+                        }
+                    }
+
+                    if snapshot.itemIdentifiers.contains(result.id) == false {
+                        snapshot.appendItems([result.id])
+                    }
+                }
+            }
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSource.apply(snapshot, animatingDifferences: true)
+            self?.delegate.dataSourceUpdated(refresh: false)
+        }
+    }
+    
+    /*private func syncDatasource(added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
+        
+        var snapshot = dataSource.snapshot()
+        let displayedMetadata = snapshot.itemIdentifiers(inSection: 0)
+        
+        if displayedMetadata.count > 0 {
+        
+            for delete in deleted {
                 if displayedMetadata.contains(delete) {
                     snapshot.deleteItems([delete])
                 }
             }
             
             for update in updated {
-                //TODO: was let. had to change to var
-                if var displayed = displayedMetadata.first(where: { $0.ocId == update.ocId }) {
+                //TODO: !!! was let. had to change to var
+                if let displayed = displayedMetadata.first(where: { $0.ocId == update.ocId }) {
                     displayed.favorite = update.favorite
                     displayed.fileNameView = update.fileNameView
+                    
                     snapshot.reloadItems([displayed])
                 }
             }
@@ -357,7 +478,7 @@ final class MediaViewModel: NSObject {
             self?.dataSource.apply(snapshot, animatingDifferences: true)
             self?.delegate.dataSourceUpdated(refresh: false)
         }
-    }
+    }*/
     
     private func search(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [Metadata]?, added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
         
@@ -380,6 +501,45 @@ final class MediaViewModel: NSObject {
     }
     
     private func applyDatasourceChanges(metadatas: [Metadata], refresh: Bool) {
+
+        var snapshot = dataSource.snapshot()
+        var adds : [Metadata.ID] = []
+        var updates : [Metadata.ID] = []
+        
+        if refresh {
+            snapshot.deleteAllItems()
+            snapshot.appendSections([0])
+            
+            self.metadatas.removeAll()
+        }
+        
+        for metadata in metadatas {
+
+            if snapshot.indexOfItem(metadata.id) == nil {
+                adds.append(metadata.id)
+            } else {
+                updates.append(metadata.id)
+            }
+            
+            self.metadatas[metadata.id] = metadata
+        }
+        
+        if adds.count > 0 {
+            snapshot.appendItems(adds)
+        }
+        
+        if updates.count > 0 {
+            snapshot.reconfigureItems(updates)
+        }
+            
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSource.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
+                self?.delegate.dataSourceUpdated(refresh: refresh)
+            })
+        }
+    }
+    
+    /*private func applyDatasourceChanges(metadatas: [Metadata], refresh: Bool) {
 
         var snapshot = dataSource.snapshot()
         var ocIdAdd : [Metadata] = []
@@ -412,9 +572,11 @@ final class MediaViewModel: NSObject {
                 self?.delegate.dataSourceUpdated(refresh: refresh)
             })
         }
-    }
+    }*/
     
-    private func populateCell(metadata: Metadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
+    private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
+        
+        guard let metadata = metadataForId(metadataId) else { return }
         
         if metadata.video {
             Self.logger.debug("populateCell() - show video icon \(metadata.fileNameView)")
@@ -457,7 +619,8 @@ final class MediaViewModel: NSObject {
         }
     }
     
-    private func applyUpdateForMetadata(_ metadata: Metadata) {
+    //TODO: Not used??
+    /*private func applyUpdateForMetadata(_ metadata: Metadata) {
         
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -469,7 +632,7 @@ final class MediaViewModel: NSObject {
                 self.dataSource.apply(snapshot, animatingDifferences: true)
             }
         }
-    }
+    }*/
     
     private func loadSVG(metadata: Metadata) async {
 

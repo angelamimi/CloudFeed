@@ -251,6 +251,8 @@ extension MediaController: UICollectionViewDelegate {
         guard let image = cell.imageView.image else { return nil }
         guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return nil }
         
+        Self.logger.debug("contextMenuConfigurationForItemsAt() - file: \(metadata.fileNameView) favorite: \(metadata.favorite)")
+        
         let previewController = self.coordinator.getPreviewController(metadata: metadata)
         
         previewController.preferredContentSize = image.size

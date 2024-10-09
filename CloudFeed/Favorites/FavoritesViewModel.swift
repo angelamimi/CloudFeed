@@ -37,11 +37,13 @@ final class FavoritesViewModel: NSObject {
     
     var pauseLoading: Bool = false
     
-    private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata>!
+    private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata.ID>!
     
     private let delegate: FavoritesDelegate
     private let dataService: DataService
     private let cacheManager: CacheManager
+    
+    private var metadatas: [Metadata.ID: Metadata] = [:]
     
     private var fetchTask: Task<Void, Never>? {
         willSet {
@@ -62,9 +64,9 @@ final class FavoritesViewModel: NSObject {
     
     func initDataSource(collectionView: UICollectionView) {
         
-        dataSource = UICollectionViewDiffableDataSource<Int, Metadata>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadata: Metadata) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Int, Metadata.ID>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadataId: Metadata.ID) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            self.populateCell(metadata: metadata, cell: cell, indexPath: indexPath, collectionView: collectionView)
+            self.populateCell(metadataId: metadataId, cell: cell, indexPath: indexPath, collectionView: collectionView)
             return cell
         }
 
@@ -74,7 +76,11 @@ final class FavoritesViewModel: NSObject {
     }
     
     func getItemAtIndexPath(_ indexPath: IndexPath) -> Metadata? {
-        return dataSource.itemIdentifier(for: indexPath)
+        //return dataSource.itemIdentifier(for: indexPath)
+        if let id = dataSource.itemIdentifier(for: indexPath) {
+            return metadataForId(id)
+        }
+        return nil
     }
     
     func currentItemCount() -> Int {
@@ -84,7 +90,14 @@ final class FavoritesViewModel: NSObject {
     
     func getItems() -> [Metadata] {
         let snapshot = dataSource.snapshot()
-        return snapshot.itemIdentifiers(inSection: 0)
+        var items: [Metadata] = []
+        for id in snapshot.itemIdentifiers(inSection: 0) {
+            if let metadata = metadatas[id] {
+                items.append(metadata)
+            }
+        }
+        
+        return items
     }
     
     func getLayoutType() -> String {
@@ -104,7 +117,11 @@ final class FavoritesViewModel: NSObject {
     }
     
     func resetDataSource() {
+        
         guard dataSource != nil else { return }
+        
+        metadatas.removeAll()
+        
         var snapshot = dataSource.snapshot()
         snapshot.deleteAllItems()
         snapshot.appendSections([0])
@@ -119,13 +136,14 @@ final class FavoritesViewModel: NSObject {
         let snapshot = dataSource.snapshot()
         
         if (snapshot.numberOfItems(inSection: 0) > 0) {
-            let metadata = snapshot.itemIdentifiers(inSection: 0).last
-            if metadata != nil {
-                offsetName = metadata?.fileNameView
-                offsetDate = metadata!.date as Date
-                /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
-                    but might lose new results from files with dates in the same second */
-                //Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
+            if let id = snapshot.itemIdentifiers(inSection: 0).last {
+                if let metadata = metadataForId(id) {
+                    offsetName = metadata.fileNameView
+                    offsetDate = metadata.date as Date
+                    /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
+                     but might lose new results from files with dates in the same second */
+                    //Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
+                }
             }
         }
 
@@ -208,7 +226,8 @@ final class FavoritesViewModel: NSObject {
         
         for indexPath in indexPaths {
             
-            guard let metadata = dataSource.itemIdentifier(for: indexPath) else { continue }
+            guard let id = dataSource.itemIdentifier(for: indexPath) else { continue }
+            guard let metadata = metadataForId(id) else { continue }
             
             let result = await dataService.toggleFavoriteMetadata(metadata)
             
@@ -216,7 +235,8 @@ final class FavoritesViewModel: NSObject {
                 //Self.logger.error("bulkEdit() - failed to save favorite ocid: \(metadata.ocId)")
                 error = true
             } else {
-                snapshot.deleteItems([result!])
+                snapshot.deleteItems([result!.id])
+                metadatas.removeValue(forKey: result!.id)
             }
         }
         
@@ -242,6 +262,14 @@ final class FavoritesViewModel: NSObject {
         dataSource.apply(snapshot)
     }
     
+    private func metadataForId(_ id: Metadata.ID) -> Metadata? {
+        /*if let index = metadatas.firstIndex(where: { $0.id == id }) {
+            return metadatas[index]
+        }
+        return nil*/
+        return metadatas[id]
+    }
+    
     private func handleFavoriteResult(error: Bool) {
         if error {
             delegate.fetchResultReceived(resultItemCount: nil)
@@ -262,7 +290,9 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func populateCell(metadata: Metadata, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
+    private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
+        
+        guard let metadata = metadataForId(metadataId) else { return }
         
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             cell.showVideoIcon()
@@ -307,7 +337,7 @@ final class FavoritesViewModel: NSObject {
         var snapshot = dataSource.snapshot()
         var displayed = snapshot.itemIdentifiers(inSection: 0)
         
-        guard let result = dataService.processFavorites(displayedMetadatas: displayed, type: type, from: from, to: to) else {
+        guard let result = dataService.processFavorites(displayedMetadataIds: displayed, type: type, from: from, to: to) else {
             delegate.dataSourceUpdated(refresh: false)
             return
         }
@@ -317,7 +347,13 @@ final class FavoritesViewModel: NSObject {
             return
         }
         
-        if result.delete.count > 0 { snapshot.deleteItems(result.delete) }
+        if result.delete.count > 0 {
+            snapshot.deleteItems(result.delete)
+            
+            for deleted in result.delete {
+                metadatas.removeValue(forKey: deleted)
+            }
+        }
         
         displayed = snapshot.itemIdentifiers(inSection: 0)
         
@@ -325,8 +361,9 @@ final class FavoritesViewModel: NSObject {
             
             if snapshot.numberOfItems == 0 {
                 for add in result.add {
-                    if !snapshot.itemIdentifiers.contains(add) {
-                        snapshot.appendItems([add])
+                    if !snapshot.itemIdentifiers.contains(add.id) {
+                        snapshot.appendItems([add.id])
+                        metadatas[add.id] = add
                     }
                 }
             } else {
@@ -334,29 +371,37 @@ final class FavoritesViewModel: NSObject {
                 //find where each item to be added fits in the visible collection by date and possibly name
                 for result in result.add {
                     
-                    if snapshot.itemIdentifiers.contains(result) {
+                    if snapshot.itemIdentifiers.contains(result.id) {
                         //Self.logger.debug("processFavorites() - \(result.fileNameView) exists. do not add again.")
                         continue
                     }
                     
+                    metadatas[result.id] = result
+                    
                     for visibleItem in displayed {
                         
+                        let visibleMetadata = metadataForId(visibleItem)
+                        
+                        if visibleMetadata == nil {
+                            break
+                        }
+                        
                         let resultTime = result.date.timeIntervalSinceReferenceDate
-                        let visibleTime = visibleItem.date.timeIntervalSinceReferenceDate
+                        let visibleTime = visibleMetadata!.date.timeIntervalSinceReferenceDate
                         
                         if resultTime > visibleTime {
-                            snapshot.insertItems([result], beforeItem: visibleItem)
+                            snapshot.insertItems([result.id], beforeItem: visibleItem)
                             break
                         } else if resultTime == visibleTime {
-                            if result.fileNameView > visibleItem.fileNameView {
-                                snapshot.insertItems([result], beforeItem: visibleItem)
+                            if result.fileNameView > visibleMetadata!.fileNameView {
+                                snapshot.insertItems([result.id], beforeItem: visibleItem)
                                 break
                             }
                         }
                     }
 
-                    if snapshot.itemIdentifiers.contains(result) == false {
-                        snapshot.appendItems([result])
+                    if snapshot.itemIdentifiers.contains(result.id) == false {
+                        snapshot.appendItems([result.id])
                     }
                 }
             }
@@ -371,7 +416,8 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    private func applyUpdateForMetadata(_ metadata: Metadata) {
+    //TODO: Not used??
+    /*private func applyUpdateForMetadata(_ metadata: Metadata) {
         
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -383,33 +429,39 @@ final class FavoritesViewModel: NSObject {
                 self.dataSource.apply(snapshot, animatingDifferences: true)
             }
         }
-    }
+    }*/
     
     private func applyDatasourceChanges(metadatas: [Metadata], refresh: Bool) async {
         
-        var ocIdAdd : [Metadata] = []
-        var ocIdUpdate : [Metadata] = []
+        var adds : [Metadata.ID] = []
+        var updates : [Metadata.ID] = []
         var snapshot = dataSource.snapshot()
         
         if refresh {
             snapshot.deleteAllItems()
             snapshot.appendSections([0])
+            
+            self.metadatas.removeAll()
         }
         
         for metadata in metadatas {
-            if snapshot.indexOfItem(metadata) == nil {
-                ocIdAdd.append(metadata)
+            if snapshot.indexOfItem(metadata.id) == nil {
+                adds.append(metadata.id)
             } else {
-                ocIdUpdate.append(metadata)
+                updates.append(metadata.id)
             }
+            
+            self.metadatas[metadata.id] = metadata
         }
         
-        if ocIdAdd.count > 0 {
-            snapshot.appendItems(ocIdAdd, toSection: 0)
+        if adds.count > 0 {
+            //snapshot.appendItems(adds, toSection: 0)
+            snapshot.appendItems(adds, toSection: 0)
         }
         
-        if ocIdUpdate.count > 0 {
-            snapshot.reloadItems(ocIdUpdate)
+        if updates.count > 0 {
+            //snapshot.reloadItems(updates)
+            snapshot.reloadItems(updates) //TODO: Why not reconfigure?
         }
         
         //Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd.count) ocIdUpdate: \(ocIdUpdate.count)")

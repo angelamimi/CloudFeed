@@ -28,9 +28,5 @@ class AcknowledgementCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-        //TODO: Set in interface builder. dynamic size enabled or something
-        //licenseLabel.font = UIFont.preferredFont(forTextStyle: .body)
-        //titleLabel.font = UIFont.preferredFont(forTextStyle: .body)
     }
 }

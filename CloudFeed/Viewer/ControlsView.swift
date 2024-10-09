@@ -82,38 +82,7 @@ class ControlsView: UIView {
         
         setPlaying(playing: false)
         
-        volumeView.clipsToBounds = true
-        volumeView.layer.cornerRadius = 8
-        
-        controlsView.clipsToBounds = true
-        controlsView.layer.cornerRadius = 8
-        
-        volumeSlider.addTarget(self, action: #selector(volumeChanged), for: .valueChanged)
-        timeSlider.addTarget(self, action: #selector(timeChanged), for: .valueChanged)
-        
-        volumeButton.addTarget(self, action: #selector(volumeButtonTapped), for: .touchUpInside)
-        skipBackButton.addTarget(self, action: #selector(skipBackButtonTapped), for: .touchUpInside)
-        playButton.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
-        skipForwardButton.addTarget(self, action: #selector(skipForwardButtonTapped), for: .touchUpInside)
-        fullScreenButton.addTarget(self, action: #selector(fullScreenButtonTapped), for: .touchUpInside)
-        
-        volumeButton.addTarget(self, action: #selector(volumeButtonDown), for: .touchDown)
-        fullScreenButton.addTarget(self, action: #selector(fullScreenButtonDown), for: .touchDown)
-        skipBackButton.addTarget(self, action: #selector(skipBackButtonDown), for: .touchDown)
-        skipForwardButton.addTarget(self, action: #selector(skipForwardButtonDown), for: .touchDown)
-        playButton.addTarget(self, action: #selector(playButtonDown), for: .touchDown)
-        
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(timeSliderPan(panGesture:)))
-        timeSlider.addGestureRecognizer(panGesture)
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(timeSliderTapped(tapGesture:)))
-        timeSlider.addGestureRecognizer(tap)
-        
-        let panVolume = UIPanGestureRecognizer(target: self, action: #selector(volumeSliderPan(panGesture:)))
-        volumeView.addGestureRecognizer(panVolume)
-        
-        let tapVolume = UITapGestureRecognizer(target: self, action: #selector(volumeSliderTapped(tapGesture:)))
-        volumeView.addGestureRecognizer(tapVolume)
+        initControls()
     }
     
     private func loadViewFromNib() -> UIView? {
@@ -460,5 +429,41 @@ class ControlsView: UIView {
         UIView.animate(withDuration: 0.4, animations: {
             button.tintColor = .label
         })
+    }
+    
+    private func initControls() {
+        
+        volumeView.clipsToBounds = true
+        volumeView.layer.cornerRadius = 8
+        
+        controlsView.clipsToBounds = true
+        controlsView.layer.cornerRadius = 8
+        
+        volumeSlider.addTarget(self, action: #selector(volumeChanged), for: .valueChanged)
+        timeSlider.addTarget(self, action: #selector(timeChanged), for: .valueChanged)
+        
+        volumeButton.addTarget(self, action: #selector(volumeButtonTapped), for: .touchUpInside)
+        skipBackButton.addTarget(self, action: #selector(skipBackButtonTapped), for: .touchUpInside)
+        playButton.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
+        skipForwardButton.addTarget(self, action: #selector(skipForwardButtonTapped), for: .touchUpInside)
+        fullScreenButton.addTarget(self, action: #selector(fullScreenButtonTapped), for: .touchUpInside)
+        
+        volumeButton.addTarget(self, action: #selector(volumeButtonDown), for: .touchDown)
+        fullScreenButton.addTarget(self, action: #selector(fullScreenButtonDown), for: .touchDown)
+        skipBackButton.addTarget(self, action: #selector(skipBackButtonDown), for: .touchDown)
+        skipForwardButton.addTarget(self, action: #selector(skipForwardButtonDown), for: .touchDown)
+        playButton.addTarget(self, action: #selector(playButtonDown), for: .touchDown)
+        
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(timeSliderPan(panGesture:)))
+        timeSlider.addGestureRecognizer(panGesture)
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(timeSliderTapped(tapGesture:)))
+        timeSlider.addGestureRecognizer(tap)
+        
+        let panVolume = UIPanGestureRecognizer(target: self, action: #selector(volumeSliderPan(panGesture:)))
+        volumeView.addGestureRecognizer(panVolume)
+        
+        let tapVolume = UITapGestureRecognizer(target: self, action: #selector(volumeSliderTapped(tapGesture:)))
+        volumeView.addGestureRecognizer(tapVolume)
     }
 }

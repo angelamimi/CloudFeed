@@ -180,6 +180,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 content.image = UIImage(systemName: "info.circle")
                 cell.accessoryType = .none
                 cell.tintColor = UIColor.label
+                cell.selectionStyle = .none
                 
                 if let dictionary = Bundle.main.infoDictionary,
                     let version = dictionary["CFBundleShortVersionString"] as? String,

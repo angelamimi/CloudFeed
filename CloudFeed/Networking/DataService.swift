@@ -219,13 +219,13 @@ final class DataService: NSObject {
         return databaseManager.paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
     }
     
-    func processFavorites(displayedMetadatas: [Metadata], type: Global.FilterType, from: Date?, to: Date?) -> (delete: [Metadata], add: [Metadata])? {
+    func processFavorites(displayedMetadataIds: [Metadata.ID], type: Global.FilterType, from: Date?, to: Date?) -> (delete: [Metadata.ID], add: [Metadata])? {
         
         guard let account = Environment.current.currentUser?.account else { return nil }
         guard let mediaPath = getMediaPath() else { return nil }
         guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return nil }
 
-        var delete: [Metadata] = []
+        var delete: [Metadata.ID] = []
         var add: [Metadata] = []
         var savedFavorites: [Metadata] = []
 
@@ -236,15 +236,15 @@ final class DataService: NSObject {
         //Self.logger.debug("processFavorites() - savedFavorites count: \(savedFavorites.count) displayedMetadatas count: \(displayedMetadatas.count)")
         
         //if displayed but doesn't exist in db, flag for delete
-        for displayedMetadata in displayedMetadatas {
-            if savedFavorites.firstIndex(where: { $0.ocId == displayedMetadata.ocId }) == nil {
-                delete.append(displayedMetadata)
+        for displayedMetadataId in displayedMetadataIds {
+            if savedFavorites.firstIndex(where: { $0.id == displayedMetadataId }) == nil {
+                delete.append(displayedMetadataId)
             }
         }
         
         //if exists in db, but is not displayed, flag for add
         for saved in savedFavorites {
-            if displayedMetadatas.firstIndex(where: { $0.ocId == saved.ocId }) == nil {
+            if displayedMetadataIds.firstIndex(where: { $0 == saved.id }) == nil {
                 add.append(saved)
             }
         }
@@ -399,7 +399,7 @@ final class DataService: NSObject {
         }
         
         //convert to metadata
-        //let metadataCollection = searchResult.files.count == 0 ? [] : await databaseManager.convertFilesToMetadatas(searchResult.files)
+        //let metadataCollection = searchResult.files.count == 0 ? [] : databaseManager.convertFilesToMetadatas(searchResult.files)
         let metadataCollection = searchResult.files
         
         //get stored metadata

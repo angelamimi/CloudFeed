@@ -19,11 +19,10 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import NextcloudKit
+@preconcurrency import NextcloudKit
 import os.log
 import UIKit
 
-//@MainActor
 protocol NextcloudKitServiceProtocol: Sendable {
     
     func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String)
@@ -36,6 +35,7 @@ protocol NextcloudKitServiceProtocol: Sendable {
     func getDirectDownload(metadata: Metadata) async -> URL?
     
     func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool)
+    //func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool)
     
     func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> Bool
     func listingFavorites(account: String) async -> (account: String, files: [Metadata]?)
@@ -171,9 +171,10 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     
     // MARK: -
     // MARK: Search
+    //func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [ThreadSafeReference<NKFile>], error: Bool) {
     //func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool) {
     func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool) {
-        
+
         let limit: Int = limit
         let options = NKRequestOptions(timeout: 300)
         
