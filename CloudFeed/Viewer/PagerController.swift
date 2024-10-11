@@ -142,16 +142,17 @@ class PagerController: UIViewController, MediaViewController {
     private func initConstraints() {
         
         titleView?.translatesAutoresizingMaskIntoConstraints = false
+        
         titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
+        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
             titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSizeLarge)
         } else {
             titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
         }
-        
+
         titleViewHeightAnchor?.isActive = true
     }
     
