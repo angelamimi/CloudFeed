@@ -28,10 +28,6 @@ import NextcloudKit
 import os.log
 
 struct Metadata: Sendable, Identifiable {
-    
-    var id: String {
-        return ocId
-    }
 
     var account: String
     var checksums: String
@@ -71,6 +67,10 @@ struct Metadata: Sendable, Identifiable {
     var userId: String
     var height: Int
     var width: Int
+    
+    var id: String {
+        return ocId
+    }
     
     init(obj: tableMetadata) {
         account = obj.account
@@ -163,19 +163,44 @@ struct Metadata: Sendable, Identifiable {
     }
 }
 
-class tableMetadata: Object {
+extension Metadata {
     
-    //TODO: Need this?
-    override func isEqual(_ object: Any?) -> Bool {
-        if let object = object as? tableMetadata {
-            return self.fileId == object.fileId
-            && self.account == object.account
-            && self.path == object.path
-            && self.fileName == object.fileName
-        } else {
-            return false
-        }
+    var fileExtension: String { (fileNameView as NSString).pathExtension }
+    
+    var svg: Bool {
+        fileExtension == "svg" || contentType == "image/svg+xml"
     }
+    
+    var gif: Bool {
+        fileExtension == "gif" || contentType == "image/gif"
+    }
+    
+    var png: Bool {
+        fileExtension == "png" || contentType == "image/png"
+    }
+    
+    var transparent: Bool {
+        svg || gif || png
+    }
+    
+    var livePhoto: Bool {
+        !livePhotoFile.isEmpty
+    }
+    
+    var video: Bool {
+        return classFile == NKCommon.TypeClassFile.video.rawValue
+    }
+    
+    var image: Bool {
+        return classFile == NKCommon.TypeClassFile.image.rawValue
+    }
+    
+    var imageSize: CGSize {
+        CGSize(width: width, height: height)
+    }
+}
+
+class tableMetadata: Object {
     
     @objc dynamic var account = ""
     @objc dynamic var checksums = ""
@@ -218,6 +243,17 @@ class tableMetadata: Object {
     
     override static func primaryKey() -> String {
         return "ocId"
+    }
+    
+    override func isEqual(_ object: Any?) -> Bool {
+        if let object = object as? tableMetadata {
+            return self.fileId == object.fileId
+            && self.account == object.account
+            && self.path == object.path
+            && self.fileName == object.fileName
+        } else {
+            return false
+        }
     }
 }
 
@@ -267,107 +303,12 @@ extension tableMetadata {
     }
 }
 
-extension Metadata {
-    
-    var fileExtension: String { (fileNameView as NSString).pathExtension }
-    
-    var svg: Bool {
-        fileExtension == "svg" || contentType == "image/svg+xml"
-    }
-    
-    var gif: Bool {
-        fileExtension == "gif" || contentType == "image/gif"
-    }
-    
-    var png: Bool {
-        fileExtension == "png" || contentType == "image/png"
-    }
-    
-    var transparent: Bool {
-        svg || gif || png
-    }
-    
-    var livePhoto: Bool {
-        !livePhotoFile.isEmpty
-    }
-    
-    var video: Bool {
-        return classFile == NKCommon.TypeClassFile.video.rawValue
-    }
-    
-    var image: Bool {
-        return classFile == NKCommon.TypeClassFile.image.rawValue
-    }
-    
-    var imageSize: CGSize {
-        CGSize(width: width, height: height)
-    }
-}
-
 extension DatabaseManager {
     
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
                                        category: String(describing: DatabaseManager.self) + "Metadata")
     
-    /*private func copyObject(metadata: tableMetadata) -> tableMetadata {
-        return tableMetadata.init(value: metadata)
-    }*/
-
-    //func convertFileToMetadata(_ file: NKFile) -> tableMetadata {
-    /*func convertFileToMetadata(_ file: NKFile) -> Metadata {
-
-        //let metadata = tableMetadata()
-   //     var metadata = Metadata.init(file: file)
-
-        let metadata = Metadata()
-
-        metadata.account = file.account
-        metadata.checksums = file.checksums
-        metadata.contentType = file.contentType
-        if let date = file.creationDate {
-            metadata.creationDate = date as NSDate
-        } else {
-            metadata.creationDate = file.date as NSDate
-        }
-        metadata.dataFingerprint = file.dataFingerprint
-        metadata.date = file.date as NSDate
-        metadata.directory = file.directory
-        metadata.downloadURL = file.downloadURL
-        metadata.e2eEncrypted = file.e2eEncrypted
-        metadata.etag = file.etag
-        metadata.favorite = file.favorite
-        metadata.fileId = file.fileId
-        metadata.fileName = file.fileName
-        metadata.fileNameView = file.fileName
-        metadata.hasPreview = file.hasPreview
-        metadata.iconName = file.iconName
-        metadata.livePhotoFile = file.livePhotoFile
-        metadata.name = file.name
-        metadata.note = file.note
-        metadata.ocId = file.ocId
-        metadata.path = file.path
-        metadata.quotaUsedBytes = file.quotaUsedBytes
-        metadata.quotaAvailableBytes = file.quotaAvailableBytes
-        metadata.resourceType = file.resourceType
-        metadata.serverUrl = file.serverUrl
-        metadata.size = file.size
-        metadata.classFile = file.classFile
-        if let date = file.uploadDate {
-            metadata.uploadDate = date as NSDate
-        } else {
-            metadata.uploadDate = file.date as NSDate
-        }
-        metadata.urlBase = file.urlBase
-        metadata.user = file.user
-        metadata.userId = file.userId
-        metadata.width = Int(file.width)
-        metadata.height = Int(file.height)
-        
-        return metadata
-    }*/
-    
     @discardableResult
-    //func addMetadata(_ metadata: tableMetadata) -> tableMetadata? {
     func addMetadata(_ metadata: Metadata) -> Metadata? {
 
         let realm = try! Realm()
@@ -381,24 +322,10 @@ extension DatabaseManager {
             Self.logger.error("Could not write to database: \(error)")
             return nil
         }
-        //return tableMetadata.init(value: result)
+
         return Metadata.init(obj: result)
     }
     
-    //func convertFilesToMetadatas(_ files: [NKFile]) async -> [tableMetadata] {
-   /* func convertFilesToMetadatas(_ files: [NKFile]) -> [Metadata] {
-
-        //var metadatas: [tableMetadata] = []
-        var metadatas: [Metadata] = []
-
-        for file in files {
-            metadatas.append(convertFileToMetadata(file))
-        }
-        
-        return metadatas
-    }*/
-    
-    //func getMetadata(predicate: NSPredicate) -> tableMetadata? {
     func getMetadata(predicate: NSPredicate) -> Metadata? {
 
         let realm = try! Realm()
@@ -408,11 +335,9 @@ extension DatabaseManager {
             return nil
         }
 
-        //return tableMetadata.init(value: result)
         return Metadata.init(obj: result)
     }
     
-    //func getMetadata(predicate: NSPredicate, sorted: String, ascending: Bool) -> tableMetadata? {
     func getMetadata(predicate: NSPredicate, sorted: String, ascending: Bool) -> Metadata? {
 
         let realm = try! Realm()
@@ -422,11 +347,9 @@ extension DatabaseManager {
             return nil
         }
 
-        //return tableMetadata.init(value: result)
         return Metadata.init(obj: result)
     }
     
-    //func getMetadataFromOcId(_ ocId: String?) -> tableMetadata? {
     func getMetadataFromOcId(_ ocId: String?) -> Metadata? {
         let realm = try! Realm()
         realm.refresh()
@@ -434,11 +357,9 @@ extension DatabaseManager {
         guard let ocId = ocId else { return nil }
         guard let result = realm.objects(tableMetadata.self).filter("ocId == %@", ocId).first else { return nil }
 
-        //return tableMetadata.init(value: result)
         return Metadata.init(obj: result)
     }
     
-    //func getMetadatas(predicate: NSPredicate) -> [tableMetadata] {
     func getMetadatas(predicate: NSPredicate) -> [Metadata] {
 
         let realm = try! Realm()
@@ -446,11 +367,9 @@ extension DatabaseManager {
 
         let results = realm.objects(tableMetadata.self).filter(predicate)
 
-        //return Array(results.map { tableMetadata.init(value: $0) })
         return Array(results.map { Metadata.init(obj: $0) })
     }
-    
-    //func getMetadataLivePhoto(metadata: tableMetadata) -> tableMetadata? {
+
     func getMetadataLivePhoto(metadata: Metadata) -> Metadata? {
 
         guard metadata.livePhoto else { return nil }
@@ -458,7 +377,6 @@ extension DatabaseManager {
         do {
             let realm = try Realm()
             guard let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "account == %@ AND serverUrl == %@ AND fileId == %@", metadata.account, metadata.serverUrl, metadata.livePhotoFile)).first else { return nil }
-            //return tableMetadata.init(value: result)
             return Metadata.init(obj: result)
         } catch let error as NSError {
             Self.logger.error("Could not access database: \(error)")
@@ -467,7 +385,6 @@ extension DatabaseManager {
         return nil
     }
     
-    //func paginateMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
     func paginateMetadata(account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [Metadata] {
 
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND date >= %@ AND date <= %@ AND ((classFile = %@ AND livePhotoFile != '') OR livePhotoFile == '') ",
@@ -477,7 +394,6 @@ extension DatabaseManager {
         return paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
     }
     
-    //func fetchMetadata(predicate: NSPredicate) -> [tableMetadata] {
     func fetchMetadata(predicate: NSPredicate) -> [Metadata] {
         
         let realm = try! Realm()
@@ -488,11 +404,9 @@ extension DatabaseManager {
         
         let results = realm.objects(tableMetadata.self).filter(predicate).sorted(by: sortProperties)
         
-        //return Array(results.map { tableMetadata.init(value: $0) })
         return Array(results.map { Metadata.init(obj: $0) })
     }
     
-    //func paginateMetadata(predicate: NSPredicate, offsetDate: Date?, offsetName: String?) -> [tableMetadata] {
     func paginateMetadata(predicate: NSPredicate, offsetDate: Date?, offsetName: String?) -> [Metadata] {
     
         let realm = try! Realm()
@@ -505,14 +419,12 @@ extension DatabaseManager {
         
         if offsetName == nil || offsetDate == nil {
             if results.count > 0 {
-                //return Array(results.prefix(Global.shared.pageSize).map { tableMetadata.init(value: $0) })
                 return Array(results.prefix(Global.shared.pageSize).map { Metadata.init(obj: $0) })
             } else {
                 return []
             }
         }
         
-        //var metadatas: [tableMetadata] = []
         var metadatas: [Metadata] = []
         
         for index in results.indices {
@@ -520,11 +432,9 @@ extension DatabaseManager {
             
             if metadata.date as Date == offsetDate {
                 if metadata.fileNameView < offsetName! {
-                    //metadatas.append(tableMetadata.init(value: metadata))
                     metadatas.append(Metadata.init(obj: metadata))
                 }
             } else {
-                //metadatas.append(tableMetadata.init(value: metadata))
                 metadatas.append(Metadata.init(obj: metadata))
             }
             
@@ -535,93 +445,6 @@ extension DatabaseManager {
         
         return metadatas
     }
-    
-    /*func processMetadatas(_ metadatas: [tableMetadata], metadatasResult: [tableMetadata]) -> (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]) {
-        
-        var updatedOcIds: [String] = []
-        var addedOcIds: [String] = []
-        
-        var added: [tableMetadata] = []
-        var updated: [tableMetadata] = []
-        var deleted: [tableMetadata] = []
-        
-        do {
-
-            let realm = try Realm()
-            try realm.write {
-                
-                //delete
-                for metadataResult in metadatasResult {
-                    if metadatas.firstIndex(where: { $0.ocId == metadataResult.ocId }) == nil {
-                        if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", metadataResult.ocId)).first {
-                            deleted.append(tableMetadata.init(value: result))
-                            realm.delete(result)
-                        }
-                    }
-                }
-                
-                //add and update
-                for metadata in metadatas {
-
-                    if let result = metadatasResult.first(where: { $0.ocId == metadata.ocId }) {
-                        
-                        if result.status == Global.shared.metadataStatusNormal && (result.etag != metadata.etag || result.fileNameView != metadata.fileNameView || result.date != metadata.date || result.hasPreview != metadata.hasPreview || result.note != metadata.note || result.favorite != metadata.favorite) {
-                            
-                            updatedOcIds.append(metadata.ocId)
-                            realm.add(tableMetadata.init(value: metadata), update: .all)
-                        }
-                    } else {
-                        
-                        //Self.logger.debug("processMetadatas() - fileName: \(metadata.fileName) livePhotoFile: \(metadata.livePhotoFile)")
-                        
-                        // add new
-                        if metadata.livePhoto && metadata.video {
-                            //don't include video part of live photo
-                        } else {
-                            addedOcIds.append(metadata.ocId)
-                        }
-                        
-                        realm.add(tableMetadata.init(value: metadata), update: .all)
-                    }
-                }
-            }
-            
-            for ocId in addedOcIds {
-                if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", ocId)).first {
-                    added.append(tableMetadata.init(value: result))
-                }
-            }
-            
-            for ocId in updatedOcIds {
-                if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", ocId)).first {
-                    updated.append(tableMetadata.init(value: result))
-                }
-            }
-            
-            return (added, updated, deleted)
-    
-        } catch let error {
-            Self.logger.error("Could not write to database: \(error)")
-        }
-
-        return ([], [], [])
-    }*/
-    
-    /*func processMetadatas(_ metadatas: [tableMetadata], metadatasResult: [tableMetadata]) async -> (added: [String], updated: [String], deleted: [tableMetadata]) {
-        
-        do {
-            //TODO: Compile error on asyncWrite. see https://github.com/realm/realm-swift/issues/8687
-            //let realm = try await Realm()
-            
-            //try await realm.asyncWrite { }
-        } catch let error {
-            Self.logger.error("Could not write to database: \(error)")
-        }
-        
-        
-        
-        return ([], [], [])
-    }*/
     
     func processMetadatas(_ metadatas: [Metadata], metadatasResult: [Metadata]) -> (added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
         
@@ -641,7 +464,6 @@ extension DatabaseManager {
                 for metadataResult in metadatasResult {
                     if metadatas.firstIndex(where: { $0.ocId == metadataResult.ocId }) == nil {
                         if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", metadataResult.ocId)).first {
-                            //deleted.append(tableMetadata.init(value: result))
                             deleted.append(Metadata.init(obj: result))
                             realm.delete(result)
                         }
@@ -654,14 +476,10 @@ extension DatabaseManager {
                     if let result = metadatasResult.first(where: { $0.ocId == metadata.ocId }) {
                         
                         if result.status == Global.shared.metadataStatusNormal && (result.etag != metadata.etag || result.fileNameView != metadata.fileNameView || result.date != metadata.date || result.hasPreview != metadata.hasPreview || result.note != metadata.note || result.favorite != metadata.favorite) {
-                            
                             updatedOcIds.append(metadata.ocId)
-                            //realm.add(tableMetadata.init(value: metadata), update: .all)
                             realm.add(tableMetadata.init(obj: metadata), update: .all)
                         }
                     } else {
-                        
-                        //Self.logger.debug("processMetadatas() - fileName: \(metadata.fileName) livePhotoFile: \(metadata.livePhotoFile)")
                         
                         // add new
                         if metadata.livePhoto && metadata.video {
@@ -669,8 +487,7 @@ extension DatabaseManager {
                         } else {
                             addedOcIds.append(metadata.ocId)
                         }
-                        
-                        //realm.add(tableMetadata.init(value: metadata), update: .all)
+
                         realm.add(tableMetadata.init(obj: metadata), update: .all)
                     }
                 }
@@ -678,14 +495,12 @@ extension DatabaseManager {
             
             for ocId in addedOcIds {
                 if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", ocId)).first {
-                    //added.append(tableMetadata.init(value: result))
                     added.append(Metadata.init(obj: result))
                 }
             }
             
             for ocId in updatedOcIds {
                 if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", ocId)).first {
-                    //updated.append(tableMetadata.init(value: result))
                     updated.append(Metadata.init(obj: result))
                 }
             }
@@ -699,86 +514,6 @@ extension DatabaseManager {
         return ([], [], [])
     }
     
-    /*func processMetadatas(_ metadatas: [tableMetadata], metadatasResult: [tableMetadata]) async -> (added: [String], updated: [String], deleted: [tableMetadata]) {
-        
-        var updatedOcIds: [String] = []
-        var addedOcIds: [String] = []
-        var deleted: [tableMetadata] = []
-        
-        do {
-
-            let realm = try await Realm()
-            
-            try await realm.asyncWrite {
-                
-                //delete
-                for metadataResult in metadatasResult {
-                    if metadatas.firstIndex(where: { $0.ocId == metadataResult.ocId }) == nil {
-                        if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", metadataResult.ocId)).first {
-                            deleted.append(tableMetadata.init(value: result))
-                            realm.delete(result)
-                        }
-                    }
-                }
-                
-                //add and update
-                for metadata in metadatas {
-
-                    if let result = metadatasResult.first(where: { $0.ocId == metadata.ocId }) {
-                        
-                        if result.status == Global.shared.metadataStatusNormal && (result.etag != metadata.etag || result.fileNameView != metadata.fileNameView || result.date != metadata.date || result.hasPreview != metadata.hasPreview || result.note != metadata.note || result.favorite != metadata.favorite) {
-                            
-                            updatedOcIds.append(metadata.ocId)
-                            realm.add(tableMetadata.init(value: metadata), update: .all)
-                        }
-                    } else {
-                        
-                        //Self.logger.debug("processMetadatas() - fileName: \(metadata.fileName) livePhotoFile: \(metadata.livePhotoFile)")
-                        
-                        // add new
-                        if metadata.livePhoto && metadata.video {
-                            //don't include video part of live photo
-                        } else {
-                            addedOcIds.append(metadata.ocId)
-                        }
-                        
-                        realm.add(tableMetadata.init(value: metadata), update: .all)
-                    }
-                }
-            }
-            
-            return (addedOcIds, updatedOcIds, deleted)
-    
-        } catch let error {
-            Self.logger.error("Could not write to database: \(error)")
-        }
-
-        return ([], [], [])
-    }*/
-    
-    /*func getMetadatas(addedOcIds: [String], updatedOcIds: [String]) -> (added: [tableMetadata], updated: [tableMetadata]) {
-        
-        var added: [tableMetadata] = []
-        var updated: [tableMetadata] = []
-        
-        let realm = try! Realm()
-        
-        for ocId in addedOcIds {
-            if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", ocId)).first {
-                added.append(tableMetadata.init(value: result))
-            }
-        }
-        
-        for ocId in updatedOcIds {
-            if let result = realm.objects(tableMetadata.self).filter(NSPredicate(format: "ocId == %@", ocId)).first {
-                updated.append(tableMetadata.init(value: result))
-            }
-        }
-        
-        return (added, updated)
-    }*/
-    
-    //func setMetadataFavorite(ocId: String, favorite: Bool) -> tableMetadata? {
     func setMetadataFavorite(ocId: String, favorite: Bool) -> Metadata? {
 
         let realm = try! Realm()
@@ -786,7 +521,7 @@ extension DatabaseManager {
         do {
             try realm.write {
                 let result = realm.objects(tableMetadata.self).filter("ocId == %@", ocId).first
-                result?.favorite = favorite //TODO: WILL CHANGING VALUE WORK??
+                result?.favorite = favorite
             }
         } catch let error {
             Self.logger.error("Could not write to database: \(error)")
@@ -795,7 +530,6 @@ extension DatabaseManager {
         return getMetadataFromOcId(ocId)
     }
     
-    //func updateMetadatasFavorite(account: String, metadatas: [tableMetadata]) {
     func updateMetadatasFavorite(account: String, metadatas: [Metadata]) {
 
         let realm = try! Realm()
@@ -807,9 +541,7 @@ extension DatabaseManager {
                     result.favorite = false
                 }
                 for metadata in metadatas {
-                    //realm.add(metadata, update: .all)
-                    //realm.add(Metadata.init(metadata: metadata), update: .all)
-                    realm.add(tableMetadata.init(obj: metadata), update: .all) //TODO: DOES THIS WORK OR NEED ANOTHER INIT?
+                    realm.add(tableMetadata.init(obj: metadata), update: .all)
                 }
             }
         } catch let error {
@@ -830,20 +562,4 @@ extension DatabaseManager {
             Self.logger.error("Could not write to database: \(error)")
         }
     }
-    
-    /*func setMetadataEtagResource(ocId: String, etagResource: String) async {
-
-        do {
-            let realm = try await Realm()
-     
-            //TODO: Compile error on asyncWrite. see https://github.com/realm/realm-swift/issues/8687
-     
-            try await realm.asyncWrite ({
-                let result = realm.objects(tableMetadata.self).filter("ocId == %@", ocId).first
-                result?.etagResource = etagResource
-            })
-        } catch let error {
-            Self.logger.error("Could not write to database: \(error)")
-        }
-    }*/
 }

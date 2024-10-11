@@ -235,23 +235,9 @@ class ViewerController: UIViewController {
     
     private func showFrame(url: URL) async {
 
-        let image = await viewModel.downloadVideoFrame(metadata: metadata, url: url, size: imageView.frame.size)
-    
-        if image == nil {
-            //imageView.contentMode = .center
-            /*imageView.tintColor = .lightGray
-            imageView.image = UIImage(systemName: "photo", withConfiguration: UIImage.SymbolConfiguration(pointSize: 80))
-            view.backgroundColor = .black //otherwise see a strip of white at the top & bottom of imageView*/
-        } else {
+        if let image = await viewModel.downloadVideoFrame(metadata: metadata, url: url, size: imageView.frame.size) {
             imageView.image = image
         }
-        
-        /*let thumbnailer = VLCMediaThumbnailer(media: media, andDelegate: self)
-        thumbnailer.thumbnailWidth = imageView.frame.width
-        thumbnailer.thumbnailHeight = imageView.frame.height
-        thumbnailer.snapshotPosition = 0
-        
-        thumbnailer.fetchThumbnail()*/
     }
     
     private func setupVideoController(url: URL, autoPlay: Bool) async {
@@ -292,18 +278,6 @@ class ViewerController: UIViewController {
             if autoPlay {
                 mediaPlayer!.play()
             }
-            
-            /*DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                
-                self.addControls()
-                
-                self.activityIndicator.stopAnimating()
-                
-                if autoPlay {
-                    self.mediaPlayer!.play()
-                }
-            }*/
         } else if autoPlay {
             activityIndicator.stopAnimating()
             mediaPlayer!.play()
@@ -577,10 +551,6 @@ class ViewerController: UIViewController {
         DispatchQueue.main.async { [weak self] in
             self?.imageView.image = image
         }
-        
-        /*UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
-            self.imageView.image = image
-        })*/
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
@@ -605,8 +575,6 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handleSingleTap(tapGesture: UITapGestureRecognizer) {
-        
-        Self.logger.debug("handleSingleTap()")
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             
@@ -754,15 +722,6 @@ class ViewerController: UIViewController {
     
     private func handleVideoPlaying() {
         
-        Self.logger.debug("handleVideoPlaying() - ")
-        
-        /*if let position = controlsView?.timeSlider.value, position > 0 {
-            if mediaPlayer != nil && mediaPlayer!.position != position {
-                Self.logger.debug("handleVideoPlaying() - setting to position: \(position)")
-                mediaPlayer!.position = position
-            }
-        }*/
-        
         controlsView?.initCaptionsMenu(currentSubtitleIndex: mediaPlayer!.currentVideoSubTitleIndex,
                                        subtitleIndexes: mediaPlayer!.videoSubTitlesIndexes,
                                        subtitleNames: mediaPlayer!.videoSubTitlesNames)
@@ -781,7 +740,6 @@ class ViewerController: UIViewController {
     }
     
     private func toggleMute() {
-        Self.logger.debug("toggleMute")
         
         guard mediaPlayer != nil else { return }
         
@@ -794,15 +752,6 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func toggleCaptions() {
-        Self.logger.debug("toggleCaptions()")
-        guard mediaPlayer != nil else { return }
-        
-        Self.logger.debug("toggleCaptions() - numberOfSubtitlesTracks: \(self.mediaPlayer!.numberOfSubtitlesTracks)")
-        Self.logger.debug("toggleCaptions() - videoSubTitlesIndexes: \(self.mediaPlayer!.videoSubTitlesIndexes)")
-        Self.logger.debug("toggleCaptions() - videoSubTitlesNames: \(self.mediaPlayer!.videoSubTitlesNames)")
-    }
-    
     private func playPause() {
 
         if mediaPlayer == nil || mediaPlayer!.media == nil {
@@ -812,16 +761,11 @@ class ViewerController: UIViewController {
                 mediaPlayer!.pause()
             } else {
                 mediaPlayer!.play()
-                
-                /*if let position = controlsView?.timeSlider.value, position > 0 {
-                    mediaPlayer!.position = position
-                }*/
             }
         }
     }
     
     private func fullScreen() {
-        Self.logger.debug("fullScreen()")
         hideAll()
     }
     
@@ -885,15 +829,12 @@ class ViewerController: UIViewController {
     }
     
     private func showDetails(animate: Bool) {
-        
-        Self.logger.debug("showDetails()")
 
         delegate?.updateStatus(status: .details)
         
         statusContainerView.isHidden = true
         
         if controlsView != nil {
-            Self.logger.debug("showDetails() - hiding controls")
             controlsView!.isHidden = true
         }
         
@@ -1159,35 +1100,24 @@ extension ViewerController: ControlsDelegate {
     }
     
     func timeChanged(time: Float) {
-        Self.logger.debug("timeChanged() - time: \(time)")
         if mediaPlayer != nil {
-            Self.logger.debug("timeChanged() - SETTING PLAYER POSITION \(time)")
             mediaPlayer!.position = time
         }
     }
     
     func volumeChanged(volume: Float) {
-        Self.logger.debug("volumeChanged()- volume: \(volume)")
         mediaPlayer?.audio?.volume = Int32(volume)
     }
     
     func volumeButtonTapped() {
         toggleMute()
     }
-    
-    /*func captionsButtonTapped() {
-        toggleCaptions()
-    }*/
-    
+
     func captionsSelected(subtitleIndex: Int32) {
         
         guard mediaPlayer != nil else { return }
         
         mediaPlayer!.currentVideoSubTitleIndex = subtitleIndex
-        
-        /*controlsView?.initCaptionsMenu(currentSubtitleIndex: subtitleIndex,
-                                       subtitleIndexes: mediaPlayer!.videoSubTitlesIndexes,
-                                       subtitleNames: mediaPlayer!.videoSubTitlesNames)*/
         controlsView?.selectCaption(currentSubtitleIndex: mediaPlayer!.currentVideoSubTitleIndex)
     }
     
@@ -1211,7 +1141,7 @@ extension ViewerController: VLCMediaPlayerDelegate {
             guard let currentPosition = controlsView?.timeSlider.value else { return }
             guard let playerPosition = mediaPlayer?.position else { return }
             
-            Self.logger.debug("mediaPlayerTimeChanged() - playerPosition: \(playerPosition) currentPosition: \(currentPosition)")
+            //Self.logger.debug("mediaPlayerTimeChanged() - playerPosition: \(playerPosition) currentPosition: \(currentPosition)")
             
             controlsView?.setMediaLength(length: mediaPlayer?.media?.length.value?.doubleValue ?? 0)
             
@@ -1253,36 +1183,11 @@ extension ViewerController: VLCMediaPlayerDelegate {
             if state == .stopped {
                 restartMediaPlayer()
             }
-            
-            /*switch state {
-            case .stopped:
-                Self.logger.debug("mediaPlayerStateChanged() - State: STOPPED")
-                restartMediaPlayer()
-            case .opening:
-                Self.logger.debug("mediaPlayerStateChanged() - State: OPENING")
-            case .buffering:
-                Self.logger.debug("mediaPlayerStateChanged() - State: BUFFERING - \(self.mediaPlayer!.isPlaying)")
-            case .ended:
-                Self.logger.debug("mediaPlayerStateChanged() - State: ENDED")
-            case .error:
-                Self.logger.error("mediaPlayerStateChanged() - State: ERROR")
-            case .playing:
-                Self.logger.debug("mediaPlayerStateChanged() - State: PLAYING")
-                //See mediaPlayerTimeChanged. Playing state is not guaranteed.
-            case .paused:
-                Self.logger.debug("mediaPlayerStateChanged() - State: PAUSED")
-            case .esAdded:
-                Self.logger.debug("mediaPlayerStateChanged() - State: ESADDED")
-            default:
-                Self.logger.debug("mediaPlayerStateChanged() - State: default")
-            }*/
         }
     }
 }
 
 extension ViewerController: VLCCustomDialogRendererProtocol {
-    
-    //TODO: Had to add nonisolated to the functions to fix main actor error
     
     nonisolated func showLogin(withTitle title: String, message: String, defaultUsername username: String?, askingForStorage: Bool, withReference reference: NSValue) {
     }
@@ -1301,24 +1206,9 @@ extension ViewerController: VLCCustomDialogRendererProtocol {
     }
     
     nonisolated func showError(withTitle error: String, message: String) {
-        //Self.logger.error("showError() - ERROR: \(error) MESSAGE: \(message)")
-        //delegate?.videoError()
-    }
-}
-
-extension ViewerController: VLCMediaThumbnailerDelegate {
-    
-    nonisolated func mediaThumbnailerDidTimeOut(_ mediaThumbnailer: VLCMediaThumbnailer) {
-        Task { @MainActor in
-            Self.logger.debug("mediaThumbnailerDidTimeOut() - failed to fetch thumbnail")
-        }
-    }
-    
-    nonisolated func mediaThumbnailer(_ mediaThumbnailer: VLCMediaThumbnailer, didFinishThumbnail thumbnail: CGImage) {
-        Task { @MainActor in
-            if mediaPlayer != nil && !mediaPlayer!.isPlaying {
-                imageView.image = UIImage.init(cgImage: thumbnail)
-            }
+        DispatchQueue.main.async { [weak self] in
+            Self.logger.error("showError() - ERROR: \(error) MESSAGE: \(message)")
+            self?.delegate?.videoError()
         }
     }
 }

@@ -35,8 +35,7 @@ protocol NextcloudKitServiceProtocol: Sendable {
     func getDirectDownload(metadata: Metadata) async -> URL?
     
     func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool)
-    //func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool)
-    
+
     func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> Bool
     func listingFavorites(account: String) async -> (account: String, files: [Metadata]?)
     
@@ -147,7 +146,6 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
-    //TODO: Cleanup
     func getDirectDownload(metadata: Metadata) async -> URL? {
         
         return await withCheckedContinuation { continuation in
@@ -155,14 +153,11 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
             NextcloudKit.shared.getDirectDownload(fileId: metadata.fileId, account: metadata.account) { _, url, _, error in
                 if error == .success && url != nil {
                     if let url = URL(string: url!) {
-                        Self.logger.debug("getDirectDownload() - file: \(metadata.fileName) url: \(url.absoluteString)")
                         continuation.resume(returning: url)
                     } else {
-                        Self.logger.debug("getDirectDownload() - invalid url")
                         continuation.resume(returning: nil)
                     }
                 } else {
-                    Self.logger.debug("getDirectDownload() - ERROR")
                     continuation.resume(returning: nil)
                 }
             }
@@ -171,8 +166,6 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     
     // MARK: -
     // MARK: Search
-    //func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [ThreadSafeReference<NKFile>], error: Bool) {
-    //func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool) {
     func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool) {
 
         let limit: Int = limit
@@ -180,7 +173,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         
         let greaterDate = Calendar.current.date(byAdding: .second, value: -1, to: fromDate)!
         let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: toDate)!
-        
+
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.searchMedia(
                 path: mediaPath,
@@ -193,10 +186,8 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                 options: options) { responseAccount, files, data, error in
                     
                     //Self.logger.debug("searchMedia() - files count: \(files.count) toDate: \(toDate.formatted(date: .abbreviated, time: .standard)) fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
-                    
+
                     if error == .success && responseAccount == account && files.count > 0 {
-                        //continuation.resume(returning: (files, false))
-                        //Array(results.map { Metadata.init(obj: $0) })
                         continuation.resume(returning: (Array(files.map { Metadata.init(file: $0) }), false))
                     } else if error == .success && files.count == 0 {
                         continuation.resume(returning: ([], false))
@@ -226,7 +217,6 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
-    //func listingFavorites(account: String) async -> (account: String, files: [NKFile]?) {
     func listingFavorites(account: String) async -> (account: String, files: [Metadata]?) {
 
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
@@ -238,7 +228,6 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                     return
                 }
                 
-                //continuation.resume(returning: (account, files))
                 continuation.resume(returning: (account, Array(files.map { Metadata.init(file: $0) })))
             }
         }

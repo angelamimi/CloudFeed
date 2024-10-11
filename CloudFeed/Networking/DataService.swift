@@ -201,8 +201,6 @@ final class DataService: NSObject {
         
         guard listingResult.files != nil else { return true }
         
-        //let convertResult = await databaseManager.convertFilesToMetadatas(listingResult.files!)
-        //databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: convertResult)
         databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: listingResult.files!)
         
         return false
@@ -219,7 +217,7 @@ final class DataService: NSObject {
         return databaseManager.paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
     }
     
-    func processFavorites(displayedMetadataIds: [Metadata.ID], type: Global.FilterType, from: Date?, to: Date?) -> (delete: [Metadata.ID], add: [Metadata])? {
+    func processFavorites(displayedMetadataIds: [Metadata.ID], displayedMetadatas: [Metadata.ID: Metadata], type: Global.FilterType, from: Date?, to: Date?) -> (delete: [Metadata.ID], add: [Metadata], update: [Metadata])? {
         
         guard let account = Environment.current.currentUser?.account else { return nil }
         guard let mediaPath = getMediaPath() else { return nil }
@@ -227,13 +225,14 @@ final class DataService: NSObject {
 
         var delete: [Metadata.ID] = []
         var add: [Metadata] = []
+        var update: [Metadata] = []
         var savedFavorites: [Metadata] = []
 
         let predicate = buildMediaPredicateByType(favorite: true, type: type, account: account, startServerUrl: startServerUrl, fromDate: from ?? Date.distantPast, toDate: to ?? Date.distantFuture)
         
         savedFavorites = databaseManager.paginateMetadata(predicate: predicate, offsetDate: nil, offsetName: nil)
         
-        //Self.logger.debug("processFavorites() - savedFavorites count: \(savedFavorites.count) displayedMetadatas count: \(displayedMetadatas.count)")
+        //Self.logger.debug("processFavorites() - savedFavorites count: \(savedFavorites.count) displayedMetadataIds count: \(displayedMetadataIds.count)")
         
         //if displayed but doesn't exist in db, flag for delete
         for displayedMetadataId in displayedMetadataIds {
@@ -242,16 +241,19 @@ final class DataService: NSObject {
             }
         }
         
-        //if exists in db, but is not displayed, flag for add
         for saved in savedFavorites {
             if displayedMetadataIds.firstIndex(where: { $0 == saved.id }) == nil {
+                //if exists in db, but is not displayed, flag for add
                 add.append(saved)
+            } else {
+                //exists in db, but changed. flag for update
+                if let displayed = displayedMetadatas[saved.id], displayed.fileNameView != saved.fileNameView  {
+                    update.append(saved)
+                }
             }
         }
         
-        //Self.logger.debug("processFavorites() - add: \(add.count) delete: \(delete.count)")
-        
-        return (delete, add)
+        return (delete, add, update)
     }
 
     
@@ -263,7 +265,6 @@ final class DataService: NSObject {
         let fileNameLocalPath = store.getCachePath(metadata.ocId, metadata.fileName)!
         
         if databaseManager.getMetadataFromOcId(metadata.ocId) == nil {
-            //databaseManager.addMetadata(tableMetadata.init(value: metadata))
             databaseManager.addMetadata(metadata)
         }
         
@@ -342,49 +343,6 @@ final class DataService: NSObject {
     
     // MARK: -
     // MARK: Search
-    /*func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [tableMetadata], added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata], error: Bool) {
-        
-        guard let account = Environment.current.currentUser?.account else { return ([], [], [], [], true) }
-        guard let mediaPath = getMediaPath() else { return ([], [], [], [], true) }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return ([], [], [], [], true) }
-        
-        let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath,
-                                                              toDate: toDate, fromDate: fromDate, limit: limit)
-
-        if searchResult.error {
-            return ([], [], [], [], true)
-        }
-        
-        //convert to metadata
-        let metadataCollection = searchResult.files.count == 0 ? [] : await databaseManager.convertFilesToMetadatas(searchResult.files)
-        
-        //get stored metadata
-        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@",
-                                    account, startServerUrl,
-                                    NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue,
-                                    fromDate as NSDate, toDate as NSDate)
-        
-        let metadatasResult = databaseManager.getMetadatas(predicate: predicate)
-        
-        //add, update, delete stored metadata
-        let result = await databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
-
-        let typeResult = filterMediaResult(type: type, result: result)
-        
-        let storePredicate = buildMediaPredicateByType(favorite: false, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
-        
-        let metadatas: [tableMetadata]
-
-        if limit == 0 {
-            metadatas = databaseManager.fetchMetadata(predicate: storePredicate)
-        } else {
-            metadatas = databaseManager.paginateMetadata(predicate: storePredicate, offsetDate: offsetDate, offsetName: offsetName)
-        }
-        
-        //Self.logger.debug("searchMedia() - count: \(metadatas.count) added: \(typeResult.added.count) updated: \(typeResult.updated.count) deleted: \(typeResult.deleted.count)")
-        return (metadatas, typeResult.added, typeResult.updated, typeResult.deleted, false)
-    }*/
-    
     func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [Metadata], added: [Metadata], updated: [Metadata], deleted: [Metadata], error: Bool) {
         
         guard let account = Environment.current.currentUser?.account else { return ([], [], [], [], true) }
@@ -435,25 +393,6 @@ final class DataService: NSObject {
                 deleted: filterMetadataByType(type: type, metadataCollection: result.deleted))
     }
     
-    /*private func filterMediaResultOLD(type: Global.FilterType, result: (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata])) -> (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]){
-        return (added: filterMetadataByType(type: type, metadataCollection: result.added),
-                updated: filterMetadataByType(type: type, metadataCollection: result.updated),
-                deleted: filterMetadataByType(type: type, metadataCollection: result.deleted))
-    }
-    
-    private func filterMediaResult(type: Global.FilterType, result: (added: [String], updated: [String], deleted: [tableMetadata])) -> (added: [tableMetadata], updated: [tableMetadata], deleted: [tableMetadata]){
-        
-        let fetched = databaseManager.getMetadatas(addedOcIds: result.added, updatedOcIds: result.updated)
-        
-        if type == .all {
-            return (added: fetched.added, updated: fetched.updated, deleted: result.deleted)
-        } else {
-            return (added: filterMetadataByType(type: type, metadataCollection: fetched.added),
-                    updated: filterMetadataByType(type: type, metadataCollection: fetched.updated),
-                    deleted: filterMetadataByType(type: type, metadataCollection: result.deleted))
-        }
-    }*/
-    
     private func buildMediaPredicateByType(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> NSPredicate {
         
         let favoriteFormat = favorite ? "favorite == true AND " : ""
@@ -475,7 +414,6 @@ final class DataService: NSObject {
         }
     }
     
-    //private func filterMetadataByType(type: Global.FilterType, metadataCollection: [tableMetadata]) -> [tableMetadata] {
     private func filterMetadataByType(type: Global.FilterType, metadataCollection: [Metadata]) -> [Metadata] {
         
         if type == .all {

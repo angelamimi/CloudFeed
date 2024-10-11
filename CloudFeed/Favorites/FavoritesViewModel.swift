@@ -76,9 +76,8 @@ final class FavoritesViewModel: NSObject {
     }
     
     func getItemAtIndexPath(_ indexPath: IndexPath) -> Metadata? {
-        //return dataSource.itemIdentifier(for: indexPath)
         if let id = dataSource.itemIdentifier(for: indexPath) {
-            return metadataForId(id)
+            return metadatas[id]
         }
         return nil
     }
@@ -91,6 +90,7 @@ final class FavoritesViewModel: NSObject {
     func getItems() -> [Metadata] {
         let snapshot = dataSource.snapshot()
         var items: [Metadata] = []
+        
         for id in snapshot.itemIdentifiers(inSection: 0) {
             if let metadata = metadatas[id] {
                 items.append(metadata)
@@ -137,7 +137,7 @@ final class FavoritesViewModel: NSObject {
         
         if (snapshot.numberOfItems(inSection: 0) > 0) {
             if let id = snapshot.itemIdentifiers(inSection: 0).last {
-                if let metadata = metadataForId(id) {
+                if let metadata = metadatas[id] {
                     offsetName = metadata.fileNameView
                     offsetDate = metadata.date as Date
                     /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
@@ -227,7 +227,7 @@ final class FavoritesViewModel: NSObject {
         for indexPath in indexPaths {
             
             guard let id = dataSource.itemIdentifier(for: indexPath) else { continue }
-            guard let metadata = metadataForId(id) else { continue }
+            guard let metadata = metadatas[id] else { continue }
             
             let result = await dataService.toggleFavoriteMetadata(metadata)
             
@@ -262,14 +262,6 @@ final class FavoritesViewModel: NSObject {
         dataSource.apply(snapshot)
     }
     
-    private func metadataForId(_ id: Metadata.ID) -> Metadata? {
-        /*if let index = metadatas.firstIndex(where: { $0.id == id }) {
-            return metadatas[index]
-        }
-        return nil*/
-        return metadatas[id]
-    }
-    
     private func handleFavoriteResult(error: Bool) {
         if error {
             delegate.fetchResultReceived(resultItemCount: nil)
@@ -292,7 +284,7 @@ final class FavoritesViewModel: NSObject {
     
     private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
         
-        guard let metadata = metadataForId(metadataId) else { return }
+        guard let metadata = metadatas[metadataId] else { return }
         
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             cell.showVideoIcon()
@@ -303,7 +295,7 @@ final class FavoritesViewModel: NSObject {
         }
         
         if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {
-            cell.setImage(cachedImage, metadata.transparent)
+            cell.setImage(cachedImage)
         } else {
             
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
@@ -311,7 +303,7 @@ final class FavoritesViewModel: NSObject {
             if FileManager().fileExists(atPath: path) {
                 
                 let image = UIImage(contentsOfFile: path)
-                cell.setImage(image, metadata.transparent)
+                cell.setImage(image)
                 
                 if image != nil {
                     cacheManager.cache(metadata: metadata, image: image!)
@@ -323,7 +315,7 @@ final class FavoritesViewModel: NSObject {
                     Task {
                         let thumbnail = await cacheManager.fetch(metadata: metadata, indexPath: indexPath)
                         guard let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
-                        cell.setImage(thumbnail, metadata.transparent)
+                        cell.setImage(thumbnail)
                     }
                 }
             }
@@ -337,12 +329,12 @@ final class FavoritesViewModel: NSObject {
         var snapshot = dataSource.snapshot()
         var displayed = snapshot.itemIdentifiers(inSection: 0)
         
-        guard let result = dataService.processFavorites(displayedMetadataIds: displayed, type: type, from: from, to: to) else {
+        guard let result = dataService.processFavorites(displayedMetadataIds: displayed, displayedMetadatas: metadatas,  type: type, from: from, to: to) else {
             delegate.dataSourceUpdated(refresh: false)
             return
         }
         
-        guard result.delete.count > 0 || result.add.count > 0 else {
+        guard result.delete.count > 0 || result.add.count > 0 || result.update.count > 0 else {
             delegate.dataSourceUpdated(refresh: false)
             return
         }
@@ -355,7 +347,12 @@ final class FavoritesViewModel: NSObject {
             }
         }
         
-        displayed = snapshot.itemIdentifiers(inSection: 0)
+        for update in result.update {
+            if snapshot.itemIdentifiers.contains(update.id) {
+                snapshot.reconfigureItems([update.id])
+                metadatas[update.id] = update
+            }
+        }
         
         if result.add.count > 0 {
             
@@ -367,6 +364,8 @@ final class FavoritesViewModel: NSObject {
                     }
                 }
             } else {
+                
+                displayed = snapshot.itemIdentifiers(inSection: 0)
                 
                 //find where each item to be added fits in the visible collection by date and possibly name
                 for result in result.add {
@@ -380,7 +379,7 @@ final class FavoritesViewModel: NSObject {
                     
                     for visibleItem in displayed {
                         
-                        let visibleMetadata = metadataForId(visibleItem)
+                        let visibleMetadata = metadatas[visibleItem]
                         
                         if visibleMetadata == nil {
                             break
@@ -416,21 +415,6 @@ final class FavoritesViewModel: NSObject {
         }
     }
     
-    //TODO: Not used??
-    /*private func applyUpdateForMetadata(_ metadata: Metadata) {
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            
-            var snapshot = self.dataSource.snapshot()
-            
-            if snapshot.itemIdentifiers.contains(metadata) {
-                snapshot.reconfigureItems([metadata])
-                self.dataSource.apply(snapshot, animatingDifferences: true)
-            }
-        }
-    }*/
-    
     private func applyDatasourceChanges(metadatas: [Metadata], refresh: Bool) async {
         
         var adds : [Metadata.ID] = []
@@ -448,6 +432,7 @@ final class FavoritesViewModel: NSObject {
             if snapshot.indexOfItem(metadata.id) == nil {
                 adds.append(metadata.id)
             } else {
+                Self.logger.debug("applyDatasourceChanges() - UPDATES!!!!!!!!!!!!!!!!!!")
                 updates.append(metadata.id)
             }
             
@@ -455,13 +440,13 @@ final class FavoritesViewModel: NSObject {
         }
         
         if adds.count > 0 {
-            //snapshot.appendItems(adds, toSection: 0)
             snapshot.appendItems(adds, toSection: 0)
         }
         
         if updates.count > 0 {
+            Self.logger.debug("applyDatasourceChanges() - UPDATES!!!!!!")
+            snapshot.reconfigureItems(updates) //TODO: Test change to reconfigure
             //snapshot.reloadItems(updates)
-            snapshot.reloadItems(updates) //TODO: Why not reconfigure?
         }
         
         //Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd.count) ocIdUpdate: \(ocIdUpdate.count)")

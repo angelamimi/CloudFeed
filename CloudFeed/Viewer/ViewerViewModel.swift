@@ -25,7 +25,6 @@ import NextcloudKit
 import UIKit
 
 @MainActor
-//final class ViewerViewModel: NSObject {
 struct ViewerViewModel {
     
     let metadata: Metadata
@@ -48,47 +47,28 @@ struct ViewerViewModel {
         return dataService.getMetadataFromOcId(ocId)
     }
     
-    /*func loadVideo(viewWidth: CGFloat, viewHeight: CGFloat) async -> (url: URL?, playerController: AVPlayerViewController?) {
-        
-        let urlVideo = await getVideoURL(metadata: metadata)
-        
-        //print("\(urlVideo!.absoluteString)")
-        
-        if let url = urlVideo {
-            return (url, loadVideoFromUrl(url, viewWidth: viewWidth, viewHeight: viewHeight))
-        }
-        
-        return (nil, nil)
-    }*/
-    
     func getVideoURL(metadata: Metadata) async -> URL? {
 
         if let url = await dataService.getDirectDownload(metadata: metadata) {
-            print("getVideoURL() - file: \(metadata.fileNameView) url: \(url.absoluteString)")
+            //print("getVideoURL() - file: \(metadata.fileNameView) url: \(url.absoluteString)")
             return url
         }
         
         return nil
     }
     
-    //func loadImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
     func loadImage(metadata: Metadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
-        //TODO: Test. Non images should be calling this function
+
         if !dataService.store.fileExists(metadata) {
-        //if !dataService.store.fileExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
 
             if metadata.livePhoto, let videoMetadata = getMetadataLivePhoto(metadata: metadata) {
                 await downloadLivePhotoVideo(metadata: videoMetadata)
             }
             
             await dataService.download(metadata: metadata, selector: "")
-            
-            //let image = await getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
-            //return image
         }
         
-        let image = await getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
-        return image
+        return await getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
     }
     
     func getVideoFrame(metadata: Metadata) -> UIImage? {
@@ -115,7 +95,6 @@ struct ViewerViewModel {
 
 extension ViewerViewModel {
     
-    //private func getImageFromMetadata(_ metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
     private func getImageFromMetadata(_ metadata: Metadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
         
         if let image = await getImage(metadata: metadata, viewWidth: viewWidth, viewHeight: viewHeight) {
@@ -130,7 +109,6 @@ extension ViewerViewModel {
         return nil
     }
     
-    //private func getImage(metadata: tableMetadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
     private func getImage(metadata: Metadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
         
         var image: UIImage?
@@ -189,7 +167,6 @@ extension ViewerViewModel {
     
     private func createImageFrom(fileNameView: String, ocId: String, etag: String, classFile: String) async {
         
-        //TODO: TEST. Not using for videos anywhere
         guard classFile == NKCommon.TypeClassFile.image.rawValue else { return }
         
         var originalImage, scaleImagePreview: UIImage?

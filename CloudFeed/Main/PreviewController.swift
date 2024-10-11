@@ -93,21 +93,12 @@ class PreviewController: UIViewController {
     }
     
     private func loadVideo() {
-        //guard let avpController = viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height) else { return }
-        //setupVideoController(avpController: avpController, autoPlay: true)
-        //TODO: weak self
-        Task {
-            /*let result = await viewModel.loadVideo(viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
+
+        Task { [weak self] in
+            guard let self else { return }
             
-            if result.playerController != nil {
-                setupVideoController(avpController: result.playerController!, autoPlay: true)
-            }
-            
-            activityIndicator.stopAnimating()*/
-            
-            
-            guard let videoURL = await viewModel.getVideoURL(metadata: self.metadata) else {
-                activityIndicator.stopAnimating()
+            guard let videoURL = await self.viewModel.getVideoURL(metadata: self.metadata) else {
+                self.activityIndicator.stopAnimating()
                 return
             }
             

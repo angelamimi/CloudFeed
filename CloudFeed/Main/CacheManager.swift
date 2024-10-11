@@ -12,13 +12,7 @@ import os.log
 final class CacheManager {
     
     private let dataService: DataService
-    
     private let cache: NSCache<NSString, UIImage>
-    /*private var cache: NSCache<NSString, UIImage> = {
-        let cache = NSCache<NSString, UIImage>()
-        cache.countLimit = 100
-        return cache
-    }()*/
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -28,7 +22,7 @@ final class CacheManager {
         self.dataService = dataService
         
         cache = NSCache<NSString, UIImage>()
-        cache.countLimit = 300 //TODO: Very low limit
+        cache.countLimit = 300
     }
     
     func clear() {

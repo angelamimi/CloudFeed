@@ -167,8 +167,6 @@ class TitleView: UIView {
     
     func initNavigation() {
         
-        Self.logger.debug("initNavigation() - showing back button")
-        
         title.isHidden = false
         backButton.isHidden = false
         

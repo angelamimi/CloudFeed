@@ -141,13 +141,8 @@ class PagerController: UIViewController, MediaViewController {
     
     private func initConstraints() {
         
-        //TODO: Wasn't working when app started in landscape mode. Got error stating conflicting constraints that don't actually conflict.
         titleView?.translatesAutoresizingMaskIntoConstraints = false
         titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        
-        //titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
-        //titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-        
         titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
         titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
         

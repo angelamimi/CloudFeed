@@ -80,28 +80,25 @@ class CollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func setImage(_ image: UIImage?, _ isTransparent: Bool) {
+    func setImage(_ image: UIImage?) {
         
         DispatchQueue.main.async { [weak self] in
+            
             guard image != nil else {
                 self?.imageView.image = nil
-                self?.imageView.backgroundColor = .secondarySystemBackground //.systemBackground
+                self?.imageView.backgroundColor = .secondarySystemBackground
                 return
             }
             
             guard let self else { return }
-            //TODO: Don't need isTransparent?
-            var backgroundColor: UIColor?
-            
+
             imageView.contentMode = .scaleAspectFill
-            backgroundColor = .clear
             
             UIView.transition(with: self.imageView,
                               duration: 0.5,
                               options: .transitionCrossDissolve, 
                               animations: { [weak self] in self?.imageView.image = image },
-                              completion: { [weak self] _ in self?.imageView.backgroundColor = backgroundColor }
-            )
+                              completion: { [weak self] _ in self?.imageView.backgroundColor = .clear })
         }
     }
     

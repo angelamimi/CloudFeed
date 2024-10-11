@@ -163,7 +163,7 @@ class ControlsView: UIView {
     
     func initCaptionsMenu(currentSubtitleIndex: Int32?, subtitleIndexes: [Any], subtitleNames: [Any]) {
         
-        guard captionsButton.menu == nil else { return } //TODO: Do check before calling this function??
+        guard captionsButton.menu == nil else { return }
         
         if subtitleNames.count == 0 {
             captionsButton.isEnabled = false
@@ -182,8 +182,6 @@ class ControlsView: UIView {
             let action = UIAction(title: captionTitle, identifier: UIAction.Identifier(rawValue: String(captionIndex))) { [weak self] _ in
                 self?.delegate?.captionsSelected(subtitleIndex: captionIndex)
             }
-            
-            //print("currentSubtitleIndex: \(currentSubtitleIndex ?? -99999)")
             
             if currentSubtitleIndex != nil && captionIndex == currentSubtitleIndex {
                 action.state = .on
