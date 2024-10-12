@@ -251,7 +251,7 @@ class ViewerController: UIViewController {
             let media = VLCMedia(url: url)
             let logger = VLCConsoleLogger()
             
-            logger.level = .warning
+            logger.level = .error
             logger.formatter.contextFlags = .levelContextModule
             
             dialogProvider = VLCDialogProvider(library: VLCLibrary.shared(), customUI: true)
@@ -728,7 +728,7 @@ class ViewerController: UIViewController {
     }
     
     private func restartMediaPlayer() {
-        
+
         mediaPlayer?.media = nil
         controlsView?.reset()
         
@@ -798,7 +798,8 @@ class ViewerController: UIViewController {
         if UIDevice.current.userInterfaceIdiom == .pad {
             return presentedViewController != nil
         } else {
-            return detailView.frame.origin.y < view.frame.size.height
+            //Size of zero = haven't laid out subviews. Details not really visible.
+            return size != .zero && detailView.frame.origin.y < view.frame.size.height
         }
     }
     

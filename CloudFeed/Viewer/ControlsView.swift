@@ -79,9 +79,7 @@ class ControlsView: UIView {
         addSubview(view)
         
         setVolumeContainerContraints()
-        
         setPlaying(playing: false)
-        
         initControls()
     }
     
@@ -133,7 +131,7 @@ class ControlsView: UIView {
     func setPlaying(playing: Bool) {
         
         isPlaying = playing
-        
+
         if playing {
             playButton.setImage(UIImage(systemName: "pause.circle.fill"), for: .normal)
         } else {

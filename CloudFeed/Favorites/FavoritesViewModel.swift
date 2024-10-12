@@ -276,7 +276,7 @@ final class FavoritesViewModel: NSObject {
             guard let self else { return }
 
             _ = await self.dataService.getFavorites()
-            
+
             let resultMetadatas = self.dataService.paginateFavoriteMetadata(type: type, fromDate: filterFromDate ?? Date.distantPast, toDate: filterToDate ?? Date.distantFuture, offsetDate: offsetDate, offsetName: offsetName)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
         }
@@ -432,7 +432,6 @@ final class FavoritesViewModel: NSObject {
             if snapshot.indexOfItem(metadata.id) == nil {
                 adds.append(metadata.id)
             } else {
-                Self.logger.debug("applyDatasourceChanges() - UPDATES!!!!!!!!!!!!!!!!!!")
                 updates.append(metadata.id)
             }
             
@@ -444,12 +443,10 @@ final class FavoritesViewModel: NSObject {
         }
         
         if updates.count > 0 {
-            Self.logger.debug("applyDatasourceChanges() - UPDATES!!!!!!")
-            snapshot.reconfigureItems(updates) //TODO: Test change to reconfigure
-            //snapshot.reloadItems(updates)
+            snapshot.reconfigureItems(updates)
         }
         
-        //Self.logger.debug("applyDatasourceChanges() - ocIdAdd: \(ocIdAdd.count) ocIdUpdate: \(ocIdUpdate.count)")
+        //Self.logger.debug("applyDatasourceChanges() - adds: \(adds.count) updates: \(updates.count)")
         
         let applySnapshot = snapshot
         

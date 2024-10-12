@@ -50,7 +50,6 @@ struct ViewerViewModel {
     func getVideoURL(metadata: Metadata) async -> URL? {
 
         if let url = await dataService.getDirectDownload(metadata: metadata) {
-            //print("getVideoURL() - file: \(metadata.fileNameView) url: \(url.absoluteString)")
             return url
         }
         
