@@ -52,8 +52,13 @@ class FavoritesController: CollectionController {
         initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
         initConstraints()
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        viewModel.cancelLoads()
+    }
 
     override func viewDidAppear(_ animated: Bool) {
+        refreshVisibleItems()
         syncFavorites()
     }
     

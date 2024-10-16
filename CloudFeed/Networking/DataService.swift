@@ -276,7 +276,9 @@ final class DataService: NSObject {
         }
     }
     
-    func downloadPreview(metadata: Metadata) async {
+    func downloadPreview(metadata: Metadata?) async {
+        
+        guard let metadata = metadata else { return }
         
         var previewPath: String
         var iconPath: String
@@ -321,13 +323,15 @@ final class DataService: NSObject {
         }
     }
     
-    func downloadVideoPreview(metadata: Metadata) async {
+    func downloadVideoPreview(metadata: Metadata?) async {
         
-        let path = store.getIconPath(metadata.ocId, metadata.etag)
+        guard metadata != nil else { return }
+        
+        let path = store.getIconPath(metadata!.ocId, metadata!.etag)
 
-        if metadata.video && !FileManager().fileExists(atPath: path) {
+        if metadata!.video && !FileManager().fileExists(atPath: path) {
 
-            if let url = await getDirectDownload(metadata: metadata) {
+            if let url = await getDirectDownload(metadata: metadata!) {
                 
                 let image = await ImageUtility.imageFromVideo(url: url, size: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon))
                 

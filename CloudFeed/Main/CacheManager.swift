@@ -4,6 +4,19 @@
 //
 //  Created by Angela Jarosz on 3/2/24.
 //
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
 
 import UIKit
 import os.log
@@ -13,7 +26,8 @@ final class CacheManager {
     
     private let dataService: DataService
     private let cache: NSCache<NSString, UIImage>
-    
+    private let queue: OperationQueue
+        
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: CacheManager.self))
@@ -23,10 +37,18 @@ final class CacheManager {
         
         cache = NSCache<NSString, UIImage>()
         cache.countLimit = 300
+        
+        queue = OperationQueue()
+        queue.name = "downloadQueue"
+        queue.maxConcurrentOperationCount = 5
     }
     
     func clear() {
         cache.removeAllObjects()
+    }
+    
+    func cancelAll() {
+        queue.cancelAllOperations()
     }
     
     func cache(metadata: Metadata, image: UIImage) {
@@ -37,41 +59,8 @@ final class CacheManager {
         return cache.object(forKey: ocId + etag as NSString)
     }
     
-    func fetch(metadata: Metadata, indexPath: IndexPath) async -> UIImage? {
-        
-        //Self.logger.debug("fetch() - downloading file: \(metadata.fileNameView)")
-        
-        if metadata.video {
-            await self.dataService.downloadVideoPreview(metadata: metadata)
-        } else if metadata.svg {
-            await self.loadSVG(metadata: metadata)
-        } else {
-            await self.dataService.downloadPreview(metadata: metadata)
-        }
-
-        //Self.logger.debug("fetch() - downloading complete. file: \(metadata.fileNameView)")
-        
-        let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
-        
-        if FileManager().fileExists(atPath: path) {
-            let image = UIImage(contentsOfFile: path)
-            if image != nil { cache(metadata: metadata, image: image!) }
-            return image
-        }
-         
-        return nil
-    }
-    
-    private func loadSVG(metadata: Metadata) async {
-        
-        if !dataService.store.fileExists(metadata) && metadata.image {
-            
-            await dataService.download(metadata: metadata, selector: "")
-            
-            let iconPath = dataService.store.getIconPath(metadata.ocId, metadata.etag)
-            let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
-            
-            ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: iconPath)
-        }
+    func fetch(metadata: Metadata, delegate: DownloadOperationDelegate) {
+        let operation = DownloadOperation(metadata, dataService: dataService, delegate: delegate)
+        queue.addOperation(operation)
     }
 }

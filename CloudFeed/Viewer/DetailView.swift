@@ -69,7 +69,7 @@ class DetailView: UIView {
     var metadata: Metadata?
     var url: URL?
     
-    var delegate: DetailViewDelegate?
+    weak var delegate: DetailViewDelegate?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,

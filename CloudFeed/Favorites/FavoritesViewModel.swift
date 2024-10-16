@@ -116,6 +116,10 @@ final class FavoritesViewModel: NSObject {
         dataService.store.setFavoriteColumnCount(columnCount)
     }
     
+    func cancelLoads() {
+        cacheManager.cancelAll()
+    }
+    
     func resetDataSource() {
         
         guard dataSource != nil else { return }
@@ -312,11 +316,7 @@ final class FavoritesViewModel: NSObject {
             }  else {
                 
                 if !pauseLoading {
-                    Task {
-                        let thumbnail = await cacheManager.fetch(metadata: metadata, indexPath: indexPath)
-                        guard let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
-                        cell.setImage(thumbnail)
-                    }
+                    cacheManager.fetch(metadata: metadata, delegate: self)
                 }
             }
         }
@@ -456,17 +456,18 @@ final class FavoritesViewModel: NSObject {
             self.delegate.dataSourceUpdated(refresh: refresh)
         }
     }
+}
+
+extension FavoritesViewModel: DownloadOperationDelegate {
     
-    private func loadSVG(metadata: Metadata) async {
+    func imageDownloaded(metadata: Metadata) {
         
-        if !dataService.store.fileExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
-            
-            await dataService.download(metadata: metadata, selector: "")
-            
-            let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
-            let iconPath = dataService.store.getIconPath(metadata.ocId, metadata.etag)
-            
-            ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: iconPath)
+        var snapshot = dataSource.snapshot()
+        let displayed = snapshot.itemIdentifiers(inSection: 0)
+        
+        if displayed.contains(metadata.id) {
+            snapshot.reconfigureItems([metadata.id])
+            dataSource.apply(snapshot)
         }
     }
 }

@@ -25,7 +25,7 @@ import KeychainAccess
 import os.log
 
 //@MainActor
-class StoreUtility {
+struct StoreUtility: Sendable {
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,

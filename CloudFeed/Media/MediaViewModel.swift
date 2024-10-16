@@ -42,7 +42,7 @@ final class MediaViewModel: NSObject {
     
     private let delegate: MediaDelegate
     private let dataService: DataService
-    private let cacheManager: CacheManager
+    let cacheManager: CacheManager
     
     private var metadatas: [Metadata.ID: Metadata] = [:]
     
@@ -61,6 +61,10 @@ final class MediaViewModel: NSObject {
         self.delegate = delegate
         self.dataService = dataService
         self.cacheManager = cacheManager
+        
+        super.init()
+        
+        //self.cacheManager.delegate = self
     }
     
     func initDataSource(collectionView: UICollectionView) {
@@ -142,6 +146,10 @@ final class MediaViewModel: NSObject {
     
     func saveColumnCount(_ columnCount: Int) {
         dataService.store.setMediaColumnCount(columnCount)
+    }
+    
+    func cancelLoads() {
+        cacheManager.cancelAll()
     }
     
     func metadataSearch(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool) {
@@ -474,28 +482,23 @@ final class MediaViewModel: NSObject {
             } else {
                 
                 if !pauseLoading {
-                    Task { [weak self] in
-                        guard let self else { return }
-
-                        let thumbnail = await self.cacheManager.fetch(metadata: metadata, indexPath: indexPath)
-                        guard let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return }
-                        cell.setImage(thumbnail)
-                    }
+                    cacheManager.fetch(metadata: metadata, delegate: self)
                 }
             }
         }
     }
-    
-    private func loadSVG(metadata: Metadata) async {
+}
 
-        if !dataService.store.fileExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
-            
-            await dataService.download(metadata: metadata, selector: "")
-            
-            let iconPath = dataService.store.getIconPath(metadata.ocId, metadata.etag)
-            let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
-            
-            ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: iconPath)
+extension MediaViewModel: DownloadOperationDelegate {
+    
+    func imageDownloaded(metadata: Metadata) {
+        
+        var snapshot = dataSource.snapshot()
+        let displayed = snapshot.itemIdentifiers(inSection: 0)
+        
+        if displayed.contains(metadata.id) {
+            snapshot.reconfigureItems([metadata.id])
+            dataSource.apply(snapshot)
         }
     }
 }

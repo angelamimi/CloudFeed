@@ -49,7 +49,12 @@ class MediaController: CollectionController {
         initConstraints()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        viewModel.cancelLoads()
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
+        refreshVisibleItems()
         syncMedia()
     }
     
@@ -59,6 +64,10 @@ class MediaController: CollectionController {
     
     override func columnCountChanged(columnCount: Int) {
         viewModel.saveColumnCount(columnCount)
+    }
+    
+    override func beganScrolling() {
+        viewModel.cancelLoads()
     }
     
     override func scrollSpeedChanged(isScrollingFast: Bool) {
@@ -128,7 +137,9 @@ class MediaController: CollectionController {
     
     private func refreshVisibleItems() {
         let visibleIndexPaths = collectionView.indexPathsForVisibleItems
-        viewModel.refreshItems(visibleIndexPaths)
+        if visibleIndexPaths.count > 0 {
+            viewModel.refreshItems(visibleIndexPaths)
+        }
     }
     
     private func syncMedia() {

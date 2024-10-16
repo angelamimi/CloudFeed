@@ -70,6 +70,7 @@ class CollectionController: UIViewController {
     func refresh() {}
     func enteringForeground() {}
     func columnCountChanged(columnCount: Int) {}
+    func beganScrolling() {}
     func scrollSpeedChanged(isScrollingFast: Bool) {}
     func sizeAtIndexPath(indexPath: IndexPath) -> CGSize { return CGSize() }
     
@@ -344,6 +345,10 @@ class CollectionController: UIViewController {
 
 extension CollectionController : UIScrollViewDelegate {
     
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        beganScrolling()
+    }
+    
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         
         setTitle()
@@ -377,7 +382,7 @@ extension CollectionController : UIScrollViewDelegate {
             let scrollSpeedNotAbs = Float((distance * 10.0) / 1000.0)
             let scrollSpeed = fabsf(scrollSpeedNotAbs)
             
-            scrollSpeedChanged(isScrollingFast: scrollSpeed > 2)
+            scrollSpeedChanged(isScrollingFast: scrollSpeed > 1)
 
             lastOffset = currentOffset
             lastOffsetTime = currentTime

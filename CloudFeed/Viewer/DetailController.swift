@@ -26,7 +26,7 @@ class DetailController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    weak var store: StoreUtility?
+    var store: StoreUtility?
     
     //weak var metadata: tableMetadata?
     var metadata: Metadata?
