@@ -81,8 +81,7 @@ class PreviewController: UIViewController {
     }
     
     func playLivePhoto(_ url: URL) {
-        //let avpController = viewModel.loadVideoFromUrl(url, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
-        
+
         let player = AVPlayer(url: url)
         let avpController = AVPlayerViewController()
         
@@ -101,20 +100,17 @@ class PreviewController: UIViewController {
                 self.activityIndicator.stopAnimating()
                 return
             }
+
+            let player = AVPlayer(url: videoURL)
+            let avpController = AVPlayerViewController()
+
+            player.playImmediately(atRate: 1.0)
+            player.automaticallyWaitsToMinimizeStalling = false
             
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                
-                let player = AVPlayer(url: videoURL)
-                let avpController = AVPlayerViewController()
-                
-                avpController.player = player
-                avpController.showsPlaybackControls = false
-                
-                self.setupVideoController(avpController: avpController, autoPlay: true)
-                
-                self.activityIndicator.stopAnimating()
-            }
+            avpController.player = player
+            avpController.showsPlaybackControls = false
+
+            self.setupVideoController(avpController: avpController, autoPlay: true)
         }
     }
     
@@ -138,12 +134,8 @@ class PreviewController: UIViewController {
         
         let urlVideo = self.getVideoURL(metadata: metadata)
         
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            
-            if let url = urlVideo {
-                self.playLivePhoto(url)
-            }
+        if let url = urlVideo {
+            playLivePhoto(url)
         }
     }
     
@@ -158,43 +150,39 @@ class PreviewController: UIViewController {
     
     private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
 
-        //DispatchQueue.main.async { [weak self] in
-         //   guard let self else { return }
-
-            if self.children.count == 0 {
-                self.addChild(avpController)
-            }
-            
-            if self.view.subviews.count == 1 {
-                self.view.addSubview(avpController.view)
-            }
-            
-            avpController.didMove(toParent: self)
-            
-            avpController.view.backgroundColor = .clear
-            
-            avpController.view.frame.size.height = view.frame.height
-            avpController.view.frame.size.width = view.frame.width
-            
-            avpController.videoGravity = .resizeAspect
-            avpController.allowsPictureInPicturePlayback = false
-            avpController.showsPlaybackControls = false
-            
-            if autoPlay {
-                avpController.player?.play()
-            }
-        //}
+        if self.children.count == 0 {
+            self.addChild(avpController)
+        }
+        
+        if self.view.subviews.count == 1 {
+            self.view.addSubview(avpController.view)
+        }
+        
+        avpController.didMove(toParent: self)
+        
+        avpController.view.backgroundColor = .clear
+        
+        avpController.view.frame.size.height = view.frame.height
+        avpController.view.frame.size.width = view.frame.width
+        
+        avpController.videoGravity = .resizeAspect
+        avpController.allowsPictureInPicturePlayback = false
+        avpController.showsPlaybackControls = false
+        
+        if autoPlay {
+            avpController.player?.play()
+        }
     }
     
     private func viewImage(metadata: Metadata) {
         
         if metadata.gif {
-            processGIF(metadata: metadata)
+            loadGIF(metadata: metadata)
             return
         }
         
         if metadata.svg {
-            processSVG(metadata: metadata)
+            loadSVG(metadata: metadata)
             return
         }
         
@@ -207,7 +195,7 @@ class PreviewController: UIViewController {
         }
     }
     
-    private func processGIF(metadata: Metadata) {
+    private func loadGIF(metadata: Metadata) {
         
         Task { [weak self] in
             guard let self else { return }
@@ -220,7 +208,7 @@ class PreviewController: UIViewController {
         }
     }
     
-    private func processSVG(metadata: Metadata) {
+    private func loadSVG(metadata: Metadata) {
         
         guard let imagePath = viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView) else { return }
         let previewPath = viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)

@@ -93,8 +93,8 @@ final class Global: Sendable {
     
     // MARK: - Search
     //
-    let pageSize: Int         = 1000
-    let limit: Int            = 1000
+    let pageSize: Int         = 200
+    let limit: Int            = 200
     
     // MARK: - Title
     //

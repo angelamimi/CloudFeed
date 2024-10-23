@@ -39,9 +39,9 @@ class CollectionController: UIViewController {
     var filterToDate: Date?
     var filterType: Global.FilterType = .all
     
-    var isScrollingFast = false
-    var lastOffsetTime: TimeInterval = 0
-    var lastOffset = CGPoint.zero
+    var scrolling = false
+    //var lastOffsetTime: TimeInterval = 0
+    //var lastOffset = CGPoint.zero
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -61,7 +61,6 @@ class CollectionController: UIViewController {
     }
     
     deinit {
-        //cleanup()
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
@@ -71,7 +70,7 @@ class CollectionController: UIViewController {
     func enteringForeground() {}
     func columnCountChanged(columnCount: Int) {}
     func beganScrolling() {}
-    func scrollSpeedChanged(isScrollingFast: Bool) {}
+    func scrollSpeedChanged(scrolling: Bool) {}
     func sizeAtIndexPath(indexPath: IndexPath) -> CGSize { return CGSize() }
     
     private func initObservers() {
@@ -81,10 +80,6 @@ class CollectionController: UIViewController {
             }
         }
     }
-    
-    /*private func cleanup() {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
-    }*/
     
     private func willEnterForegroundNotification() {
         if isViewLoaded && view.window != nil {
@@ -181,9 +176,6 @@ class CollectionController: UIViewController {
     
     func initCollectionView(layoutType: String, columnCount: Int) {
         
-        //let layout = FlowLayout(cellsPerRow: cellsPerRow)
-        //collectionView.collectionViewLayout = layout
-        
         let layout = CollectionLayout()
         layout.delegate = self
         layout.numberOfColumns = columnCount
@@ -270,11 +262,13 @@ class CollectionController: UIViewController {
     }
     
     func scrollToTop() {
-        
+
         guard collectionView != nil else { return }
         
         if collectionView.numberOfItems(inSection: 0) > 0 {
+            scrollSpeedChanged(scrolling: true)
             collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+            scrollSpeedChanged(scrolling: false)
         }
     }
     
@@ -347,17 +341,19 @@ extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         beganScrolling()
+        scrollSpeedChanged(scrolling: true)
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        
         setTitle()
+        scrollSpeedChanged(scrolling: false)
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
         setTitle()
-
+        scrollSpeedChanged(scrolling: false)
+        
         guard isEditing == false else { return }
         
         let count = collectionView.numberOfItems(inSection: 0)
@@ -372,7 +368,7 @@ extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        let currentOffset = scrollView.contentOffset
+        /*let currentOffset = scrollView.contentOffset
         let currentTime = Date.timeIntervalSinceReferenceDate
         let diff = currentTime - lastOffsetTime
         
@@ -381,16 +377,16 @@ extension CollectionController : UIScrollViewDelegate {
             let distance = Float(currentOffset.y - lastOffset.y)
             let scrollSpeedNotAbs = Float((distance * 10.0) / 1000.0)
             let scrollSpeed = fabsf(scrollSpeedNotAbs)
-            
-            scrollSpeedChanged(isScrollingFast: scrollSpeed > 1)
+
+            scrollSpeedChanged(scrolling: scrollSpeed > 3)
 
             lastOffset = currentOffset
             lastOffsetTime = currentTime
         }
 
         if currentOffset.x == 0 && currentOffset.y == 0 {
-            scrollSpeedChanged(isScrollingFast: false)
-        }
+            scrollSpeedChanged(scrolling: false)
+        }*/
     }
 }
 

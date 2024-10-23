@@ -165,9 +165,7 @@ final class FavoritesViewModel: NSObject {
         guard snapshot.numberOfSections > 0 else { return }
         snapshot.reloadSections([0])
         
-        DispatchQueue.main.async { [weak self] in
-            self?.dataSource.apply(snapshot, animatingDifferences: true)
-        }
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
     
     func fetch(type: Global.FilterType, refresh: Bool) {
@@ -246,13 +244,8 @@ final class FavoritesViewModel: NSObject {
         
         snapshot.reloadSections([0])
         
-        let applySnapshot = snapshot
-        let applyError = error
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.dataSource.apply(applySnapshot, animatingDifferences: true)
-            self?.delegate.bulkEditFinished(error: applyError)
-        }
+        await dataSource.apply(snapshot, animatingDifferences: true)
+        delegate.bulkEditFinished(error: error)
     }
     
     func refreshItems(_ refreshItems: [IndexPath]) {
@@ -406,13 +399,9 @@ final class FavoritesViewModel: NSObject {
             }
         }
         
-        let applySnapshot = snapshot
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.dataSource.apply(applySnapshot, animatingDifferences: true, completion: { [weak self] in
-                self?.delegate.dataSourceUpdated(refresh: false)
-            })
-        }
+        dataSource.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
+            self?.delegate.dataSourceUpdated(refresh: false)
+        })
     }
     
     private func applyDatasourceChanges(metadatas: [Metadata], refresh: Bool) async {
@@ -448,13 +437,8 @@ final class FavoritesViewModel: NSObject {
         
         //Self.logger.debug("applyDatasourceChanges() - adds: \(adds.count) updates: \(updates.count)")
         
-        let applySnapshot = snapshot
-        
-        DispatchQueue.main.async {[weak self] in
-            guard let self else { return }
-            self.dataSource.apply(applySnapshot, animatingDifferences: true)
-            self.delegate.dataSourceUpdated(refresh: refresh)
-        }
+        await dataSource.apply(snapshot, animatingDifferences: true)
+        delegate.dataSourceUpdated(refresh: refresh)
     }
 }
 

@@ -28,7 +28,6 @@ import UIKit
 protocol MediaDelegate: AnyObject {
     func dataSourceUpdated(refresh: Bool)
     func favoriteUpdated(error: Bool)
-    
     func searching()
     func searchResultReceived(resultItemCount: Int?)
 }
@@ -206,7 +205,7 @@ final class MediaViewModel: NSObject {
             //have to compare what is displayed with what was just fetched
             var updated = getUpdatedFavorites(metadatas: results.metadatas!)
             updated.append(contentsOf: results.updated)
-            
+
             syncDatasource(added: added, updated: updated, deleted: results.deleted)
         }
     }
@@ -311,6 +310,11 @@ final class MediaViewModel: NSObject {
     
     private func syncDatasource(added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
         
+        if added.count == 0 && updated.count == 0 && deleted.count == 0 {
+            self.delegate.dataSourceUpdated(refresh: false)
+            return
+        }
+        
         var snapshot = dataSource.snapshot()
         let displayedMetadata = snapshot.itemIdentifiers(inSection: 0)
         
@@ -384,10 +388,8 @@ final class MediaViewModel: NSObject {
             }
         }
         
-        DispatchQueue.main.async { [weak self] in
-            self?.dataSource.apply(snapshot, animatingDifferences: true)
-            self?.delegate.dataSourceUpdated(refresh: false)
-        }
+        dataSource.apply(snapshot, animatingDifferences: true)
+        delegate.dataSourceUpdated(refresh: false)
     }
     
     private func search(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [Metadata]?, added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
@@ -441,12 +443,16 @@ final class MediaViewModel: NSObject {
         if updates.count > 0 {
             snapshot.reconfigureItems(updates)
         }
-            
-        DispatchQueue.main.async { [weak self] in
+          
+        /*DispatchQueue.main.async { [weak self] in
             self?.dataSource.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
                 self?.delegate.dataSourceUpdated(refresh: refresh)
             })
-        }
+        }*/
+        
+        dataSource.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
+            self?.delegate.dataSourceUpdated(refresh: refresh)
+        })
     }
     
     private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {

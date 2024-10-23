@@ -41,6 +41,7 @@ final class CacheManager {
         queue = OperationQueue()
         queue.name = "downloadQueue"
         queue.maxConcurrentOperationCount = 5
+        queue.qualityOfService = .background
     }
     
     func clear() {

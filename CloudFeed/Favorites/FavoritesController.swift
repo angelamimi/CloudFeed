@@ -58,7 +58,6 @@ class FavoritesController: CollectionController {
     }
 
     override func viewDidAppear(_ animated: Bool) {
-        refreshVisibleItems()
         syncFavorites()
     }
     
@@ -70,8 +69,12 @@ class FavoritesController: CollectionController {
         viewModel.saveColumnCount(columnCount)
     }
     
-    override func scrollSpeedChanged(isScrollingFast: Bool) {
-        viewModel.pauseLoading = isScrollingFast
+    override func scrollSpeedChanged(scrolling: Bool) {
+        viewModel.pauseLoading = scrolling
+        
+        if scrolling {
+            viewModel.cancelLoads()
+        }
     }
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -131,7 +134,9 @@ class FavoritesController: CollectionController {
     
     private func refreshVisibleItems() {
         let visibleIndexPaths = collectionView.indexPathsForVisibleItems
-        viewModel.refreshItems(visibleIndexPaths)
+        if visibleIndexPaths.count > 0 {
+            viewModel.refreshItems(visibleIndexPaths)
+        }
     }
     
     private func syncFavorites() {
@@ -219,67 +224,53 @@ extension FavoritesController: FavoritesDelegate {
     
     func bulkEditFinished(error: Bool) {
         
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            
-            self.isEditing = false
-            self.collectionView.allowsMultipleSelection = false
+        isEditing = false
+        collectionView.allowsMultipleSelection = false
 
-            self.displayResults(refresh: false)
-            self.reloadSection()
-            
-            if self.hasFilter() {
-                self.showEditFilter()
+        displayResults(refresh: false)
+        reloadSection()
+        
+        if hasFilter() {
+            showEditFilter()
+        }
+        
+        if error {
+            collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
+                self?.collectionView.deselectItem(at: $0, animated: false)
             }
-            
-            if error {
-                collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
-                    self?.collectionView.deselectItem(at: $0, animated: false)
-                }
-                self.coordinator.showFavoriteUpdateFailedError()
-            }
+            coordinator.showFavoriteUpdateFailedError()
         }
     }
     
     func fetching() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            if !self.isRefreshing() && !self.isLoadingMore() {
-                self.activityIndicator.startAnimating()
-            }
+        if !isRefreshing() && !isLoadingMore() {
+            activityIndicator.startAnimating()
         }
     }
     
     func fetchResultReceived(resultItemCount: Int?) {
-        DispatchQueue.main.async { [weak self] in
-            if resultItemCount == nil {
-                self?.coordinator.showLoadfailedError()
-                self?.displayResults(refresh: false)
-            }
+        if resultItemCount == nil {
+            coordinator.showLoadfailedError()
+            displayResults(refresh: false)
         }
     }
     
     func dataSourceUpdated(refresh: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            self?.displayResults(refresh: refresh)
-        }
+        displayResults(refresh: refresh)
+        refreshVisibleItems()
     }
     
     func editCellUpdated(cell: CollectionViewCell, indexPath: IndexPath) {
         
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            
-            if self.isEditing {
-                cell.selectMode(true)
-                if self.collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
-                    cell.selected(true)
-                } else {
-                    cell.selected(false)
-                }
+        if isEditing {
+            cell.selectMode(true)
+            if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
+                cell.selected(true)
             } else {
-                cell.selectMode(false)
+                cell.selected(false)
             }
+        } else {
+            cell.selectMode(false)
         }
     }
 }
@@ -313,9 +304,7 @@ extension FavoritesController: MediaViewController {
     }
     
     func titleTouched() {
-        if viewModel.currentItemCount() > 0 {
-            collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-        }
+        scrollToTop()
     }
     
     func edit() {

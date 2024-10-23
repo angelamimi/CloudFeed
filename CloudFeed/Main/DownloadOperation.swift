@@ -50,7 +50,7 @@ class DownloadOperation: AsyncOperation, @unchecked Sendable {
     
     override func main() {
         
-        task = Task { [weak self] in
+        task = Task(priority: .background) { [weak self] in
 
             if self?.isCancelled ?? true {
                 self?.finish()
@@ -58,6 +58,11 @@ class DownloadOperation: AsyncOperation, @unchecked Sendable {
             }
             
             await self?.download()
+            
+            if self?.isCancelled ?? true {
+                self?.finish()
+                return
+            }
             
             if let metadata = self?.metadata {
                 await self?.delegate?.imageDownloaded(metadata: metadata)

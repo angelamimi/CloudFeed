@@ -54,7 +54,6 @@ class MediaController: CollectionController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        refreshVisibleItems()
         syncMedia()
     }
     
@@ -70,19 +69,23 @@ class MediaController: CollectionController {
         viewModel.cancelLoads()
     }
     
-    override func scrollSpeedChanged(isScrollingFast: Bool) {
-        viewModel.pauseLoading = isScrollingFast
+    override func scrollSpeedChanged(scrolling: Bool) {
+        viewModel.pauseLoading = scrolling
+        
+        if scrolling {
+            viewModel.cancelLoads()
+        }
     }
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         super.scrollViewDidEndDecelerating(scrollView)
-        
+
         refreshVisibleItems()
     }
     
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         super.scrollViewDidEndScrollingAnimation(scrollView)
-        
+
         refreshVisibleItems()
     }
     
@@ -123,16 +126,11 @@ class MediaController: CollectionController {
     
     public func clear() {
         
-        DispatchQueue.main.async { [weak self] in
-            
-            guard let self else { return }
-            
-            self.viewModel?.clearCache()
+        viewModel?.clearCache()
 
-            self.scrollToTop()
-            self.setTitle("")
-            self.viewModel?.resetDataSource()
-        }
+        scrollToTop()
+        setTitle("")
+        viewModel?.resetDataSource()
     }
     
     private func refreshVisibleItems() {
@@ -196,12 +194,8 @@ class MediaController: CollectionController {
     }
     
     private func toggleFavorite(metadata: Metadata) {
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.activityIndicator.startAnimating()
-        }
-        
-        self.viewModel.toggleFavorite(metadata: metadata)
+        activityIndicator.startAnimating()
+        viewModel.toggleFavorite(metadata: metadata)
     }
     
     private func displayResults(refresh: Bool) {
@@ -216,36 +210,27 @@ class MediaController: CollectionController {
 extension MediaController: MediaDelegate {
     
     func dataSourceUpdated(refresh: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            self?.displayResults(refresh: refresh)
-        }
+        displayResults(refresh: refresh)
+        refreshVisibleItems()
     }
     
     func favoriteUpdated(error: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            self.activityIndicator.stopAnimating()
-            if error {
-                self.coordinator.showFavoriteUpdateFailedError()
-            }
+        activityIndicator.stopAnimating()
+        if error {
+            coordinator.showFavoriteUpdateFailedError()
         }
     }
     
     func searching() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            if !self.isRefreshing() && !self.isLoadingMore() {
-                self.activityIndicator.startAnimating()
-            }
+        if !isRefreshing() && !isLoadingMore() {
+            activityIndicator.startAnimating()
         }
     }
     
     func searchResultReceived(resultItemCount: Int?) {
-        DispatchQueue.main.async { [weak self] in
-            if resultItemCount == nil {
-                self?.coordinator.showLoadFailedError()
-                self?.displayResults(refresh: false)
-            }
+        if resultItemCount == nil {
+            coordinator.showLoadFailedError()
+            displayResults(refresh: false)
         }
     }
 }
@@ -316,9 +301,7 @@ extension MediaController: MediaViewController {
     }
     
     func titleTouched() {
-        if viewModel.currentItemCount() > 0 {
-            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
-        }
+        scrollToTop()
     }
     
     func edit() {}
