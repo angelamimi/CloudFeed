@@ -847,7 +847,7 @@ class ViewerController: UIViewController {
                 
                 if let popover = presentedViewController!.popoverPresentationController {
                     //popover is moved off the screen sometimes on rotation. reset it.
-                    popover.sourceRect = CGRect(x: view.frame.width, y: 0, width: 100, height: 100)
+                    popover.sourceRect = CGRect(x: view.frame.width, y: 80, width: 100, height: 100)
                 }
 
                 if presentedViewController!.isBeingDismissed {
