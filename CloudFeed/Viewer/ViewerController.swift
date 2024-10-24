@@ -142,7 +142,7 @@ class ViewerController: UIViewController {
         super.viewDidLayoutSubviews()
         
         if !view.frame.size.equalTo(size) {
-
+            
             size = view.frame.size
             
             if currentStatus() == .details {
@@ -554,7 +554,7 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
-
+        
         if swipeGesture.direction == .up {
             
             if !detailsVisible() {
@@ -771,13 +771,10 @@ class ViewerController: UIViewController {
     
     private func isPortrait() -> Bool {
         
-        //Self.logger.debug("isPortrait() - isportrait: \(UIDevice.current.orientation.isPortrait)")
-        //Self.logger.debug("isPortrait() - isLandscape: \(UIDevice.current.orientation.isLandscape)")
-        //Self.logger.debug("isPortrait() - rawValue: \(UIDevice.current.orientation.rawValue)")
-        
         if UIDevice.current.orientation == .faceUp
             || UIDevice.current.orientation == .faceDown
-            || UIDevice.current.orientation == .unknown {
+            || UIDevice.current.orientation == .unknown
+            || UIDevice.current.orientation == .portraitUpsideDown {
             return view.frame.size.height >= view.frame.size.width
         } else {
             return UIDevice.current.orientation.isPortrait
