@@ -62,8 +62,6 @@ final class MediaViewModel: NSObject {
         self.cacheManager = cacheManager
         
         super.init()
-        
-        //self.cacheManager.delegate = self
     }
     
     func initDataSource(collectionView: UICollectionView) {
@@ -443,12 +441,6 @@ final class MediaViewModel: NSObject {
         if updates.count > 0 {
             snapshot.reconfigureItems(updates)
         }
-          
-        /*DispatchQueue.main.async { [weak self] in
-            self?.dataSource.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
-                self?.delegate.dataSourceUpdated(refresh: refresh)
-            })
-        }*/
         
         dataSource.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
             self?.delegate.dataSourceUpdated(refresh: refresh)

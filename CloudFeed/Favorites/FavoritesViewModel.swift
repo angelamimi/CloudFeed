@@ -252,8 +252,6 @@ final class FavoritesViewModel: NSObject {
         
         let items = refreshItems.compactMap { dataSource.itemIdentifier(for: $0) }
         
-        //Self.logger.debug("refreshItems() - items count: \(items.count)")
-        
         var snapshot = dataSource.snapshot()
         snapshot.reconfigureItems(items)
         dataSource.apply(snapshot)
@@ -436,9 +434,11 @@ final class FavoritesViewModel: NSObject {
         }
         
         //Self.logger.debug("applyDatasourceChanges() - adds: \(adds.count) updates: \(updates.count)")
-        
-        await dataSource.apply(snapshot, animatingDifferences: true)
-        delegate.dataSourceUpdated(refresh: refresh)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSource.apply(snapshot, animatingDifferences: true)
+            self?.delegate.dataSourceUpdated(refresh: refresh)
+        }
     }
 }
 
