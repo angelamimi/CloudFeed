@@ -19,7 +19,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import KTVHTTPCache
 import os.log
 import UIKit
 
@@ -76,7 +75,6 @@ final class LoginViewModel: NSObject {
         
         URLCache.shared.memoryCapacity = 0
         URLCache.shared.diskCapacity = 0
-        KTVHTTPCache.cacheDeleteAllCaches()
 
         dataService.clearDatabase(account: nil, removeAccount: true)
     }

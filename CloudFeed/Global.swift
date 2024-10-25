@@ -21,14 +21,8 @@
 
 import UIKit
 
-//@MainActor
-//class Global: NSObject {
 final class Global: Sendable {
     
-    /*static let shared: Global = {
-        let instance = Global()
-        return instance
-    }()*/
     static let shared = Global()
     
     let keyChain                      = "com.angelamimi.cloudfeed"
@@ -63,7 +57,6 @@ final class Global: Sendable {
     //
     let layoutTypeSquare              = "layoutTypeSquare"
     let layoutTypeAspectRatio         = "layoutTypeAspectRatio"
-    //let layoutColumnCountDefault    = UIDevice.current.userInterfaceIdiom == .pad ? 3 : 2
     let layoutColumnCountDefaultPad   = 3
     let layoutColumnCountDefault      = 2
     
@@ -73,7 +66,6 @@ final class Global: Sendable {
     let extensionPreview        = "jpeg"
     let sizePreview: Int        = 1024
     let sizeIcon: Int           = 512
-    //let avatarSize: Int       = 128 * Int(UIScreen.main.scale)
     let avatarSizeBase: Int     = 128
     let avatarSizeRounded: Int  = 128
     
@@ -81,11 +73,6 @@ final class Global: Sendable {
     // MARK: - Metadata download status
     //
     let metadataStatusNormal: Int = 0
-    
-    
-    // MARK: - Video
-    //
-    let maxHTTPCache: Int64 = 10000000000   // 10 GB
     
     // MARK: - Error
     //

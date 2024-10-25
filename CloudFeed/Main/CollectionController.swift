@@ -256,18 +256,18 @@ class CollectionController: UIViewController {
                 //When scrolled far in a long list, then filtered, the user ends up at a scroll position that
                 //doesn't display the newly filtered list. Screen appears blank. Enabling scroll to top may need
                 //more conditions around it or will scroll to top when the user is interacting with the list.
-                self.scrollToTop()
+                self.scrollToTop(animated: true)
             }
         }
     }
     
-    func scrollToTop() {
+    func scrollToTop(animated: Bool = false) {
 
         guard collectionView != nil else { return }
         
         if collectionView.numberOfItems(inSection: 0) > 0 {
             scrollSpeedChanged(scrolling: true)
-            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: animated)
             scrollSpeedChanged(scrolling: false)
         }
     }

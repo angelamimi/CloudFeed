@@ -61,11 +61,6 @@
 		3929A8882C35CEE6003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 3929A8862C35CEE6003B48CF /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		3929A8892C35EB5A003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 392718632C359F95001C57C0 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		393D18932C8C9B5100971014 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393D18922C8C9B5100971014 /* ControlsView.swift */; };
-		394BCB0E29C7E25000C4F619 /* HttpCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394BCB0D29C7E25000C4F619 /* HttpCache.swift */; };
-		394BCB1329C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */; };
-		394BCB1429C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		394BCB1529C7E82100C4F619 /* KTVHTTPCache.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */; };
-		394BCB1629C7E82100C4F619 /* KTVHTTPCache.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		395C14E52B1C03FF00074EB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 395C14E42B1C03FF00074EB8 /* Assets.xcassets */; };
 		395F3A1A2A9678340004FF32 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395F3A192A9678340004FF32 /* Environment.swift */; };
 		395F3A1C2A96812E0004FF32 /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395F3A1B2A96812E0004FF32 /* UserAccount.swift */; };
@@ -140,8 +135,6 @@
 			files = (
 				39A896402C7FED9C003827B8 /* MobileVLCKit.xcframework in Embed Frameworks */,
 				3929A8892C35EB5A003B48CF /* RealmSwift in Embed Frameworks */,
-				394BCB1629C7E82100C4F619 /* KTVHTTPCache.xcframework in Embed Frameworks */,
-				394BCB1429C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -203,9 +196,6 @@
 		392735B929BE52600058796A /* LoginServerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerController.swift; sourceTree = "<group>"; };
 		392735BD29BE738F0058796A /* CloudFeed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudFeed.entitlements; sourceTree = "<group>"; };
 		393D18922C8C9B5100971014 /* ControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsView.swift; sourceTree = "<group>"; };
-		394BCB0D29C7E25000C4F619 /* HttpCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpCache.swift; sourceTree = "<group>"; };
-		394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVCocoaHTTPServer.xcframework; path = Carthage/Build/KTVCocoaHTTPServer.xcframework; sourceTree = "<group>"; };
-		394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVHTTPCache.xcframework; path = Carthage/Build/KTVHTTPCache.xcframework; sourceTree = "<group>"; };
 		395C14E42B1C03FF00074EB8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		395F3A192A9678340004FF32 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		395F3A1B2A96812E0004FF32 /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
@@ -265,8 +255,6 @@
 				392718642C359F95001C57C0 /* RealmSwift in Frameworks */,
 				392735B029BE3DED0058796A /* KeychainAccess in Frameworks */,
 				39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */,
-				394BCB1529C7E82100C4F619 /* KTVHTTPCache.xcframework in Frameworks */,
-				394BCB1329C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework in Frameworks */,
 				3927359C29BD3D510058796A /* NextcloudKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -445,7 +433,6 @@
 			isa = PBXGroup;
 			children = (
 				39B03F1329C6384300704670 /* FileSystemUtility.swift */,
-				394BCB0D29C7E25000C4F619 /* HttpCache.swift */,
 				392735B229BE402D0058796A /* StoreUtility.swift */,
 				398D14D12B9A4D2700526E42 /* ImageUtility.swift */,
 			);
@@ -468,8 +455,6 @@
 			children = (
 				39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */,
 				391579C32AB8D18900DFEAB1 /* XCTest.framework */,
-				394BCB1129C7E82100C4F619 /* KTVCocoaHTTPServer.xcframework */,
-				394BCB1229C7E82100C4F619 /* KTVHTTPCache.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -648,7 +633,6 @@
 				39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */,
 				392735B329BE402D0058796A /* StoreUtility.swift in Sources */,
 				39E570782B5DF7C700548E02 /* FilterView.swift in Sources */,
-				394BCB0E29C7E25000C4F619 /* HttpCache.swift in Sources */,
 				39B03F1229C636B500704670 /* SettingsController.swift in Sources */,
 				3966634729DF34AD005727D4 /* EmptyView.swift in Sources */,
 				3903CE6B2AA4D871003E7E41 /* AppCoordinator.swift in Sources */,

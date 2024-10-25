@@ -74,8 +74,6 @@ final class SettingsViewModel: NSObject {
         
         store.clearCache()
         
-        HTTPCache.shared.deleteAllCache()
-        
         delegate.cacheCleared()
     }
     

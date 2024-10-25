@@ -45,14 +45,5 @@ Parts Copyright (c) Tipbit Inc</string>
 		<key>license</key>
 		<string>GNU General Public License v3.0</string>
 	</dict>
-	<dict>
-		<key>title</key>
-		<string>KTVHTTPCache</string>
-		<key>link</key>
-		<string>https://github.com/marinofaggiana/KTVHTTPCache</string>
-		<key>license</key>
-		<string>MIT License
-Copyright (c) 2017 Single</string>
-	</dict>
 </array>
 </plist>
