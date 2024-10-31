@@ -76,25 +76,23 @@ class MediaTests {
         let store = StoreUtility()
         
         databaseManager = MockDatabaseManager(store: store)
-        try #require(databaseManager != nil)
+        #expect(databaseManager != nil)
         
-        //let _ = databaseManager!.setupTest()
-        //databaseManager!.setupForTest()
         let setupResult = databaseManager!.setup()
-        try #require(setupResult == true)
+        #expect(setupResult == true)
         
         nextCloudService = MockNextcloudKitService()
         
         dataService = DataService(nextcloudService: nextCloudService!, databaseManager: databaseManager!)
-        try #require(dataService != nil)
+        #expect(dataService != nil)
 
         dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
 
         let tableAccount = dataService?.setActiveAccount(account)
-        try #require(tableAccount != nil)
+        #expect(tableAccount != nil)
         
         let activeAccount = dataService?.getActiveAccount()
-        try #require(activeAccount != nil)
+        #expect(activeAccount != nil)
         
         if Environment.current.setCurrentUser(account: activeAccount!.account, urlBase: activeAccount!.urlBase, user: activeAccount!.user, userId: activeAccount!.userId) {
             dataService?.setup(account: activeAccount!.account, user: activeAccount!.user, userId: activeAccount!.userId, urlBase: activeAccount!.urlBase)
@@ -102,7 +100,7 @@ class MediaTests {
     }
 }
 
-extension MediaTests: MediaDelegate {
+/*extension MediaTests: MediaDelegate {
     func dataSourceUpdated(refresh: Bool) {
         print("dataSourceUpdated")
     }
@@ -118,4 +116,4 @@ extension MediaTests: MediaDelegate {
     func searchResultReceived(resultItemCount: Int?) {
         print("searchResultReceived")
     }
-}
+}*/

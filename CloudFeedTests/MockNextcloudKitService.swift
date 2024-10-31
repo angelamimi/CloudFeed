@@ -78,9 +78,7 @@ extension MockNextcloudKitService {
     }
     
     func mockSearchMedia(fileName: String) -> (files: [CloudFeed.Metadata], error: Bool) {
-        
         let resultFiles = parseMetadata(fileName: fileName)
-        print("mockSearchMedia() - COUNT \(resultFiles.count)")
         return (resultFiles, false)
     }
     

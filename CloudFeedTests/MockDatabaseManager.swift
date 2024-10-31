@@ -28,7 +28,7 @@ class MockDatabaseManager: DatabaseManager {
     override func setup() -> Bool {
         let config = Realm.Configuration(inMemoryIdentifier: "TestDatabase")
         let _ = try! Realm(configuration: config)
-        Logger.shared.level = .debug
+        Logger.shared.level = .warn
         return true
     }
 }
