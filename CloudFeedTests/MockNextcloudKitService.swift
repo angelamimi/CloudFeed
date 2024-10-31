@@ -25,31 +25,14 @@ import UIKit
 
 final class MockNextcloudKitService: NextcloudKitServiceProtocol {
 
-    enum FavoritesMockAction: String {
-        case withData = "mock-favorites"
-        case empty = "empty"
-        case error = "error"
-    }
-    
-    enum SearchMockAction: String {
-        case withData = "mock-search"
-        case empty = "empty"
-        case error = "error"
-    }
-    
-    var listingFavoritesAction: FavoritesMockAction?
-    var searchMediaAction: SearchMockAction?
-    
-    
     func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String) {
-        
     }
     
     func setupVersion(serverVersionMajor: Int) {
         
     }
     
-    func getDirectDownload(metadata: CloudFeed.tableMetadata) async -> URL? {
+    func getDirectDownload(metadata: CloudFeed.Metadata) async -> URL? {
         return nil
     }
     
@@ -57,48 +40,28 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return (account: nil, data: nil)
     }
     
-    func download(metadata: tableMetadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> NKError {
-        return NKError.success
+    func download(metadata: CloudFeed.Metadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> Bool {
+        return true
     }
     
     func downloadPreview(account: String, fileId fileNamePath: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String? {
         return etagResource
     }
     
-    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?) async -> String? {
+    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int, avatarSizeRounded: Int) async -> String? {
         return nil
     }
     
-    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [NKFile], error: Bool) {
-        
-        switch searchMediaAction {
-        case .error:
-            return ([], true)
-        case .empty:
-            return ([], false)
-        case .withData:
-            return mockSearchMedia(fileName: "mock-search")
-        default:
-            return ([], true)
-        }
+    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [CloudFeed.Metadata], error: Bool) {
+        return mockSearchMedia(fileName: "mock-search")
     }
     
-    func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> NKError {
-        return NKError.success
+    func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> Bool {
+        return true
     }
     
-    func listingFavorites(account: String) async -> (account: String, files: [NKFile]?) {
-        
-        switch listingFavoritesAction {
-        case .error:
-            return ("", nil)
-        case .empty:
-            return (account: "testuser1 https://cloud.test1.com", [])
-        case .withData:
-            return mockFavorites(fileName: "mock-favorites")
-        default:
-            return ("", nil)
-        }
+    func listingFavorites(account: String) async -> (account: String, files: [CloudFeed.Metadata]?) {
+        return mockFavorites(fileName: "mock-favorites")
     }
     
     func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String) {
@@ -108,22 +71,23 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
 
 extension MockNextcloudKitService {
     
-    func mockFavorites(fileName: String) -> (account: String, files: [NKFile]?) {
+    func mockFavorites(fileName: String) -> (account: String, files: [CloudFeed.Metadata]?) {
         
         let resultFiles = parseMetadata(fileName: fileName)
         return (account: "testuser1 https://cloud.test1.com", resultFiles)
     }
     
-    func mockSearchMedia(fileName: String) -> (files: [NKFile], error: Bool) {
+    func mockSearchMedia(fileName: String) -> (files: [CloudFeed.Metadata], error: Bool) {
         
         let resultFiles = parseMetadata(fileName: fileName)
+        print("mockSearchMedia() - COUNT \(resultFiles.count)")
         return (resultFiles, false)
     }
     
-    func parseMetadata(fileName: String) -> [NKFile] {
+    func parseMetadata(fileName: String) -> [CloudFeed.Metadata] {
         
         let filesJSON = readMocks(fileName: fileName)
-        var resultFiles: [NKFile] = []
+        var resultFiles: [CloudFeed.Metadata] = []
         
         for fileJSON in filesJSON {
 
@@ -145,7 +109,7 @@ extension MockNextcloudKitService {
                 file.date = date!
             }
             
-            resultFiles.append(file)
+            resultFiles.append(CloudFeed.Metadata.init(file: file))
         }
         
         return resultFiles
