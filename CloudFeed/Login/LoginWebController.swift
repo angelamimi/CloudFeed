@@ -152,22 +152,18 @@ extension LoginWebController: LoginDelegate {
 }
 
 extension LoginWebController: WKNavigationDelegate {
-    
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
-        return .allow
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
+        decisionHandler(.allow)
     }
     
-    func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping @MainActor (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+    nonisolated func webView(_ webView: WKWebView, respondTo challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
         
         if let serverTrust = challenge.protectionSpace.serverTrust {
-            completionHandler(Foundation.URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: serverTrust))
+            return (Foundation.URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: serverTrust))
         } else {
-            completionHandler(URLSession.AuthChallengeDisposition.useCredential, nil)
+            return (URLSession.AuthChallengeDisposition.useCredential, nil)
         }
-    }
-
-    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping @MainActor (WKNavigationResponsePolicy) -> Void) {
-        decisionHandler(.allow)
     }
 }
 
