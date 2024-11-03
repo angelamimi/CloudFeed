@@ -35,14 +35,12 @@ final class PagerViewModel: NSObject {
     let dataService: DataService
     
     private var currentIndex: Int
-    //private var metadatas: [tableMetadata]
     private var metadatas: [Metadata]
     
     internal var nextIndex: Int?
     weak var delegate: PagerViewModelDelegate?
     weak var viewerDelegate: ViewerDelegate?
     
-    //init(coordinator: ViewerCoordinator, dataService: DataService, currentIndex: Int = 0, metadatas: [tableMetadata]) {
     init(coordinator: ViewerCoordinator, dataService: DataService, currentIndex: Int = 0, metadatas: [Metadata]) {
         self.coordinator = coordinator
         self.dataService = dataService
@@ -50,7 +48,6 @@ final class PagerViewModel: NSObject {
         self.metadatas = metadatas
     }
     
-    //func currentMetadata() -> tableMetadata {
     func currentMetadata() -> Metadata {
         return metadatas[currentIndex]
     }

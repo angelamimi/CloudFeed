@@ -99,7 +99,6 @@ extension DatabaseManager {
             Self.logger.error("Failed to load avatar with error \(error.localizedDescription)")
         }
         
-        //FileSystemUtility.shared.deleteFile(filePath: cachePath)
         FileSystemUtility.deleteFile(filePath: cachePath)
         return nil
     }

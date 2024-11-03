@@ -26,12 +26,7 @@ import UIKit
 import PhotosUI
 import os.log
 
-class FileSystemUtility { //: NSObject {
-    
-    /*@objc static let shared: FileSystemUtility = {
-        let instance = FileSystemUtility()
-        return instance
-    }()*/
+final class FileSystemUtility {
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,

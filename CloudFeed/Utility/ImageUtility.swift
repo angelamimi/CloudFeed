@@ -23,10 +23,9 @@ import AVFoundation
 import SVGKit
 import UIKit
 
-class ImageUtility: NSObject {
+final class ImageUtility: NSObject {
     
     @discardableResult
-    //static func loadSVGPreview(metadata: tableMetadata, imagePath: String, previewPath: String) -> UIImage? {
     static func loadSVGPreview(metadata: Metadata, imagePath: String, previewPath: String) -> UIImage? {
         
         guard metadata.svg else { return nil }
@@ -75,7 +74,6 @@ class ImageUtility: NSObject {
         generator.appliesPreferredTrackTransform = true
         generator.maximumSize = size
 
-        //let cgImage = try? await generator.image(at: .zero).image
         let cgImage = try? await generator.image(at: time).image
         
         if cgImage == nil {
@@ -84,35 +82,4 @@ class ImageUtility: NSObject {
             return UIImage(cgImage: cgImage!)
         }
     }
-    
-    /*static func imageFromVideo(url: URL, size: CGSize) async -> UIImage? {
-        
-        return await withCheckedContinuation { continuation in
-            getThumbnailImageFromVideoUrl(url: url, size: size) { (thumbNailImage) in
-                continuation.resume(returning: (thumbNailImage))
-            }
-        }
-    }
-    
-    private static func getThumbnailImageFromVideoUrl(url: URL, size: CGSize, completion: @escaping ((_ image: UIImage?) -> Void)) {
-            
-        DispatchQueue.global(qos: .background).async {
-            
-            let asset = AVAsset(url: url)
-            let imageGenerator = AVAssetImageGenerator(asset: asset)
-            let thumnailTime = CMTimeMake(value: 2, timescale: 1)
-
-            imageGenerator.appliesPreferredTrackTransform = true
-            imageGenerator.maximumSize = size
-            
-            do {
-                let cgThumbImage = try imageGenerator.copyCGImage(at: thumnailTime, actualTime: nil)
-                let thumbNailImage = UIImage(cgImage: cgThumbImage)
-                
-                completion(thumbNailImage)
-            } catch {
-                completion(nil)
-            }
-        }
-    }*/
 }

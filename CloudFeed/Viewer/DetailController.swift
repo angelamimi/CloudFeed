@@ -27,8 +27,6 @@ class DetailController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     var store: StoreUtility?
-    
-    //weak var metadata: tableMetadata?
     var metadata: Metadata?
     
     private var details = [MetadataDetail]()
@@ -67,7 +65,6 @@ class DetailController: UIViewController {
             Task { [weak self] in
                 guard let self = self else { return }
                 let detailDict = await self.buildExif(originalSource: originalSource, fileProperties: fileProperties)
-                //self.appendDetails()
                 self.appendData(data: detailDict)
             }
         }

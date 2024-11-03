@@ -24,7 +24,6 @@ import ImageIO
 import KeychainAccess
 import os.log
 
-//@MainActor
 struct StoreUtility: Sendable {
     
     private static let logger = Logger(
@@ -76,7 +75,6 @@ struct StoreUtility: Sendable {
         let defaultCount = UIDevice.current.userInterfaceIdiom == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
         
         guard try! Keychain(service: Global.shared.keyChain).contains("favoriteColumnCount") else {
-            //let defaultCount = Global.shared.layoutColumnCountDefault
             setFavoriteColumnCount(defaultCount)
             return defaultCount
         }
@@ -183,7 +181,6 @@ struct StoreUtility: Sendable {
         return fileNamePath
     }
     
-    //func fileExists(_ metadata: tableMetadata) -> Bool {
     func fileExists(_ metadata: Metadata) -> Bool {
         
         let filePath: String! = getCachePath(metadata.ocId, metadata.fileNameView)
@@ -253,10 +250,6 @@ struct StoreUtility: Sendable {
             try? FileManager.default.removeItem(atPath: paths[0])
         }
     }
-    
-    /*func removeTemporaryDirectory() {
-        try? FileManager.default.removeItem(atPath: NSTemporaryDirectory())
-    }*/
     
     func deleteAllChainStore() {
         let keychain = Keychain(service: Global.shared.keyChain)
