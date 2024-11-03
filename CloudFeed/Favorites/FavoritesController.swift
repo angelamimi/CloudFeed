@@ -58,6 +58,7 @@ class FavoritesController: CollectionController {
     }
 
     override func viewDidAppear(_ animated: Bool) {
+        refreshVisibleItems()
         syncFavorites()
     }
     
@@ -124,12 +125,12 @@ class FavoritesController: CollectionController {
     }
     
     public func clear() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            self.scrollToTop()
-            self.setTitle("")
-            self.viewModel?.resetDataSource()
-        }
+
+        viewModel?.clearCache()
+
+        scrollToTop()
+        viewModel?.resetDataSource()
+        setTitle("")
     }
     
     private func refreshVisibleItems() {

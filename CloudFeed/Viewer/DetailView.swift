@@ -65,7 +65,6 @@ class DetailView: UIView {
     @IBOutlet weak var divider4Label: UILabel!
     @IBOutlet weak var divider5Label: UILabel!
     
-    //var metadata: tableMetadata?
     var metadata: Metadata?
     var url: URL?
     
@@ -144,14 +143,11 @@ class DetailView: UIView {
         typeLabel.text = metadata!.fileExtension.uppercased()
         
         if metadata!.video {
-            //typeView.isHidden = true
             typeImageView.image = UIImage(systemName: "video")
         } else if metadata!.livePhoto {
             typeImageView.image = UIImage(systemName: "livephoto")
-            //typeLabel.text = metadata!.fileExtension.uppercased()
         } else {
             typeImageView.isHidden = true
-            //typeLabel.text = metadata!.fileExtension.uppercased()
         }
     }
     
@@ -343,7 +339,6 @@ class DetailView: UIView {
         }
     }
     
-    //private func populateVideoDetail(metadata: tableMetadata, asset: AVAsset) {
     private func populateVideoDetail(metadata: Metadata, asset: AVAsset) {
         
         Task {
@@ -371,10 +366,8 @@ class DetailView: UIView {
     
     private func populateVideoMetadata(asset: AVAsset) {
         
-        //Task.detached { [weak self] in
         Task { [weak self] in
             
-
             guard let avMetadataItems: [AVMetadataItem]? = try? await asset.load(.metadata) else { return }
             var make: String?
             var model: String?
@@ -394,12 +387,10 @@ class DetailView: UIView {
                 }
             }
             
-            //await self?.populateVideoCameraMakeModel(make: make, model: model)
             self?.populateVideoCameraMakeModel(make: make, model: model)
         }
     }
     
-    //private func populateVideoSize(metadata: tableMetadata, videoTrack: AVAssetTrack) async {
     private func populateVideoSize(metadata: Metadata, videoTrack: AVAssetTrack) async {
         
         var formattedFileSize: String?

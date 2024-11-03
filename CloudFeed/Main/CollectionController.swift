@@ -269,6 +269,7 @@ class CollectionController: UIViewController {
             scrollSpeedChanged(scrolling: true)
             collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: animated)
             scrollSpeedChanged(scrolling: false)
+            setTitle()
         }
     }
     

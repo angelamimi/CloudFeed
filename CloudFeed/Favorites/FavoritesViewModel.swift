@@ -120,6 +120,10 @@ final class FavoritesViewModel: NSObject {
         cacheManager.cancelAll()
     }
     
+    func clearCache() {
+        cacheManager.clear()
+    }
+    
     func resetDataSource() {
         
         guard dataSource != nil else { return }

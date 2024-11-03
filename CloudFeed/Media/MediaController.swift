@@ -54,6 +54,7 @@ class MediaController: CollectionController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        refreshVisibleItems()
         syncMedia()
     }
     
@@ -129,8 +130,8 @@ class MediaController: CollectionController {
         viewModel?.clearCache()
 
         scrollToTop()
-        setTitle("")
         viewModel?.resetDataSource()
+        setTitle("")
     }
     
     private func refreshVisibleItems() {
@@ -301,7 +302,7 @@ extension MediaController: MediaViewController {
     }
     
     func titleTouched() {
-        scrollToTop()
+        scrollToTop(animated: true)
     }
     
     func edit() {}
