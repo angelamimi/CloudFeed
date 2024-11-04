@@ -478,7 +478,6 @@ final class MediaViewModel: NSObject {
                 }
                 
             } else {
-                
                 if !pauseLoading {
                     cacheManager.fetch(metadata: metadata, delegate: self)
                 }
@@ -495,8 +494,13 @@ extension MediaViewModel: DownloadOperationDelegate {
         let displayed = snapshot.itemIdentifiers(inSection: 0)
         
         if displayed.contains(metadata.id) {
-            snapshot.reconfigureItems([metadata.id])
-            dataSource.apply(snapshot)
+            
+            let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
+            
+            if FileManager().fileExists(atPath: path) {
+                snapshot.reconfigureItems([metadata.id])
+                dataSource.apply(snapshot)
+            }
         }
     }
 }

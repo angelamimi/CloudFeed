@@ -66,15 +66,17 @@ class MediaController: CollectionController {
         viewModel.saveColumnCount(columnCount)
     }
     
-    override func beganScrolling() {
-        viewModel.cancelLoads()
-    }
-    
     override func scrollSpeedChanged(scrolling: Bool) {
         viewModel.pauseLoading = scrolling
         
         if scrolling {
             viewModel.cancelLoads()
+        }
+    }
+    
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            refreshVisibleItems()
         }
     }
     

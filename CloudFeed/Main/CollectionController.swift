@@ -40,12 +40,12 @@ class CollectionController: UIViewController {
     var filterType: Global.FilterType = .all
     
     var scrolling = false
-    //var lastOffsetTime: TimeInterval = 0
-    //var lastOffset = CGPoint.zero
+    var lastOffsetTime: TimeInterval = 0
+    var lastOffset = CGPoint.zero
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
-        category: String(describing: FavoritesController.self)
+        category: String(describing: CollectionController.self)
     )
     
     override func viewDidLoad() {
@@ -69,7 +69,6 @@ class CollectionController: UIViewController {
     func refresh() {}
     func enteringForeground() {}
     func columnCountChanged(columnCount: Int) {}
-    func beganScrolling() {}
     func scrollSpeedChanged(scrolling: Bool) {}
     func sizeAtIndexPath(indexPath: IndexPath) -> CGSize { return CGSize() }
     
@@ -340,9 +339,11 @@ class CollectionController: UIViewController {
 
 extension CollectionController : UIScrollViewDelegate {
     
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        beganScrolling()
-        scrollSpeedChanged(scrolling: true)
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            setTitle()
+            scrollSpeedChanged(scrolling: false)
+        }
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
@@ -369,7 +370,7 @@ extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        /*let currentOffset = scrollView.contentOffset
+        let currentOffset = scrollView.contentOffset
         let currentTime = Date.timeIntervalSinceReferenceDate
         let diff = currentTime - lastOffsetTime
         
@@ -379,15 +380,11 @@ extension CollectionController : UIScrollViewDelegate {
             let scrollSpeedNotAbs = Float((distance * 10.0) / 1000.0)
             let scrollSpeed = fabsf(scrollSpeedNotAbs)
 
-            scrollSpeedChanged(scrolling: scrollSpeed > 3)
+            scrollSpeedChanged(scrolling: scrollSpeed > 1)
 
             lastOffset = currentOffset
             lastOffsetTime = currentTime
         }
-
-        if currentOffset.x == 0 && currentOffset.y == 0 {
-            scrollSpeedChanged(scrolling: false)
-        }*/
     }
 }
 

@@ -78,6 +78,12 @@ class FavoritesController: CollectionController {
         }
     }
     
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            refreshVisibleItems()
+        }
+    }
+    
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         super.scrollViewDidEndDecelerating(scrollView)
         
