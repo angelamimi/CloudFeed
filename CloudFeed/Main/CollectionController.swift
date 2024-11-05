@@ -24,7 +24,7 @@ import os.log
 import UIKit
 
 @MainActor
-protocol CollectionDelegate {
+protocol CollectionDelegate: AnyObject {
     func setTitle()
     func loadMore()
     func refresh()
@@ -49,12 +49,11 @@ class CollectionController: UIViewController {
     var filterFromDate: Date?
     var filterToDate: Date?
     var filterType: Global.FilterType = .all
-    
-    var scrolling = false
+
     var lastOffsetTime: TimeInterval = 0
     var lastOffset = CGPoint.zero
     
-    var delegate: CollectionDelegate?
+    weak var delegate: CollectionDelegate?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
