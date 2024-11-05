@@ -23,6 +23,17 @@ import NextcloudKit
 import os.log
 import UIKit
 
+@MainActor
+protocol CollectionDelegate {
+    func setTitle()
+    func loadMore()
+    func refresh()
+    func enteringForeground()
+    func columnCountChanged(columnCount: Int)
+    func scrollSpeedChanged(scrolling: Bool)
+    func sizeAtIndexPath(indexPath: IndexPath) -> CGSize
+}
+
 class CollectionController: UIViewController {
     
     @IBOutlet weak var collectionView: UICollectionView!
@@ -42,6 +53,8 @@ class CollectionController: UIViewController {
     var scrolling = false
     var lastOffsetTime: TimeInterval = 0
     var lastOffset = CGPoint.zero
+    
+    var delegate: CollectionDelegate?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -64,14 +77,6 @@ class CollectionController: UIViewController {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
-    func setTitle() {}
-    func loadMore() {}
-    func refresh() {}
-    func enteringForeground() {}
-    func columnCountChanged(columnCount: Int) {}
-    func scrollSpeedChanged(scrolling: Bool) {}
-    func sizeAtIndexPath(indexPath: IndexPath) -> CGSize { return CGSize() }
-    
     private func initObservers() {
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
             DispatchQueue.main.async { [weak self] in
@@ -83,7 +88,7 @@ class CollectionController: UIViewController {
     private func willEnterForegroundNotification() {
         if isViewLoaded && view.window != nil {
             updateTitleConstraints()
-            enteringForeground()
+            delegate?.enteringForeground()
         }
     }
     
@@ -159,7 +164,7 @@ class CollectionController: UIViewController {
         
         if columns - 1 > 0 {
             layout.numberOfColumns -= 1
-            columnCountChanged(columnCount: layout.numberOfColumns)
+            delegate?.columnCountChanged(columnCount: layout.numberOfColumns)
         }
     }
     
@@ -169,7 +174,7 @@ class CollectionController: UIViewController {
         
         if layout.numberOfColumns < 5 {
             layout.numberOfColumns += 1
-            columnCountChanged(columnCount: layout.numberOfColumns)
+            delegate?.columnCountChanged(columnCount: layout.numberOfColumns)
         }
     }
     
@@ -246,7 +251,7 @@ class CollectionController: UIViewController {
             emptyView.hide()
             
             if !isEditing {
-                setTitle()
+                delegate?.setTitle()
             }
             
             if refresh && (hasFilter() || (collectionCount > 0 && collectionView.indexPathsForVisibleItems.count == 0)) {
@@ -265,15 +270,15 @@ class CollectionController: UIViewController {
         guard collectionView != nil else { return }
         
         if collectionView.numberOfItems(inSection: 0) > 0 {
-            scrollSpeedChanged(scrolling: true)
+            delegate?.scrollSpeedChanged(scrolling: true)
             collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: animated)
-            scrollSpeedChanged(scrolling: false)
-            setTitle()
+            delegate?.scrollSpeedChanged(scrolling: false)
+            delegate?.setTitle()
         }
     }
     
     @objc private func refresh(_ sender: Any) {
-        refresh()
+        delegate?.refresh()
     }
     
     private func updateTitleConstraints() {
@@ -341,20 +346,20 @@ extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
-            setTitle()
-            scrollSpeedChanged(scrolling: false)
+            delegate?.setTitle()
+            delegate?.scrollSpeedChanged(scrolling: false)
         }
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        setTitle()
-        scrollSpeedChanged(scrolling: false)
+        delegate?.setTitle()
+        delegate?.scrollSpeedChanged(scrolling: false)
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
-        setTitle()
-        scrollSpeedChanged(scrolling: false)
+        delegate?.setTitle()
+        delegate?.scrollSpeedChanged(scrolling: false)
         
         guard isEditing == false else { return }
         
@@ -364,7 +369,7 @@ extension CollectionController : UIScrollViewDelegate {
         
         if !(containsFirst && containsLast) && (containsLast && !isLoadingMore() && !isRefreshing()) {
             loadMoreIndicator.startAnimating()
-            loadMore()
+            delegate?.loadMore()
         }
     }
     
@@ -380,7 +385,7 @@ extension CollectionController : UIScrollViewDelegate {
             let scrollSpeedNotAbs = Float((distance * 10.0) / 1000.0)
             let scrollSpeed = fabsf(scrollSpeedNotAbs)
 
-            scrollSpeedChanged(scrolling: scrollSpeed > 1)
+            delegate?.scrollSpeedChanged(scrolling: scrollSpeed > 1)
 
             lastOffset = currentOffset
             lastOffsetTime = currentTime
@@ -391,6 +396,6 @@ extension CollectionController : UIScrollViewDelegate {
 extension CollectionController: CollectionLayoutDelegate {
     
     func collectionView(_ collectionView: UICollectionView, sizeAtIndexPath indexPath: IndexPath) -> CGSize {
-        return sizeAtIndexPath(indexPath: indexPath)
+        return delegate?.sizeAtIndexPath(indexPath: indexPath) ?? CGSize.zero
     }
 }

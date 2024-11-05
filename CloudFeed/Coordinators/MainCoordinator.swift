@@ -91,5 +91,8 @@ extension MainCoordinator {
         mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService, cacheManager: cacheManager)
         favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager)
         settingsViewController.viewModel = SettingsViewModel(delegate: settingsViewController, dataService: dataService)
+        
+        mediaViewController.delegate = mediaViewController
+        favoritesViewController.delegate = favoritesViewController
     }
 }

@@ -58,22 +58,6 @@ class MediaController: CollectionController {
         syncMedia()
     }
     
-    override func enteringForeground() {
-        syncMedia()
-    }
-    
-    override func columnCountChanged(columnCount: Int) {
-        viewModel.saveColumnCount(columnCount)
-    }
-    
-    override func scrollSpeedChanged(scrolling: Bool) {
-        viewModel.pauseLoading = scrolling
-        
-        if scrolling {
-            viewModel.cancelLoads()
-        }
-    }
-    
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
             refreshVisibleItems()
@@ -90,41 +74,6 @@ class MediaController: CollectionController {
         super.scrollViewDidEndScrollingAnimation(scrollView)
 
         refreshVisibleItems()
-    }
-    
-    override func refresh() {
-        
-        if hasFilter() {
-            viewModel.filter(type: filterType, toDate: filterToDate!, fromDate: filterFromDate!)
-        } else {
-            viewModel.metadataSearch(type: filterType, toDate: Date.distantFuture, fromDate: Date.distantPast, offsetDate: nil, offsetName: nil, refresh: true)
-        }
-    }
-    
-    override func loadMore() {
-        viewModel.loadMore(type: filterType, filterFromDate: filterFromDate)
-    }
-    
-    override func setTitle() {
-
-        setTitle("")
-        
-        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-        guard let indexPath = visibleIndexes?.first else { return }
-
-        let metadata = viewModel.getItemAtIndexPath(indexPath)
-        guard metadata != nil else { return }
-        
-        setTitle(getFormattedDate(metadata!.date as Date))
-    }
-    
-    override func sizeAtIndexPath(indexPath: IndexPath) -> CGSize {
-        
-        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else {
-            return CGSize.zero
-        }
-
-        return calculateItemSize(width: metadata.width, height: metadata.height)
     }
     
     public func clear() {
@@ -207,6 +156,60 @@ class MediaController: CollectionController {
         } else {
             displayResults(refresh: refresh, emptyViewTitle: Strings.MediaEmptyTitle, emptyViewDescription: Strings.MediaEmptyDescription)
         }
+    }
+}
+
+extension MediaController: CollectionDelegate {
+    
+    func enteringForeground() {
+        syncMedia()
+    }
+    
+    func columnCountChanged(columnCount: Int) {
+        viewModel.saveColumnCount(columnCount)
+    }
+    
+    func scrollSpeedChanged(scrolling: Bool) {
+        viewModel.pauseLoading = scrolling
+        
+        if scrolling {
+            viewModel.cancelLoads()
+        }
+    }
+    
+    func refresh() {
+        
+        if hasFilter() {
+            viewModel.filter(type: filterType, toDate: filterToDate!, fromDate: filterFromDate!)
+        } else {
+            viewModel.metadataSearch(type: filterType, toDate: Date.distantFuture, fromDate: Date.distantPast, offsetDate: nil, offsetName: nil, refresh: true)
+        }
+    }
+    
+    func loadMore() {
+        viewModel.loadMore(type: filterType, filterFromDate: filterFromDate)
+    }
+    
+    func setTitle() {
+
+        setTitle("")
+        
+        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+        guard let indexPath = visibleIndexes?.first else { return }
+
+        let metadata = viewModel.getItemAtIndexPath(indexPath)
+        guard metadata != nil else { return }
+        
+        setTitle(getFormattedDate(metadata!.date as Date))
+    }
+    
+    func sizeAtIndexPath(indexPath: IndexPath) -> CGSize {
+        
+        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else {
+            return CGSize.zero
+        }
+
+        return calculateItemSize(width: metadata.width, height: metadata.height)
     }
 }
 

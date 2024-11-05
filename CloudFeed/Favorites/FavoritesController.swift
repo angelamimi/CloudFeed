@@ -62,22 +62,6 @@ class FavoritesController: CollectionController {
         syncFavorites()
     }
     
-    override func enteringForeground() {
-        syncFavorites()
-    }
-    
-    override func columnCountChanged(columnCount: Int) {
-        viewModel.saveColumnCount(columnCount)
-    }
-    
-    override func scrollSpeedChanged(scrolling: Bool) {
-        viewModel.pauseLoading = scrolling
-        
-        if scrolling {
-            viewModel.cancelLoads()
-        }
-    }
-    
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
             refreshVisibleItems()
@@ -94,40 +78,6 @@ class FavoritesController: CollectionController {
         super.scrollViewDidEndScrollingAnimation(scrollView)
         
         refreshVisibleItems()
-    }
-    
-    override func refresh() {
-        if hasFilter() {
-            viewModel.filter(type: filterType, from: filterFromDate!, to: filterToDate!)
-        } else {
-            viewModel.fetch(type: filterType, refresh: true)
-        }
-    }
-    
-    override func loadMore() {
-        viewModel.loadMore(type: filterType, filterFromDate: filterFromDate, filterToDate: filterToDate)
-    }
-    
-    override func setTitle() {
-        
-        setTitle("")
-        
-        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-        guard let indexPath = visibleIndexes?.first else { return }
-        
-        let metadata = viewModel.getItemAtIndexPath(indexPath)
-        guard metadata != nil else { return }
-
-        setTitle(getFormattedDate(metadata!.date as Date))
-    }
-    
-    override func sizeAtIndexPath(indexPath: IndexPath) -> CGSize {
-        
-        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else {
-            return CGSize.zero
-        }
-
-        return calculateItemSize(width: metadata.width, height: metadata.height)
     }
     
     public func clear() {
@@ -224,6 +174,59 @@ class FavoritesController: CollectionController {
         } else {
             displayResults(refresh: refresh, emptyViewTitle: Strings.FavEmptyTitle, emptyViewDescription: Strings.FavEmptyDescription)
         }
+    }
+}
+
+extension FavoritesController: CollectionDelegate {
+    
+    func enteringForeground() {
+        syncFavorites()
+    }
+    
+    func columnCountChanged(columnCount: Int) {
+        viewModel.saveColumnCount(columnCount)
+    }
+    
+    func scrollSpeedChanged(scrolling: Bool) {
+        viewModel.pauseLoading = scrolling
+        
+        if scrolling {
+            viewModel.cancelLoads()
+        }
+    }
+    
+    func refresh() {
+        if hasFilter() {
+            viewModel.filter(type: filterType, from: filterFromDate!, to: filterToDate!)
+        } else {
+            viewModel.fetch(type: filterType, refresh: true)
+        }
+    }
+    
+    func loadMore() {
+        viewModel.loadMore(type: filterType, filterFromDate: filterFromDate, filterToDate: filterToDate)
+    }
+    
+    func setTitle() {
+        
+        setTitle("")
+        
+        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+        guard let indexPath = visibleIndexes?.first else { return }
+        
+        let metadata = viewModel.getItemAtIndexPath(indexPath)
+        guard metadata != nil else { return }
+
+        setTitle(getFormattedDate(metadata!.date as Date))
+    }
+    
+    func sizeAtIndexPath(indexPath: IndexPath) -> CGSize {
+        
+        guard let metadata = viewModel.getItemAtIndexPath(indexPath) else {
+            return CGSize.zero
+        }
+
+        return calculateItemSize(width: metadata.width, height: metadata.height)
     }
 }
 
