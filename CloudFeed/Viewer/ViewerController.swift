@@ -1146,7 +1146,6 @@ extension ViewerController: VLCMediaPlayerDelegate {
                 self?.handleVideoPlaying()
                 
                 if self?.mediaPlayer?.isSeekable ?? false {
-                    Self.logger.debug("mediaPlayerTimeChanged() - ALLOW SEEK SEEK BABY")
                     self?.controlsView?.enableSeek()
                 }
             }
