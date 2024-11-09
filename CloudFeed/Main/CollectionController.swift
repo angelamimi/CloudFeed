@@ -361,12 +361,12 @@ extension CollectionController : UIScrollViewDelegate {
         delegate?.scrollSpeedChanged(scrolling: false)
         
         guard isEditing == false else { return }
-        
+        guard !isLoadingMore() && !isRefreshing() else { return }
+
         let count = collectionView.numberOfItems(inSection: 0)
-        let containsFirst = collectionView.indexPathsForVisibleItems.contains(IndexPath(item: 0, section: 0))
         let containsLast = collectionView.indexPathsForVisibleItems.contains(IndexPath(item: count - 1, section: 0))
         
-        if !(containsFirst && containsLast) && (containsLast && !isLoadingMore() && !isRefreshing()) {
+        if containsLast {
             loadMoreIndicator.startAnimating()
             delegate?.loadMore()
         }

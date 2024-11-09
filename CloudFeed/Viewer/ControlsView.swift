@@ -31,6 +31,7 @@ protocol ControlsDelegate: AnyObject {
     func volumeButtonTapped()
     func playButtonTapped()
     func fullScreenButtonTapped()
+    func tapped()
     
     func captionsSelected(subtitleIndex: Int32)
 }
@@ -97,6 +98,17 @@ class ControlsView: UIView {
         setTime(time: "00:00")
         setRemainingTime(time: "00:00")
         setPlaying(playing: false)
+        
+        disableSeek()
+        disableCaptions()
+    }
+    
+    func enableSeek() {
+        setSeekIsEnabled(enabled: true)
+    }
+    
+    func disableSeek() {
+        setSeekIsEnabled(enabled: false)
     }
     
     func enable() {
@@ -105,6 +117,10 @@ class ControlsView: UIView {
     
     func disable() {
         setIsEnabled(enabled: false)
+    }
+    
+    func disableCaptions() {
+        captionsButton.isEnabled = false
     }
     
     func setMediaLength(length: Double) {
@@ -347,6 +363,15 @@ class ControlsView: UIView {
         }
     }
     
+    @objc private func tapped(tapGesture: UITapGestureRecognizer) {
+        
+        let location = tapGesture.location(in: tapGesture.view)
+        
+        if controlsView.frame.contains(location) == false {
+            delegate?.tapped()
+        }
+    }
+    
     private func skip(forward: Bool) {
         
         guard length > 0 else { return }
@@ -411,6 +436,12 @@ class ControlsView: UIView {
         skipForwardButton.isEnabled = enabled
     }
     
+    private func setSeekIsEnabled(enabled: Bool) {
+        timeSlider.isEnabled = enabled
+        skipBackButton.isEnabled = enabled
+        skipForwardButton.isEnabled = enabled
+    }
+    
     private func setVolumeContainerContraints() {
         
         if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
@@ -453,13 +484,19 @@ class ControlsView: UIView {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(timeSliderPan(panGesture:)))
         timeSlider.addGestureRecognizer(panGesture)
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(timeSliderTapped(tapGesture:)))
-        timeSlider.addGestureRecognizer(tap)
+        let tapTime = UITapGestureRecognizer(target: self, action: #selector(timeSliderTapped(tapGesture:)))
+        timeSlider.addGestureRecognizer(tapTime)
         
         let panVolume = UIPanGestureRecognizer(target: self, action: #selector(volumeSliderPan(panGesture:)))
         volumeView.addGestureRecognizer(panVolume)
         
         let tapVolume = UITapGestureRecognizer(target: self, action: #selector(volumeSliderTapped(tapGesture:)))
         volumeView.addGestureRecognizer(tapVolume)
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(tapped(tapGesture:)))
+        self.addGestureRecognizer(tap)
+        
+        disableSeek()
+        disableCaptions()
     }
 }

@@ -214,8 +214,8 @@ class ViewerController: UIViewController {
                 activityIndicator.stopAnimating()
                 
                 if controlsView != nil && controlsView!.isDescendant(of: view) {
-                    controlsView?.reset()
                     controlsView?.enable() //make sure enabled so user can try again
+                    controlsView?.reset()
                 }
                 
                 return
@@ -303,23 +303,19 @@ class ViewerController: UIViewController {
     
     private func addControls() {
         
-        guard controlsView != nil else { return }
+        guard let controls = controlsView else { return }
         
-        if controlsView!.isDescendant(of: view) {
-            //already added. make sure enabled and reset
-            controlsView?.enable()
-            controlsView?.reset()
+        if controls.isDescendant(of: view) {
+            //already added
+            controls.enable()
+            controls.reset()
             return
         }
-        
-        let singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleControlsSingleTap(tapGesture:)))
-        singleTapRecognizer.numberOfTapsRequired = 1
-        
-        controlsView!.addGestureRecognizer(singleTapRecognizer)
-        controlsView!.delegate = self
 
-        view.addSubview(controlsView!)
-        view.bringSubviewToFront(controlsView!)
+        controls.delegate = self
+
+        view.addSubview(controls)
+        view.bringSubviewToFront(controls)
     }
     
     private func reloadImage() {
@@ -642,11 +638,6 @@ class ViewerController: UIViewController {
         }
     }
     
-    @objc private func handleControlsSingleTap(tapGesture: UITapGestureRecognizer) {
-        delegate?.singleTapped()
-        toggleControlsVisibility()
-    }
-    
     @objc private func handleDoubleTap(tapGesture: UITapGestureRecognizer) {
         
         let currentScale : CGFloat = tapGesture.view?.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
@@ -718,6 +709,11 @@ class ViewerController: UIViewController {
                 panRecognizer?.isEnabled = true
             }
         }
+    }
+    
+    private func handleControlsSingleTap() {
+        delegate?.singleTapped()
+        toggleControlsVisibility()
     }
     
     private func handleVideoPlaying() {
@@ -1090,6 +1086,10 @@ extension ViewerController: UIPopoverPresentationControllerDelegate {
 
 extension ViewerController: ControlsDelegate {
     
+    func tapped() {
+        handleControlsSingleTap()
+    }
+    
     func beganTracking() {
         if mediaPlayer?.isPlaying ?? false {
             mediaPlayer?.pause()
@@ -1132,54 +1132,55 @@ extension ViewerController: VLCMediaPlayerDelegate {
     
     nonisolated func mediaPlayerTimeChanged(_ aNotification: Notification) {
         
-        Task { @MainActor in
+        Task { @MainActor [weak self] in
 
-            activityIndicator.stopAnimating()
+            self?.activityIndicator.stopAnimating()
             
-            guard let currentPosition = controlsView?.timeSlider.value else { return }
-            guard let playerPosition = mediaPlayer?.position else { return }
+            guard let currentPosition = self?.controlsView?.timeSlider.value else { return }
+            guard let playerPosition = self?.mediaPlayer?.position else { return }
             
-            //Self.logger.debug("mediaPlayerTimeChanged() - playerPosition: \(playerPosition) currentPosition: \(currentPosition)")
-            
-            controlsView?.setMediaLength(length: mediaPlayer?.media?.length.value?.doubleValue ?? 0)
+            self?.controlsView?.setMediaLength(length: self?.mediaPlayer?.media?.length.value?.doubleValue ?? 0)
             
             if currentPosition == 0 {
                 //playing for the first time
-                handleVideoPlaying()
-                controlsView?.setPosition(position: playerPosition)
-            } else if playerPosition == 0 && currentPosition > 0 {
-                //time slider moved before player has started playing. keep the new position
-                mediaPlayer?.position = currentPosition
-            } else {
-                controlsView?.setPosition(position: playerPosition)
+                self?.handleVideoPlaying()
+                
+                if self?.mediaPlayer?.isSeekable ?? false {
+                    Self.logger.debug("mediaPlayerTimeChanged() - ALLOW SEEK SEEK BABY")
+                    self?.controlsView?.enableSeek()
+                }
             }
             
-            if let time = mediaPlayer?.time.stringValue {
-                controlsView?.setTime(time: time)
+            self?.controlsView?.setPosition(position: playerPosition)
+            
+            if let time = self?.mediaPlayer?.time.stringValue {
+                self?.controlsView?.setTime(time: time)
             }
             
-            if let remainingTime = mediaPlayer?.remainingTime?.stringValue {
-                controlsView?.setRemainingTime(time: remainingTime)
+            if let remainingTime = self?.mediaPlayer?.remainingTime?.stringValue {
+                self?.controlsView?.setRemainingTime(time: remainingTime)
             }
         }
     }
     
     nonisolated func mediaPlayerStateChanged(_ aNotification: Notification) {
         
-        Task { @MainActor in
+        Task { @MainActor [weak self] in
             
-            guard mediaPlayer != nil else { return }
+            guard let player = self?.mediaPlayer else { return }
             
-            let state = mediaPlayer!.state
+            let state = player.state
             
-            if state == .playing || state == .opening || (state == .buffering && mediaPlayer!.isPlaying) {
-                activityIndicator.startAnimating()
+            //Self.logger.debug("mediaPlayerStateChanged() - state: \(VLCMediaPlayerStateToString(state))")
+            
+            if state == .playing || state == .opening || (state == .buffering && player.isPlaying) {
+                self?.activityIndicator.startAnimating()
             } else {
-                activityIndicator.stopAnimating()
+                self?.activityIndicator.stopAnimating()
             }
             
             if state == .stopped {
-                restartMediaPlayer()
+                self?.restartMediaPlayer()
             }
         }
     }
