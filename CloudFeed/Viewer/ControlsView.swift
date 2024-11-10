@@ -56,7 +56,7 @@ class ControlsView: UIView {
     
     weak var delegate: ControlsDelegate?
     
-    private var volume: Int = 100 // 0 for mute, 100 for full volume
+    private var volume: Int = 100 // 0% for mute, 100% for full volume
     private var isPlaying: Bool = false
     private var length: Double = 0
     private let skipSeconds: Int32 = 10
@@ -101,6 +101,10 @@ class ControlsView: UIView {
         
         disableSeek()
         disableCaptions()
+    }
+    
+    func getVolume() -> Float {
+        return volumeSlider.value
     }
     
     func enableSeek() {

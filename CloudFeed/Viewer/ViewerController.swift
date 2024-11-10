@@ -718,6 +718,14 @@ class ViewerController: UIViewController {
     
     private func handleVideoPlaying() {
         
+        if mediaPlayer?.isSeekable ?? false {
+            controlsView?.enableSeek()
+        }
+        
+        if let volume = controlsView?.getVolume() {
+            mediaPlayer?.audio?.volume = Int32(volume)
+        }
+        
         controlsView?.initCaptionsMenu(currentSubtitleIndex: mediaPlayer!.currentVideoSubTitleIndex,
                                        subtitleIndexes: mediaPlayer!.videoSubTitlesIndexes,
                                        subtitleNames: mediaPlayer!.videoSubTitlesNames)
@@ -1144,10 +1152,6 @@ extension ViewerController: VLCMediaPlayerDelegate {
             if currentPosition == 0 {
                 //playing for the first time
                 self?.handleVideoPlaying()
-                
-                if self?.mediaPlayer?.isSeekable ?? false {
-                    self?.controlsView?.enableSeek()
-                }
             }
             
             self?.controlsView?.setPosition(position: playerPosition)
