@@ -45,5 +45,14 @@ Parts Copyright (c) Tipbit Inc</string>
 		<key>license</key>
 		<string>GNU General Public License v3.0</string>
 	</dict>
+	<dict>
+		<key>title</key>
+		<string>VLCKit</string>
+		<key>link</key>
+		<string>https://code.videolan.org/videolan/VLCKit</string>
+		<key>license</key>
+		<string>GNU Lesser Generic Public License 2.1
+Copyright (c) VideoLAN</string>
+	</dict>
 </array>
 </plist>
