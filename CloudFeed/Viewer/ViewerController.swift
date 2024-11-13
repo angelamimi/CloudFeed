@@ -928,7 +928,7 @@ class ViewerController: UIViewController {
     
         if animate {
             
-            UIView.transition(with: imageView, duration: 0.2, options: .transitionCrossDissolve, animations: {
+            UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
                 self.updateContentMode(contentMode: .scaleAspectFill)
             })
             
@@ -1004,11 +1004,11 @@ class ViewerController: UIViewController {
         
         if animate {
             
-            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
+            UIView.animate(withDuration: 0.3, delay: 0.0, options: .curveLinear, animations: {
                 self.updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset)
             })
             
-            UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
+            UIView.transition(with: imageView, duration: 0.2, options: .transitionCrossDissolve, animations: {
                 self.updateContentMode(contentMode: .scaleAspectFill)
             })
             
