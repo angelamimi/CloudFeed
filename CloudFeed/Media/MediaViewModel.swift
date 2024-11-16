@@ -107,6 +107,10 @@ final class MediaViewModel: NSObject {
         return items
     }
     
+    func getIndexPathForMetadata(metadata: Metadata) -> IndexPath? {
+        return dataSource.indexPath(for: metadata.id)
+    }
+    
     func getItemAtIndexPath(_ indexPath: IndexPath) -> Metadata? {
 
         if let id = dataSource.itemIdentifier(for: indexPath) {

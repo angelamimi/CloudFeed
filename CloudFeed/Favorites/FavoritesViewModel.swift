@@ -124,6 +124,10 @@ final class FavoritesViewModel: NSObject {
         cacheManager.clear()
     }
     
+    func getIndexPathForMetadata(metadata: Metadata) -> IndexPath? {
+        return dataSource.indexPath(for: metadata.id)
+    }
+    
     func resetDataSource() {
         
         guard dataSource != nil else { return }

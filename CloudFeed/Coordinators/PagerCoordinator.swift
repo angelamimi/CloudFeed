@@ -22,14 +22,21 @@
 import UIKit
 
 @MainActor
+protocol PagerDelegate: AnyObject {
+    func pagingEndedWith(metadata: Metadata)
+}
+
+@MainActor
 final class PagerCoordinator {
     
     private let navigationController: UINavigationController
     private let dataService: DataService
+    private let delegate: PagerDelegate
     
-    init(navigationController: UINavigationController, dataService: DataService) {
+    init(navigationController: UINavigationController, dataService: DataService, delegate: PagerDelegate) {
         self.navigationController = navigationController
         self.dataService = dataService
+        self.delegate = delegate
     }
     
     func start(currentIndex: Int, metadatas: [Metadata]) {
@@ -45,6 +52,10 @@ final class PagerCoordinator {
         viewerPager.coordinator = self
         
         navigationController.pushViewController(viewerPager, animated: true)
+    }
+    
+    func pagingEndedWith(metadata: Metadata) {
+        delegate.pagingEndedWith(metadata: metadata)
     }
     
     func showFavoriteUpdateFailedError() {

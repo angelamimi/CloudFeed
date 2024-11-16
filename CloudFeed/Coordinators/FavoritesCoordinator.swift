@@ -42,7 +42,7 @@ extension FavoritesCoordinator {
     }
     
     func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
-        let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService)
+        let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService, delegate: self)
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }
     
@@ -100,5 +100,16 @@ extension FavoritesCoordinator {
         }))
         
         navigationController.present(alertController, animated: true)
+    }
+}
+
+extension FavoritesCoordinator: PagerDelegate {
+    
+    func pagingEndedWith(metadata: Metadata) {
+        
+        if navigationController.children[0] is FavoritesController {
+            let favoritesController = navigationController.children[0] as! FavoritesController
+            favoritesController.scrollToMetadata(metadata: metadata)
+        }
     }
 }

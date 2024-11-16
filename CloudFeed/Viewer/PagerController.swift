@@ -24,7 +24,7 @@ import NextcloudKit
 import MediaPlayer
 import os.log
 
-class PagerController: UIViewController, MediaViewController {
+class PagerController: UIViewController {
     
     var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
@@ -34,11 +34,11 @@ class PagerController: UIViewController, MediaViewController {
     private weak var titleView: TitleView?
     
     weak var pageViewController: UIPageViewController? {
-        return self.children[0] as? UIPageViewController
+        return children[0] as? UIPageViewController
     }
     
     weak var currentViewController: ViewerController? {
-        return self.pageViewController?.viewControllers![0] as? ViewerController
+        return pageViewController?.viewControllers![0] as? ViewerController
     }
     
     private static let logger = Logger(
@@ -73,7 +73,7 @@ class PagerController: UIViewController, MediaViewController {
         pageViewController?.setViewControllers([viewerMedia], direction: .forward, animated: true, completion: nil)
         
         titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
-        self.view.addSubview(titleView!)
+        view.addSubview(titleView!)
         
         titleView?.mediaView = self
         titleView?.title.text = getFileName(metadata)
@@ -81,7 +81,7 @@ class PagerController: UIViewController, MediaViewController {
         
         setFavoriteMenu(isFavorite: metadata.favorite)
         
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.setNavigationBarHidden(true, animated: false)
         
         initObservers()
         initConstraints()
@@ -92,7 +92,7 @@ class PagerController: UIViewController, MediaViewController {
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        self.titleView?.menuButton.menu = nil
+        titleView?.menuButton.menu = nil
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
@@ -108,19 +108,6 @@ class PagerController: UIViewController, MediaViewController {
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
-    }
-    
-    func updateMediaType(_ type: Global.FilterType) {}
-    func updateLayout(_ layout: String) {}
-    func zoomInGrid() {}
-    func zoomOutGrid() {}
-    func edit() {}
-    func endEdit() {}
-    func titleTouched() {}
-    func filter() {}
-    
-    func cancel() {        
-        navigationController?.popViewController(animated: true)
     }
     
     func isTitleVisible() -> Bool {
@@ -317,5 +304,25 @@ extension PagerController: UIGestureRecognizerDelegate {
             currentViewController.liveLongPressEnded()
         }
     }
+}
+
+extension PagerController: MediaViewController {
+    
+    func cancel() {
+        navigationController?.popViewController(animated: true)
+        
+        if let metadata = self.currentViewController?.metadata {
+            coordinator.pagingEndedWith(metadata: metadata)
+        }
+    }
+    
+    func updateMediaType(_ type: Global.FilterType) {}
+    func updateLayout(_ layout: String) {}
+    func zoomInGrid() {}
+    func zoomOutGrid() {}
+    func edit() {}
+    func endEdit() {}
+    func titleTouched() {}
+    func filter() {}
 }
 

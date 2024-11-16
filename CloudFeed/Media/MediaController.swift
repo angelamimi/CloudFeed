@@ -85,6 +85,12 @@ class MediaController: CollectionController {
         setTitle("")
     }
     
+    public func scrollToMetadata(metadata: Metadata) {
+        if let indexPath = viewModel.getIndexPathForMetadata(metadata: metadata) {
+            collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+        }
+    }
+    
     private func refreshVisibleItems() {
         let visibleIndexPaths = collectionView.indexPathsForVisibleItems
         if visibleIndexPaths.count > 0 {

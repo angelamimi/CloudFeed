@@ -42,7 +42,7 @@ extension MediaCoordinator {
     }
     
     func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
-        let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService)
+        let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService, delegate: self)
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }
     
@@ -100,5 +100,16 @@ extension MediaCoordinator {
         }))
         
         navigationController.present(alertController, animated: true)
+    }
+}
+
+extension MediaCoordinator: PagerDelegate {
+    
+    func pagingEndedWith(metadata: Metadata) {
+        
+        if navigationController.children[0] is MediaController {
+            let mediaController = navigationController.children[0] as! MediaController
+            mediaController.scrollToMetadata(metadata: metadata)
+        }
     }
 }
