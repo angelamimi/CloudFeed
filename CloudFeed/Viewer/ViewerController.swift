@@ -236,7 +236,7 @@ class ViewerController: UIViewController {
     private func showFrame(url: URL) async {
 
         if let image = await viewModel.downloadVideoFrame(metadata: metadata, url: url, size: imageView.frame.size) {
-            imageView.image = image
+            setImage(image: image)
         }
     }
     
@@ -343,7 +343,7 @@ class ViewerController: UIViewController {
             if image != nil && self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
                 
                 DispatchQueue.main.async { [weak self] in
-                    self?.imageView.image = image
+                    self?.setImage(image: image!)
                     self?.handleImageLoaded(metadata: metadata)
                 }
             }
@@ -545,7 +545,20 @@ class ViewerController: UIViewController {
         guard let image = viewModel.getVideoFrame(metadata: metadata) else { return }
 
         DispatchQueue.main.async { [weak self] in
-            self?.imageView.image = image
+            self?.setImage(image: image)
+        }
+    }
+    
+    private func setImage(image: UIImage) {
+        
+        imageView.image = image
+        
+        if UIDevice.current.userInterfaceIdiom != .pad && detailsVisible() {
+            if imageViewRatioWithinThreshold() {
+                updateContentMode(contentMode: .scaleAspectFill)
+            } else {
+                updateContentMode(contentMode: .scaleAspectFit)
+            }
         }
     }
     
@@ -928,16 +941,20 @@ class ViewerController: UIViewController {
     
         if animate {
             
-            UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                self.updateContentMode(contentMode: .scaleAspectFill)
-            })
-            
+            if imageViewRatioWithinThreshold() {
+                UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
+                    self.updateContentMode(contentMode: .scaleAspectFill)
+                })
+            }
+
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
                 self.updateVerticalConstraintsShow(heightOffset: heightOffset)
             })
 
         } else {
-            updateContentMode(contentMode: .scaleAspectFill)
+            if imageViewRatioWithinThreshold() {
+                updateContentMode(contentMode: .scaleAspectFill)
+            }
             updateVerticalConstraintsShow(heightOffset: heightOffset)
         }
     }
@@ -950,13 +967,18 @@ class ViewerController: UIViewController {
                 self.updateVerticalConstraintsHide()
             })
             
-            UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                self.updateContentMode(contentMode: .scaleAspectFit)
-            })
+            if imageView.contentMode != .scaleAspectFit {
+                UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
+                    self.updateContentMode(contentMode: .scaleAspectFit)
+                })
+            }
             
         } else {
             updateVerticalConstraintsHide()
-            updateContentMode(contentMode: .scaleAspectFit)
+            
+            if imageView.contentMode != .scaleAspectFit {
+                updateContentMode(contentMode: .scaleAspectFit)
+            }
         }
     }
     
@@ -1008,13 +1030,18 @@ class ViewerController: UIViewController {
                 self.updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset)
             })
             
-            UIView.transition(with: imageView, duration: 0.2, options: .transitionCrossDissolve, animations: {
-                self.updateContentMode(contentMode: .scaleAspectFill)
-            })
+            if imageViewRatioWithinThreshold() {
+                UIView.transition(with: imageView, duration: 0.2, options: .transitionCrossDissolve, animations: {
+                    self.updateContentMode(contentMode: .scaleAspectFill)
+                })
+            }
             
         } else {
             updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset)
-            updateContentMode(contentMode: .scaleAspectFill)
+            
+            if imageViewRatioWithinThreshold() {
+                updateContentMode(contentMode: .scaleAspectFill)
+            }
         }
     }
     
@@ -1022,16 +1049,22 @@ class ViewerController: UIViewController {
         
         if animate {
             
-            UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                self.updateContentMode(contentMode: .scaleAspectFit)
-            })
+            if imageView.contentMode != .scaleAspectFit {
+                UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
+                    self.updateContentMode(contentMode: .scaleAspectFit)
+                })
+            }
             
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
                 self.updateHorizontalConstraintsHide()
             })
             
         } else {
-            updateContentMode(contentMode: .scaleAspectFit)
+            
+            if imageView.contentMode != .scaleAspectFit {
+                updateContentMode(contentMode: .scaleAspectFit)
+            }
+            
             updateHorizontalConstraintsHide()
         }
     }
@@ -1066,6 +1099,24 @@ class ViewerController: UIViewController {
     private func updateContentMode(contentMode: UIView.ContentMode) {
         imageView.contentMode = contentMode
         videoView?.contentMode = contentMode
+    }
+    
+    private func imageViewRatioWithinThreshold() -> Bool {
+        
+        guard let size = imageView.image?.size else { return true }
+        
+        let width = Double(size.width)
+        let height = Double(size.height)
+        
+        guard width > 0 && height > 0 else { return true }
+        
+        let ratio = width < height ? width / height : height / width
+        
+        if ratio <= 0.25 {
+            return false
+        } else {
+            return true
+        }
     }
 }
 
