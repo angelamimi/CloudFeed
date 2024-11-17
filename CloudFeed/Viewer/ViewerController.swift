@@ -249,15 +249,15 @@ class ViewerController: UIViewController {
             mediaPlayer = VLCMediaPlayer()
             
             let media = VLCMedia(url: url)
-            let logger = VLCConsoleLogger()
+            //let logger = VLCConsoleLogger()
             
-            logger.level = .error
-            logger.formatter.contextFlags = .levelContextModule
+            //logger.level = .error
+            //logger.formatter.contextFlags = .levelContextModule
             
             dialogProvider = VLCDialogProvider(library: VLCLibrary.shared(), customUI: true)
             dialogProvider?.customRenderer = self
             
-            mediaPlayer!.libraryInstance.loggers = [logger]
+            //mediaPlayer!.libraryInstance.loggers = [logger]
             mediaPlayer!.media = media
             mediaPlayer!.drawable = imageView
             mediaPlayer!.delegate = self
