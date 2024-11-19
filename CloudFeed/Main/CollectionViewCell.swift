@@ -109,9 +109,6 @@ class CollectionViewCell: UICollectionViewCell {
         imageFavorite.image = nil
         
         imageView.contentMode = .scaleAspectFill
-        imageView.backgroundColor = .clear
-        
-        backgroundColor = .secondarySystemBackground
 
         imageFavorite.isHidden = true
     }

@@ -84,17 +84,17 @@ class DownloadOperation: AsyncOperation, @unchecked Sendable {
         if metadata?.video ?? false {
             await dataService?.downloadVideoPreview(metadata: metadata)
         } else if metadata?.svg ?? false {
-            await loadSVG(metadata: metadata)
+            await downloadSVG(metadata: metadata)
         } else if metadata != nil {
             await dataService?.downloadPreview(metadata: metadata)
         }
     }
     
-    private func loadSVG(metadata: Metadata?) async {
+    private func downloadSVG(metadata: Metadata?) async {
         
         guard dataService != nil && metadata != nil else { return }
 
-        if !dataService!.store.fileExists(metadata!) && metadata!.image {
+        if !dataService!.store.fileExists(metadata!) {
             
             await dataService!.download(metadata: metadata!, selector: "")
             

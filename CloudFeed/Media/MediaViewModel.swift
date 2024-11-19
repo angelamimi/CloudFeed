@@ -483,7 +483,7 @@ final class MediaViewModel: NSObject {
                 
             } else {
                 if !pauseLoading {
-                    cacheManager.fetch(metadata: metadata, delegate: self)
+                    cacheManager.download(metadata: metadata, delegate: self)
                 }
             }
         }

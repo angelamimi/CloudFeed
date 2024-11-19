@@ -60,7 +60,7 @@ final class CacheManager {
         return cache.object(forKey: ocId + etag as NSString)
     }
     
-    func fetch(metadata: Metadata, delegate: DownloadOperationDelegate) {
+    func download(metadata: Metadata, delegate: DownloadOperationDelegate) {
         let operation = DownloadOperation(metadata, dataService: dataService, delegate: delegate)
         queue.addOperation(operation)
     }
