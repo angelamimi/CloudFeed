@@ -217,7 +217,7 @@ extension SettingsController: SettingsDelegate {
     
     func avatarLoaded(image: UIImage?) {
         self.profileImage = image
-        
+
         DispatchQueue.main.async { [weak self] in
             self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .automatic)
         }

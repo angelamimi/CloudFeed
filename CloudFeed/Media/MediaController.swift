@@ -56,6 +56,8 @@ class MediaController: CollectionController {
     override func viewDidAppear(_ animated: Bool) {
         refreshVisibleItems()
         syncMedia()
+        
+        viewModel.cleanupFileCache()
     }
     
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -87,7 +89,10 @@ class MediaController: CollectionController {
     
     public func scrollToMetadata(metadata: Metadata) {
         if let indexPath = viewModel.getIndexPathForMetadata(metadata: metadata) {
-            collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+            //only scroll to item if not visible already
+            if collectionView.indexPathsForVisibleItems.contains(indexPath) == false {
+                collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+            }
         }
     }
     

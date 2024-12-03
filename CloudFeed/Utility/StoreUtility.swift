@@ -193,6 +193,69 @@ struct StoreUtility: Sendable {
         return false
     }
     
+    func cleanupFileCache() {
+        
+        guard let cachePath = getFileCachePath(), let fileCacheDirectory = URL(string: cachePath) else { return }
+        let maxFileCache = 1024 * 1024 * Global.shared.fileCacheLimit
+        let deleteLimit = maxFileCache / 2 //delete half the cache
+        var totalSize = FileSystemUtility.getDirectorySize(directory: cachePath)
+        
+        guard totalSize > maxFileCache else {
+            return
+        }
+        
+        //Self.logger.debug("cleanupFileCache() - totalSize: \(totalSize) maxFileCache: \(maxFileCache) file cache path: \(cachePath) ")
+        
+        let fileManager = FileManager.default
+        let keys = [URLResourceKey.contentAccessDateKey, URLResourceKey.totalFileAllocatedSizeKey]
+        
+        guard let enumerator = fileManager.enumerator(at: fileCacheDirectory, includingPropertiesForKeys: keys, options: .skipsHiddenFiles) else { return }
+        guard let urls = enumerator.allObjects as? [URL] else { return }
+        
+        let sorted = urls.sorted(by: { url1, url2 in
+            let date1 = (try? url1.resourceValues(forKeys: [.contentAccessDateKey]).contentAccessDate) ?? Date.distantPast
+            let date2 = (try? url2.resourceValues(forKeys: [.contentAccessDateKey]).contentAccessDate) ?? Date.distantPast
+            
+            return date1.compare(date2) == .orderedAscending
+        })
+        
+        for url in sorted {
+            guard let resourceValues = try? url.resourceValues(forKeys: [.contentAccessDateKey, .totalFileAllocatedSizeKey]) else { continue }
+            //guard let contentAccessDate = resourceValues.contentAccessDate else { continue }
+            guard let size = resourceValues.totalFileAllocatedSize else { continue }
+            
+            //remove file if over the limit
+            if totalSize > deleteLimit {
+                do {
+                    //Self.logger.debug("cleanupFileCache() - \(contentAccessDate.formatted(date: .abbreviated, time: .standard)) \(size)")
+                    try fileManager.removeItem(at: url)
+                    removeParentDirectoryIfEmpty(fileDirectory: url)
+                } catch let error as NSError {
+                    Self.logger.error("Failed to remove from cache with error: \(error.localizedDescription)")
+                }
+                totalSize -= Int64(size)
+            } else {
+                break
+            }
+        }
+    }
+    
+    private func removeParentDirectoryIfEmpty(fileDirectory: URL) {
+        
+        let directory = fileDirectory.deletingLastPathComponent()
+        guard directory.absoluteString != getFileCachePath() else { return }
+        let fileManager = FileManager.default
+        
+        do {
+            let contents = try fileManager.contentsOfDirectory(at: directory, includingPropertiesForKeys: [], options: .skipsHiddenFiles)
+            if contents.isEmpty {
+                try? fileManager.removeItem(at: directory)
+            }
+        } catch let error {
+            Self.logger.error("Cleanup of empty cache directory failed with error: \(error.localizedDescription)")
+        }
+    }
+    
     func clearCache() {
         
         let fileManager = FileManager.default

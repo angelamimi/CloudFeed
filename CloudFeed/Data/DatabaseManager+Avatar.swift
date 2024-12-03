@@ -75,31 +75,4 @@ extension DatabaseManager {
         
         return tableAvatar.init(value: result)
     }
-    
-    func getAvatarImage(fileName: String) -> UIImage? {
-        
-        let cachePath = store.getUserDirectory() + "/" + fileName
-        
-        do {
-            let realm = try Realm()
-            realm.refresh()
-            
-            let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first
-            if result == nil {
-                //FileSystemUtility.shared.deleteFile(filePath: cachePath)
-                FileSystemUtility.deleteFile(filePath: cachePath)
-                return nil
-            } else if result?.loaded == false {
-                return nil
-            }
-            
-            return UIImage(contentsOfFile: cachePath)
-            
-        } catch	let error as NSError {
-            Self.logger.error("Failed to load avatar with error \(error.localizedDescription)")
-        }
-        
-        FileSystemUtility.deleteFile(filePath: cachePath)
-        return nil
-    }
 }

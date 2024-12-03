@@ -41,10 +41,10 @@ class ProfileCell: UITableViewCell {
     }
 
     func updateProfileImage(_ image: UIImage?) {
-        
+
         if image == nil {
             let configuration = UIImage.SymbolConfiguration(pointSize: 40, weight: .ultraLight)
-            profileImageView.image = UIImage(systemName: "person.crop.circle.fill", withConfiguration: configuration)?.withTintColor(.secondarySystemBackground, renderingMode: .alwaysOriginal)
+            profileImageView.image = UIImage(systemName: "person.crop.circle.fill", withConfiguration: configuration)?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
         } else {
             profileImageView.image = image
         }

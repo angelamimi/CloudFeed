@@ -29,17 +29,11 @@ import RealmSwift
 import UIKit
 
 class DatabaseManager {
-
-    let store: StoreUtility
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DatabaseManager.self)
     )
-    
-    init(store: StoreUtility) {
-        self.store = store
-    }
     
     func setup() -> Bool {
         

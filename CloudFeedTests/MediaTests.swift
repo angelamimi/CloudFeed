@@ -73,9 +73,7 @@ class MediaTests {
     
     private func setup() throws {
         
-        let store = StoreUtility()
-        
-        databaseManager = MockDatabaseManager(store: store)
+        databaseManager = MockDatabaseManager()
         #expect(databaseManager != nil)
         
         let setupResult = databaseManager!.setup()

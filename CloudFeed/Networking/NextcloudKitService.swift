@@ -122,7 +122,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     }
     
     func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int, avatarSizeRounded: Int) async -> String? {
-        
+
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in

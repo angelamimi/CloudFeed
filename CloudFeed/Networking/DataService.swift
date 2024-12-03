@@ -126,10 +126,6 @@ final class DataService: NSObject {
     
     // MARK: -
     // MARK: Avatar
-    func getAvatarImage(fileName: String) -> UIImage? {
-        return databaseManager.getAvatarImage(fileName: fileName)
-    }
-    
     func downloadAvatar(fileName: String, account: tableAccount) async {
         
         let fileNameLocalPath = store.getUserDirectory() + "/" + fileName

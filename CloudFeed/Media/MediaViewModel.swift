@@ -81,6 +81,12 @@ final class MediaViewModel: NSObject {
         cacheManager.clear()
     }
     
+    func cleanupFileCache() {
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            self?.dataService.store.cleanupFileCache()
+        }
+    }
+    
     func resetDataSource() {
         var snapshot = dataSource.snapshot()
         snapshot.deleteAllItems()

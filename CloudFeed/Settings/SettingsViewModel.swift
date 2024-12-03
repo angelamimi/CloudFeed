@@ -126,8 +126,6 @@ final class SettingsViewModel: NSObject {
 
         if let localImage = UIImage(contentsOfFile: localFilePath) {
             return localImage
-        } else if let loadedAvatar = dataService.getAvatarImage(fileName: fileName) {
-            return loadedAvatar
         } else {
             return nil
         }

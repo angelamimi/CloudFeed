@@ -48,6 +48,11 @@ final class Global: Sendable {
     let databaseSchemaVersion: UInt64 = 1
     
     
+    // MARK: - Cache
+    //
+    let fileCacheLimit: UInt = 500 //megabytes
+    
+    
     // MARK: - Capabilities
     //
     let capabilitiesVersionMajor: Array = ["ocs", "data", "version", "major"]

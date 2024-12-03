@@ -60,6 +60,8 @@ class FavoritesController: CollectionController {
     override func viewDidAppear(_ animated: Bool) {
         refreshVisibleItems()
         syncFavorites()
+        
+        viewModel.cleanupFileCache()
     }
     
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -91,7 +93,10 @@ class FavoritesController: CollectionController {
     
     public func scrollToMetadata(metadata: Metadata) {
         if let indexPath = viewModel.getIndexPathForMetadata(metadata: metadata) {
-            collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+            //only scroll to item if not visible already
+            if collectionView.indexPathsForVisibleItems.contains(indexPath) == false {
+                collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+            }
         }
     }
     

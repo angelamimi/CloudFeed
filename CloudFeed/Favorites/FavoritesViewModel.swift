@@ -124,6 +124,12 @@ final class FavoritesViewModel: NSObject {
         cacheManager.clear()
     }
     
+    func cleanupFileCache() {
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            self?.dataService.store.cleanupFileCache()
+        }
+    }
+    
     func getIndexPathForMetadata(metadata: Metadata) -> IndexPath? {
         return dataSource.indexPath(for: metadata.id)
     }
