@@ -44,6 +44,7 @@ class ViewerController: UIViewController {
     @IBOutlet weak var statusContainerView: UIView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
+    @IBOutlet weak var imageViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewTrailingConstraint: NSLayoutConstraint!
     @IBOutlet weak var detailViewTopConstraint: NSLayoutConstraint!
@@ -97,6 +98,8 @@ class ViewerController: UIViewController {
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             detailView.removeFromSuperview()
+        } else {
+            detailView.delegate = self
         }
     }
     
@@ -114,7 +117,7 @@ class ViewerController: UIViewController {
         }
         
         if !detailsVisible && currentStatus == .details {
-            showDetails(animate: false)
+            showDetails(animate: false, reset: true)
         }
         
         if currentStatus != .title && controlsView != nil && controlsView!.isHidden == false {
@@ -146,7 +149,7 @@ class ViewerController: UIViewController {
             size = view.frame.size
             
             if currentStatus() == .details {
-                showDetails(animate: false)
+                showDetails(animate: false, reset: true)
             } else {
                 imageViewHeightConstraint?.constant = view.frame.height
                 videoViewHeightConstraint?.constant = view.frame.height
@@ -396,14 +399,6 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func getViewCompareCount() -> Int {
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            return 4 //titleView, live photo container, activity indicator, and detail view
-        } else {
-            return 3 //titleView, live photo container, activity indicator
-        }
-    }
-    
     private func setupLiveVideoController(url: URL, autoPlay: Bool) {
         
         let player = AVPlayer(url: url)
@@ -418,7 +413,7 @@ class ViewerController: UIViewController {
             addChild(avpController)
         }
         
-        if self.view.subviews.count == getViewCompareCount() && videoView != nil {
+        if videoView != nil && !videoView!.isDescendant(of: view) {
             
             let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleSingleVideoTap(tapGesture:)))
                 
@@ -563,7 +558,7 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
-        
+
         if swipeGesture.direction == .up {
             
             if !detailsVisible() {
@@ -571,15 +566,29 @@ class ViewerController: UIViewController {
                 if metadata.video {
                     videoSetupForDetails()
                 }
-                
-                showDetails(animate: true)
             }
+            
+            showDetails(animate: true, reset: false)
+            
         } else {
+            
             if metadata.video && UIDevice.current.userInterfaceIdiom == .pad {
                 //skip hiding details. see handlePresentationControllerDidDismiss
             } else {
-                hideDetails(animate: true, hideStatus: false, status: .title)
+                if detailsScrolled() {
+                    scrollDownDetails()
+                } else {
+                    hideDetails(animate: true, hideStatus: false, status: .title)
+                }
             }
+        }
+    }
+    
+    private func detailsScrolled() -> Bool {
+        if isPortrait() {
+            return imageViewHeightConstraint.constant < view.frame.height / 2
+        } else {
+            return detailViewTopConstraint.constant > view.frame.height
         }
     }
     
@@ -821,6 +830,7 @@ class ViewerController: UIViewController {
         
         let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
         
+        controller.delegate = self
         controller.url = getUrl()
         controller.metadata = metadata
         controller.modalPresentationStyle = .popover
@@ -843,7 +853,76 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func showDetails(animate: Bool) {
+    private func switchToAllDetails() {
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            
+            guard presentedViewController != nil else { return }
+            
+            let preferredHeight = presentedViewController?.preferredContentSize.height
+            
+            presentedViewController?.dismiss(animated: true, completion: {
+                DispatchQueue.main.async { [weak self] in
+                    self?.presentAllDetailsPopover(preferredHeight: preferredHeight)
+                }
+            })
+        } else {
+            presentAllDetailsSheet()
+        }
+    }
+    
+    private func initDetailController() -> DetailController {
+        
+        let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailController") as! DetailController
+        let mediaPath = viewModel.getFilePath(metadata)
+        
+        controller.metadata = metadata
+        controller.mediaPath = mediaPath
+        
+        return controller
+    }
+    
+    private func presentAllDetailsSheet() {
+        
+        let controller = initDetailController()
+        let height = view.frame.height - imageViewHeightConstraint.constant
+        
+        if let sheet = controller.sheetPresentationController {
+            sheet.detents = [.custom { _ in
+                return height
+               }, .large()]
+            sheet.preferredCornerRadius = .zero
+        }
+        
+        present(controller, animated: true)
+    }
+    
+    private func presentAllDetailsPopover(preferredHeight: CGFloat?) {
+        
+        let controller = initDetailController()
+        let height = preferredHeight == nil ? 500 : preferredHeight!
+        
+        controller.modalPresentationStyle = .popover
+        controller.preferredContentSize = CGSize(width: 500, height: height)
+        
+        if let popover = controller.popoverPresentationController {
+
+            popover.delegate = self
+            popover.sourceView = imageView
+            popover.sourceRect = CGRect(x: view.frame.width, y: 80, width: 100, height: 100)
+            popover.permittedArrowDirections = []
+            
+            let sheet = popover.adaptiveSheetPresentationController
+            sheet.largestUndimmedDetentIdentifier = .medium
+            sheet.detents = [.medium()]
+        }
+        
+        if presentedViewController == nil {
+            present(controller, animated: true)
+        }
+    }
+    
+    private func showDetails(animate: Bool, reset: Bool) {
 
         delegate?.updateStatus(status: .details)
         
@@ -881,9 +960,9 @@ class ViewerController: UIViewController {
             view.bringSubviewToFront(detailView)
             
             if isPortrait() {
-                showVerticalDetails(animate: animate)
+                showVerticalDetails(animate: animate, reset: reset)
             } else {
-                showHorizontalDetails(animate: animate)
+                showHorizontalDetails(animate: animate, reset: reset)
             }
             
             detailView?.metadata = metadata
@@ -895,6 +974,18 @@ class ViewerController: UIViewController {
             }
             
             detailView?.populateDetails()
+        }
+    }
+    
+    private func scrollDownDetails() {
+        
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            
+            if isPortrait() {
+                scrollDownVerticalDetails()
+            } else {
+                scrollDownHorizontalDetails()
+            }
         }
     }
     
@@ -918,21 +1009,28 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func showVerticalDetails(animate: Bool) {
+    private func showVerticalDetails(animate: Bool, reset: Bool) {
         
         let heightOffset: CGFloat
-        let height = view.frame.size.height
+        let height = view.frame.height
         let halfHeight = height / 2
         
         if detailView.frame.origin.y < height {
-            
+
             //details visible. snap to half or full detail
-            if Int(detailView.frame.origin.y) > Int(halfHeight) {
+            if Int(detailView.frame.origin.y) > Int(halfHeight) || reset == true {
                 //not up to half height. snap to half height
                 heightOffset = halfHeight
             } else {
-                //more than half height. show full details\
-                heightOffset = min(view.frame.height - detailView.frame.height, halfHeight)
+                
+                let detailViewHeight = detailView.height()
+                
+                if detailViewHeight < halfHeight {
+                    heightOffset = halfHeight
+                } else {
+                    //more than half height. show full details\
+                    heightOffset = min(height - detailViewHeight, halfHeight)
+                }
             }
         } else {
             //details not visible yet. snap top of detail visible
@@ -957,6 +1055,15 @@ class ViewerController: UIViewController {
             }
             updateVerticalConstraintsShow(heightOffset: heightOffset)
         }
+    }
+    
+    private func scrollDownVerticalDetails() {
+        
+        let heightOffset = view.frame.height / 2
+        
+        UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
+            self.updateVerticalConstraintsShow(heightOffset: heightOffset)
+        })
     }
     
     private func hideVerticalDetails(animate: Bool) {
@@ -1007,17 +1114,18 @@ class ViewerController: UIViewController {
         view.layoutIfNeeded()
     }
     
-    private func showHorizontalDetails(animate: Bool) {
+    private func showHorizontalDetails(animate: Bool, reset: Bool) {
         
         let trailingOffset: CGFloat
         let topOffset: CGFloat
         let height = view.frame.height
         let halfWidth = view.frame.width / 2
         
-        if detailView.frame.origin.y < height {
+        if detailView.frame.origin.y < height && reset == false {
             //details visible. show more if can
             trailingOffset = (halfWidth)
-            topOffset = max(detailView.frame.height, view.frame.height)
+            //topOffset = max(detailView.frame.height, view.frame.height)
+            topOffset = max(detailView.height(), view.frame.height)
         } else {
             //details not visible yet. snap top of detail visible
             trailingOffset = (halfWidth)
@@ -1045,6 +1153,16 @@ class ViewerController: UIViewController {
         }
     }
     
+    private func scrollDownHorizontalDetails() {
+        
+        let frameHeight = view.frame.height
+        
+        UIView.animate(withDuration: 0.3, delay: 0.0, options: .curveLinear, animations: {
+            self.detailViewTopConstraint?.constant = frameHeight
+            self.view.layoutIfNeeded()
+        })
+    }
+    
     private func hideHorizontalDetails(animate: Bool) {
         
         if animate {
@@ -1070,7 +1188,7 @@ class ViewerController: UIViewController {
     }
     
     private func updateHorizontalConstraintsShow(height: CGFloat, topOffset: CGFloat, trailingOffset: CGFloat) {
-        
+
         detailViewTopConstraint?.constant = topOffset
         
         imageViewHeightConstraint?.constant = height
@@ -1266,3 +1384,20 @@ extension ViewerController: VLCCustomDialogRendererProtocol {
     }
 }
 
+extension ViewerController: DetailViewDelegate {
+    
+    func layoutUpdated(height: CGFloat) {
+        
+    }
+    
+    func showAllDetails() {
+        switchToAllDetails()
+    }
+}
+
+extension ViewerController: DetailsControllerDelegate {
+    
+    func showAllMetadataDetails() {
+        switchToAllDetails()
+    }
+}

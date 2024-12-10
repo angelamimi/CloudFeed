@@ -19,16 +19,23 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import UIKit
 @preconcurrency import AVFoundation
+import MapKit
 import os.log
+import UIKit
 
 @MainActor
 protocol DetailViewDelegate: AnyObject {
     func layoutUpdated(height: CGFloat)
+    func showAllDetails()
 }
 
 class DetailView: UIView {
+    
+    @IBOutlet weak var contentStackView: UIStackView!
+    
+    @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var metadataButton: UIButton!
     
     @IBOutlet weak var metadataStackView: UIStackView!
     
@@ -85,12 +92,54 @@ class DetailView: UIView {
         commonInit()
     }
     
+    override func layoutSubviews() {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            delegate?.layoutUpdated(height: height())
+        }
+    }
+    
+    func height() -> CGFloat {
+        
+        let fileDateLabelHeight = fileDateLabel.systemLayoutSizeFitting(UIView.layoutFittingExpandedSize).height
+        let fileNameLabelHeight = fileNameLabel.systemLayoutSizeFitting(UIView.layoutFittingExpandedSize).height
+        let labelsHeight = fileDateLabelHeight + fileNameLabelHeight
+        let cameraViewHeight = cameraView.frame.height
+        let mapHeight = mapView.isHidden ? 0 : mapView.frame.height
+        let allButton = metadataButton.frame.height
+        
+        var totalHeight = 16 + labelsHeight + 16 + cameraViewHeight + 16 + allButton + 16
+        
+        if mapHeight > 0 {
+            totalHeight += 16 + mapHeight
+        }
+        
+        return totalHeight
+    }
+    
+    func populateDetails() {
+        
+        guard metadata != nil else { return }
+        
+        populateMetadataDetails()
+        
+        if metadata!.video {
+            setVideoLabelVisibility()
+            populateVideoDetails()
+        } else {
+            setImageLabelVisibility()
+            populateImageDetails()
+        }
+    }
+    
     private func commonInit() {
         
         guard let view = loadViewFromNib() else { return }
         
         view.frame = bounds
         addSubview(view)
+        
+        metadataButton.setTitle(Strings.DetailAll, for: .normal)
+        metadataButton.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
 
         cameraView.clipsToBounds = true
         cameraView.layer.cornerRadius = 8
@@ -111,6 +160,12 @@ class DetailView: UIView {
         exposureTimeLabel.text = "-"
         fpsLabel.text = "-"
         durationLabel.text = "-"
+        
+        mapView.layer.cornerRadius = 8
+    }
+    
+    @objc private func showAllDetails() {
+        delegate?.showAllDetails()
     }
     
     private func loadViewFromNib() -> UIView? {
@@ -118,22 +173,7 @@ class DetailView: UIView {
         return nib.instantiate(withOwner: self, options: nil).first as? UIView
     }
     
-    func populateDetails() {
-        
-        guard metadata != nil else { return }
-        
-        populateMetadataDetails()
-        
-        if metadata!.video {
-            setVideoLabelVisibility()
-            populateVideoDetails()
-        } else {
-            setImageLabelVisibility()
-            populateImageDetails()
-        }
-    }
-    
-    func populateMetadataDetails() {
+    private func populateMetadataDetails() {
         
         guard metadata != nil else { return }
         
@@ -149,10 +189,8 @@ class DetailView: UIView {
         } else {
             typeImageView.isHidden = true
         }
-    }
-    
-    override func layoutSubviews() {
-        delegate?.layoutUpdated(height: self.frame.height)
+        
+        showLocation(latitudeValue: metadata?.latitude, longitudeValue: metadata?.longitude)
     }
     
     private func setImageLabelVisibility() {
@@ -225,6 +263,7 @@ class DetailView: UIView {
         let imagePropertyDict = NSMutableDictionary(dictionary: imageProperties)
         
         populateImageSizeInfo(pixelProperties: imagePropertyDict, sizeProperties: properties)
+        populateImageLocationInfo(imageProperties: imagePropertyDict)
         
         if let exif = imagePropertyDict[kCGImagePropertyExifDictionary] as? [NSString: AnyObject] {
             populateImageExifInfo(exif)
@@ -233,6 +272,14 @@ class DetailView: UIView {
         if let tiff = imagePropertyDict[kCGImagePropertyTIFFDictionary] as? [NSString: AnyObject] {
             populateImageTiffInfo(tiff)
         }
+    }
+    
+    private func populateImageLocationInfo(imageProperties: NSMutableDictionary) {
+        
+        guard metadata != nil && metadata!.longitude == 0 && metadata!.latitude == 0 else { return } //already have location
+        guard let gpsData = imageProperties[kCGImagePropertyGPSDictionary] as? NSDictionary else { return }
+
+        showLocation(latitudeValue: gpsData[kCGImagePropertyGPSLatitude] as? Double, longitudeValue: gpsData[kCGImagePropertyGPSLongitude] as? Double)
     }
     
     private func populateImageTiffInfo(_ tiff: [NSString: AnyObject]) {
@@ -490,5 +537,23 @@ class DetailView: UIView {
         formattedDate.append(timeString)
         
         return formattedDate
+    }
+
+    private func showLocation(latitudeValue: Double?, longitudeValue: Double?) {
+        
+        if let latitude = latitudeValue, let longitude = longitudeValue, latitude != 0, longitude != 0 {
+
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            
+            let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+            
+            mapView.addAnnotation(annotation)
+            mapView.setRegion(region, animated: false)
+            mapView.isHidden = false
+            
+        } else {
+            mapView.isHidden = true
+        }
     }
 }

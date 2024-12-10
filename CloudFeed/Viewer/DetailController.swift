@@ -22,11 +22,12 @@
 import UIKit
 import os.log
 
+//Displayes "all" file metadata/exif information in a table
 class DetailController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    var store: StoreUtility?
+    var mediaPath: String?
     var metadata: Metadata?
     
     private var details = [MetadataDetail]()
@@ -51,25 +52,22 @@ class DetailController: UIViewController {
     
     private func buildDetailsDatasource() {
         
-        guard let metadata = metadata else { return }
+        guard let metadata = metadata, let path = mediaPath else { return }
         
         appendDetails(metadata: metadata)
         
-        if metadata.image && store != nil && store!.fileExists(metadata) {
-            
-            let imageSourceURL = URL(fileURLWithPath: store!.getCachePath(metadata.ocId, metadata.fileNameView)!)
-            
-            guard let originalSource = CGImageSourceCreateWithURL(imageSourceURL as CFURL, nil) else { return }
-            guard let fileProperties = CGImageSourceCopyProperties(originalSource, nil) else { return }
-            
-            Task { [weak self] in
-                guard let self = self else { return }
-                let detailDict = await self.buildExif(originalSource: originalSource, fileProperties: fileProperties)
-                self.appendData(data: detailDict)
+        guard metadata.image else { return }
+        
+        let imageSourceURL = URL(fileURLWithPath: path)
+        
+        guard let originalSource = CGImageSourceCreateWithURL(imageSourceURL as CFURL, nil) else { return }
+        guard let fileProperties = CGImageSourceCopyProperties(originalSource, nil) else { return }
+        
+        Task { [weak self] in
+            if let detailDict = await self?.buildExif(originalSource: originalSource, fileProperties: fileProperties) {
+                self?.appendData(data: detailDict)
             }
         }
-        
-        Self.logger.debug("buildDetailsDatasource() - size: \(self.metadata!.size)")
     }
     
     private func buildExif(originalSource: CGImageSource, fileProperties: CFDictionary) async -> NSMutableDictionary {

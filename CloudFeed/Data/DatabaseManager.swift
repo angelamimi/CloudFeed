@@ -37,7 +37,9 @@ class DatabaseManager {
     
     func setup() -> Bool {
         
-        let config = Realm.Configuration.defaultConfiguration
+        let config = Realm.Configuration(schemaVersion: 2)
+        Realm.Configuration.defaultConfiguration = config
+        
         let fileUrl = config.fileURL?.description
         
         if FileManager.default.fileExists(atPath: fileUrl!) {

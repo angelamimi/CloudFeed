@@ -49,7 +49,9 @@ struct Metadata: Sendable, Identifiable {
     var hasPreview: Bool
     var iconName: String
     var iconUrl: String
+    var latitude: Double
     var livePhotoFile: String
+    var longitude: Double
     var name: String
     var note: String
     var ocId: String
@@ -92,7 +94,9 @@ struct Metadata: Sendable, Identifiable {
         hasPreview = obj.hasPreview
         iconName = obj.iconName
         iconUrl = obj.iconUrl
+        latitude = obj.latitude
         livePhotoFile = obj.livePhotoFile
+        longitude = obj.longitude
         name = obj.name
         note = obj.note
         ocId = obj.ocId
@@ -137,7 +141,9 @@ struct Metadata: Sendable, Identifiable {
         hasPreview = file.hasPreview
         iconName = file.iconName
         iconUrl = ""
+        latitude = file.latitude
         livePhotoFile = file.livePhotoFile
+        longitude = file.longitude
         name = file.name
         note = file.note
         ocId = file.ocId
@@ -222,7 +228,9 @@ class tableMetadata: Object {
     @objc dynamic var hasPreview: Bool = false
     @objc dynamic var iconName = ""
     @objc dynamic var iconUrl = ""
+    @objc dynamic var latitude: Double = 0
     @objc dynamic var livePhotoFile = ""
+    @objc dynamic var longitude: Double = 0
     @objc dynamic var name = ""
     @objc dynamic var note = ""
     @objc dynamic var ocId = ""
@@ -281,7 +289,9 @@ extension tableMetadata {
         hasPreview = obj.hasPreview
         iconName = obj.iconName
         iconUrl = obj.iconUrl
+        latitude = obj.latitude
         livePhotoFile = obj.livePhotoFile
+        longitude = obj.longitude
         name = obj.name
         note = obj.note
         ocId = obj.ocId

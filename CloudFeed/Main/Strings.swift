@@ -94,6 +94,7 @@ extension Strings {
     public static let TitleImagesOnly = NSLocalizedString("Title.ImagesOnly", comment: "")
     
     //Image Detail and EXIF
+    public static let DetailAll = NSLocalizedString("Detail.All", comment: "")
     public static let DetailName = NSLocalizedString("Detail.Name", comment: "")
     public static let DetailEditedDate = NSLocalizedString("Detail.EditedDate", comment: "")
     public static let DetailCreatedDate = NSLocalizedString("Detail.CreatedDate", comment: "")

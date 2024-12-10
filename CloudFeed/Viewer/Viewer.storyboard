@@ -65,12 +65,12 @@
                                 </constraints>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nF6-AV-sGu" customClass="DetailView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="359" width="401" height="260"/>
+                                <rect key="frame" x="0.0" y="359" width="401" height="360"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="401" identifier="Detail view width" id="8h1-xU-fn8"/>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="260" identifier="Detail view height greater than or equal" id="JnB-Pf-diC"/>
-                                    <constraint firstAttribute="height" priority="250" constant="260" identifier="Detail view height" id="p8q-3g-swu"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="360" identifier="Detail view height greater than or equal" id="JnB-Pf-diC"/>
+                                    <constraint firstAttribute="height" priority="250" constant="360" identifier="Detail view height" id="p8q-3g-swu"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JHA-Xd-uSt">
@@ -146,6 +146,7 @@
                         <outlet property="detailViewWidthConstraint" destination="8h1-xU-fn8" id="BOJ-1r-uPV"/>
                         <outlet property="imageView" destination="gnc-Wf-rti" id="Cuh-lC-UtQ"/>
                         <outlet property="imageViewHeightConstraint" destination="u4l-oU-PNv" id="bfm-zB-LO9"/>
+                        <outlet property="imageViewTopConstraint" destination="qvw-9n-KQ1" id="DLB-Km-L48"/>
                         <outlet property="imageViewTrailingConstraint" destination="fni-Al-I0J" id="3sR-Q9-UIm"/>
                         <outlet property="statusContainerTopConstraint" destination="1Vf-rW-uGX" id="Ela-4G-725"/>
                         <outlet property="statusContainerView" destination="JHA-Xd-uSt" id="jTu-eG-FGr"/>
@@ -160,7 +161,7 @@
         <!--Detail Controller-->
         <scene sceneID="wTc-dQ-fDJ">
             <objects>
-                <viewController storyboardIdentifier="DetailViewController" modalPresentationStyle="pageSheet" id="VKa-x7-6dw" customClass="DetailController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="DetailController" modalPresentationStyle="pageSheet" id="VKa-x7-6dw" customClass="DetailController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="B6y-Hd-xi6">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

@@ -22,12 +22,20 @@
 import UIKit
 import os.log
 
+@MainActor
+protocol DetailsControllerDelegate: AnyObject {
+    func showAllMetadataDetails()
+}
+
+//DetailsView container used for pad only
 class DetailsController: UIViewController {
     
     @IBOutlet weak var detailView: DetailView!
     
     var metadata: Metadata?
     var url: URL?
+    
+    weak var delegate: DetailsControllerDelegate?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -53,8 +61,7 @@ class DetailsController: UIViewController {
         detailView.populateDetails()
     }
     
-    @objc 
-    private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
+    @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
         dismiss(animated: false)
     }
     
@@ -87,5 +94,9 @@ extension DetailsController : DetailViewDelegate {
         if height > view.frame.height {
             self.preferredContentSize = CGSize(width: 400, height: height)
         }
+    }
+    
+    func showAllDetails() {
+        delegate?.showAllMetadataDetails()
     }
 }

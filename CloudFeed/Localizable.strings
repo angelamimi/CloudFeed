@@ -76,6 +76,7 @@
 
 
 /* Image Detail and EXIF */
+"Detail.All" = "All Details";
 "Detail.Name" = "Name";
 "Detail.EditedDate" = "Edited";
 "Detail.CreatedDate" = "Created";
