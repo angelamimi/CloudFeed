@@ -277,7 +277,7 @@ class DetailView: UIView {
     private func populateImageLocationInfo(imageProperties: NSMutableDictionary) {
         
         guard metadata != nil && metadata!.longitude == 0 && metadata!.latitude == 0 else { return } //already have location
-        guard let gpsData = imageProperties[kCGImagePropertyGPSDictionary] as? NSDictionary else { return }
+        guard let gpsData = imageProperties[kCGImagePropertyGPSDictionary] as? [NSString: AnyObject] else { return }
 
         showLocation(latitudeValue: gpsData[kCGImagePropertyGPSLatitude] as? Double, longitudeValue: gpsData[kCGImagePropertyGPSLongitude] as? Double)
     }

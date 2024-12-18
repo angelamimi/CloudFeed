@@ -81,6 +81,7 @@
 		398DA7252AC33F9E00F98E7F /* MockNextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */; };
 		398DA7262AC33F9E00F98E7F /* MockDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */; };
 		398DA7282AC6199500F98E7F /* mock-search.json in Resources */ = {isa = PBXBuildFile; fileRef = 398DA7272AC6199500F98E7F /* mock-search.json */; };
+		399C88132D131D9700694EA2 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399C88122D131D9700694EA2 /* DetailViewModel.swift */; };
 		39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; };
 		39A896402C7FED9C003827B8 /* MobileVLCKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F0C29C53FD300704670 /* CollectionViewCell.swift */; };
@@ -212,6 +213,7 @@
 		398D14CB2B93B76700526E42 /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
 		398D14D12B9A4D2700526E42 /* ImageUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtility.swift; sourceTree = "<group>"; };
 		398DA7272AC6199500F98E7F /* mock-search.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-search.json"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.json; };
+		399C88122D131D9700694EA2 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
 		39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MobileVLCKit.xcframework; path = Carthage/Build/MobileVLCKit.xcframework; sourceTree = "<group>"; };
 		39B03F0C29C53FD300704670 /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
 		39B03F0D29C53FD300704670 /* CollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionViewCell.xib; sourceTree = "<group>"; };
@@ -308,6 +310,7 @@
 				39271D6B29DA26CF00522DFD /* ViewerController.swift */,
 				3916F3E02AAD1B370064002E /* PagerViewModel.swift */,
 				391579A22AAF4C5000DFEAB1 /* ViewerViewModel.swift */,
+				399C88122D131D9700694EA2 /* DetailViewModel.swift */,
 			);
 			path = Viewer;
 			sourceTree = "<group>";
@@ -665,6 +668,7 @@
 				3972EE9E2ADEC27F0020EEC7 /* CollectionController.swift in Sources */,
 				393D18932C8C9B5100971014 /* ControlsView.swift in Sources */,
 				39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */,
+				399C88132D131D9700694EA2 /* DetailViewModel.swift in Sources */,
 				39271D5B29D8D7CD00522DFD /* FavoritesController.swift in Sources */,
 				39271D7529DA66D800522DFD /* UIImage+Extensions.swift in Sources */,
 				39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */,

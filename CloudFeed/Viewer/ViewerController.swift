@@ -875,9 +875,13 @@ class ViewerController: UIViewController {
         
         let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailController") as! DetailController
         let mediaPath = viewModel.getFilePath(metadata)
+        let viewModel = DetailViewModel()
         
-        controller.metadata = metadata
-        controller.mediaPath = mediaPath
+        viewModel.delegate = controller
+        viewModel.mediaPath = mediaPath
+        viewModel.metadata = metadata
+        
+        controller.viewModel = viewModel
         
         return controller
     }
