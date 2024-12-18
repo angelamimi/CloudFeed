@@ -960,6 +960,11 @@ class ViewerController: UIViewController {
             }
         } else if UIDevice.current.userInterfaceIdiom == .phone {
             
+            //end up with not fully dismissed details sheet if rotated while presented. this dismisses on rotation.
+            if presentedViewController != nil {
+                presentedViewController?.dismiss(animated: false)
+            }
+            
             //video view is added at runtime, which ends up in front of detail view. bring detail view back to front
             view.bringSubviewToFront(detailView)
             
