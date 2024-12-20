@@ -162,6 +162,7 @@ class DetailView: UIView {
         durationLabel.text = "-"
         
         mapView.layer.cornerRadius = 8
+        mapView.delegate = self
     }
     
     @objc private func showAllDetails() {
@@ -190,7 +191,9 @@ class DetailView: UIView {
             typeImageView.isHidden = true
         }
         
-        showLocation(latitudeValue: metadata?.latitude, longitudeValue: metadata?.longitude)
+        Task { [weak self] in
+            await self?.showLocation(latitudeValue: self?.metadata?.latitude, longitudeValue: self?.metadata?.longitude)
+        }
     }
     
     private func setImageLabelVisibility() {
@@ -278,8 +281,35 @@ class DetailView: UIView {
         
         guard metadata != nil && metadata!.longitude == 0 && metadata!.latitude == 0 else { return } //already have location
         guard let gpsData = imageProperties[kCGImagePropertyGPSDictionary] as? [NSString: AnyObject] else { return }
+        
+        let latitudeValue = gpsData[kCGImagePropertyGPSLatitude] as? Double
+        let longitudeValue = gpsData[kCGImagePropertyGPSLongitude] as? Double
+        let latitudeReferencValue = gpsData[kCGImagePropertyGPSLatitudeRef] as? String
+        let longitudeReferenceValue = gpsData[kCGImagePropertyGPSLongitudeRef] as? String
+        
+        let results = calculateLocationFromProperties(latitude: latitudeValue, longitude: longitudeValue,
+                                                      latitudeReference: latitudeReferencValue, longitudeReference: longitudeReferenceValue)
 
-        showLocation(latitudeValue: gpsData[kCGImagePropertyGPSLatitude] as? Double, longitudeValue: gpsData[kCGImagePropertyGPSLongitude] as? Double)
+        Task { [weak self] in
+            await self?.showLocation(latitudeValue: results.latitude, longitudeValue: results.longitude)
+        }
+    }
+    
+    private func calculateLocationFromProperties(latitude: Double?, longitude: Double?, latitudeReference: String?, longitudeReference: String?) -> (latitude: Double?, longitude: Double?){
+        
+        guard latitude != nil && longitude != nil else { return (latitude: nil, longitude: nil) }
+        
+        var latitudeDirection: Double = 1, longitudeDirection: Double = 1
+        
+        if latitude! > 0 && latitudeReference != nil && latitudeReference!.starts(with: "S") {
+            latitudeDirection = -1
+        }
+        
+        if longitude! > 0 && longitudeReference != nil && longitudeReference!.starts(with: "W") {
+            longitudeDirection = -1
+        }
+        
+        return (latitude: latitude! * latitudeDirection, longitude: longitude! * longitudeDirection)
     }
     
     private func populateImageTiffInfo(_ tiff: [NSString: AnyObject]) {
@@ -539,21 +569,47 @@ class DetailView: UIView {
         return formattedDate
     }
 
-    private func showLocation(latitudeValue: Double?, longitudeValue: Double?) {
+    private func showLocation(latitudeValue: Double?, longitudeValue: Double?) async {
         
-        if let latitude = latitudeValue, let longitude = longitudeValue, latitude != 0, longitude != 0 {
-
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-            
-            let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
-            
-            mapView.addAnnotation(annotation)
-            mapView.setRegion(region, animated: false)
-            mapView.isHidden = false
-            
-        } else {
+        guard let latitude = latitudeValue, let longitude = longitudeValue, !(latitude == 0 && longitude == 0) else {
             mapView.isHidden = true
+            return
         }
+
+        let annotation = MKPointAnnotation()
+        
+        annotation.coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        
+        let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+        let geocoder = CLGeocoder()
+        let placemarks = try? await geocoder.reverseGeocodeLocation(CLLocation(latitude: latitude, longitude: longitude))
+        let placemark = placemarks?.first
+        let locationComponents: [String] = placemark == nil ? [] : [placemark!.name, placemark!.locality, placemark!.country].compactMap { $0 }
+        let locationName = locationComponents.joined(separator: ", ")
+        
+        if locationName.isEmpty == false {
+            annotation.title = locationName
+        }
+
+        mapView.addAnnotation(annotation)
+        mapView.setRegion(region, animated: false)
+        mapView.isHidden = false
+    }
+}
+
+extension DetailView: MKMapViewDelegate {
+    
+    func mapView(_ mapView: MKMapView, didSelect annotation: any MKAnnotation) {
+
+        mapView.deselectAnnotation(annotation, animated: false)
+        
+        let placemark = MKPlacemark(coordinate: annotation.coordinate)
+        let mapItem = MKMapItem(placemark: placemark)
+        
+        if annotation.title != nil && annotation.title!?.isEmpty == false {
+            mapItem.name = annotation.title!
+        }
+        
+        mapItem.openInMaps()
     }
 }
