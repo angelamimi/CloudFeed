@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -22,7 +22,6 @@
 		391579A82AB33F0000DFEAB1 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A72AB33F0000DFEAB1 /* FavoritesViewModel.swift */; };
 		391579AA2AB3D8B800DFEAB1 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579A92AB3D8B800DFEAB1 /* SettingsViewModel.swift */; };
 		391579AC2AB645B400DFEAB1 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579AB2AB645B400DFEAB1 /* LoginViewModel.swift */; };
-		391579AE2AB6825000DFEAB1 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 391579AD2AB6825000DFEAB1 /* Localizable.strings */; };
 		391579B02AB7464000DFEAB1 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579AF2AB7464000DFEAB1 /* Strings.swift */; };
 		3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3916F3E02AAD1B370064002E /* PagerViewModel.swift */; };
 		392718642C359F95001C57C0 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 392718632C359F95001C57C0 /* RealmSwift */; };
@@ -155,7 +154,6 @@
 		391579A72AB33F0000DFEAB1 /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
 		391579A92AB3D8B800DFEAB1 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		391579AB2AB645B400DFEAB1 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
-		391579AD2AB6825000DFEAB1 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		391579AF2AB7464000DFEAB1 /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDatabaseManager.swift; sourceTree = "<group>"; };
 		391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNextcloudKitService.swift; sourceTree = "<group>"; };
@@ -233,6 +231,10 @@
 		39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Capabilities.swift"; sourceTree = "<group>"; };
 		39FE2FE82C8B85F000CE51AC /* ControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ControlsView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		39AD1D172D15F11F008AB835 /* Resources */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Resources; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		391579C52AB8D1CE00DFEAB1 /* Frameworks */ = {
@@ -347,6 +349,7 @@
 		3927356929BD1E820058796A /* CloudFeed */ = {
 			isa = PBXGroup;
 			children = (
+				39AD1D172D15F11F008AB835 /* Resources */,
 				390C57DE2A9E2DD900D9E268 /* Coordinators */,
 				392735A829BE2CF40058796A /* Data */,
 				39271D7129DA664100522DFD /* Extensions */,
@@ -367,7 +370,6 @@
 				392735BD29BE738F0058796A /* CloudFeed.entitlements */,
 				3927357829BD1E830058796A /* Info.plist */,
 				3966634229DE190D005727D4 /* Acknowledgements.plist */,
-				391579AD2AB6825000DFEAB1 /* Localizable.strings */,
 				395C14E42B1C03FF00074EB8 /* Assets.xcassets */,
 			);
 			path = CloudFeed;
@@ -492,6 +494,9 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				39AD1D172D15F11F008AB835 /* Resources */,
+			);
 			name = CloudFeed;
 			packageProductDependencies = (
 				3927359B29BD3D510058796A /* NextcloudKit */,
@@ -577,7 +582,6 @@
 				392735B629BE4FE00058796A /* Login.storyboard in Resources */,
 				3927357729BD1E830058796A /* LaunchScreen.storyboard in Resources */,
 				39271D5D29D8D7DF00522DFD /* Favorites.storyboard in Resources */,
-				391579AE2AB6825000DFEAB1 /* Localizable.strings in Resources */,
 				395C14E52B1C03FF00074EB8 /* Assets.xcassets in Resources */,
 				39E570762B5DE98100548E02 /* FilterView.xib in Resources */,
 				3966634329DE190D005727D4 /* Acknowledgements.plist in Resources */,
