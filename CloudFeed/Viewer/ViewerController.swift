@@ -548,7 +548,9 @@ class ViewerController: UIViewController {
         
         imageView.image = image
         
-        if UIDevice.current.userInterfaceIdiom != .pad && detailsVisible() {
+        let detailsVisible = currentStatus() == .details
+        
+        if UIDevice.current.userInterfaceIdiom != .pad && detailsVisible {
             if imageViewRatioWithinThreshold() {
                 updateContentMode(contentMode: .scaleAspectFill)
             } else {
