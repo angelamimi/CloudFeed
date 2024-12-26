@@ -148,10 +148,24 @@ class DetailView: UIView {
         typeView.layer.cornerRadius = 3
 
         fileNameLabel.text = Strings.DetailNameNone
+        fileNameLabel.accessibilityLabel = Strings.DetailName
+        fileNameLabel.accessibilityValue = Strings.DetailNameNone
+        
         fileDateLabel.text = Strings.DetailDateNone
+        fileDateLabel.accessibilityLabel = Strings.DetailFileDate
+        fileDateLabel.accessibilityValue = Strings.DetailDateNone
+        
         cameraLabel.text = Strings.DetailCameraNone
+        cameraLabel.accessibilityLabel = Strings.DetailCameraDescription
+        cameraLabel.accessibilityValue = Strings.DetailCameraNone
+        
         sizeLabel.text = Strings.DetailSizeNone
+        sizeLabel.accessibilityLabel = Strings.DetailSizeDescription
+        sizeLabel.accessibilityValue = Strings.DetailSizeNone
+        
         lensLabel.text = Strings.DetailLensNone
+        lensLabel.accessibilityLabel = Strings.DetailLensDescription
+        lensLabel.accessibilityValue = Strings.DetailLensNone
         
         isoLabel.text = "-"
         focalLengthLabel.text = "-"
@@ -160,9 +174,20 @@ class DetailView: UIView {
         exposureTimeLabel.text = "-"
         fpsLabel.text = "-"
         durationLabel.text = "-"
+
+        isoLabel.isAccessibilityElement = false
+        focalLengthLabel.isAccessibilityElement = false
+        exposureLabel.isAccessibilityElement = false
+        aperatureLabel.isAccessibilityElement = false
+        exposureTimeLabel.isAccessibilityElement = false
+        fpsLabel.isAccessibilityElement = false
+        durationLabel.isAccessibilityElement = false
         
         mapView.layer.cornerRadius = 8
         mapView.delegate = self
+        
+        cameraView.minimumContentSizeCategory = .small
+        cameraView.maximumContentSizeCategory = .extraExtraLarge
     }
     
     @objc private func showAllDetails() {
@@ -178,15 +203,27 @@ class DetailView: UIView {
         
         guard metadata != nil else { return }
         
-        fileNameLabel.text = (metadata!.fileNameView as NSString).deletingPathExtension
-        fileDateLabel.text = formatDate(metadata!.date as Date)
+        let name = (metadata!.fileNameView as NSString).deletingPathExtension
+        fileNameLabel.text = name
+        fileNameLabel.accessibilityLabel = Strings.DetailName
+        fileNameLabel.accessibilityValue = name
         
-        typeLabel.text = metadata!.fileExtension.uppercased()
+        let formattedDate = formatDate(metadata!.date as Date)
+        fileDateLabel.text = formattedDate
+        fileDateLabel.accessibilityLabel = Strings.DetailFileDate
+        fileDateLabel.accessibilityValue = formattedDate
+        
+        let type = metadata!.fileExtension.uppercased()
+        typeLabel.text = type
+        typeLabel.accessibilityLabel = Strings.DetailFileFormat
+        typeLabel.accessibilityValue = type
         
         if metadata!.video {
             typeImageView.image = UIImage(systemName: "video")
+            typeImageView.accessibilityLabel = Strings.DetailVideoTypeVideo
         } else if metadata!.livePhoto {
             typeImageView.image = UIImage(systemName: "livephoto")
+            typeImageView.accessibilityLabel = Strings.DetailVideoTypeLive
         } else {
             typeImageView.isHidden = true
         }
@@ -316,17 +353,26 @@ class DetailView: UIView {
         
         let make = tiff[kCGImagePropertyTIFFMake] as? String
         let model = tiff[kCGImagePropertyTIFFModel] as? String
+        let label: String?
         
         if make != nil && model != nil {
             if model!.starts(with: make!) {
-                cameraLabel.text = model
+                label = model
             } else {
-                cameraLabel.text = "\(make!) \(model!)"
+                label = "\(make!) \(model!)"
             }
         } else if make == nil && model != nil {
-            cameraLabel.text = model
+            label = model
         } else if make != nil && model == nil {
-            cameraLabel.text = make
+            label = make
+        } else {
+            label = ""
+        }
+        
+        if label != nil && !label!.isEmpty {
+            cameraLabel.text = label
+            cameraLabel.accessibilityLabel = Strings.DetailCameraDescription
+            cameraLabel.accessibilityValue = label
         }
     }
     
@@ -372,23 +418,32 @@ class DetailView: UIView {
         }
         
         sizeLabel.text = finalFormattedSize
+        sizeLabel.accessibilityValue = finalFormattedSize
     }
     
     private func populateImageExifInfo(_ exif: [NSString: AnyObject]) {
         
         let make = exif[kCGImagePropertyExifLensMake] as? String
         let model = exif[kCGImagePropertyExifLensModel] as? String
+        let lens: String?
         
         if make != nil && model != nil {
             if model!.starts(with: make!) {
-                lensLabel.text = model
+                lens = model
             } else {
-                lensLabel.text = "\(make!) \(model!)"
+                lens = "\(make!) \(model!)"
             }
         } else if make == nil && model != nil {
-            lensLabel.text = model
+            lens = model
         } else if make != nil && model == nil {
-            lensLabel.text = make
+            lens = make
+        } else {
+            lens = ""
+        }
+        
+        if lens != nil && !lens!.isEmpty {
+            lensLabel.text = lens
+            lensLabel.accessibilityValue = lens
         }
         
         if let iso = exif[kCGImagePropertyExifISOSpeedRatings] as? [Int] {
@@ -396,23 +451,40 @@ class DetailView: UIView {
 
             } else {
                 isoLabel.text = "ISO \(iso[0].description)"
+                isoLabel.isAccessibilityElement = true
+                isoLabel.accessibilityLabel = "ISO"
+                isoLabel.accessibilityValue = iso[0].description
             }
         }
         
         if let focalLength = exif[kCGImagePropertyExifFocalLenIn35mmFilm] as? Int {
-            focalLengthLabel.text = "\(focalLength.description) mm"
+            let formattedFocalLength = "\(focalLength.description) mm"
+            focalLengthLabel.text = formattedFocalLength
+            focalLengthLabel.isAccessibilityElement = true
+            focalLengthLabel.accessibilityLabel = Strings.DetailFocalLength
+            focalLengthLabel.accessibilityValue = formattedFocalLength
         }
         
         if let exposure = exif[kCGImagePropertyExifExposureBiasValue] as? Int {
             exposureLabel.text = "\(exposure.description) ev"
+            exposureLabel.isAccessibilityElement = true
+            exposureLabel.accessibilityLabel = Strings.DetailExposure
+            exposureLabel.accessibilityValue = "\(exposure.description) e v"
         }
         
         if let apertureValue = exif[kCGImagePropertyExifFNumber] as? Double {
             aperatureLabel.text = "ƒ\(apertureValue.description)"
+            aperatureLabel.isAccessibilityElement = true
+            aperatureLabel.accessibilityLabel = Strings.DetailAperture
+            aperatureLabel.accessibilityValue = "f \(apertureValue.description)"
         }
         
         if let exposureTimeValue = exif[kCGImagePropertyExifExposureTime] as? Double {
-            exposureTimeLabel.text = "1/" + String(format:"%.0f", 1/exposureTimeValue) + " s"
+            let formattedExposureTime = "1/" + String(format:"%.0f", 1/exposureTimeValue) + " s"
+            exposureTimeLabel.text = formattedExposureTime
+            exposureTimeLabel.isAccessibilityElement = true
+            exposureTimeLabel.accessibilityLabel = Strings.DetailExposureTime
+            exposureTimeLabel.accessibilityValue = formattedExposureTime
         }
     }
     
@@ -506,24 +578,33 @@ class DetailView: UIView {
     private func setMakeModelText(_ text: String) {
         DispatchQueue.main.async { [weak self] in
             self?.cameraLabel.text = text
+            self?.cameraLabel.accessibilityLabel = Strings.DetailCameraDescription
+            self?.cameraLabel.accessibilityValue = text
         }
     }
     
     private func setFrameRateText(_ text: String) {
         DispatchQueue.main.async { [weak self] in
             self?.fpsLabel.text = text
+            self?.fpsLabel.isAccessibilityElement = true
+            self?.fpsLabel.accessibilityLabel = Strings.DetailVideoSpeed
+            self?.fpsLabel.accessibilityValue = text
         }
     }
     
     private func setDurationText(_ text: String) {
         DispatchQueue.main.async { [weak self] in
             self?.durationLabel.text = text
+            self?.durationLabel.isAccessibilityElement = true
+            self?.durationLabel.accessibilityLabel = Strings.DetailVideoLength
+            self?.durationLabel.accessibilityValue = text
         }
     }
     
     private func setFileSizeText(_ text: String) {
         DispatchQueue.main.async { [weak self] in
             self?.sizeLabel.text = text
+            self?.sizeLabel.accessibilityValue = text
         }
     }
     

@@ -82,6 +82,13 @@
 "Detail.Section.Tiff" = "TIFF";
 "Detail.All" = "All Details";
 "Detail.Name" = "Name";
+"Detail.FileDate" = "Date";
+"Detail.FileFormat" = "File Format";
+"Detail.VideoType.LivePhoto" = "Live Photo";
+"Detail.VideoType.Video" = "Video";
+"Detail.CameraDescription" = "Camera Description";
+"Detail.SizeDescription" = "Size Description";
+"Detail.LensDescription" = "Lens Description";
 "Detail.EditedDate" = "Edited";
 "Detail.CreatedDate" = "Created";
 "Detail.FileSize" = "File Size";
@@ -99,6 +106,8 @@
 "Detail.ISO" = "ISO";
 "Detail.Brightness" = "Brightness";
 "Detail.ShutterSpeed" = "Shutter Speed";
+"Detail.VideoSpeed" = "Speed";
+"Detail.VideoLength" = "Length";
 "Detail.Orientation" = "Orientation";
 "Detail.Orientation.Up" = "Horizontal (normal)";
 "Detail.Orientation.UpMirrored" = "Mirror horizontal";
