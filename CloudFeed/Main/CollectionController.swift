@@ -68,10 +68,6 @@ class CollectionController: UIViewController {
         initObservers()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        updateTitleConstraints()
-    }
-    
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
@@ -86,7 +82,6 @@ class CollectionController: UIViewController {
     
     private func willEnterForegroundNotification() {
         if isViewLoaded && view.window != nil {
-            updateTitleConstraints()
             delegate?.enteringForeground()
         }
     }
@@ -144,15 +139,10 @@ class CollectionController: UIViewController {
         titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
         titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
         
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSizeLarge)
-            collectionViewTopConstraint?.constant = Global.shared.titleSizeLarge
-        } else {
-            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
-            collectionViewTopConstraint?.constant = Global.shared.titleSize
-        }
-        
+        titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
         titleViewHeightAnchor?.isActive = true
+        
+        collectionViewTopConstraint?.constant = Global.shared.titleSize
     }
     
     func zoomIn() {
@@ -278,19 +268,6 @@ class CollectionController: UIViewController {
     
     @objc private func refresh(_ sender: Any) {
         delegate?.refresh()
-    }
-    
-    private func updateTitleConstraints() {
-        
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            titleViewHeightAnchor?.constant = Global.shared.titleSizeLarge
-            collectionViewTopConstraint?.constant = Global.shared.titleSizeLarge
-        } else {
-            titleViewHeightAnchor?.constant = Global.shared.titleSize
-            collectionViewTopConstraint?.constant = Global.shared.titleSize
-        }
-
-        titleView?.updateTitleSize()
     }
     
     func getFormattedDate(_ date: Date) -> String {

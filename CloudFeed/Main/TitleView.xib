@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -15,24 +16,32 @@
             <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3eV-3U-YdS" userLabel="Filter Button">
-                    <rect key="frame" x="294" y="52" width="40" height="40"/>
+                    <rect key="frame" x="298" y="52" width="40" height="40"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="ohG-8C-4o9"/>
                         <constraint firstAttribute="height" constant="40" id="rQG-ad-ips"/>
                     </constraints>
                     <state key="normal" title="Button"/>
-                    <buttonConfiguration key="configuration" style="filled" image="calendar" catalog="system"/>
+                    <buttonConfiguration key="configuration" style="filled" image="calendar" catalog="system" cornerStyle="capsule">
+                        <backgroundConfiguration key="background">
+                            <color key="backgroundColor" name="AccentColor"/>
+                        </backgroundConfiguration>
+                    </buttonConfiguration>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0HJ-5a-GPf" userLabel="Menu Button">
+                <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0HJ-5a-GPf" userLabel="Menu Button">
                     <rect key="frame" x="342" y="52" width="40" height="40"/>
-                    <color key="backgroundColor" systemColor="systemFillColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="40" id="Dbr-eL-8MJ"/>
-                        <constraint firstAttribute="width" constant="40" id="Osl-hJ-cBj"/>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="20" id="Osl-hJ-cBj"/>
+                        <constraint firstAttribute="width" relation="lessThanOrEqual" constant="40" id="UgN-ax-Je1"/>
                     </constraints>
                     <color key="tintColor" systemColor="labelColor"/>
                     <state key="normal" title="Button"/>
-                    <buttonConfiguration key="configuration" style="plain" cornerStyle="capsule"/>
+                    <buttonConfiguration key="configuration" style="plain" image="ellipsis" catalog="system" cornerStyle="capsule">
+                        <backgroundConfiguration key="background">
+                            <color key="backgroundColor" systemColor="systemFillColor"/>
+                        </backgroundConfiguration>
+                    </buttonConfiguration>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ABi-ln-iPL" userLabel="Done Button">
                     <rect key="frame" x="366" y="55" width="24" height="34"/>
@@ -46,7 +55,7 @@
                     <state key="normal" title="Button"/>
                     <buttonConfiguration key="configuration" style="plain"/>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hCV-CC-q7z">
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hCV-CC-q7z">
                     <rect key="frame" x="0.0" y="55" width="40" height="34"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="j81-PV-qBl"/>
@@ -55,9 +64,9 @@
                     <state key="normal" title="Button"/>
                     <buttonConfiguration key="configuration" style="plain" image="chevron.left" catalog="system"/>
                 </button>
-                <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jPn-bk-o2e" userLabel="Title">
-                    <rect key="frame" x="44" y="72" width="242" height="0.0"/>
-                    <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
+                <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jPn-bk-o2e" userLabel="Title">
+                    <rect key="frame" x="44" y="72" width="246" height="0.0"/>
+                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                     <nil key="highlightedColor"/>
                 </label>
             </subviews>
@@ -66,7 +75,7 @@
             <constraints>
                 <constraint firstItem="hCV-CC-q7z" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" identifier="Back Button leading to Safe area leading" id="1Dh-qN-LN2"/>
                 <constraint firstItem="k2S-Un-QnP" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="3lp-22-xwr"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="3eV-3U-YdS" secondAttribute="trailing" constant="56" id="4qz-96-94p"/>
+                <constraint firstItem="0HJ-5a-GPf" firstAttribute="leading" secondItem="3eV-3U-YdS" secondAttribute="trailing" constant="4" id="4qz-96-94p"/>
                 <constraint firstItem="jPn-bk-o2e" firstAttribute="centerY" secondItem="0HJ-5a-GPf" secondAttribute="centerY" id="9NL-H9-ntc"/>
                 <constraint firstItem="k2S-Un-QnP" firstAttribute="centerY" secondItem="ABi-ln-iPL" secondAttribute="centerY" id="CI6-V1-m1d"/>
                 <constraint firstItem="0HJ-5a-GPf" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="5" id="D9L-49-XlX"/>
@@ -101,6 +110,10 @@
     <resources>
         <image name="calendar" catalog="system" width="128" height="107"/>
         <image name="chevron.left" catalog="system" width="97" height="128"/>
+        <image name="ellipsis" catalog="system" width="128" height="37"/>
+        <namedColor name="AccentColor">
+            <color red="0.0" green="0.57300001382827759" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

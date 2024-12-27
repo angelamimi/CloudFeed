@@ -94,7 +94,6 @@ class ViewerController: UIViewController {
         statusContainerView.layer.cornerRadius = 14
 
         initGestureRecognizers()
-        setStatusContainerContraints()
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             detailView.removeFromSuperview()
@@ -106,8 +105,6 @@ class ViewerController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         
         disappearing = false
-
-        initObservers()
         
         let detailsVisible = detailsVisible()
         let currentStatus = currentStatus()
@@ -164,8 +161,6 @@ class ViewerController: UIViewController {
             presentedViewController?.dismiss(animated: false)
             delegate?.updateStatus(status: .title)
         }
-
-        controlsView?.willEnterForeground()
     }
     
     func playLivePhoto(_ url: URL) {
@@ -465,29 +460,6 @@ class ViewerController: UIViewController {
     private func currentStatus() -> Global.ViewerStatus {
         guard let pagerController = parent?.parent as? PagerController else { return .title }
         return pagerController.status
-    }
-    
-    private func setStatusContainerContraints() {
-        
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            statusContainerTopConstraint.constant = Global.shared.titleSizeLarge + 8
-        } else {
-            statusContainerTopConstraint.constant = Global.shared.titleSize + 8
-        }
-    }
-    
-    private func initObservers() {
-        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            DispatchQueue.main.async { [weak self] in
-                self?.willEnterForegroundNotification()
-            }
-        }
-    }
-    
-    private func willEnterForegroundNotification() {
-        if viewModel.isLivePhoto() {
-            setStatusContainerContraints()
-        }
     }
     
     private func cleanup() {

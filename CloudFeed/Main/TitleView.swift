@@ -63,9 +63,16 @@ class TitleView: UIView {
         super.awakeFromNib()
         
         MainActor.assumeIsolated {
+            
+            self.minimumContentSizeCategory = .large
+            self.maximumContentSizeCategory = .accessibilityExtraLarge
+            
+            title.minimumContentSizeCategory = .accessibilityMedium
+            filterButton.minimumContentSizeCategory = .large
+            filterButton.maximumContentSizeCategory = .extraExtraExtraLarge
+            menuButton.minimumContentSizeCategory = .extraExtraLarge
+            menuButton.maximumContentSizeCategory = .accessibilityLarge
 
-            initButtons()
-            initTitle()
             initText()
             
             doneButton.isHidden = true
@@ -160,11 +167,6 @@ class TitleView: UIView {
         backButtonConstraint.constant = 4
     }
     
-    func updateTitleSize() {
-        updateButtons()
-        setTitleSize()
-    }
-    
     func initNavigation() {
         
         title.isHidden = false
@@ -227,72 +229,9 @@ class TitleView: UIView {
         mediaView?.filter()
     }
     
-    private func initButtons() {
-        
-        menuButton.showsMenuAsPrimaryAction = true
-        menuButton.layer.masksToBounds = true
-        
-        filterButton.layer.masksToBounds = true
-        
-        updateButtons()
-    }
-    
-    private func updateButtons() {
-        
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            updateMenuButtonWithSize(30)
-            updateFilterButtonWithSize(30)
-            filterButtonTrailingConstraint.constant = 76
-        } else {
-            updateMenuButtonWithSize(20)
-            updateFilterButtonWithSize(20)
-            filterButtonTrailingConstraint.constant = 56
-        }
-    }
-    
-    private func updateMenuButtonWithSize(_ size: CGFloat) {
-        
-        let configuration = UIImage.SymbolConfiguration(pointSize: size, weight: .bold)
-        let image = UIImage(systemName: "ellipsis", withConfiguration: configuration)
-        let double = size * 2
-        
-        menuButton.setImage(image, for: .normal)
-        
-        menuButton.layer.cornerRadius = size
-        
-        menuButtonWidthConstraint.constant = double
-        menuButtonHeightConstraint.constant = double
-    }
-    
-    private func updateFilterButtonWithSize(_ size: CGFloat) {
-        
-        let configuration = UIImage.SymbolConfiguration(pointSize: size - 5, weight: .bold)
-        let dateImage = UIImage(systemName: "calendar.badge.clock", withConfiguration: configuration)
-        let double = size * 2
-        
-        filterButton.setImage(dateImage, for: .normal)
-        filterButton.layer.cornerRadius = size
-        
-        filterButtonWidthConstraint.constant = double
-        filterButtonHeightConstraint.constant = double
-    }
-    
-    private func initTitle() {
-        setTitleSize()
-    }
-    
     private func initText() {
         doneButton.setTitle(Strings.TitleApply, for: .normal)
         cancelButton.setTitle(Strings.TitleCancel, for: .normal)
-    }
-    
-    private func setTitleSize() {
-        
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            title.font = .boldSystemFont(ofSize: 36)
-        } else {
-            title.font = .boldSystemFont(ofSize: 24)
-        }
     }
 }
 

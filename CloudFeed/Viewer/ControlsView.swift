@@ -79,7 +79,6 @@ class ControlsView: UIView {
         
         addSubview(view)
         
-        setVolumeContainerContraints()
         setPlaying(playing: false)
         initControls()
     }
@@ -87,10 +86,6 @@ class ControlsView: UIView {
     private func loadViewFromNib() -> UIView? {
         let nib = UINib(nibName: "ControlsView", bundle: nil)
         return nib.instantiate(withOwner: self, options: nil).first as? UIView
-    }
-    
-    func willEnterForeground() {
-        setVolumeContainerContraints()
     }
     
     func reset() {
@@ -444,15 +439,6 @@ class ControlsView: UIView {
         timeSlider.isEnabled = enabled
         skipBackButton.isEnabled = enabled
         skipForwardButton.isEnabled = enabled
-    }
-    
-    private func setVolumeContainerContraints() {
-        
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            volumeTopConstraint.constant = Global.shared.titleSizeLarge + 16
-        } else {
-            volumeTopConstraint.constant = Global.shared.titleSize + 16
-        }
     }
     
     private func highlightButton(button: UIButton) {

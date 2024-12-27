@@ -30,7 +30,6 @@ class PagerController: UIViewController {
     var viewModel: PagerViewModel!
     var status: Global.ViewerStatus = .title
     
-    private var titleViewHeightAnchor: NSLayoutConstraint?
     private weak var titleView: TitleView?
     
     weak var pageViewController: UIPageViewController? {
@@ -87,10 +86,6 @@ class PagerController: UIViewController {
         initConstraints()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        updateTitleConstraints()
-    }
-    
     override func viewDidDisappear(_ animated: Bool) {
         titleView?.menuButton.menu = nil
     }
@@ -100,7 +95,6 @@ class PagerController: UIViewController {
 
         if status == .title {
             titleView?.isHidden = false
-            updateTitleConstraints()
         } else {
             hideTitle()
         }
@@ -133,19 +127,11 @@ class PagerController: UIViewController {
         titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
         titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
         titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-        
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSizeLarge)
-        } else {
-            titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
-        }
-
-        titleViewHeightAnchor?.isActive = true
+        titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize).isActive = true
     }
     
     private func willEnterForegroundNotification() {
         if isViewLoaded && view.window != nil {
-            updateTitleConstraints()
             currentViewController?.willEnterForeground()
         }
     }
@@ -196,25 +182,11 @@ class PagerController: UIViewController {
         }
     }
     
-    private func updateTitleConstraints() {
-        
-        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
-            titleViewHeightAnchor?.constant = Global.shared.titleSizeLarge
-        } else {
-            titleViewHeightAnchor?.constant = Global.shared.titleSize
-        }
-
-        titleView?.updateTitleSize()
-    }
-    
     private func showTitle() {
         titleView?.isHidden = false
-        updateTitleConstraints()
     }
     
     private func hideTitle() {
-        titleViewHeightAnchor?.constant = 0
-        titleView?.updateTitleSize()
         titleView?.isHidden = true
     }
     
