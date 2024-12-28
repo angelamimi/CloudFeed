@@ -90,6 +90,7 @@ class ViewerController: UIViewController {
             statusLabel.text = ""
         }
         
+        detailView.isHidden = true
         statusContainerView.isHidden = true
         statusContainerView.layer.cornerRadius = 14
 
@@ -901,6 +902,8 @@ class ViewerController: UIViewController {
     }
     
     private func showDetails(animate: Bool, reset: Bool) {
+        
+        detailView.isHidden = false
 
         delegate?.updateStatus(status: .details)
         
@@ -973,6 +976,8 @@ class ViewerController: UIViewController {
     }
     
     private func hideDetails(animate: Bool, hideStatus: Bool, status: Global.ViewerStatus) {
+        
+        detailView.isHidden = true
         
         delegate?.updateStatus(status: status)
         
