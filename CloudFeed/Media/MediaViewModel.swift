@@ -459,17 +459,23 @@ final class MediaViewModel: NSObject {
     
     private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
         
-        guard let metadata = metadatas[metadataId] else { return }
+        guard let metadata = metadatas[metadataId] else {
+            cell.isAccessibilityElement = false
+            return
+        }
+
+        cell.isAccessibilityElement = true
+        cell.accessibilityTraits = [.image]
         
         if metadata.video {
-            //Self.logger.debug("populateCell() - show video icon \(metadata.fileNameView)")
             cell.showVideoIcon()
+            cell.accessibilityLabel = Strings.MediaVideo
         } else if metadata.livePhoto {
-            //Self.logger.debug("populateCell() - show live icon \(metadata.fileNameView)")
             cell.showLivePhotoIcon()
+            cell.accessibilityLabel = Strings.MediaLivePhoto
         } else {
-            //Self.logger.debug("populateCell() - reset icon \(metadata.fileNameView)")
             cell.resetStatusIcon()
+            cell.accessibilityLabel = Strings.MediaPhoto
         }
         
         if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {

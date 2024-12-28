@@ -293,14 +293,23 @@ final class FavoritesViewModel: NSObject {
     
     private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
         
-        guard let metadata = metadatas[metadataId] else { return }
+        guard let metadata = metadatas[metadataId] else {
+            cell.isAccessibilityElement = false
+            return
+        }
+
+        cell.isAccessibilityElement = true
+        cell.accessibilityTraits = [.image]
         
         if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
             cell.showVideoIcon()
+            cell.accessibilityLabel = Strings.MediaVideo
         } else if metadata.livePhoto {
             cell.showLivePhotoIcon()
+            cell.accessibilityLabel = Strings.MediaLivePhoto
         } else {
             cell.resetStatusIcon()
+            cell.accessibilityLabel = Strings.MediaPhoto
         }
         
         if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {
