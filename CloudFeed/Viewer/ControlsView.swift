@@ -450,6 +450,9 @@ class ControlsView: UIView {
     
     private func initControls() {
         
+        controlsView.minimumContentSizeCategory = .large
+        controlsView.maximumContentSizeCategory = .extraExtraExtraLarge
+        
         volumeView.clipsToBounds = true
         volumeView.layer.cornerRadius = 8
         
