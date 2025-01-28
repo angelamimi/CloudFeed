@@ -28,6 +28,7 @@ extension Strings {
     //Common
     public static let OkAction = NSLocalizedString("Ok.Action", comment: "")
     public static let CancelAction = NSLocalizedString("Cancel.Action", comment: "")
+    public static let RetryAction = NSLocalizedString("Retry.Action", comment: "")
     public static let ErrorTitle = NSLocalizedString("Error.Title", comment: "")
     public static let LiveTitle = NSLocalizedString("Live.Title", comment: "")
     
@@ -53,9 +54,13 @@ extension Strings {
     //Initialization and Login
     public static let InitErrorMessage = NSLocalizedString("Init.Error.Message", comment: "")
     public static let UrlErrorMessage = NSLocalizedString("Url.Error.Message", comment: "")
+    public static let MaintenanceErrorMessage = NSLocalizedString("Maintenance.Error.Message", comment: "")
+    public static let LoginUnsupportedVersionErrorMessage = NSLocalizedString("Login.UnsupportedVersion.Error.Message", comment: "")
+    public static let LoginServerConnectionErrorMessage = NSLocalizedString("Login.ServerConnection.Error.Message", comment: "")
     public static let LoginServerLabel = NSLocalizedString("Login.Server.Label", comment: "")
     public static let LoginServerButton = NSLocalizedString("Login.Server.Button", comment: "")
     public static let LoginServerTitle = NSLocalizedString("Login.Server.Title", comment: "")
+    public static let LoginPoll = NSLocalizedString("Login.Poll", comment: "")
     
     //Media
     public static let MediaErrorMessage = NSLocalizedString("Media.Error.Message", comment: "")

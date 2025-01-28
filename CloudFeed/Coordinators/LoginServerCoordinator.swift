@@ -37,25 +37,28 @@ final class LoginServerCoordinator : NSObject, Coordinator {
         
         //LoginServerController is presented by the storyboard
         let loginServerController = navigationController.viewControllers[0] as! LoginServerController
+        
+        loginServerController.viewModel = LoginServerViewModel(dataService: dataService)
         loginServerController.coordinator = self
         
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
     }
     
-    func navigateToWebLogin(url: String) {
-        let coordinator = LoginWebCoordinator(window: window, navigationController: navigationController, dataService: dataService, url: url)
-        navigate(to: coordinator)
+    func navigateToWebLogin(token: String, endpoint: String, login: String) {
+        let coordinator = LoginWebCoordinator(window: window, navigationController: navigationController, dataService: dataService, token: token, endpoint: endpoint, login: login)
+        coordinator.start()
     }
     
     func showInvalidURLPrompt() {
-        
-        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.UrlErrorMessage, preferredStyle: .alert)
-        
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.navigationController.popViewController(animated: true)
-        }))
-        
-        navigationController.present(alertController, animated: true)
+        showErrorPrompt(message: Strings.UrlErrorMessage, navigationController: navigationController)
+    }
+    
+    func showUnsupportedVersionErrorPrompt() {
+        showErrorPrompt(message: Strings.LoginUnsupportedVersionErrorMessage, navigationController: navigationController)
+    }
+    
+    func showServerConnectionErrorPrompt() {
+        showErrorPrompt(message: Strings.LoginServerConnectionErrorMessage, navigationController: navigationController)
     }
 }

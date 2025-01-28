@@ -23,12 +23,13 @@ import Foundation
 
 
 public struct UserAccount {
-    public var account: String?
-    public var urlBase: String?
-    public var user: String?
-    public var userId: String?
     
-    init(account: String? = nil, urlBase: String? = nil, user: String? = nil, userId: String? = nil) {
+    public var account: String
+    public var urlBase: String
+    public var user: String
+    public var userId: String
+    
+    init(account: String, urlBase: String, user: String, userId: String) {
         self.account = account
         self.urlBase = urlBase
         self.user = user

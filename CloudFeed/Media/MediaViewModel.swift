@@ -45,6 +45,9 @@ final class MediaViewModel: NSObject {
     
     private var metadatas: [Metadata.ID: Metadata] = [:]
     
+    private var videoIcon = UIImage(systemName: "play.fill")
+    private var livePhotoIcon = UIImage(systemName: "livephoto")
+    
     private var fetchTask: Task<Void, Never>? {
         willSet {
             fetchTask?.cancel()
@@ -66,9 +69,9 @@ final class MediaViewModel: NSObject {
     
     func initDataSource(collectionView: UICollectionView) {
 
-        dataSource = UICollectionViewDiffableDataSource<Int, Metadata.ID>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadataId: Metadata.ID) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Int, Metadata.ID>(collectionView: collectionView) { [weak self] (collectionView: UICollectionView, indexPath: IndexPath, metadataId: Metadata.ID) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            self.populateCell(metadataId: metadataId, cell: cell, indexPath: indexPath, collectionView: collectionView)
+            self?.populateCell(metadataId: metadataId, cell: cell)
             return cell
         }
         
@@ -161,7 +164,7 @@ final class MediaViewModel: NSObject {
     
     func metadataSearch(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool) {
 
-        fetchTask = Task { [weak self] in
+        fetchTask = Task(priority: .high) { [weak self] in
             guard let self else { return }
             
             let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
@@ -179,7 +182,7 @@ final class MediaViewModel: NSObject {
     
     func filter(type: Global.FilterType, toDate: Date, fromDate: Date) {
         
-        fetchTask = Task { [weak self] in
+        fetchTask = Task(priority: .high) { [weak self] in
             guard let self else { return }
             
             let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: Global.shared.limit)
@@ -194,7 +197,7 @@ final class MediaViewModel: NSObject {
     
     func sync(type: Global.FilterType, toDate: Date, fromDate: Date) {
         
-        fetchTask = Task { [weak self] in
+        fetchTask = Task(priority: .background) { [weak self] in
             guard let self else { return }
             
             //Self.logger.debug("sync() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
@@ -204,7 +207,10 @@ final class MediaViewModel: NSObject {
             
             if Task.isCancelled { return }
             
-            guard results.metadatas != nil else { return }
+            guard results.metadatas != nil else {
+                delegate.searchResultReceived(resultItemCount: nil)
+                return
+            }
             
             var added = getAddedMetadata(metadatas: results.metadatas!)
             added.append(contentsOf: results.added)
@@ -456,22 +462,24 @@ final class MediaViewModel: NSObject {
             self?.delegate.dataSourceUpdated(refresh: refresh)
         })
     }
-    
-    private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
-        
+     
+    private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell) {
+     
         guard let metadata = metadatas[metadataId] else {
             cell.isAccessibilityElement = false
             return
         }
-
+        
         cell.isAccessibilityElement = true
         cell.accessibilityTraits = [.image]
         
         if metadata.video {
-            cell.showVideoIcon()
+            //cell.showVideoIcon()
+            if videoIcon != nil { cell.setStatusIcon(icon: videoIcon!) }
             cell.accessibilityLabel = Strings.MediaVideo
         } else if metadata.livePhoto {
-            cell.showLivePhotoIcon()
+            //cell.showLivePhotoIcon()
+            if livePhotoIcon != nil { cell.setStatusIcon(icon: livePhotoIcon!) }
             cell.accessibilityLabel = Strings.MediaLivePhoto
         } else {
             cell.resetStatusIcon()
@@ -485,14 +493,16 @@ final class MediaViewModel: NSObject {
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             
             if FileManager().fileExists(atPath: path) {
+                
+                autoreleasepool {
                     
-                let image = UIImage(contentsOfFile: path)
-                cell.setImage(image)
-                
-                if image != nil {
-                    cacheManager.cache(metadata: metadata, image: image!)
+                    let image = UIImage(contentsOfFile: path)
+                    cell.setImage(image)
+                    
+                    if image != nil {
+                        cacheManager.cache(metadata: metadata, image: image!)
+                    }
                 }
-                
             } else {
                 if !pauseLoading {
                     cacheManager.download(metadata: metadata, delegate: self)
@@ -503,7 +513,7 @@ final class MediaViewModel: NSObject {
 }
 
 extension MediaViewModel: DownloadOperationDelegate {
-    
+
     func imageDownloaded(metadata: Metadata) {
         
         var snapshot = dataSource.snapshot()

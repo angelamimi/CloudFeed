@@ -32,28 +32,36 @@ final class AppCoordinator: NSObject, Coordinator {
     func start() {
         
         let dbManager = DatabaseManager()
-        let error = dbManager.setup()
+        let store = StoreUtility()
         
-        if error {
+        guard let certificatesDirectory = store.certificatesDirectory else {
             showInitFailedError()
             return
         }
         
-        let dataService = DataService(nextcloudService: NextcloudKitService(), databaseManager: dbManager)
+        if dbManager.setup() {
+            showInitFailedError()
+            return
+        }
+        
+        let nextcloudService = NextcloudKitService(certificatesDirectory: certificatesDirectory, delegate: self)
+        let dataService = DataService(store: store, nextcloudService: nextcloudService, databaseManager: dbManager)
         
         if let activeAccount = dataService.getActiveAccount() {
             if Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId) {
                 dataService.setup(account: activeAccount.account, user: activeAccount.user, userId: activeAccount.userId, urlBase: activeAccount.urlBase)
             }
         }
-
-        if Environment.current.currentUser == nil {
-            let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)
-            loginServerCoordinator.start()
-        } else {
-            //let cache
+        
+        if let currentUser = Environment.current.currentUser {
+            
+            dataService.appendSession(userAccount: currentUser)
+            
             let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
             mainCoordinator.start()
+        } else {
+            let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)
+            loginServerCoordinator.start()
         }
     }
     
@@ -71,5 +79,43 @@ final class AppCoordinator: NSObject, Coordinator {
         window.makeKeyAndVisible()
         
         navigationController.present(alertController, animated: true)
+    }
+    
+    func showMaintenanceError() {
+        
+        if let tabs = window.rootViewController as? UITabBarController,
+           let navigationController = tabs.selectedViewController as? UINavigationController,
+           !(navigationController.visibleViewController is UIAlertController) {
+            
+            let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MaintenanceErrorMessage, preferredStyle: .alert)
+            
+            alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
+                navigationController.popViewController(animated: true)
+            }))
+            
+            navigationController.present(alertController, animated: true)
+        }
+    }
+    
+    func showServerError(error: Int) {
+        switch error {
+        case Global.shared.errorMaintenance:
+            showMaintenanceError()
+        default:
+            break
+        }
+    }
+}
+
+extension AppCoordinator: NextcloudKitServiceDelegate {
+    
+    nonisolated func serverStatusChanged(reachable: Bool) {
+        //not implemented
+    }
+    
+    nonisolated func serverError(error: Int) {
+        DispatchQueue.main.async { [weak self] in
+            self?.showServerError(error: error)
+        }
     }
 }

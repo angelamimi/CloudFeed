@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import Accelerate
 
-@MainActor
+//@MainActor
 extension UIImage {
 
     /// Downsamles a image using ImageIO. Has better memory perfomance than redrawing using UIKit
@@ -21,7 +21,7 @@ extension UIImage {
     ///   - pointSize: The target point size
     ///   - scale: The point to pixel scale (Pixeld per point)
     /// - Returns: The downsampled image, if successful
-    static func downsample(imageAt imageURL: URL, to pointSize: CGSize, scale: CGFloat = UIScreen.main.scale) -> UIImage? {
+    static func downsample(imageAt imageURL: URL, to pointSize: CGSize, scale: CGFloat) -> UIImage? {
 
         // Create an CGImageSource that represent an image
         let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
@@ -43,7 +43,7 @@ extension UIImage {
         return UIImage(cgImage: downsampledImage)
     }
     
-    static func downsample(imageData data: CFData, to pointSize: CGSize, scale: CGFloat = UIScreen.main.scale) -> UIImage? {
+    static func downsample(imageData data: CFData, to pointSize: CGSize, scale: CGFloat) -> UIImage? {
         // Create an CGImageSource that represent an image
         let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
         guard let imageSource = CGImageSourceCreateWithData(data, imageSourceOptions) else { return nil }
@@ -86,7 +86,7 @@ extension UIImage {
 
         return newImage
     }
-    
+
     func resizeImage(size: CGSize, isAspectRation: Bool = true) -> UIImage? {
 
         let originRatio = self.size.width / self.size.height
@@ -103,13 +103,14 @@ extension UIImage {
             }
         }
 
+        /* Can't use. Works for viewing at new size, but will not save as new size
+        let image = UIGraphicsImageRenderer(size: newSize).image { _ in
+            draw(in: CGRect(origin: .zero, size: newSize))
+        }*/
+        
         UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-        self.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        if let image = newImage {
-            return image
-        }
-        return self
+        self.draw(in: CGRect(origin: .zero, size: newSize))
+        defer { UIGraphicsEndImageContext() }
+        return UIGraphicsGetImageFromCurrentImageContext()
     }
 }

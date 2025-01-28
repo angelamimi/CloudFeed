@@ -135,8 +135,6 @@ class ViewerController: UIViewController {
 
         disappearing = true
         cleanupPlayer()
-        
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     open override func viewDidLayoutSubviews() {
@@ -320,31 +318,30 @@ class ViewerController: UIViewController {
     private func reloadImage() {
         if let metadata = viewModel.getMetadataFromOcId(metadata.ocId) {
             self.metadata = metadata
-            loadImage(metadata: metadata)
+            
+            activityIndicator.startAnimating()
+
+            Task(priority: .high) { [weak self] in
+                await self?.loadImage(metadata: metadata)
+            }
         }
     }
     
-    private func loadImage(metadata: Metadata) {
+    private func loadImage(metadata: Metadata) async {
+    
+        let image = await viewModel.loadImage(metadata: metadata, viewWidth: view.frame.width, viewHeight: view.frame.height)
         
-        activityIndicator.startAnimating()
+        path = viewModel.getFilePath(metadata)
         
-        Task { [weak self] in
-            guard let self else { return }
+        if path != nil && currentStatus() == .details {
+            updateDetailsForPath(path!)
+        }
+        
+        if image != nil && metadata.ocId == metadata.ocId && imageView.layer.sublayers?.count == nil {
             
-            let image = await self.viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
-            
-            self.path = self.viewModel.getFilePath(metadata)
-            
-            if self.path != nil && self.currentStatus() == .details { 
-                self.updateDetailsForPath(self.path!)
-            }
-            
-            if image != nil && self.metadata.ocId == metadata.ocId && self.imageView.layer.sublayers?.count == nil {
-                
-                DispatchQueue.main.async { [weak self] in
-                    self?.setImage(image: image!)
-                    self?.handleImageLoaded(metadata: metadata)
-                }
+            DispatchQueue.main.async { [weak self] in
+                self?.setImage(image: image!)
+                self?.handleImageLoaded(metadata: metadata)
             }
         }
     }
@@ -461,10 +458,6 @@ class ViewerController: UIViewController {
     private func currentStatus() -> Global.ViewerStatus {
         guard let pagerController = parent?.parent as? PagerController else { return .title }
         return pagerController.status
-    }
-    
-    private func cleanup() {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     private func cleanupPlayer() {

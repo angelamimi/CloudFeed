@@ -43,13 +43,14 @@ class CollectionViewCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         initCell()
-        /*DispatchQueue.main.async {
-            self.initCell()
-        }*/
     }
     
     func resetStatusIcon() {
         imageStatus.image = nil
+    }
+    
+    func setStatusIcon(icon: UIImage) {
+        imageStatus.image = icon
     }
     
     func showVideoIcon() {
@@ -89,16 +90,16 @@ class CollectionViewCell: UICollectionViewCell {
                 self?.imageView.backgroundColor = .secondarySystemBackground
                 return
             }
-            
-            guard let self else { return }
 
-            imageView.contentMode = .scaleAspectFill
-            
-            UIView.transition(with: self.imageView,
-                              duration: 0.5,
-                              options: .transitionCrossDissolve, 
-                              animations: { [weak self] in self?.imageView.image = image },
-                              completion: { [weak self] _ in self?.imageView.backgroundColor = .clear })
+            self?.imageView.contentMode = .scaleAspectFill
+
+            if let imageView = self?.imageView {
+                UIView.transition(with: imageView,
+                                  duration: 0.5,
+                                  options: .transitionCrossDissolve,
+                                  animations: { [weak self] in self?.imageView.image = image },
+                                  completion: { [weak self] _ in self?.imageView.backgroundColor = .clear })
+            }
         }
     }
     

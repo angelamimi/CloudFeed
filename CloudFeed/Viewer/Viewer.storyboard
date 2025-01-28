@@ -64,7 +64,7 @@
                                     <constraint firstAttribute="height" constant="300" id="u4l-oU-PNv"/>
                                 </constraints>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nF6-AV-sGu" customClass="DetailView" customModule="CloudFeed" customModuleProvider="target">
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nF6-AV-sGu" customClass="DetailView" customModule="CloudFeed" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="359" width="401" height="360"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>

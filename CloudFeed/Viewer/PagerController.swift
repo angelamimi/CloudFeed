@@ -45,13 +45,6 @@ class PagerController: UIViewController {
         category: String(describing: PagerController.self)
     )
     
-    override func viewSafeAreaInsetsDidChange() {
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -84,7 +77,7 @@ class PagerController: UIViewController {
         
         initObservers()
         initConstraints()
-    }
+  }
     
     override func viewDidDisappear(_ animated: Bool) {
         titleView?.menuButton.menu = nil

@@ -22,12 +22,21 @@
 @preconcurrency import NextcloudKit
 import os.log
 import UIKit
+import Alamofire
+import OpenSSL
 
-protocol NextcloudKitServiceProtocol: Sendable {
+protocol NextcloudKitServiceDelegate: AnyObject, Sendable {
+    func serverError(error: Int)
+    func serverStatusChanged(reachable: Bool)
+}
+
+protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     
-    func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String)
-    func setupVersion(serverVersionMajor: Int)
+    func setup()
     func getCapabilities(account: String) async -> (account: String?, data: Data?)
+    func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, nextcloudVersion: Int, groupIdentifier: String)
+    func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)?
+    func getLoginFlowV2(url: String) async -> (token: String, endpoint: String, login: String, serverVersion: Int)?
     
     func download(metadata: Metadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> Bool
     func downloadPreview(account: String, fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String?
@@ -44,19 +53,24 @@ protocol NextcloudKitServiceProtocol: Sendable {
 
 final class NextcloudKitService : NextcloudKitServiceProtocol {
     
+    let certificatesDirectory: URL
+    private let delegate: NextcloudKitServiceDelegate
+    
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: NextcloudKitService.self)
     )
     
-    // MARK: -
-    // MARK: NextcloudKit Setup
-    func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String) {
-        NextcloudKit.shared.setup(account: account, user: user, userId: userId, password: password, urlBase: urlBase)
+    init(certificatesDirectory: URL, delegate: NextcloudKitServiceDelegate) {
+        self.certificatesDirectory = certificatesDirectory
+        self.delegate = delegate
     }
     
-    func setupVersion(serverVersionMajor: Int) {
-        NextcloudKit.shared.setup(nextcloudVersion: serverVersionMajor)
+    // MARK: -
+    // MARK: NextcloudKit Setup
+    
+    func setup() {
+        NextcloudKit.shared.setup(delegate: self)
     }
     
     func getCapabilities(account: String) async -> (account: String?, data: Data?) {
@@ -65,7 +79,63 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.getCapabilities(account: account, options: options) { account, data, error in
-                continuation.resume(returning: (account, data))
+                continuation.resume(returning: (account, data?.data))
+            }
+        }
+    }
+    
+    func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, nextcloudVersion: Int, groupIdentifier: String) {
+        
+        NextcloudKit.shared.appendSession(account: account, urlBase: urlBase, user: user,
+                                          userId: userId, password: password,
+                                          userAgent: userAgent, nextcloudVersion: nextcloudVersion,
+                                          groupIdentifier: groupIdentifier)
+    }
+    
+    func getLoginFlowV2(url: String) async -> (token: String, endpoint: String, login: String, serverVersion: Int)? {
+        
+        guard let serverVersion = await checkServerStatus(url: url) else { return nil }
+        
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.getLoginFlowV2(serverUrl: url) { token, endpoint, login, _, error in
+                
+                if error == .success, let token, let endpoint, let login {
+                    continuation.resume(returning: (token: token, endpoint: endpoint, login: login, serverVersion: serverVersion))
+                } else {
+                    continuation.resume(returning: (token: "", endpoint: "", login: "", serverVersion: serverVersion))
+                }
+            }
+        }
+    }
+    
+    private func checkServerStatus(url: String) async -> Int? {
+        
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.getServerStatus(serverUrl: url) { _, serverInfoResult in
+                
+                switch serverInfoResult {
+                case .success(let serverInfo):
+                    continuation.resume(returning: serverInfo.versionMajor)
+                case .failure(let error):
+                    if error.errorCode == NSURLErrorServerCertificateUntrusted {
+                        //TODO: Bubble up the error to the user? Invalid or not trusted server certificate
+                        Self.logger.debug("NSURLErrorServerCertificateUntrusted")
+                    }
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+    
+    func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)? {
+        
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.getLoginFlowV2Poll(token: token, endpoint: endpoint) { server, loginName, appPassword, _, error in
+                if error == .success, let urlBase = server, let user = loginName, let appPassword {
+                    continuation.resume(returning: (urlBase: urlBase, user: user, appPassword: appPassword))
+                    return
+                }
+                continuation.resume(returning: nil)
             }
         }
     }
@@ -100,23 +170,18 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     func downloadPreview(account: String, fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String? {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
-        let size = ImageUtility.getPreviewSize(width: previewWidth, height: previewHeight)
-        
+
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.downloadPreview(fileId: fileId,
-                                                fileNamePreviewLocalPath: previewPath,
-                                                fileNameIconLocalPath: iconPath,
-                                                widthPreview: Int(size.width),
-                                                heightPreview: Int(size.height),
-                                                sizeIcon: Global.shared.sizeIcon,
                                                 etag: etagResource,
                                                 account: account,
-                                                options: options) { _, imagePreview, _, _, etag, error in
-                if error == .success, imagePreview != nil {
+                                                options: options) { _, _, _, etag, responseData, error in
+                if error == .success, let data = responseData?.data {
+                    ImageUtility.saveImageAtPaths(data: data, previewPath: previewPath, iconPath: iconPath)
                     continuation.resume(returning: etag)
-                } else {
-                    continuation.resume(returning: nil)
+                    return
                 }
+                continuation.resume(returning: nil)
             }
         }
     }
@@ -134,7 +199,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                 avatarSizeRounded: avatarSizeRounded,
                 etag: etag, 
                 account: account,
-                options: options) { _, _, _, etag, error in
+                options: options) { _, image, _, etag, _, error in
                     
                     guard let etag = etag, error == .success else {
                         Self.logger.error("downloadAvatar() - error: \(error.errorDescription)")
@@ -186,10 +251,10 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                 options: options) { responseAccount, files, data, error in
                     
                     //Self.logger.debug("searchMedia() - files count: \(files.count) toDate: \(toDate.formatted(date: .abbreviated, time: .standard)) fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
-
-                    if error == .success && responseAccount == account && files.count > 0 {
-                        continuation.resume(returning: (Array(files.map { Metadata.init(file: $0) }), false))
-                    } else if error == .success && files.count == 0 {
+                    
+                    if error == .success && responseAccount == account && files != nil && files!.count > 0 {
+                        continuation.resume(returning: (Array(files!.map { Metadata.init(file: $0) }), false))
+                    } else if error == .success &&  files != nil && files!.count == 0 {
                         continuation.resume(returning: ([], false))
                     } else if error != .success {
                         Self.logger.error("[ERROR] Media search new media error code \(error.errorCode) \(error.errorDescription)")
@@ -205,10 +270,10 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     // MARK: -
     // MARK: Favorite
     func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> Bool {
-        
+
         return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.setFavorite(fileName: fileName, favorite: favorite, account: account) { favAccount, error in
-                if error == .success && account == favAccount {
+            NextcloudKit.shared.setFavorite(fileName: fileName, favorite: favorite, account: account) { _, _, error in
+                if error == .success {
                     continuation.resume(returning: false)
                     return
                 }
@@ -223,12 +288,11 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.listingFavorites(showHiddenFiles: false, account: account, options: options) { account, files, data, error in
-                guard error == .success else {
+                guard error == .success, let files else {
                     continuation.resume(returning: (account, nil))
                     return
                 }
-                
-                continuation.resume(returning: (account, Array(files.map { Metadata.init(file: $0) })))
+                continuation.resume(returning: (account, files.map { Metadata.init(file: $0) }))
             }
         }
     }
@@ -251,6 +315,127 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                 
                 continuation.resume(returning: (userProfile.displayName, userProfile.email))
             }
+        }
+    }
+    
+    private func checkTrustedChallenge(_ session: URLSession,
+                                       didReceive challenge: URLAuthenticationChallenge,
+                                       completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        
+        let protectionSpace: URLProtectionSpace = challenge.protectionSpace
+        let directoryCertificate = certificatesDirectory.relativeString
+        let host = challenge.protectionSpace.host
+        let certificateSavedPath = directoryCertificate + "/" + host + ".der"
+        var isTrusted: Bool
+
+        if let trust: SecTrust = protectionSpace.serverTrust,
+           let certificates = (SecTrustCopyCertificateChain(trust) as? [SecCertificate]),
+           let certificate = certificates.first {
+
+            //extract certificate text
+            saveX509Certificate(certificate, host: host, directoryCertificate: directoryCertificate)
+
+            let isServerTrusted = SecTrustEvaluateWithError(trust, nil)
+            let certificateCopyData = SecCertificateCopyData(certificate)
+            let data = CFDataGetBytePtr(certificateCopyData)
+            let size = CFDataGetLength(certificateCopyData)
+            let certificateData = NSData(bytes: data, length: size)
+
+            certificateData.write(toFile: directoryCertificate + "/" + host + ".tmp", atomically: true)
+
+            if isServerTrusted {
+                isTrusted = true
+            } else if let certificateDataSaved = NSData(contentsOfFile: certificateSavedPath), certificateData.isEqual(to: certificateDataSaved as Data) {
+                isTrusted = true
+            } else {
+                isTrusted = false
+            }
+        } else {
+            isTrusted = false
+        }
+
+        if isTrusted {
+            completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+        } else {
+            //TODO: Ask user to trust?
+            Self.logger.warning("Server not trusted")
+            completionHandler(.performDefaultHandling, nil)
+        }
+    }
+
+    private func saveX509Certificate(_ certificate: SecCertificate, host: String, directoryCertificate: String) {
+        
+        let certNamePathTXT = directoryCertificate + "/" + host + ".txt"
+        let data: CFData = SecCertificateCopyData(certificate)
+        let mem = BIO_new_mem_buf(CFDataGetBytePtr(data), Int32(CFDataGetLength(data)))
+        let x509cert = d2i_X509_bio(mem, nil)
+
+        if x509cert == nil {
+            NextcloudKit.shared.nkCommonInstance.writeLog("[ERROR] OpenSSL couldn't parse X509 Certificate")
+        } else {
+            // save details
+            if FileManager.default.fileExists(atPath: certNamePathTXT) {
+                do {
+                    try FileManager.default.removeItem(atPath: certNamePathTXT)
+                } catch { }
+            }
+            let fileCertInfo = fopen(certNamePathTXT, "w")
+            if fileCertInfo != nil {
+                let output = BIO_new_fp(fileCertInfo, BIO_NOCLOSE)
+                X509_print_ex(output, x509cert, UInt(XN_FLAG_COMPAT), UInt(X509_FLAG_COMPAT))
+                BIO_free(output)
+            }
+            fclose(fileCertInfo)
+            X509_free(x509cert)
+        }
+
+        BIO_free(mem)
+    }
+}
+
+extension NextcloudKitService: NextcloudKitDelegate {
+
+    func authenticationChallenge(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+
+        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodClientCertificate {
+            //Self.logger.debug("authenticationChallenge() - NSURLAuthenticationMethodClientCertificate - NOT IMPLEMENTED")
+            completionHandler(.performDefaultHandling, nil)
+        } else {
+            checkTrustedChallenge(session, didReceive: challenge, completionHandler: completionHandler)
+        }
+    }
+    
+    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        
+    }
+    
+    func networkReachabilityObserver(_ typeReachability: NKCommon.TypeReachability) {
+        delegate.serverStatusChanged(reachable: typeReachability == .reachableCellular || typeReachability == .reachableEthernetOrWiFi)
+    }
+    
+    func downloadProgress(_ progress: Float, totalBytes: Int64, totalBytesExpected: Int64, fileName: String, serverUrl: String, session: URLSession, task: URLSessionTask) {
+        //Self.logger.debug("downloadProgress")
+    }
+    
+    func uploadProgress(_ progress: Float, totalBytes: Int64, totalBytesExpected: Int64, fileName: String, serverUrl: String, session: URLSession, task: URLSessionTask) {
+        //Self.logger.debug("uploadProgress")
+    }
+    
+    func downloadingFinish(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        //Self.logger.debug("downloadingFinish")
+    }
+    
+    func downloadComplete(fileName: String, serverUrl: String, etag: String?, date: Date?, dateLastModified: Date?, length: Int64, task: URLSessionTask, error: NKError) {
+        //Self.logger.debug("downloadComplete")
+    }
+    
+    func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: Date?, size: Int64, task: URLSessionTask, error: NKError) {
+        //Self.logger.debug("uploadComplete")
+    }
+    
+    func request<Value: Sendable>(_ request: Alamofire.DataRequest, didParseResponse response: Alamofire.AFDataResponse<Value>) {
+        if let statusCode = response.response?.statusCode, statusCode == Global.shared.errorMaintenance {
+            delegate.serverError(error: statusCode)
         }
     }
 }

@@ -38,6 +38,17 @@ struct StoreUtility: Sendable {
         return path
     }
     
+    var certificatesDirectory: URL? {
+        let directory = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first
+        do {
+            let url = directory!.appendingPathComponent( "Certificates", isDirectory: true)
+            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            return url
+        } catch  {
+            return nil
+        }
+    }
+    
     func getPassword(_ account: String!) -> String! {
         let key = "password" + account
         return Keychain(service: Global.shared.keyChain)[key]
@@ -256,7 +267,7 @@ struct StoreUtility: Sendable {
         }
     }
     
-    func clearCache() {
+    func clearCache() async {
         
         let fileManager = FileManager.default
         let cachesDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]

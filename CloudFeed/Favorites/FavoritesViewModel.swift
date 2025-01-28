@@ -63,7 +63,7 @@ final class FavoritesViewModel: NSObject {
     }
     
     func initDataSource(collectionView: UICollectionView) {
-        
+
         dataSource = UICollectionViewDiffableDataSource<Int, Metadata.ID>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadataId: Metadata.ID) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
             self.populateCell(metadataId: metadataId, cell: cell, indexPath: indexPath, collectionView: collectionView)
@@ -147,7 +147,7 @@ final class FavoritesViewModel: NSObject {
     }
     
     func loadMore(type: Global.FilterType, filterFromDate: Date?, filterToDate: Date?) {
-        
+
         var offsetDate: Date?
         var offsetName: String?
 
@@ -173,7 +173,7 @@ final class FavoritesViewModel: NSObject {
     }
     
     func reload() {
-        
+
         var snapshot = dataSource.snapshot()
         
         guard snapshot.numberOfSections > 0 else { return }
@@ -183,7 +183,7 @@ final class FavoritesViewModel: NSObject {
     }
     
     func fetch(type: Global.FilterType, refresh: Bool) {
-        
+
         delegate.fetching()
                 
         fetchTask = Task { [weak self] in
@@ -219,7 +219,7 @@ final class FavoritesViewModel: NSObject {
     }
     
     func syncFavs(type: Global.FilterType, from: Date?, to: Date?) {
-        
+
         delegate.fetching()
                 
         fetchTask = Task { [weak self] in
@@ -263,7 +263,7 @@ final class FavoritesViewModel: NSObject {
     }
     
     func refreshItems(_ refreshItems: [IndexPath]) {
-        
+
         let items = refreshItems.compactMap { dataSource.itemIdentifier(for: $0) }
         
         var snapshot = dataSource.snapshot()
@@ -473,8 +473,13 @@ extension FavoritesViewModel: DownloadOperationDelegate {
         let displayed = snapshot.itemIdentifiers(inSection: 0)
         
         if displayed.contains(metadata.id) {
-            snapshot.reconfigureItems([metadata.id])
-            dataSource.apply(snapshot)
+            
+            let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
+            
+            if FileManager().fileExists(atPath: path) {
+                snapshot.reconfigureItems([metadata.id])
+                dataSource.apply(snapshot)
+            }
         }
     }
 }

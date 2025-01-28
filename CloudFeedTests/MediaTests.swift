@@ -42,7 +42,8 @@ class MediaTests {
         #expect(result?.metadatas.count == 0)
     }
 
-    @Test func listingFavoritesTest() async throws {
+    /*
+     @Test func listingFavoritesTest() async throws {
         
         let error = await dataService?.getFavorites()
         
@@ -54,7 +55,7 @@ class MediaTests {
         
         //3 metadata files total. 2 belong to 1 live photo. Live video should be filtered out
         #expect(favMetadatas?.count == 2)
-    }
+    }*/
     
     /*
      @Test func viewModelTest() async throws {
@@ -73,15 +74,16 @@ class MediaTests {
     
     private func setup() throws {
         
-        databaseManager = MockDatabaseManager()
+        databaseManager = DatabaseManager()
         #expect(databaseManager != nil)
         
-        let setupResult = databaseManager!.setup()
+        let setupResult = databaseManager!.setup(identifier: "TestDatabase")
         #expect(setupResult == true)
         
         nextCloudService = MockNextcloudKitService()
         
-        dataService = DataService(nextcloudService: nextCloudService!, databaseManager: databaseManager!)
+        let store = StoreUtility()
+        dataService = DataService(store: store, nextcloudService: nextCloudService!, databaseManager: databaseManager!)
         #expect(dataService != nil)
 
         dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)

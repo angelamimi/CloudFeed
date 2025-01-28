@@ -23,7 +23,7 @@ import os.log
 import UIKit
 
 @MainActor
-protocol LoginDelegate: AnyObject {
+protocol LoginDelegate: AnyObject, Sendable {
     func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String)
     func loginError()
 }
@@ -31,8 +31,8 @@ protocol LoginDelegate: AnyObject {
 @MainActor
 final class LoginViewModel: NSObject {
     
-    let delegate: LoginDelegate
-    let dataService: DataService
+    weak var delegate: LoginDelegate?
+    weak var dataService: DataService?
     
     private static let logger = Logger(
             subsystem: Bundle.main.bundleIdentifier!,
@@ -43,32 +43,41 @@ final class LoginViewModel: NSObject {
         self.delegate = delegate
         self.dataService = dataService
     }
+
+    func loginPoll(token: String, endpoint: String) async {
+        
+        if let result = await dataService?.loginPoll(token: token, endpoint: endpoint) {
+            login(server: result.urlBase, username: result.user, password: result.appPassword)
+        }
+    }
     
     func login(server: String, username: String, password: String) {
         
         var urlBase = server
 
-        // Normalized
         if urlBase.last == "/" {
             urlBase = String(urlBase.dropLast())
         }
 
         let account: String = "\(username) \(urlBase)"
 
-        if dataService.getAccounts() == nil {
+        if dataService?.getAccounts() == nil {
             initSettings()
         }
 
         // Add new account
-        dataService.deleteAccount(account)
-        dataService.addAccount(account, urlBase: urlBase, user: username, password: password)
+        dataService?.deleteAccount(account)
+        dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
 
-        guard let tableAccount = dataService.setActiveAccount(account) else {
-            delegate.loginError()
-            return
+        Task { @MainActor [weak self] in
+            
+            guard let tableAccount = self?.dataService?.setActiveAccount(account) else {
+                self?.delegate?.loginError()
+                return
+            }
+            
+            self?.delegate?.loginSuccess(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
         }
-        
-        delegate.loginSuccess(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
      }
     
     private func initSettings() {
@@ -76,6 +85,6 @@ final class LoginViewModel: NSObject {
         URLCache.shared.memoryCapacity = 0
         URLCache.shared.diskCapacity = 0
 
-        dataService.clearDatabase(account: nil, removeAccount: true)
+        dataService?.clearDatabase(account: nil, removeAccount: true)
     }
 }

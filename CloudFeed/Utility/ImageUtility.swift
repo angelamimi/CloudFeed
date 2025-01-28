@@ -25,6 +25,33 @@ import UIKit
 
 final class ImageUtility: NSObject {
     
+    static func saveImageAtPaths(data: Data, previewPath: String, iconPath: String) {
+
+        autoreleasepool {
+            
+            guard let image = UIImage(data: data) else { return }
+            
+            if let previewImage = image.resizeImage(size: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)),
+               let data = previewImage.jpegData(compressionQuality: 0.5) {
+                do {
+                    try data.write(to: URL(fileURLWithPath: previewPath))
+                } catch {
+                    
+                }
+            }
+            
+            if let iconImage = image.resizeImage(size: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon)),
+               let data = iconImage.jpegData(compressionQuality: 0.7) {
+
+                do {
+                    try data.write(to: URL(fileURLWithPath: iconPath))
+                } catch {
+                    
+                }
+            }
+        }
+    }
+    
     @discardableResult
     static func loadSVGPreview(metadata: Metadata, imagePath: String, previewPath: String) -> UIImage? {
         
@@ -41,28 +68,6 @@ final class ImageUtility: NSObject {
         }
         
         return nil
-    }
-    
-    static func getPreviewSize(width: Int, height: Int) -> CGSize {
-        
-        var previewWidth = Double(Global.shared.sizePreview)
-        var previewHeight = Double(Global.shared.sizePreview)
-        
-        guard width > 0 && height > 0 else {
-            return CGSize(width: previewWidth, height: previewHeight)
-        }
-
-        let ratio: Double
-        
-        if width >= height {
-            ratio = Double(width) / Double(height)
-            previewHeight = previewWidth / ratio
-        } else {
-            ratio = Double(height) / Double(width)
-            previewWidth = previewHeight / ratio
-        }
-        
-        return CGSize(width: previewWidth, height: previewHeight)
     }
     
     static func imageFromVideo(url: URL, size: CGSize) async -> UIImage? {

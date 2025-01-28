@@ -93,12 +93,15 @@
 		39C31E8E2A7994880045DF50 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8D2A7994880045DF50 /* DataService.swift */; };
 		39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */; };
 		39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */; };
+		39E1701E2D271D0300790920 /* LoginServerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E1701D2D271CF900790920 /* LoginServerViewModel.swift */; };
 		39E570742B5DE80A00548E02 /* FilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E570732B5DE80A00548E02 /* FilterController.swift */; };
 		39E570762B5DE98100548E02 /* FilterView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39E570752B5DE98100548E02 /* FilterView.xib */; };
 		39E570782B5DF7C700548E02 /* FilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E570772B5DF7C700548E02 /* FilterView.swift */; };
+		39E593792D25C3CF00BA3C9A /* LoginPollController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E593782D25C3CC00BA3C9A /* LoginPollController.swift */; };
 		39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */; };
 		39EED48A2B56F9C100475802 /* DatabaseManager+Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */; };
 		39EED48C2B56FF2B00475802 /* DatabaseManager+Capabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */; };
+		39FA11A62D2AEA270054DFF6 /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 39FA11A52D2AEA270054DFF6 /* OpenSSL */; };
 		39FE2FE92C8B85F000CE51AC /* ControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39FE2FE82C8B85F000CE51AC /* ControlsView.xib */; };
 /* End PBXBuildFile section */
 
@@ -223,9 +226,11 @@
 		39C31E8D2A7994880045DF50 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 		39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudKitService.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Metadata.swift"; sourceTree = "<group>"; };
+		39E1701D2D271CF900790920 /* LoginServerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerViewModel.swift; sourceTree = "<group>"; };
 		39E570732B5DE80A00548E02 /* FilterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterController.swift; sourceTree = "<group>"; };
 		39E570752B5DE98100548E02 /* FilterView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FilterView.xib; sourceTree = "<group>"; };
 		39E570772B5DF7C700548E02 /* FilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterView.swift; sourceTree = "<group>"; };
+		39E593782D25C3CC00BA3C9A /* LoginPollController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPollController.swift; sourceTree = "<group>"; };
 		39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Avatar.swift"; sourceTree = "<group>"; };
 		39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Capabilities.swift"; sourceTree = "<group>"; };
@@ -252,6 +257,7 @@
 				392718662C35A181001C57C0 /* SVGKitSwift in Frameworks */,
 				392718642C359F95001C57C0 /* RealmSwift in Frameworks */,
 				392735B029BE3DED0058796A /* KeychainAccess in Frameworks */,
+				39FA11A62D2AEA270054DFF6 /* OpenSSL in Frameworks */,
 				39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */,
 				3927359C29BD3D510058796A /* NextcloudKit in Frameworks */,
 			);
@@ -439,9 +445,11 @@
 			isa = PBXGroup;
 			children = (
 				392735B529BE4FE00058796A /* Login.storyboard */,
+				39E593782D25C3CC00BA3C9A /* LoginPollController.swift */,
 				392735B929BE52600058796A /* LoginServerController.swift */,
 				392735B729BE50780058796A /* LoginWebController.swift */,
 				391579AB2AB645B400DFEAB1 /* LoginViewModel.swift */,
+				39E1701D2D271CF900790920 /* LoginServerViewModel.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -503,6 +511,7 @@
 				392735AF29BE3DED0058796A /* KeychainAccess */,
 				392718632C359F95001C57C0 /* RealmSwift */,
 				392718652C35A181001C57C0 /* SVGKitSwift */,
+				39FA11A52D2AEA270054DFF6 /* OpenSSL */,
 			);
 			productName = CloudFeed;
 			productReference = 3927356729BD1E820058796A /* CloudFeed.app */;
@@ -563,6 +572,7 @@
 				392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */,
 				392718622C359F95001C57C0 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				39FA11A42D2AEA270054DFF6 /* XCRemoteSwiftPackageReference "OpenSSL" */,
 			);
 			productRefGroup = 3927356829BD1E820058796A /* Products */;
 			projectDirPath = "";
@@ -640,6 +650,7 @@
 				39271D6229D908B100522DFD /* DetailController.swift in Sources */,
 				391579A82AB33F0000DFEAB1 /* FavoritesViewModel.swift in Sources */,
 				39271D6429D9091600522DFD /* DetailCell.swift in Sources */,
+				39E1701E2D271D0300790920 /* LoginServerViewModel.swift in Sources */,
 				3903CE6D2AA4DC37003E7E41 /* LoginServerCoordinator.swift in Sources */,
 				39E570742B5DE80A00548E02 /* FilterController.swift in Sources */,
 				392735AB29BE2DAA0058796A /* DatabaseManager+Account.swift in Sources */,
@@ -654,6 +665,7 @@
 				3927356B29BD1E820058796A /* AppDelegate.swift in Sources */,
 				39C31E8E2A7994880045DF50 /* DataService.swift in Sources */,
 				397B5C3C2C52F4B800EC7923 /* DetailView.swift in Sources */,
+				39E593792D25C3CF00BA3C9A /* LoginPollController.swift in Sources */,
 				398D14CC2B93B76700526E42 /* CacheManager.swift in Sources */,
 				395F3A1A2A9678340004FF32 /* Environment.swift in Sources */,
 				3903CE7D2AA78C72003E7E41 /* PagerCoordinator.swift in Sources */,
@@ -1010,7 +1022,7 @@
 			repositoryURL = "https://github.com/realm/realm-swift.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 20.0.0;
+				minimumVersion = 20.0.1;
 			};
 		};
 		39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */ = {
@@ -1025,8 +1037,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Nextcloud/NextcloudKit.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.8;
+				kind = exactVersion;
+				version = 5.0.3;
 			};
 		};
 		392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
@@ -1035,6 +1047,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 4.2.2;
+			};
+		};
+		39FA11A42D2AEA270054DFF6 /* XCRemoteSwiftPackageReference "OpenSSL" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/krzyzanowskim/OpenSSL";
+			requirement = {
+				kind = exactVersion;
+				version = 3.3.2000;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -1064,6 +1084,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 392718622C359F95001C57C0 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		39FA11A52D2AEA270054DFF6 /* OpenSSL */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 39FA11A42D2AEA270054DFF6 /* XCRemoteSwiftPackageReference "OpenSSL" */;
+			productName = OpenSSL;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

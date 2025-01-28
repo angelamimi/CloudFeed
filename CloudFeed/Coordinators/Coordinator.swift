@@ -33,4 +33,15 @@ extension Coordinator {
     func navigate(to coordinator: Coordinator) {
         coordinator.start()
     }
+    
+    func showErrorPrompt(message: String, navigationController: UINavigationController) {
+        
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: message, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
+            navigationController.popViewController(animated: true)
+        }))
+        
+        navigationController.present(alertController, animated: true)
+    }
 }

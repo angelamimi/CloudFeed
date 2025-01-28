@@ -108,7 +108,7 @@ class FavoritesController: CollectionController {
     }
     
     private func syncFavorites() {
-        
+
         if collectionView.isHidden == true && emptyView.isHidden == false {
             emptyView.hide() //hiding empty view during sync looks better
         }

@@ -9,6 +9,7 @@
 /* Common */
 "Ok.Action" = "Ok";
 "Cancel.Action" = "Cancel";
+"Retry.Action" = "Retry";
 "Error.Title" = "Error";
 "Live.Title" = "LIVE";
 
@@ -34,9 +35,13 @@
 /* Login */
 "Init.Error.Message" = "Initialization failed. Please try again.";
 "Url.Error.Message" = "Failed to load URL. Please try again.";
+"Maintenance.Error.Message" = "Server is currently in maintenance mode";
+"Login.UnsupportedVersion.Error.Message" = "Login unavailable";
+"Login.ServerConnection.Error.Message" = "Failed to connect to server";
 "Login.Server.Label" = "Server URL";
 "Login.Server.Button" = "Connect";
 "Login.Server.Title" = "Server Login";
+"Login.Poll" = "Please complete the log in process in your browser";
 
 /* Media */
 "Media.Error.Message" = "Failed to load new media.";

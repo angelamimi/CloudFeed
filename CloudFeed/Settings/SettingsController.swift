@@ -117,7 +117,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             checkReset()
         }
         
-        tableView.deselectRow(at: indexPath, animated: true)
+        //tableView.deselectRow(at: indexPath, animated: true)
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -214,6 +214,10 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
 }
 
 extension SettingsController: SettingsDelegate {
+    
+    func applicationReset() {
+        exit(0)
+    }
     
     func avatarLoaded(image: UIImage?) {
         self.profileImage = image

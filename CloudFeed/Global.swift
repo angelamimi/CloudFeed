@@ -28,6 +28,10 @@ final class Global: Sendable {
     let keyChain                      = "com.angelamimi.cloudfeed"
     let userAgent                     = "CloudFeed-iOS"
     
+    // MARK: - Login
+    //
+    let minimumServerVersion          = 12
+    
     // MARK: - Remote
     //
     let davLocation                   = "/remote.php/dav/files/"
@@ -81,7 +85,11 @@ final class Global: Sendable {
     
     // MARK: - Error
     //
-    let errorNotModified: Int = 304
+    let errorNotModified: Int    = 304
+    let errorMaintenance: Int    = 503
+    let errorConnectionLost: Int = -1005
+    let errorTimeout: Int        = -1001
+    let errorOffline: Int        = -1009
     
     // MARK: - Search
     //

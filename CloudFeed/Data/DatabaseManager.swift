@@ -28,7 +28,8 @@ import os.log
 import RealmSwift
 import UIKit
 
-class DatabaseManager {
+
+final class DatabaseManager: Sendable {
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -56,6 +57,16 @@ class DatabaseManager {
         }
         
         return false
+    }
+    
+    func setup(identifier: String) -> Bool {
+        
+        let config = Realm.Configuration(inMemoryIdentifier: identifier, migrationBlock: nil)
+        
+        Realm.Configuration.defaultConfiguration = config
+        Logger.shared.level = .warn
+        
+        return true
     }
     
     func clearTable(_ table: Object.Type, account: String? = nil) {

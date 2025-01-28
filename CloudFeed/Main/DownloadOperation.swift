@@ -44,12 +44,8 @@ class DownloadOperation: AsyncOperation, @unchecked Sendable {
         self.dataService = dataService
     }
     
-    deinit {
-        self.delegate = nil
-    }
-    
     override func main() {
-        
+
         task = Task(priority: .background) { [weak self] in
 
             if self?.isCancelled ?? true {

@@ -138,7 +138,7 @@ extension ViewerViewModel {
             await createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
             image = UIImage(contentsOfFile: imagePath)
             
-            let imageWidth : CGFloat = image?.size.width ?? 0
+            /*let imageWidth : CGFloat = image?.size.width ?? 0
             let imageHeight : CGFloat = image?.size.height ?? 0
             
             if image != nil && (imageWidth > viewWidth || imageHeight > viewHeight) {
@@ -154,9 +154,9 @@ extension ViewerViewModel {
                         newSize = CGSize(width: viewHeight, height: viewHeight)
                     }
 
-                    return UIImage.downsample(imageData: (fileData! as CFData), to: newSize!)
+                    return UIImage.downsample(imageData: (fileData! as CFData), to: newSize!, scale: UIScreen.main.scale)
                 }
-            }
+            }*/
                 
             return image
         }

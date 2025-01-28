@@ -23,12 +23,12 @@
 import Foundation
 import RealmSwift
 
-class MockDatabaseManager: DatabaseManager {
+class MockDatabaseManager {
     
-    override func setup() -> Bool {
+    /*func setup() -> Bool {
         let config = Realm.Configuration(inMemoryIdentifier: "TestDatabase")
         let _ = try! Realm(configuration: config)
         Logger.shared.level = .warn
         return true
-    }
+    }*/
 }

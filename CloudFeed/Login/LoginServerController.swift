@@ -23,12 +23,9 @@ import UIKit
 
 class LoginServerController: UIViewController {
     
-    var coordinator: LoginServerCoordinator!
-    
     @IBOutlet weak var serverURLLabel: UILabel!
     @IBOutlet weak var serverURLTextField: UITextField!
     @IBOutlet weak var serverURLButton: UIButton!
-    
     @IBOutlet weak var centerConstraint: NSLayoutConstraint!
     
     @IBAction func doneEditing(_ sender: Any) {
@@ -39,9 +36,29 @@ class LoginServerController: UIViewController {
         processURL()
     }
     
+    var coordinator: LoginServerCoordinator!
+    var viewModel: LoginServerViewModel!
+    
+    var centerOffset: Double = 0
+    
     override func viewDidLoad() {
+        
         serverURLLabel.text = Strings.LoginServerLabel
         serverURLButton.setTitle(Strings.LoginServerButton, for: .normal)
+        
+        navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        centerOffset = centerConstraint.constant
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -52,64 +69,77 @@ class LoginServerController: UIViewController {
         return false
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)),
-                                               name: UIResponder.keyboardWillShowNotification, object: nil)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)),
-                                               name: UIResponder.keyboardWillHideNotification, object: nil)
+    @objc private func willEnterForeground() {
+        serverURLTextField.resignFirstResponder()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    @objc private func keyboardWillShow(notification: Notification) {
 
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
-    }
-    
-    @objc
-    private func keyboardWillShow(notification: Notification) {
-        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-            adjust(keyboardTop: keyboardFrame.origin.y)
+        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+           let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
+           let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
+            
+            let bottom = serverURLButton.frame.origin.y + serverURLButton.frame.height + 8
+
+            if bottom > keyboardFrame.minY {
+                
+                let shift = bottom - keyboardFrame.minY
+                
+                centerConstraint.constant = centerOffset - shift
+                
+                let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
+                
+                UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options) { [weak self] in
+                    self?.view.layoutIfNeeded()
+                }
+            }
         }
     }
 
-    @objc 
-    private func keyboardWillBeHidden(notification: Notification) {
-        resetPosition()
-    }
-    
-    private func adjust(keyboardTop: CGFloat) {
+    @objc private func keyboardWillBeHidden(notification: Notification) {
         
-        let padding = 10.0
-        let buttonBottom = serverURLButton.frame.origin.y + serverURLButton.frame.height
-        
-        if buttonBottom + padding >= keyboardTop {
-            let diff = (buttonBottom + padding) - keyboardTop
-            centerConstraint.constant = centerConstraint.constant - diff
-        }
-    }
-    
-    private func resetPosition() {
-        if centerConstraint.constant != 50 {
-            centerConstraint.constant = 50
+        if let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
+           let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
+
+            centerConstraint.constant = centerOffset
+            
+            let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
+            
+            UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options) { [weak self] in
+                self?.view.layoutIfNeeded()
+            }
         }
     }
     
     private func processURL() {
         
+        guard let url = validateUrl() else { return }
+        
+        Task { [weak self] in
+            
+            let result = await self?.viewModel.beginLoginFlow(url: url)
+
+            if result == nil {
+                self?.coordinator.showServerConnectionErrorPrompt()
+            } else if result!.error {
+                self?.coordinator.showUnsupportedVersionErrorPrompt()
+            } else {
+                self?.coordinator.navigateToWebLogin(token: result!.token, endpoint: result!.endpoint, login: result!.login)
+            }
+        }
+    }
+    
+    private func validateUrl() -> String? {
+        
         guard var url = serverURLTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
             coordinator.showInvalidURLPrompt()
-            return
+            return nil
         }
         
         if url.hasSuffix("/") { url = String(url.dropLast()) }
         if url.count == 0 {
             coordinator.showInvalidURLPrompt()
-            return
+            return nil
         }
         
         // Check whether baseUrl contain protocol. If not add https:// by default.
@@ -117,6 +147,6 @@ class LoginServerController: UIViewController {
             url = "https://" + url
         }
         
-        coordinator.navigateToWebLogin(url: url)
+        return url
     }
 }

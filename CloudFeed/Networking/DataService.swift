@@ -24,10 +24,9 @@ import os.log
 @preconcurrency import NextcloudKit
 import UIKit
 
-@MainActor
-final class DataService: NSObject {
+final class DataService: NSObject, Sendable {
     
-    let store = StoreUtility()
+    let store: StoreUtility
     
     private let nextcloudService: NextcloudKitServiceProtocol
     private let databaseManager: DatabaseManager
@@ -37,23 +36,17 @@ final class DataService: NSObject {
         category: String(describing: DataService.self)
     )
     
-    init(nextcloudService: NextcloudKitServiceProtocol, databaseManager: DatabaseManager) {
+    init(store: StoreUtility, nextcloudService: NextcloudKitServiceProtocol, databaseManager: DatabaseManager) {
+        self.store = store
         self.nextcloudService = nextcloudService
         self.databaseManager = databaseManager
     }
     
     func setup(account: String, user: String, userId: String, urlBase: String) {
         
-        let password = store.getPassword(account)
+        nextcloudService.setup()
         
-        nextcloudService.setupAccount(account: account, user: user, userId: userId, password: password!, urlBase: urlBase)
-
         NextcloudKit.shared.nkCommonInstance.levelLog = 0
-        
-        let serverVersionMajor = databaseManager.getCapabilitiesServerInt(account: account, elements: Global.shared.capabilitiesVersionMajor)
-        if serverVersionMajor > 0 {
-            nextcloudService.setupVersion(serverVersionMajor: serverVersionMajor)
-        }
         
         Task { [weak self] in
             guard let self else { return }
@@ -63,6 +56,27 @@ final class DataService: NSObject {
             databaseManager.addCapabilitiesJSon(account: account!, data: data!)
         }
     }
+    
+    func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)? {
+ 
+        return await nextcloudService.loginPoll(token: token, endpoint: endpoint)
+    }
+    
+    func getLoginFlowV2(url: String) async -> (token: String, endpoint: String, login: String, serverVersion: Int)? {
+     
+        return await nextcloudService.getLoginFlowV2(url: url)
+    }
+    
+    func appendSession(userAccount: UserAccount) {
+        
+        let password = store.getPassword(userAccount.account) ?? ""
+        let serverVersionMajor = databaseManager.getCapabilitiesServerInt(account: userAccount.account, elements: Global.shared.capabilitiesVersionMajor)
+        
+        nextcloudService.appendSession(account: userAccount.account, urlBase: userAccount.urlBase, user: userAccount.user, userId: userAccount.userId,
+                                       password: password, userAgent: Global.shared.userAgent, nextcloudVersion: serverVersionMajor,
+                                       groupIdentifier: Global.shared.groupIdentifier)
+    }
+    
     
     // MARK: -
     // MARK: Account Management
@@ -126,6 +140,7 @@ final class DataService: NSObject {
     
     // MARK: -
     // MARK: Avatar
+    @MainActor
     func downloadAvatar(fileName: String, account: tableAccount) async {
         
         let fileNameLocalPath = store.getUserDirectory() + "/" + fileName
@@ -190,6 +205,7 @@ final class DataService: NSObject {
         return fileName
     }
     
+    @MainActor
     func getFavorites() async -> Bool {
         
         guard let account = Environment.current.currentUser?.account else { return false }
@@ -202,6 +218,7 @@ final class DataService: NSObject {
         return false
     }
     
+    @MainActor
     func paginateFavoriteMetadata(type: Global.FilterType, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [Metadata] {
         
         guard let account = Environment.current.currentUser?.account else { return [] }
@@ -213,8 +230,9 @@ final class DataService: NSObject {
         return databaseManager.paginateMetadata(predicate: predicate, offsetDate: offsetDate, offsetName: offsetName)
     }
     
+    @MainActor
     func processFavorites(displayedMetadataIds: [Metadata.ID], displayedMetadatas: [Metadata.ID: Metadata], type: Global.FilterType, from: Date?, to: Date?) -> (delete: [Metadata.ID], add: [Metadata], update: [Metadata])? {
-        
+
         guard let account = Environment.current.currentUser?.account else { return nil }
         guard let mediaPath = getMediaPath() else { return nil }
         guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return nil }
@@ -343,6 +361,7 @@ final class DataService: NSObject {
     
     // MARK: -
     // MARK: Search
+    @MainActor
     func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [Metadata], added: [Metadata], updated: [Metadata], deleted: [Metadata], error: Bool) {
         
         guard let account = Environment.current.currentUser?.account else { return ([], [], [], [], true) }
@@ -437,6 +456,7 @@ final class DataService: NSObject {
         return activeAccount.mediaPath
     }
     
+    @MainActor
     private func getStartServerUrl(mediaPath: String?) -> String? {
 
         guard mediaPath != nil else { return nil }
@@ -454,6 +474,7 @@ final class DataService: NSObject {
     
     // MARK: -
     // MARK: Profile
+    @MainActor
     func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
         guard let account = Environment.current.currentUser?.account else { return ("", "") }
         return await nextcloudService.getUserProfile(account: account)

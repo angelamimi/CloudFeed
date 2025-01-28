@@ -25,22 +25,32 @@ final class LoginWebCoordinator : NSObject, Coordinator {
     
     private let window: UIWindow
     private let navigationController: UINavigationController
-    private let url: String
     private let dataService: DataService
     
-    init(window: UIWindow, navigationController: UINavigationController, dataService: DataService, url: String) {
+    private let token: String
+    private let endpoint: String
+    private let login: String
+    
+    init(window: UIWindow, navigationController: UINavigationController, dataService: DataService, token: String, endpoint: String, login: String) {
         self.window = window
         self.navigationController = navigationController
         self.dataService = dataService
-        self.url = url
+        self.token = token
+        self.endpoint = endpoint
+        self.login = login
     }
     
     func start() {
-        let loginController = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(identifier: "LoginWebController") as! LoginWebController
-        loginController.setURL(url: url)
-        loginController.coordinator = self
-        loginController.viewModel = LoginViewModel(delegate: loginController, dataService: dataService)
-        self.navigationController.pushViewController(loginController, animated: true)
+
+        let controller = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(identifier: "LoginPollController") as! LoginPollController
+
+        controller.token = token
+        controller.endpoint = endpoint
+        controller.login = login
+        controller.coordinator = self
+        controller.viewModel = LoginViewModel(delegate: controller, dataService: dataService)
+        
+        navigationController.pushViewController(controller, animated: true)
     }
 }
 
@@ -52,6 +62,10 @@ extension LoginWebCoordinator {
         
         if Environment.current.setCurrentUser(account: account, urlBase: urlBase, user: user, userId: userId) {
             dataService.setup(account: account, user: user, userId: userId, urlBase: urlBase)
+        }
+        
+        if let currentUser = Environment.current.currentUser {
+            dataService.appendSession(userAccount: currentUser)
         }
         
         let mainCoordinator = MainCoordinator(window: window, dataService: dataService)

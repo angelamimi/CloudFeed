@@ -24,12 +24,24 @@ import NextcloudKit
 import UIKit
 
 final class MockNextcloudKitService: NextcloudKitServiceProtocol {
-
-    func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String) {
+    
+    func setup() {
+        
     }
     
-    func setupVersion(serverVersionMajor: Int) {
+    func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, nextcloudVersion: Int, groupIdentifier: String) {
         
+    }
+    
+    func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)? {
+        return nil
+    }
+    
+    func getLoginFlowV2(url: String) async -> (token: String, endpoint: String, login: String, serverVersion: Int)? {
+        return nil
+    }
+
+    func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String) {
     }
     
     func getDirectDownload(metadata: CloudFeed.Metadata) async -> URL? {

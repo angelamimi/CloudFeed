@@ -104,7 +104,7 @@ class MediaController: CollectionController {
     }
     
     private func syncMedia() {
-        
+
         if collectionView.isHidden == true && emptyView.isHidden == false {
             emptyView.hide() //hiding empty view during sync looks better
         }
@@ -246,7 +246,9 @@ extension MediaController: MediaDelegate {
     
     func searchResultReceived(resultItemCount: Int?) {
         if resultItemCount == nil {
-            coordinator.showLoadFailedError()
+            coordinator.showLoadFailedError(retry: { [weak self] in
+                self?.syncMedia()
+            })
             displayResults(refresh: false)
         }
     }

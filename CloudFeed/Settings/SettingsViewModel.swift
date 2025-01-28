@@ -23,6 +23,7 @@ import UIKit
 
 @MainActor
 protocol SettingsDelegate: AnyObject {
+    func applicationReset()
     func avatarLoaded(image: UIImage?)
     func cacheCleared()
     func cacheCalculated(cacheSize: Int64)
@@ -68,26 +69,32 @@ final class SettingsViewModel: NSObject {
         
         let store = dataService.store
         
-        if let account = Environment.current.currentUser?.account {
-            dataService.clearDatabase(account: account, removeAccount: false)
+        Task(priority: .high) { [weak self] in
+            
+            if let account = Environment.current.currentUser?.account {
+                self?.dataService.clearDatabase(account: account, removeAccount: false)
+            }
+            
+            await store.clearCache()
+            
+            self?.delegate.cacheCleared()
         }
-        
-        store.clearCache()
-        
-        delegate.cacheCleared()
     }
     
     func reset() {
         
         let store = dataService.store
         
-        store.clearCache()
-        store.removeDocumentsDirectory()
-        store.deleteAllChainStore()
-        
-        dataService.removeDatabase()
-        
-        exit(0)
+        Task(priority: .high) { [weak self] in
+            
+            await store.clearCache()
+            store.removeDocumentsDirectory()
+            store.deleteAllChainStore()
+            
+            self?.dataService.removeDatabase()
+            
+            self?.delegate.applicationReset()
+        }
     }
     
     func calculateCacheSize() {
