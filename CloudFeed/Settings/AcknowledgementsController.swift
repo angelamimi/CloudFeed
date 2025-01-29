@@ -46,6 +46,9 @@ final class AcknowledgementsController : UITableViewController {
         tableView.rowHeight = UITableView.automaticDimension;
         tableView.estimatedRowHeight = 120;
         
+        tableView.layoutMargins = UIEdgeInsets.zero
+        tableView.separatorInset = UIEdgeInsets.zero
+        
         guard let plistURL = Bundle.main.url(forResource: "Acknowledgements", withExtension: "plist") else {
             Self.logger.error("Failed to load Acknowledgements.plist")
             return

@@ -35,7 +35,15 @@ Parts Copyright (c) Tipbit Inc</string>
 		<key>link</key>
 		<string>https://github.com/Nextcloud/NextcloudKit</string>
 		<key>license</key>
-		<string>GNU General Public License</string>
+		<string>https://github.com/nextcloud/NextcloudKit
+
+GPLv3 Licensed
+
+Copyright (c) Marino Faggiana
+
+Alamofire - MIT License (MIT) 
+SwiftyXMLParser - MIT License (MIT) 
+SwiftyJSON - MIT License (MIT)</string>
 	</dict>
 	<dict>
 		<key>title</key>
@@ -53,6 +61,16 @@ Parts Copyright (c) Tipbit Inc</string>
 		<key>license</key>
 		<string>GNU Lesser Generic Public License 2.1
 Copyright (c) VideoLAN</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>OpenSSL</string>
+		<key>link</key>
+		<string>https://www.openssl.org/source/license.html</string>
+		<key>license</key>
+		<string>https://www.openssl.org/source/license.html
+
+Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)</string>
 	</dict>
 </array>
 </plist>
