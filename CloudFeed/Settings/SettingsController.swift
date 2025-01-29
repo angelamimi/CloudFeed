@@ -58,7 +58,6 @@ class SettingsController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         requestProfile()
-        requestAvatar()
         calculateCacheSize()
     }
     
@@ -75,10 +74,6 @@ class SettingsController: UIViewController {
     private func requestProfile() {
         startActivityIndicator()
         viewModel.requestProfile()
-    }
-    
-    private func requestAvatar() {
-        viewModel.requestAvatar()
     }
     
     private func acknowledgements() {
@@ -116,8 +111,6 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         } else if indexPath.section == 2 && indexPath.item == 1 {
             checkReset()
         }
-        
-        //tableView.deselectRow(at: indexPath, animated: true)
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -219,14 +212,6 @@ extension SettingsController: SettingsDelegate {
         exit(0)
     }
     
-    func avatarLoaded(image: UIImage?) {
-        self.profileImage = image
-
-        DispatchQueue.main.async { [weak self] in
-            self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .automatic)
-        }
-    }
-    
     func cacheCleared() {
         coordinator.cacheCleared()
         calculateCacheSize()
@@ -246,8 +231,9 @@ extension SettingsController: SettingsDelegate {
         }
     }
     
-    func profileResultReceived(profileName: String, profileEmail: String) {
+    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?) {
         
+        self.profileImage = profileImage
         self.profileName = profileName
         self.profileEmail = profileEmail
         

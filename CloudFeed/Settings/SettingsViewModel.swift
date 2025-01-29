@@ -24,10 +24,9 @@ import UIKit
 @MainActor
 protocol SettingsDelegate: AnyObject {
     func applicationReset()
-    func avatarLoaded(image: UIImage?)
     func cacheCleared()
     func cacheCalculated(cacheSize: Int64)
-    func profileResultReceived(profileName: String, profileEmail: String)
+    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?)
 }
 
 @MainActor
@@ -43,28 +42,20 @@ final class SettingsViewModel: NSObject {
     
     func requestProfile() {
         
-        Task { [weak self] in
-            guard let self else { return }
-            
-            let result = await dataService.getUserProfile()
-            delegate.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail)
-        }
-    }
-    
-    func requestAvatar() {
-        
         guard let account = dataService.getActiveAccount() else { return }
         
         Task { [weak self] in
             guard let self else { return }
             
+            let result = await dataService.getUserProfile()
+            
             await downloadAvatar(account: account)
             let image = await loadAvatar(account: account)
             
-            delegate.avatarLoaded(image: image)
+            delegate.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail, profileImage: image)
         }
     }
-    
+
     func clearCache() {
         
         let store = dataService.store

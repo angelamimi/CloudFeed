@@ -45,9 +45,6 @@ final class MediaViewModel: NSObject {
     
     private var metadatas: [Metadata.ID: Metadata] = [:]
     
-    private var videoIcon = UIImage(systemName: "play.fill")
-    private var livePhotoIcon = UIImage(systemName: "livephoto")
-    
     private var fetchTask: Task<Void, Never>? {
         willSet {
             fetchTask?.cancel()
@@ -474,12 +471,10 @@ final class MediaViewModel: NSObject {
         cell.accessibilityTraits = [.image]
         
         if metadata.video {
-            //cell.showVideoIcon()
-            if videoIcon != nil { cell.setStatusIcon(icon: videoIcon!) }
+            cell.showVideoIcon()
             cell.accessibilityLabel = Strings.MediaVideo
         } else if metadata.livePhoto {
-            //cell.showLivePhotoIcon()
-            if livePhotoIcon != nil { cell.setStatusIcon(icon: livePhotoIcon!) }
+            cell.showLivePhotoIcon()
             cell.accessibilityLabel = Strings.MediaLivePhoto
         } else {
             cell.resetStatusIcon()
