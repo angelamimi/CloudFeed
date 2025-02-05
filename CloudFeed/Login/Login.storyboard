@@ -186,6 +186,53 @@
             </objects>
             <point key="canvasLocation" x="3044" y="3"/>
         </scene>
+        <!--Certificate Controller-->
+        <scene sceneID="QUI-UY-ILa">
+            <objects>
+                <viewController storyboardIdentifier="CertificateController" id="Aq1-jW-NZg" customClass="CertificateController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="ddM-7b-l5K">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nAT-yw-RqD">
+                                <rect key="frame" x="16" y="75" width="361" height="727"/>
+                                <subviews>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="249" scrollEnabled="NO" editable="NO" textAlignment="natural" adjustsFontForContentSizeCategory="YES" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BGg-IQ-tMN">
+                                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="38"/>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <color key="textColor" systemColor="labelColor"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="R1d-a9-Pe8" firstAttribute="bottom" secondItem="BGg-IQ-tMN" secondAttribute="bottom" id="1hr-yR-SfO"/>
+                                    <constraint firstItem="R1d-a9-Pe8" firstAttribute="trailing" secondItem="BGg-IQ-tMN" secondAttribute="trailing" id="6W1-UW-1Eg"/>
+                                    <constraint firstItem="BGg-IQ-tMN" firstAttribute="leading" secondItem="R1d-a9-Pe8" secondAttribute="leading" id="R0A-Ul-dLY"/>
+                                    <constraint firstItem="BGg-IQ-tMN" firstAttribute="top" secondItem="R1d-a9-Pe8" secondAttribute="top" id="YjJ-c6-zpd"/>
+                                </constraints>
+                                <viewLayoutGuide key="contentLayoutGuide" id="R1d-a9-Pe8"/>
+                                <viewLayoutGuide key="frameLayoutGuide" id="ouc-X9-NZM"/>
+                            </scrollView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="jKF-9d-Umd"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="jKF-9d-Umd" firstAttribute="bottom" secondItem="nAT-yw-RqD" secondAttribute="bottom" constant="16" id="Dpz-ge-3os"/>
+                            <constraint firstItem="jKF-9d-Umd" firstAttribute="trailing" secondItem="nAT-yw-RqD" secondAttribute="trailing" constant="16" id="M3s-r5-z2Y"/>
+                            <constraint firstItem="nAT-yw-RqD" firstAttribute="top" secondItem="jKF-9d-Umd" secondAttribute="top" constant="16" id="Wrq-MD-cpp"/>
+                            <constraint firstItem="nAT-yw-RqD" firstAttribute="leading" secondItem="jKF-9d-Umd" secondAttribute="leading" constant="16" id="xYm-rD-sJk"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="LnL-C5-276"/>
+                    <connections>
+                        <outlet property="textView" destination="BGg-IQ-tMN" id="2Ub-Yt-Rv1"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="uhK-yz-AXN" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3796" y="3"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="FMB-jD-ywl">
             <objects>

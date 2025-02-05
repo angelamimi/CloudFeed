@@ -11,6 +11,8 @@
 "Cancel.Action" = "Cancel";
 "Retry.Action" = "Retry";
 "Error.Title" = "Error";
+"Yes.Action" = "Yes";
+"No.Action" = "No";
 "Live.Title" = "LIVE";
 
 /* Settings - Application reset dialog */
@@ -42,6 +44,11 @@
 "Login.Server.Button" = "Connect";
 "Login.Server.Title" = "Server Login";
 "Login.Poll" = "Please complete the log in process in your browser";
+"Login.ViewCertificate" = "View Certificate";
+"Login.UntrustedServer" = "Server not trusted";
+"Login.UntrustedServerContinue" = "Do you want to continue anyway?";
+"Login.ViewCertificateError" = "Failed to load certificate";
+"Login.UntrustedServerChanged" = "The certificate for this server has changed";
 
 /* Media */
 "Media.Error.Message" = "Failed to load new media.";

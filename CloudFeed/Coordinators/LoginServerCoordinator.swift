@@ -61,4 +61,39 @@ final class LoginServerCoordinator : NSObject, Coordinator {
     func showServerConnectionErrorPrompt() {
         showErrorPrompt(message: Strings.LoginServerConnectionErrorMessage, navigationController: navigationController)
     }
+    
+    func showUntrustedWarningPrompt(host: String) {
+        
+        let alertController = UIAlertController(title: Strings.LoginUntrustedServer, message: Strings.LoginUntrustedServerContinue, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: Strings.YesAction, style: .default, handler: { [weak self] _ in
+            self?.dataService.writeCertificate(host: host)
+        }))
+        
+        alertController.addAction(UIAlertAction(title: Strings.NoAction, style: .default, handler: { _ in }))
+                            
+        alertController.addAction(UIAlertAction(title: Strings.LoginViewCertificate, style: .default, handler: { [weak self] _ in
+            guard let self else { return }
+            self.showCertificate(host: host, certificateDirectory: self.dataService.store.certificatesDirectory, navigationController: self.navigationController, delegate: self)
+        }))
+        
+        navigationController.present(alertController, animated: true)
+    }
+    
+    private func showCertificateDisplayError() {
+        navigationController.presentedViewController?.dismiss(animated: true, completion: { [weak self] in
+            if let nav = self?.navigationController {
+                self?.showErrorPrompt(message: Strings.LoginViewCertificateError, navigationController: nav)
+            }
+        })
+    }
+}
+
+extension LoginServerCoordinator: CertificateDelegate {
+    
+    nonisolated func certificateDisplayError() {
+        DispatchQueue.main.async { [weak self] in
+            self?.showCertificateDisplayError()
+        }
+    }
 }

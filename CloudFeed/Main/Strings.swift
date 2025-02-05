@@ -30,6 +30,8 @@ extension Strings {
     public static let CancelAction = NSLocalizedString("Cancel.Action", comment: "")
     public static let RetryAction = NSLocalizedString("Retry.Action", comment: "")
     public static let ErrorTitle = NSLocalizedString("Error.Title", comment: "")
+    public static let YesAction = NSLocalizedString("Yes.Action", comment: "")
+    public static let NoAction = NSLocalizedString("No.Action", comment: "")
     public static let LiveTitle = NSLocalizedString("Live.Title", comment: "")
     
     //Settings - Application reset Dialog
@@ -61,6 +63,11 @@ extension Strings {
     public static let LoginServerButton = NSLocalizedString("Login.Server.Button", comment: "")
     public static let LoginServerTitle = NSLocalizedString("Login.Server.Title", comment: "")
     public static let LoginPoll = NSLocalizedString("Login.Poll", comment: "")
+    public static let LoginViewCertificate = NSLocalizedString("Login.ViewCertificate", comment: "")
+    public static let LoginUntrustedServer = NSLocalizedString("Login.UntrustedServer", comment: "")
+    public static let LoginUntrustedServerContinue = NSLocalizedString("Login.UntrustedServerContinue", comment: "")
+    public static let LoginViewCertificateError = NSLocalizedString("Login.ViewCertificateError", comment: "")
+    public static let LoginUntrustedServerChanged = NSLocalizedString("Login.UntrustedServerChanged", comment: "")
     
     //Media
     public static let MediaErrorMessage = NSLocalizedString("Media.Error.Message", comment: "")

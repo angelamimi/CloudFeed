@@ -39,10 +39,15 @@ struct StoreUtility: Sendable {
     }
     
     var certificatesDirectory: URL? {
+        
         let directory = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first
+        
         do {
             let url = directory!.appendingPathComponent( "Certificates", isDirectory: true)
-            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            
+            if !FileManager.default.fileExists(atPath: url.path) {
+                try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            }
             return url
         } catch  {
             return nil
@@ -328,5 +333,19 @@ struct StoreUtility: Sendable {
     func deleteAllChainStore() {
         let keychain = Keychain(service: Global.shared.keyChain)
         try? keychain.removeAll()
+    }
+    
+    func copyFile(atPath: String, toPath: String) -> Bool {
+
+        if FileManager.default.fileExists(atPath: toPath) {
+            try? FileManager.default.removeItem(atPath: toPath)
+        }
+
+        do {
+            try FileManager.default.copyItem(atPath: atPath, toPath: toPath)
+            return true
+        } catch {
+            return false
+        }
     }
 }

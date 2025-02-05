@@ -61,7 +61,7 @@ extension LoginWebCoordinator {
         navigationController.setViewControllers([], animated: false)
         
         if Environment.current.setCurrentUser(account: account, urlBase: urlBase, user: user, userId: userId) {
-            dataService.setup(account: account, user: user, userId: userId, urlBase: urlBase)
+            dataService.setup(account: account)
         }
         
         if let currentUser = Environment.current.currentUser {

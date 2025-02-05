@@ -31,17 +31,23 @@ final class LoginServerViewModel: NSObject {
         self.dataService = dataService
     }
     
-    func beginLoginFlow(url: String) async -> (token: String, endpoint: String, login: String, error: Bool)? {
-            
-        let result = await dataService.getLoginFlowV2(url: url)
+    func beginLoginFlow(url: String) async -> (token: String, endpoint: String, login: String, supported: Bool, errorCode: Int?)? {
         
-        if result == nil {
-            return nil //failed to connect to server at all
-        } else if result!.serverVersion < Global.shared.minimumServerVersion { 
-            return (token: "", endpoint: "", login: "", error: true)
-        } else {
-            return (token: result!.token, endpoint: result!.endpoint, login: result!.login, error: false)
+        let result = await dataService.checkServerStatus(url: url)
+        
+        if let serverVersion = result.serverVersion {
+            
+            if serverVersion < Global.shared.minimumServerVersion {
+                return (token: "", endpoint: "", login: "", supported: false, errorCode: nil)
+            } else if let loginResult = await dataService.getLoginFlowV2(url: url, serverVersion: serverVersion) {
+                return (token: loginResult.token, endpoint: loginResult.endpoint, login: loginResult.login, supported: true, errorCode: nil)
+            }
+            
+        } else if let errorCode = result.errorCode {
+            return (token: "", endpoint: "", login: "", supported: true, errorCode: errorCode)
         }
+        
+        return nil
     }
 }
 

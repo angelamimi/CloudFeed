@@ -81,6 +81,7 @@
 		398DA7262AC33F9E00F98E7F /* MockDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */; };
 		398DA7282AC6199500F98E7F /* mock-search.json in Resources */ = {isa = PBXBuildFile; fileRef = 398DA7272AC6199500F98E7F /* mock-search.json */; };
 		399C88132D131D9700694EA2 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399C88122D131D9700694EA2 /* DetailViewModel.swift */; };
+		39A83B062D4D7D850059C403 /* CertificateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A83B052D4D7D850059C403 /* CertificateController.swift */; };
 		39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; };
 		39A896402C7FED9C003827B8 /* MobileVLCKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F0C29C53FD300704670 /* CollectionViewCell.swift */; };
@@ -215,6 +216,7 @@
 		398D14D12B9A4D2700526E42 /* ImageUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtility.swift; sourceTree = "<group>"; };
 		398DA7272AC6199500F98E7F /* mock-search.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-search.json"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.json; };
 		399C88122D131D9700694EA2 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
+		39A83B052D4D7D850059C403 /* CertificateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateController.swift; sourceTree = "<group>"; };
 		39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MobileVLCKit.xcframework; path = Carthage/Build/MobileVLCKit.xcframework; sourceTree = "<group>"; };
 		39B03F0C29C53FD300704670 /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
 		39B03F0D29C53FD300704670 /* CollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionViewCell.xib; sourceTree = "<group>"; };
@@ -450,6 +452,7 @@
 				392735B729BE50780058796A /* LoginWebController.swift */,
 				391579AB2AB645B400DFEAB1 /* LoginViewModel.swift */,
 				39E1701D2D271CF900790920 /* LoginServerViewModel.swift */,
+				39A83B052D4D7D850059C403 /* CertificateController.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -663,6 +666,7 @@
 				39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */,
 				39271D5929D7A05100522DFD /* TitleView.swift in Sources */,
 				3927356B29BD1E820058796A /* AppDelegate.swift in Sources */,
+				39A83B062D4D7D850059C403 /* CertificateController.swift in Sources */,
 				39C31E8E2A7994880045DF50 /* DataService.swift in Sources */,
 				397B5C3C2C52F4B800EC7923 /* DetailView.swift in Sources */,
 				39E593792D25C3CF00BA3C9A /* LoginPollController.swift in Sources */,

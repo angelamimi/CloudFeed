@@ -117,14 +117,22 @@ class LoginServerController: UIViewController {
         
         Task { [weak self] in
             
-            let result = await self?.viewModel.beginLoginFlow(url: url)
-
-            if result == nil {
-                self?.coordinator.showServerConnectionErrorPrompt()
-            } else if result!.error {
-                self?.coordinator.showUnsupportedVersionErrorPrompt()
+            if let result = await self?.viewModel.beginLoginFlow(url: url) {
+                
+                if !result.supported {
+                    self?.coordinator.showUnsupportedVersionErrorPrompt()
+                } else if result.errorCode != nil {
+                    if result.errorCode == NSURLErrorServerCertificateUntrusted {
+                        if let host = URL(string: url)?.host() {
+                            self?.coordinator.showUntrustedWarningPrompt(host: host)
+                        }
+                    }
+                } else {
+                    self?.coordinator.navigateToWebLogin(token: result.token, endpoint: result.endpoint, login: result.login)
+                }
+                
             } else {
-                self?.coordinator.navigateToWebLogin(token: result!.token, endpoint: result!.endpoint, login: result!.login)
+                self?.coordinator.showServerConnectionErrorPrompt()
             }
         }
     }

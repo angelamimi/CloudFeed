@@ -44,4 +44,22 @@ extension Coordinator {
         
         navigationController.present(alertController, animated: true)
     }
+    
+    func showCertificate(host: String, certificateDirectory: URL?, navigationController: UINavigationController?, delegate: CertificateDelegate?) {
+        
+        guard let directory = certificateDirectory, navigationController != nil, delegate != nil else { return }
+        
+        let controller = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "CertificateController") as! CertificateController
+        
+        controller.delegate = delegate
+        controller.host = host
+        controller.certificateDirectory = directory
+        
+        if let sheet = controller.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        navigationController?.present(controller, animated: true)
+    }
 }

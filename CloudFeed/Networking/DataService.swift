@@ -42,11 +42,12 @@ final class DataService: NSObject, Sendable {
         self.databaseManager = databaseManager
     }
     
-    func setup(account: String, user: String, userId: String, urlBase: String) {
-        
+    func setup() {
         nextcloudService.setup()
-        
         NextcloudKit.shared.nkCommonInstance.levelLog = 0
+    }
+    
+    func setup(account: String) {
         
         Task { [weak self] in
             guard let self else { return }
@@ -58,13 +59,15 @@ final class DataService: NSObject, Sendable {
     }
     
     func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)? {
- 
         return await nextcloudService.loginPoll(token: token, endpoint: endpoint)
     }
     
-    func getLoginFlowV2(url: String) async -> (token: String, endpoint: String, login: String, serverVersion: Int)? {
-     
-        return await nextcloudService.getLoginFlowV2(url: url)
+    func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)? {
+        return await nextcloudService.getLoginFlowV2(url: url, serverVersion: serverVersion)
+    }
+    
+    func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?) {
+        return await nextcloudService.checkServerStatus(url: url)
     }
     
     func appendSession(userAccount: UserAccount) {
@@ -75,6 +78,19 @@ final class DataService: NSObject, Sendable {
         nextcloudService.appendSession(account: userAccount.account, urlBase: userAccount.urlBase, user: userAccount.user, userId: userAccount.userId,
                                        password: password, userAgent: Global.shared.userAgent, nextcloudVersion: serverVersionMajor,
                                        groupIdentifier: Global.shared.groupIdentifier)
+    }
+    
+    func writeCertificate(host: String) {
+        
+        if let path = store.certificatesDirectory?.path {
+            
+            let certificateAtPath = path + "/" + host + ".tmp"
+            let certificateToPath = path + "/" + host + ".der"
+            
+            if !store.copyFile(atPath: certificateAtPath, toPath: certificateToPath) {
+                NextcloudKit.shared.nkCommonInstance.writeLog("[ERROR] Write certificare error")
+            }
+        }
     }
     
     

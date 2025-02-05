@@ -28,6 +28,7 @@ import OpenSSL
 protocol NextcloudKitServiceDelegate: AnyObject, Sendable {
     func serverError(error: Int)
     func serverStatusChanged(reachable: Bool)
+    func serverCertificateUntrusted(host: String)
 }
 
 protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
@@ -36,7 +37,8 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func getCapabilities(account: String) async -> (account: String?, data: Data?)
     func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, nextcloudVersion: Int, groupIdentifier: String)
     func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)?
-    func getLoginFlowV2(url: String) async -> (token: String, endpoint: String, login: String, serverVersion: Int)?
+    func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)?
+    func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?)
     
     func download(metadata: Metadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> Bool
     func downloadPreview(account: String, fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String?
@@ -92,36 +94,29 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                                           groupIdentifier: groupIdentifier)
     }
     
-    func getLoginFlowV2(url: String) async -> (token: String, endpoint: String, login: String, serverVersion: Int)? {
-        
-        guard let serverVersion = await checkServerStatus(url: url) else { return nil }
+    func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)? {
         
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.getLoginFlowV2(serverUrl: url) { token, endpoint, login, _, error in
                 
                 if error == .success, let token, let endpoint, let login {
-                    continuation.resume(returning: (token: token, endpoint: endpoint, login: login, serverVersion: serverVersion))
+                    continuation.resume(returning: (token: token, endpoint: endpoint, login: login))
                 } else {
-                    continuation.resume(returning: (token: "", endpoint: "", login: "", serverVersion: serverVersion))
+                    continuation.resume(returning: nil)
                 }
             }
         }
     }
     
-    private func checkServerStatus(url: String) async -> Int? {
+    func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?) {
         
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.getServerStatus(serverUrl: url) { _, serverInfoResult in
-                
                 switch serverInfoResult {
                 case .success(let serverInfo):
-                    continuation.resume(returning: serverInfo.versionMajor)
+                    continuation.resume(returning: (serverVersion: serverInfo.versionMajor, errorCode: nil))
                 case .failure(let error):
-                    if error.errorCode == NSURLErrorServerCertificateUntrusted {
-                        //TODO: Bubble up the error to the user? Invalid or not trusted server certificate
-                        Self.logger.debug("NSURLErrorServerCertificateUntrusted")
-                    }
-                    continuation.resume(returning: nil)
+                    continuation.resume(returning: (serverVersion: nil, errorCode: error.errorCode))
                 }
             }
         }
@@ -318,12 +313,13 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
+    //Source: https://github.com/nextcloud/ios/blob/master/iOSClient/Networking/NCNetworking.swift
     private func checkTrustedChallenge(_ session: URLSession,
                                        didReceive challenge: URLAuthenticationChallenge,
                                        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
         let protectionSpace: URLProtectionSpace = challenge.protectionSpace
-        let directoryCertificate = certificatesDirectory.relativeString
+        let directoryCertificate = certificatesDirectory.path
         let host = challenge.protectionSpace.host
         let certificateSavedPath = directoryCertificate + "/" + host + ".der"
         var isTrusted: Bool
@@ -353,12 +349,11 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         } else {
             isTrusted = false
         }
-
+        
         if isTrusted {
             completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
         } else {
-            //TODO: Ask user to trust?
-            Self.logger.warning("Server not trusted")
+            delegate.serverCertificateUntrusted(host: host)
             completionHandler(.performDefaultHandling, nil)
         }
     }
@@ -398,7 +393,7 @@ extension NextcloudKitService: NextcloudKitDelegate {
     func authenticationChallenge(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
 
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodClientCertificate {
-            //Self.logger.debug("authenticationChallenge() - NSURLAuthenticationMethodClientCertificate - NOT IMPLEMENTED")
+            //not implemented
             completionHandler(.performDefaultHandling, nil)
         } else {
             checkTrustedChallenge(session, didReceive: challenge, completionHandler: completionHandler)

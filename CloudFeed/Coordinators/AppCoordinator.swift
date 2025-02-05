@@ -24,6 +24,7 @@ import UIKit
 final class AppCoordinator: NSObject, Coordinator {
     
     let window: UIWindow
+    var dataService: DataService?
     
     init(window: UIWindow) {
         self.window = window
@@ -45,23 +46,28 @@ final class AppCoordinator: NSObject, Coordinator {
         }
         
         let nextcloudService = NextcloudKitService(certificatesDirectory: certificatesDirectory, delegate: self)
-        let dataService = DataService(store: store, nextcloudService: nextcloudService, databaseManager: dbManager)
+        dataService = DataService(store: store, nextcloudService: nextcloudService, databaseManager: dbManager)
         
-        if let activeAccount = dataService.getActiveAccount() {
-            if Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId) {
-                dataService.setup(account: activeAccount.account, user: activeAccount.user, userId: activeAccount.userId, urlBase: activeAccount.urlBase)
+        if let dataService = self.dataService {
+            
+            dataService.setup()
+        
+            if let activeAccount = dataService.getActiveAccount() {
+                if Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId) {
+                    dataService.setup(account: activeAccount.account)
+                }
             }
-        }
-        
-        if let currentUser = Environment.current.currentUser {
             
-            dataService.appendSession(userAccount: currentUser)
-            
-            let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
-            mainCoordinator.start()
-        } else {
-            let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)
-            loginServerCoordinator.start()
+            if let currentUser = Environment.current.currentUser {
+                
+                dataService.appendSession(userAccount: currentUser)
+                
+                let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
+                mainCoordinator.start()
+            } else {
+                let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)
+                loginServerCoordinator.start()
+            }
         }
     }
     
@@ -81,11 +87,38 @@ final class AppCoordinator: NSObject, Coordinator {
         navigationController.present(alertController, animated: true)
     }
     
-    func showMaintenanceError() {
+    func showUntrustedWarningPrompt(host: String) {
         
-        if let tabs = window.rootViewController as? UITabBarController,
-           let navigationController = tabs.selectedViewController as? UINavigationController,
-           !(navigationController.visibleViewController is UIAlertController) {
+        guard let navigationController = getNavigationController() else { return }
+        
+        let alertController = UIAlertController(title: Strings.LoginUntrustedServerChanged, message: Strings.LoginUntrustedServerContinue, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: Strings.YesAction, style: .default, handler: { [weak self] _ in
+            self?.dataService?.writeCertificate(host: host)
+        }))
+        
+        alertController.addAction(UIAlertAction(title: Strings.NoAction, style: .default, handler: { _ in }))
+                            
+        alertController.addAction(UIAlertAction(title: Strings.LoginViewCertificate, style: .default, handler: { [weak self] _ in
+            guard let self else { return }
+            self.showCertificate(host: host, certificateDirectory: self.dataService?.store.certificatesDirectory, navigationController: navigationController, delegate: self)
+        }))
+        
+        navigationController.present(alertController, animated: true)
+    }
+    
+    func showServerError(error: Int) {
+        switch error {
+        case Global.shared.errorMaintenance:
+            showMaintenanceError()
+        default:
+            break
+        }
+    }
+    
+    private func showMaintenanceError() {
+        
+        if let navigationController = getNavigationController() {
             
             let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MaintenanceErrorMessage, preferredStyle: .alert)
             
@@ -97,18 +130,31 @@ final class AppCoordinator: NSObject, Coordinator {
         }
     }
     
-    func showServerError(error: Int) {
-        switch error {
-        case Global.shared.errorMaintenance:
-            showMaintenanceError()
-        default:
-            break
+    private func getNavigationController() -> UINavigationController? {
+        
+        if let tabs = window.rootViewController as? UITabBarController,
+           let navigationController = tabs.selectedViewController as? UINavigationController,
+           !(navigationController.visibleViewController is UIAlertController) {
+            return navigationController
         }
+        
+        return nil
+    }
+    
+    private func showCertificateDisplayError() {
+
+        let navigationController = getNavigationController()
+        
+        navigationController?.presentedViewController?.dismiss(animated: true, completion: { [weak self] in
+            if let nav = navigationController {
+                self?.showErrorPrompt(message: Strings.LoginViewCertificateError, navigationController: nav)
+            }
+        })
     }
 }
 
 extension AppCoordinator: NextcloudKitServiceDelegate {
-    
+
     nonisolated func serverStatusChanged(reachable: Bool) {
         //not implemented
     }
@@ -116,6 +162,21 @@ extension AppCoordinator: NextcloudKitServiceDelegate {
     nonisolated func serverError(error: Int) {
         DispatchQueue.main.async { [weak self] in
             self?.showServerError(error: error)
+        }
+    }
+    
+    nonisolated func serverCertificateUntrusted(host: String) {
+        DispatchQueue.main.async { [weak self] in
+            self?.showUntrustedWarningPrompt(host: host)
+        }
+    }
+}
+
+extension AppCoordinator: CertificateDelegate {
+    
+    nonisolated func certificateDisplayError() {
+        DispatchQueue.main.async { [weak self] in
+            self?.showCertificateDisplayError()
         }
     }
 }
