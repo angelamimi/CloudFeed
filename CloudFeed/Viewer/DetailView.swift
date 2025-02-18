@@ -82,43 +82,31 @@ class DetailView: UIView {
         category: String(describing: DetailView.self)
     )
     
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        commonInit()
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        commonInit()
+    override func awakeFromNib() {
+        super.awakeFromNib()
+
+        Task { @MainActor in
+            self.commonInit()
+        }
     }
     
     override func layoutSubviews() {
         if UIDevice.current.userInterfaceIdiom == .pad {
-            delegate?.layoutUpdated(height: height())
+            let height = height()
+            if height > 0 {
+                delegate?.layoutUpdated(height: height)
+            }
         }
     }
     
     func height() -> CGFloat {
-        
-        let fileDateLabelHeight = fileDateLabel.systemLayoutSizeFitting(UIView.layoutFittingExpandedSize).height
-        let fileNameLabelHeight = fileNameLabel.systemLayoutSizeFitting(UIView.layoutFittingExpandedSize).height
-        let labelsHeight = fileDateLabelHeight + fileNameLabelHeight
-        let cameraViewHeight = cameraView.frame.height
-        let mapHeight = mapView.isHidden ? 0 : mapView.frame.height
-        let allButton = metadataButton.frame.height
-        
-        var totalHeight = 16 + labelsHeight + 16 + cameraViewHeight + 16 + allButton + 16
-        
-        if mapHeight > 0 {
-            totalHeight += 16 + mapHeight
-        }
-        
-        return totalHeight
+        guard subviews.count > 0 else { return 0 }
+        return systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
     }
     
     func populateDetails() {
         
-        guard metadata != nil else { return }
+        guard metadata != nil && subviews.count > 0 else { return }
         
         populateMetadataDetails()
         
@@ -133,10 +121,27 @@ class DetailView: UIView {
     
     private func commonInit() {
         
-        guard let view = loadViewFromNib() else { return }
-        
-        view.frame = bounds
-        addSubview(view)
+        Task {
+            
+            guard let view = UINib(nibName: "DetailView", bundle: nil).instantiate(withOwner: self, options: nil).first as? UIView else { return }
+            
+            await MainActor.run { [weak self] in
+
+                guard let self else { return }
+                
+                self.addSubview(view)
+                view.frame = self.bounds
+
+                self.initElements()
+         
+                if self.metadata != nil {
+                    self.populateDetails()
+                }
+            }
+        }
+    }
+    
+    private func initElements() {
         
         metadataButton.setTitle(Strings.DetailAll, for: .normal)
         metadataButton.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
@@ -194,11 +199,6 @@ class DetailView: UIView {
         delegate?.showAllDetails()
     }
     
-    private func loadViewFromNib() -> UIView? {
-        let nib = UINib(nibName: "DetailView", bundle: nil)
-        return nib.instantiate(withOwner: self, options: nil).first as? UIView
-    }
-    
     private func populateMetadataDetails() {
         
         guard metadata != nil else { return }
@@ -228,7 +228,7 @@ class DetailView: UIView {
             typeImageView.isHidden = true
         }
         
-        Task { [weak self] in
+        Task.detached { [weak self] in
             await self?.showLocation(latitudeValue: self?.metadata?.latitude, longitudeValue: self?.metadata?.longitude)
         }
     }
@@ -327,7 +327,7 @@ class DetailView: UIView {
         let results = calculateLocationFromProperties(latitude: latitudeValue, longitude: longitudeValue,
                                                       latitudeReference: latitudeReferencValue, longitudeReference: longitudeReferenceValue)
 
-        Task { [weak self] in
+        Task.detached { [weak self] in
             await self?.showLocation(latitudeValue: results.latitude, longitudeValue: results.longitude)
         }
     }

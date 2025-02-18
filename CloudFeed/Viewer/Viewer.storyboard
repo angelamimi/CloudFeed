@@ -52,13 +52,12 @@
         <scene sceneID="zes-6L-b59">
             <objects>
                 <viewController storyboardIdentifier="ViewerController" modalTransitionStyle="flipHorizontal" id="Q4I-Mx-Pce" customClass="ViewerController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" opaque="NO" contentMode="scaleToFill" id="ReG-96-Weq">
+                    <view key="view" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" id="ReG-96-Weq">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView opaque="NO" clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gnc-Wf-rti">
                                 <rect key="frame" x="0.0" y="59" width="393" height="300"/>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="300" id="u4l-oU-PNv"/>
@@ -141,6 +140,7 @@
                     <connections>
                         <outlet property="activityIndicator" destination="kG3-WY-mSO" id="ONA-0w-Df9"/>
                         <outlet property="detailView" destination="nF6-AV-sGu" id="rad-Rw-yzi"/>
+                        <outlet property="detailViewHeightConstraint" destination="p8q-3g-swu" id="dUj-cH-pKC"/>
                         <outlet property="detailViewLeadingConstraint" destination="M2A-YP-eGT" id="YDx-Ui-eNx"/>
                         <outlet property="detailViewTopConstraint" destination="t8w-dB-kZ8" id="Zx7-Of-HCx"/>
                         <outlet property="detailViewWidthConstraint" destination="8h1-xU-fn8" id="BOJ-1r-uPV"/>

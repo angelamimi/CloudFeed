@@ -43,7 +43,7 @@ struct ViewerViewModel {
         return dataService.getMetadataLivePhoto(metadata: metadata)
     }
     
-    func getMetadataFromOcId(_ ocId: String?) -> Metadata? {
+    func getMetadataFromOcId(_ ocId: String?) async -> Metadata? {
         return dataService.getMetadataFromOcId(ocId)
     }
     

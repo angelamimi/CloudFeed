@@ -91,7 +91,7 @@ class DetailsController: UIViewController {
 extension DetailsController : DetailViewDelegate {
     
     func layoutUpdated(height: CGFloat) {
-        if height > view.frame.height {
+        if height > 0 && height != view.frame.height {
             self.preferredContentSize = CGSize(width: 400, height: height)
         }
     }

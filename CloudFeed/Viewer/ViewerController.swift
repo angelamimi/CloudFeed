@@ -47,8 +47,10 @@ class ViewerController: UIViewController {
     @IBOutlet weak var imageViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewTrailingConstraint: NSLayoutConstraint!
+    
     @IBOutlet weak var detailViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var detailViewWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var detailViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var detailViewLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var statusContainerTopConstraint: NSLayoutConstraint!
     
@@ -112,10 +114,6 @@ class ViewerController: UIViewController {
         
         if detailsVisible && currentStatus != .details {
             hideDetails(animate: false, hideStatus: false, status: currentStatus)
-        }
-        
-        if !detailsVisible && currentStatus == .details {
-            showDetails(animate: false, reset: true)
         }
         
         if currentStatus != .title && controlsView != nil && controlsView!.isHidden == false {
@@ -316,12 +314,16 @@ class ViewerController: UIViewController {
     }
     
     private func reloadImage() {
-        if let metadata = viewModel.getMetadataFromOcId(metadata.ocId) {
-            self.metadata = metadata
+        
+        Task { [weak self] in
             
-            activityIndicator.startAnimating()
-
-            Task(priority: .high) { [weak self] in
+            if self != nil, let metadata = await self!.viewModel.getMetadataFromOcId(self!.metadata.ocId) {
+             
+                await MainActor.run { [weak self] in
+                    self?.metadata = metadata
+                    self?.activityIndicator.startAnimating()
+                }
+                
                 await self?.loadImage(metadata: metadata)
             }
         }
@@ -339,7 +341,7 @@ class ViewerController: UIViewController {
         
         if image != nil && metadata.ocId == metadata.ocId && imageView.layer.sublayers?.count == nil {
             
-            DispatchQueue.main.async { [weak self] in
+            await MainActor.run { [weak self] in
                 self?.setImage(image: image!)
                 self?.handleImageLoaded(metadata: metadata)
             }
@@ -517,10 +519,9 @@ class ViewerController: UIViewController {
         let detailsVisible = currentStatus() == .details
         
         if UIDevice.current.userInterfaceIdiom != .pad && detailsVisible {
-            if imageViewRatioWithinThreshold() {
-                updateContentMode(contentMode: .scaleAspectFill)
-            } else {
-                updateContentMode(contentMode: .scaleAspectFit)
+
+            if isPortrait() {
+                calculateVerticalConstraintsShow(transformImage: imageViewRatioWithinThreshold(), height: imageViewHeightConstraint.constant)
             }
         }
     }
@@ -633,13 +634,15 @@ class ViewerController: UIViewController {
         let currentScale : CGFloat = tapGesture.view?.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
         
         if currentScale == 1.0 {
-            let transform = CGAffineTransformMakeScale(2, 2)
-            imageView.transform = transform
             panRecognizer?.isEnabled = true
+            UIView.animate(withDuration: 0.3, delay: 0.0, animations: {
+                self.imageView.transform = CGAffineTransformMakeScale(2, 2)
+            })
         } else {
-            let transform = CGAffineTransformMakeScale(1, 1)
-            imageView.transform = transform
             panRecognizer?.isEnabled = false
+            UIView.animate(withDuration: 0.3, delay: 0.0, animations: {
+                self.imageView.transform = CGAffineTransformMakeScale(1, 1)
+            })
         }
     }
     
@@ -951,7 +954,7 @@ class ViewerController: UIViewController {
             } else {
                 detailView?.url = getUrl()
             }
-            
+
             detailView?.populateDetails()
         }
     }
@@ -992,8 +995,10 @@ class ViewerController: UIViewController {
     
     private func showVerticalDetails(animate: Bool, reset: Bool) {
         
+        let allowTransform = imageViewRatioWithinThreshold()
         let heightOffset: CGFloat
-        let height = view.frame.height
+        let size = view.frame.size
+        let height = size.height
         let halfHeight = height / 2
         
         if detailView.frame.origin.y < height {
@@ -1017,56 +1022,93 @@ class ViewerController: UIViewController {
             //details not visible yet. snap top of detail visible
             heightOffset = halfHeight
         }
-    
-        if animate {
-            
-            if imageViewRatioWithinThreshold() {
-                UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                    self.updateContentMode(contentMode: .scaleAspectFill)
-                })
-            }
+        
+        if imageView.contentMode != .scaleAspectFit {
+            imageView.contentMode = .scaleAspectFit
+            videoView?.contentMode = .scaleAspectFit
+        }
 
-            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
-                self.updateVerticalConstraintsShow(heightOffset: heightOffset)
+        if animate && !UIAccessibility.isReduceMotionEnabled {
+
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveLinear, animations: {
+                self.calculateVerticalConstraintsShow(transformImage: allowTransform, height: heightOffset)
             })
-
+            
         } else {
-            if imageViewRatioWithinThreshold() {
-                updateContentMode(contentMode: .scaleAspectFill)
+            calculateVerticalConstraintsShow(transformImage: allowTransform, height: heightOffset)
+        }
+    }
+    
+    private func calculateVerticalConstraintsShow(transformImage: Bool, height: CGFloat) {
+
+        guard let originalSize = imageView.image?.size else {
+            updateVerticalConstraintsShow(heightOffset: height)
+            return
+        }
+        
+        let renderSize = CGSize(width: view.frame.size.width, height: height)
+        
+        let scaleW: CGFloat = renderSize.width / originalSize.width
+        let scaleH: CGFloat = renderSize.height / originalSize.height
+        
+        let scale: CGFloat = scaleW > scaleH ? scaleW : scaleH
+        let resizeSize: CGSize = CGSize(width: round(originalSize.width * scale), height: round(originalSize.height * scale))
+        
+        let diff = resizeSize.height - renderSize.height
+        
+        var newScale = 1.0
+        var shiftUpOnly = false
+        
+        if (resizeSize.height > renderSize.height) && diff >= 1.0 {
+
+            if resizeSize.width == renderSize.width {
+                shiftUpOnly = true //don't transform, just shift up when details appear
+            } else {
+                newScale = resizeSize.height / renderSize.height
             }
-            updateVerticalConstraintsShow(heightOffset: heightOffset)
+            
+        } else if resizeSize.width > renderSize.width {
+
+            newScale = resizeSize.width / renderSize.width
+        }
+        
+        if transformImage {
+            imageView.transform = CGAffineTransform(scaleX: newScale, y: newScale)
+            videoView?.transform = CGAffineTransform(scaleX: newScale, y: newScale)
+        }
+        
+        if shiftUpOnly && transformImage {
+            imageViewTopConstraint.constant = -(resizeSize.height - renderSize.height)
+            updateVerticalConstraintsShow(heightOffset: resizeSize.height)
+        } else {
+            updateVerticalConstraintsShow(heightOffset: height)
         }
     }
     
     private func scrollDownVerticalDetails() {
         
         let heightOffset = view.frame.height / 2
+        let allowTransform = imageViewRatioWithinThreshold()
         
-        UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
-            self.updateVerticalConstraintsShow(heightOffset: heightOffset)
-        })
+        if UIAccessibility.isReduceMotionEnabled {
+            self.calculateVerticalConstraintsShow(transformImage: allowTransform, height: heightOffset)
+        } else {
+            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
+                self.calculateVerticalConstraintsShow(transformImage: allowTransform, height: heightOffset)
+            })
+        }
     }
     
     private func hideVerticalDetails(animate: Bool) {
         
-        if animate {
+        if animate && !UIAccessibility.isReduceMotionEnabled {
             
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
                 self.updateVerticalConstraintsHide()
             })
             
-            if imageView.contentMode != .scaleAspectFit {
-                UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                    self.updateContentMode(contentMode: .scaleAspectFit)
-                })
-            }
-            
         } else {
             updateVerticalConstraintsHide()
-            
-            if imageView.contentMode != .scaleAspectFit {
-                updateContentMode(contentMode: .scaleAspectFit)
-            }
         }
     }
     
@@ -1075,11 +1117,10 @@ class ViewerController: UIViewController {
         imageViewTrailingConstraint?.constant = 0
         videoViewRightConstraint?.constant = 0
 
-        detailViewTopConstraint?.constant = 0
-
         imageViewHeightConstraint?.constant = heightOffset
         videoViewHeightConstraint?.constant = heightOffset
         
+        detailViewTopConstraint?.constant = 0
         detailViewLeadingConstraint?.constant = 0
         detailViewWidthConstraint?.constant = view.frame.width
         
@@ -1089,8 +1130,12 @@ class ViewerController: UIViewController {
     private func updateVerticalConstraintsHide() {
         
         detailViewTopConstraint?.constant = 0
+        
         imageViewHeightConstraint?.constant = view.frame.height
         videoViewHeightConstraint?.constant = view.frame.height
+        
+        imageViewTopConstraint.constant = 0
+        imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
         
         view.layoutIfNeeded()
     }
@@ -1101,19 +1146,19 @@ class ViewerController: UIViewController {
         let topOffset: CGFloat
         let height = view.frame.height
         let halfWidth = view.frame.width / 2
-        
+
         if detailView.frame.origin.y < height && reset == false {
             //details visible. show more if can
             trailingOffset = (halfWidth)
-            //topOffset = max(detailView.frame.height, view.frame.height)
-            topOffset = max(detailView.height(), view.frame.height)
+            topOffset = max(detailView.height(), height)
         } else {
+            
             //details not visible yet. snap top of detail visible
             trailingOffset = (halfWidth)
             topOffset = height
         }
         
-        if animate {
+        if animate && !UIAccessibility.isReduceMotionEnabled {
             
             UIView.animate(withDuration: 0.3, delay: 0.0, options: .curveLinear, animations: {
                 self.updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset)
@@ -1136,17 +1181,20 @@ class ViewerController: UIViewController {
     
     private func scrollDownHorizontalDetails() {
         
-        let frameHeight = view.frame.height
+        self.detailViewTopConstraint?.constant = view.frame.height
         
-        UIView.animate(withDuration: 0.3, delay: 0.0, options: .curveLinear, animations: {
-            self.detailViewTopConstraint?.constant = frameHeight
+        if UIAccessibility.isReduceMotionEnabled {
             self.view.layoutIfNeeded()
-        })
+        } else {
+            UIView.animate(withDuration: 0.3, delay: 0.0, options: .curveLinear, animations: {
+                self.view.layoutIfNeeded()
+            })
+        }
     }
     
     private func hideHorizontalDetails(animate: Bool) {
         
-        if animate {
+        if animate && !UIAccessibility.isReduceMotionEnabled {
             
             if imageView.contentMode != .scaleAspectFit {
                 UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
@@ -1180,6 +1228,10 @@ class ViewerController: UIViewController {
         
         detailViewWidthConstraint?.constant = trailingOffset
         detailViewLeadingConstraint?.constant = trailingOffset
+
+        detailViewHeightConstraint?.constant = height
+        
+        imageViewTopConstraint.constant = 0
         
         view.layoutIfNeeded()
     }
@@ -1368,7 +1420,7 @@ extension ViewerController: VLCCustomDialogRendererProtocol {
 extension ViewerController: DetailViewDelegate {
     
     func layoutUpdated(height: CGFloat) {
-        
+
     }
     
     func showAllDetails() {
