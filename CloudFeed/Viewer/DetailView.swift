@@ -33,6 +33,8 @@ protocol DetailViewDelegate: AnyObject {
 class DetailView: UIView {
     
     @IBOutlet weak var contentStackView: UIStackView!
+    @IBOutlet weak var contentStackViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var contentStackViewBottomConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var metadataButton: UIButton!
@@ -85,14 +87,14 @@ class DetailView: UIView {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        Task { @MainActor in
-            self.commonInit()
+        Task { @MainActor [weak self] in
+            self?.commonInit()
         }
     }
     
     override func layoutSubviews() {
         if UIDevice.current.userInterfaceIdiom == .pad {
-            let height = height()
+            let height = systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
             if height > 0 {
                 delegate?.layoutUpdated(height: height)
             }
@@ -101,7 +103,7 @@ class DetailView: UIView {
     
     func height() -> CGFloat {
         guard subviews.count > 0 else { return 0 }
-        return systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
+        return contentStackView.frame.height + 16
     }
     
     func populateDetails() {
@@ -121,27 +123,31 @@ class DetailView: UIView {
     
     private func commonInit() {
         
-        Task {
+        Task { [weak self] in
             
             guard let view = UINib(nibName: "DetailView", bundle: nil).instantiate(withOwner: self, options: nil).first as? UIView else { return }
             
             await MainActor.run { [weak self] in
-
-                guard let self else { return }
                 
-                self.addSubview(view)
-                view.frame = self.bounds
+                self?.addSubview(view)
+                view.frame = self?.bounds ?? CGRect.zero
 
-                self.initElements()
+                self?.initElements()
          
-                if self.metadata != nil {
-                    self.populateDetails()
+                if self?.metadata != nil {
+                    self?.populateDetails()
                 }
             }
         }
     }
     
     private func initElements() {
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            //needed to get the actual height of detail view for popover. See layoutSubviews.
+            contentStackViewHeightConstraint?.isActive = false
+            contentStackViewBottomConstraint?.isActive = true
+        }
         
         metadataButton.setTitle(Strings.DetailAll, for: .normal)
         metadataButton.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
@@ -490,11 +496,11 @@ class DetailView: UIView {
     
     private func populateVideoDetail(metadata: Metadata, asset: AVAsset) {
         
-        Task {
+        Task { [weak self] in
         
             let duration = try? await asset.load(.duration)
             
-            populateDisplayTime(duration?.seconds)
+            self?.populateDisplayTime(duration?.seconds)
             
             if let videoTrack = try? await asset.loadTracks(withMediaType: .video).first {
                 
@@ -502,10 +508,10 @@ class DetailView: UIView {
                 
                 if frameRate != nil && frameRate! > 0 {
                     let displayFrameRate = Float(round(100 * frameRate!) / 100)
-                    setFrameRateText("\(displayFrameRate) FPS")
+                    self?.setFrameRateText("\(displayFrameRate) FPS")
                 }
                 
-                await populateVideoSize(metadata: metadata, videoTrack: videoTrack)
+                await self?.populateVideoSize(metadata: metadata, videoTrack: videoTrack)
 
             } else {
                 //Self.logger.debug("populateVideoDetails() - no video tracks found")

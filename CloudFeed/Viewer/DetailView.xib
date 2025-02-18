@@ -16,6 +16,8 @@
                 <outlet property="cameraLabel" destination="x9M-ZG-hZS" id="K3w-gz-mcx"/>
                 <outlet property="cameraView" destination="Npf-m5-tBN" id="AzW-0E-oiH"/>
                 <outlet property="contentStackView" destination="Dqg-wy-mZm" id="ikd-a9-aAx"/>
+                <outlet property="contentStackViewBottomConstraint" destination="aP0-hj-MEW" id="n8I-ZR-f3d"/>
+                <outlet property="contentStackViewHeightConstraint" destination="mPv-SC-DY6" id="STB-x9-b6Z"/>
                 <outlet property="divider1Label" destination="Mld-Pp-6Do" id="BuY-C2-jEd"/>
                 <outlet property="divider2Label" destination="o3V-Y9-p60" id="Wab-Er-Nky"/>
                 <outlet property="divider3Label" destination="cHd-XY-hab" id="Ayu-wI-nkR"/>
@@ -48,8 +50,8 @@
             <rect key="frame" x="0.0" y="0.0" width="393" height="501"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Dqg-wy-mZm">
-                    <rect key="frame" x="16" y="75" width="361" height="376"/>
+                <stackView opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Dqg-wy-mZm">
+                    <rect key="frame" x="16" y="75" width="361" height="409"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" axis="vertical" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="oDw-rA-o3U">
                             <rect key="frame" x="0.0" y="0.0" width="361" height="4"/>
@@ -293,7 +295,7 @@
                             <buttonConfiguration key="configuration" style="gray"/>
                         </button>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2bm-Yb-Q5w" userLabel="Filler View">
-                            <rect key="frame" x="0.0" y="359" width="361" height="17"/>
+                            <rect key="frame" x="0.0" y="359" width="361" height="50"/>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         </view>
                     </subviews>
@@ -302,6 +304,7 @@
                         <constraint firstAttribute="trailing" secondItem="nJZ-9S-aFh" secondAttribute="trailing" id="NQ7-h0-b8r"/>
                         <constraint firstItem="nJZ-9S-aFh" firstAttribute="leading" secondItem="Dqg-wy-mZm" secondAttribute="leading" id="OUG-JZ-0VW"/>
                         <constraint firstItem="Npf-m5-tBN" firstAttribute="leading" secondItem="Dqg-wy-mZm" secondAttribute="leading" id="hfz-TJ-jEi"/>
+                        <constraint firstAttribute="height" priority="250" constant="400" id="mPv-SC-DY6"/>
                         <constraint firstItem="4W4-ha-tvj" firstAttribute="leading" secondItem="Dqg-wy-mZm" secondAttribute="leading" id="ngs-YO-S7b"/>
                         <constraint firstAttribute="trailing" secondItem="Npf-m5-tBN" secondAttribute="trailing" id="uG6-5O-YYO"/>
                     </constraints>
@@ -315,6 +318,11 @@
                 <constraint firstItem="Dqg-wy-mZm" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" constant="-16" id="fSt-7E-NtH"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <variation key="default">
+                <mask key="constraints">
+                    <exclude reference="aP0-hj-MEW"/>
+                </mask>
+            </variation>
             <point key="canvasLocation" x="125.95419847328243" y="65.140845070422543"/>
         </view>
     </objects>
