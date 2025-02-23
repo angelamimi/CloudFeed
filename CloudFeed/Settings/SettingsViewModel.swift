@@ -79,7 +79,7 @@ final class SettingsViewModel: NSObject {
         Task(priority: .high) { [weak self] in
             
             await store.clearCache()
-            store.removeDocumentsDirectory()
+            store.removeDocumentsDirectory() //TODO: Got warning for runnin on main thread
             store.deleteAllChainStore()
             
             self?.dataService.removeDatabase()

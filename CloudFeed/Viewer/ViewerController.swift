@@ -61,6 +61,7 @@ class ViewerController: UIViewController {
     
     var metadata: Metadata = Metadata(obj: tableMetadata())
     var path: String?
+    var videoURL: URL?
     var index: Int = 0
     
     private weak var playerViewController: AVPlayerViewController?
@@ -73,7 +74,7 @@ class ViewerController: UIViewController {
     private var overrideVideoPosition = false
     
     private var mediaPlayer: VLCMediaPlayer?
-    private var dialogProvider: VLCDialogProvider?
+    //private var dialogProvider: VLCDialogProvider?
     private var controlsView: ControlsView?
     
     private static let logger = Logger(
@@ -218,13 +219,16 @@ class ViewerController: UIViewController {
             
             self.detailView.url = videoURL
             self.path = videoURL?.absoluteString
+            self.videoURL = videoURL
             
             if self.path != nil && self.currentStatus() == .details {
                 self.updateDetailsForPath(self.path!)
             }
             
             await self.showFrame(url: videoURL!)
-            await self.setupVideoController(url: videoURL!, autoPlay: autoPlay)
+
+            setupVideoControls()
+            activityIndicator.stopAnimating()
         }
     }
     
@@ -235,7 +239,24 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func setupVideoController(url: URL, autoPlay: Bool) async {
+    private func setupVideoControls() {
+        
+        if controlsView == nil && currentStatus() == .title {
+            initControls()
+        }
+        
+        let status = currentStatus()
+        
+        if controlsView != nil && (status == .title || status == .fullscreen) {
+            addControls()
+        }
+    }
+    
+    private func setupVideoController(autoPlay: Bool) {
+        
+        guard let url = self.videoURL else { return }
+        
+        activityIndicator.startAnimating()
         
         if mediaPlayer != nil {
             mediaPlayer!.media = VLCMedia(url: url)
@@ -249,35 +270,17 @@ class ViewerController: UIViewController {
             //logger.level = .error
             //logger.formatter.contextFlags = .levelContextModule
             
-            dialogProvider = VLCDialogProvider(library: VLCLibrary.shared(), customUI: true)
-            dialogProvider?.customRenderer = self
-            
+            //dialogProvider = VLCDialogProvider(library: VLCLibrary.shared(), customUI: true)
+            //dialogProvider?.customRenderer = self
+
             //mediaPlayer!.libraryInstance.loggers = [logger]
-            mediaPlayer!.media = media
-            mediaPlayer!.drawable = imageView
-            mediaPlayer!.delegate = self
+            mediaPlayer?.media = media
+            mediaPlayer?.drawable = imageView
+            mediaPlayer?.delegate = self
         }
         
-        if controlsView == nil && currentStatus() == .title {
-            initControls()
-        }
-        
-        let status = currentStatus()
-        
-        if controlsView != nil && (status == .title || status == .fullscreen) {
-            
-            addControls()
-            
-            activityIndicator.stopAnimating()
-            
-            if autoPlay {
-                mediaPlayer!.play()
-            }
-        } else if autoPlay {
-            activityIndicator.stopAnimating()
-            mediaPlayer!.play()
-        } else {
-            activityIndicator.stopAnimating()
+        if autoPlay {
+            mediaPlayer?.play()
         }
     }
     
@@ -465,9 +468,10 @@ class ViewerController: UIViewController {
     private func cleanupPlayer() {
         
         guard metadata.video else { return }
-        guard mediaPlayer != nil && mediaPlayer!.media != nil && mediaPlayer!.isPlaying else { return }
-        
-        mediaPlayer!.stop()
+
+        if mediaPlayer != nil && mediaPlayer!.media != nil && mediaPlayer!.isPlaying {
+            mediaPlayer?.stop()
+        }
     }
     
     private func initGestureRecognizers() {
@@ -752,7 +756,7 @@ class ViewerController: UIViewController {
     private func playPause() {
 
         if mediaPlayer == nil || mediaPlayer!.media == nil {
-            loadVideo(autoPlay: true)
+            setupVideoController(autoPlay: true)
         } else {
             if mediaPlayer!.isPlaying {
                 mediaPlayer!.pause()

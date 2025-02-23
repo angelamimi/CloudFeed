@@ -29,12 +29,16 @@ final class MainCoordinator : NSObject, Coordinator {
     init(window: UIWindow, dataService: DataService) {
         
         self.window = window
-        self.tabBarController = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! UITabBarController
+        
+        if window.rootViewController is UITabBarController {
+            tabBarController = window.rootViewController as! UITabBarController
+        } else {
+            tabBarController = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! UITabBarController
+        }
         
         super.init()
-        
+
         tabBarController.delegate = self
-        
         initTabCoordinators(dataService: dataService)
     }
     
@@ -71,7 +75,7 @@ extension MainCoordinator: CacheDelegate {
 extension MainCoordinator {
     
     private func initTabCoordinators(dataService: DataService) {
-        
+
         guard tabBarController.viewControllers != nil && tabBarController.viewControllers?.count == 3 else { return }
 
         let mediaNavController = tabBarController.viewControllers?[0] as! UINavigationController
