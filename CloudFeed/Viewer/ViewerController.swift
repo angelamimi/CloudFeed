@@ -1423,10 +1423,6 @@ extension ViewerController: VLCCustomDialogRendererProtocol {
 
 extension ViewerController: DetailViewDelegate {
     
-    func layoutUpdated(height: CGFloat) {
-
-    }
-    
     func showAllDetails() {
         switchToAllDetails()
     }

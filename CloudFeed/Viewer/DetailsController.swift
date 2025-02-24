@@ -51,6 +51,19 @@ class DetailsController: UIViewController {
         bindDetailView()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+       
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            
+            let detailHeight = detailView.height()
+            let width = view.frame.width
+            
+            UIView.animate(withDuration: 0.2, animations: { [weak self] in
+                self?.preferredContentSize = CGSize(width: width, height: detailHeight)
+            })
+        }
+    }
+    
     func populateDetails(url: URL) {
 
         guard let metadata = metadata else { return }
@@ -89,12 +102,6 @@ class DetailsController: UIViewController {
 }
 
 extension DetailsController : DetailViewDelegate {
-    
-    func layoutUpdated(height: CGFloat) {
-        if height > 0 && height != view.frame.height {
-            self.preferredContentSize = CGSize(width: 400, height: height)
-        }
-    }
     
     func showAllDetails() {
         delegate?.showAllMetadataDetails()

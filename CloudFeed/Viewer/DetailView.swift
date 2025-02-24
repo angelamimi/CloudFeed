@@ -26,7 +26,6 @@ import UIKit
 
 @MainActor
 protocol DetailViewDelegate: AnyObject {
-    func layoutUpdated(height: CGFloat)
     func showAllDetails()
 }
 
@@ -89,15 +88,6 @@ class DetailView: UIView {
 
         Task { @MainActor [weak self] in
             self?.commonInit()
-        }
-    }
-    
-    override func layoutSubviews() {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let height = systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
-            if height > 0 {
-                delegate?.layoutUpdated(height: height)
-            }
         }
     }
     
