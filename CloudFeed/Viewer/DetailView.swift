@@ -86,8 +86,8 @@ class DetailView: UIView {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        Task { @MainActor [weak self] in
-            self?.commonInit()
+        MainActor.assumeIsolated {
+            commonInit()
         }
     }
     
@@ -112,22 +112,11 @@ class DetailView: UIView {
     }
     
     private func commonInit() {
-        
-        Task { [weak self] in
-            
-            guard let view = UINib(nibName: "DetailView", bundle: nil).instantiate(withOwner: self, options: nil).first as? UIView else { return }
-            
-            await MainActor.run { [weak self] in
-                
-                self?.addSubview(view)
-                view.frame = self?.bounds ?? CGRect.zero
 
-                self?.initElements()
-         
-                if self?.metadata != nil {
-                    self?.populateDetails()
-                }
-            }
+        initElements()
+ 
+        if metadata != nil {
+            populateDetails()
         }
     }
     

@@ -25,6 +25,14 @@ import UIKit
 
 final class MockNextcloudKitService: NextcloudKitServiceProtocol {
     
+    func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)? {
+        return nil
+    }
+    
+    func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?) {
+        return (nil, nil)
+    }
+    
     func setup() {
         
     }

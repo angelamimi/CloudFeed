@@ -31,7 +31,7 @@ final class ImageUtility: NSObject {
             
             guard let image = UIImage(data: data) else { return }
             
-            if let previewImage = image.resizeImage(size: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)),
+            if let previewImage = image.preparingThumbnail(of: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)),
                let data = previewImage.jpegData(compressionQuality: 0.5) {
                 do {
                     try data.write(to: URL(fileURLWithPath: previewPath))
@@ -40,9 +40,8 @@ final class ImageUtility: NSObject {
                 }
             }
             
-            if let iconImage = image.resizeImage(size: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon)),
+            if let iconImage = image.preparingThumbnail(of: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon)),
                let data = iconImage.jpegData(compressionQuality: 0.7) {
-
                 do {
                     try data.write(to: URL(fileURLWithPath: iconPath))
                 } catch {

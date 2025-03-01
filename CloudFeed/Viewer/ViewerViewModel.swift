@@ -134,7 +134,7 @@ extension ViewerViewModel {
             return ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
             
         } else {
-            
+
             await createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
             image = UIImage(contentsOfFile: imagePath)
             
@@ -173,14 +173,13 @@ extension ViewerViewModel {
         let fileNamePath = dataService.store.getCachePath(ocId, fileNameView)!
         let fileNamePathPreview = dataService.store.getPreviewPath(ocId, etag)
 
-        if dataService.store.fileSize(ocId, fileNameView) > 0
-            && FileManager().fileExists(atPath: fileNamePathPreview) {
+        if dataService.store.fileSize(ocId, fileNameView) > 0 && FileManager().fileExists(atPath: fileNamePathPreview) {
             return
         }
         
         originalImage = UIImage(contentsOfFile: fileNamePath)
 
-        scaleImagePreview = originalImage?.resizeImage(size: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
+        scaleImagePreview = await originalImage?.byPreparingThumbnail(ofSize: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
 
         try? scaleImagePreview?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathPreview))
     }

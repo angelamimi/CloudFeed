@@ -103,11 +103,11 @@ extension UIImage {
             }
         }
 
-        /* Can't use. Works for viewing at new size, but will not save as new size
+        /* Can't use. Doesn't change the underlying size
         let image = UIGraphicsImageRenderer(size: newSize).image { _ in
             draw(in: CGRect(origin: .zero, size: newSize))
         }*/
-        
+
         UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
         self.draw(in: CGRect(origin: .zero, size: newSize))
         defer { UIGraphicsEndImageContext() }

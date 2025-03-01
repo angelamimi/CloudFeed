@@ -95,7 +95,7 @@ class MediaTests {
         #expect(activeAccount != nil)
         
         if Environment.current.setCurrentUser(account: activeAccount!.account, urlBase: activeAccount!.urlBase, user: activeAccount!.user, userId: activeAccount!.userId) {
-            dataService?.setup(account: activeAccount!.account, user: activeAccount!.user, userId: activeAccount!.userId, urlBase: activeAccount!.urlBase)
+            dataService?.setup(account: activeAccount!.account)
         }
     }
 }

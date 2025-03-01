@@ -40,24 +40,23 @@ class ViewerController: UIViewController {
     @IBOutlet weak var statusImageView: UIImageView!
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var detailView: DetailView!
     @IBOutlet weak var statusContainerView: UIView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     @IBOutlet weak var imageViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewTrailingConstraint: NSLayoutConstraint!
-    
-    @IBOutlet weak var detailViewTopConstraint: NSLayoutConstraint!
-    @IBOutlet weak var detailViewWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var detailViewHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var detailViewLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var statusContainerTopConstraint: NSLayoutConstraint!
     
     weak var delegate: ViewerDelegate?
+    private weak var detailView: DetailView?
     private weak var videoView: UIView?
     private weak var videoViewHeightConstraint: NSLayoutConstraint?
     private weak var videoViewRightConstraint: NSLayoutConstraint?
+    private weak var detailViewTopConstraint: NSLayoutConstraint?
+    private weak var detailViewWidthConstraint: NSLayoutConstraint?
+    private weak var detailViewHeightConstraint: NSLayoutConstraint?
+    private weak var detailViewLeadingConstraint: NSLayoutConstraint?
     
     var metadata: Metadata = Metadata(obj: tableMetadata())
     var path: String?
@@ -93,16 +92,15 @@ class ViewerController: UIViewController {
             statusLabel.text = ""
         }
         
-        detailView.isHidden = true
         statusContainerView.isHidden = true
         statusContainerView.layer.cornerRadius = 14
 
         initGestureRecognizers()
         
         if UIDevice.current.userInterfaceIdiom == .pad {
-            detailView.removeFromSuperview()
+            detailView?.removeFromSuperview()
         } else {
-            detailView.delegate = self
+            detailView?.delegate = self
         }
     }
     
@@ -217,7 +215,7 @@ class ViewerController: UIViewController {
                 return
             }
             
-            self.detailView.url = videoURL
+            self.detailView?.url = videoURL
             self.path = videoURL?.absoluteString
             self.videoURL = videoURL
             
@@ -235,7 +233,7 @@ class ViewerController: UIViewController {
     private func showFrame(url: URL) async {
 
         if let image = await viewModel.downloadVideoFrame(metadata: metadata, url: url, size: imageView.frame.size) {
-            setImage(image: image)
+            await setImage(image: image)
         }
     }
     
@@ -341,13 +339,10 @@ class ViewerController: UIViewController {
         if path != nil && currentStatus() == .details {
             updateDetailsForPath(path!)
         }
-        
+
         if image != nil && metadata.ocId == metadata.ocId && imageView.layer.sublayers?.count == nil {
-            
-            await MainActor.run { [weak self] in
-                self?.setImage(image: image!)
-                self?.handleImageLoaded(metadata: metadata)
-            }
+            await setImage(image: image!)
+            handleImageLoaded(metadata: metadata)
         }
     }
     
@@ -511,19 +506,19 @@ class ViewerController: UIViewController {
         
         guard let image = viewModel.getVideoFrame(metadata: metadata) else { return }
 
-        DispatchQueue.main.async { [weak self] in
-            self?.setImage(image: image)
+        Task {
+            await self.setImage(image: image)
         }
     }
     
-    private func setImage(image: UIImage) {
+    private func setImage(image: UIImage) async {
         
-        imageView.image = image
+        imageView.image = await image.byPreparingForDisplay()
         
         let detailsVisible = currentStatus() == .details
         
         if UIDevice.current.userInterfaceIdiom != .pad && detailsVisible {
-
+            
             if isPortrait() {
                 calculateVerticalConstraintsShow(transformImage: imageViewRatioWithinThreshold(), height: imageViewHeightConstraint.constant)
             }
@@ -561,7 +556,7 @@ class ViewerController: UIViewController {
         if isPortrait() {
             return imageViewHeightConstraint.constant < view.frame.height / 2
         } else {
-            return detailViewTopConstraint.constant > view.frame.height
+            return detailViewTopConstraint?.constant ?? 0 > view.frame.height
         }
     }
     
@@ -797,7 +792,7 @@ class ViewerController: UIViewController {
             return presentedViewController != nil
         } else {
             //Size of zero = haven't laid out subviews. Details not really visible.
-            return size != .zero && detailView.frame.origin.y < view.frame.size.height
+            return size != .zero && detailView != nil && detailView!.frame.origin.y < view.frame.size.height
         }
     }
     
@@ -902,8 +897,6 @@ class ViewerController: UIViewController {
     }
     
     private func showDetails(animate: Bool, reset: Bool) {
-        
-        detailView.isHidden = false
 
         delegate?.updateStatus(status: .details)
         
@@ -936,6 +929,10 @@ class ViewerController: UIViewController {
                 }
             }
         } else if UIDevice.current.userInterfaceIdiom == .phone {
+
+            if detailView == nil {
+                initDetailView()
+            }
             
             //end up with not fully dismissed details sheet if rotated while presented. this dismisses on rotation.
             if presentedViewController != nil {
@@ -943,7 +940,9 @@ class ViewerController: UIViewController {
             }
             
             //video view is added at runtime, which ends up in front of detail view. bring detail view back to front
-            view.bringSubviewToFront(detailView)
+            if detailView != nil {
+                view.bringSubviewToFront(detailView!)
+            }
             
             if isPortrait() {
                 showVerticalDetails(animate: animate, reset: reset)
@@ -963,6 +962,31 @@ class ViewerController: UIViewController {
         }
     }
     
+    private func initDetailView() {
+        
+        guard let detailView = Bundle.main.loadNibNamed("DetailView", owner: self, options: nil)?.first as? DetailView else { return }
+        
+        self.detailView = detailView
+
+        view.addSubview(detailView)
+        
+        detailView.translatesAutoresizingMaskIntoConstraints = false
+        
+        detailView.backgroundColor = .blue
+        
+        detailViewTopConstraint = detailView.topAnchor.constraint(equalTo: imageView.bottomAnchor)
+        detailViewWidthConstraint = detailView.widthAnchor.constraint(equalToConstant: imageView.frame.width)
+        detailViewHeightConstraint = detailView.heightAnchor.constraint(equalToConstant: 0)
+        detailViewLeadingConstraint = detailView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 0)
+        
+        detailViewTopConstraint?.isActive = true
+        detailViewWidthConstraint?.isActive = true
+        detailViewHeightConstraint?.isActive = true
+        detailViewLeadingConstraint?.isActive = true
+        
+        view.layoutIfNeeded()
+    }
+    
     private func scrollDownDetails() {
         
         if UIDevice.current.userInterfaceIdiom == .phone {
@@ -976,8 +1000,6 @@ class ViewerController: UIViewController {
     }
     
     private func hideDetails(animate: Bool, hideStatus: Bool, status: Global.ViewerStatus) {
-        
-        detailView.isHidden = true
         
         delegate?.updateStatus(status: status)
         
@@ -999,6 +1021,7 @@ class ViewerController: UIViewController {
     
     private func showVerticalDetails(animate: Bool, reset: Bool) {
         
+        guard let detailView = self.detailView else { return }
         let allowTransform = imageViewRatioWithinThreshold()
         let heightOffset: CGFloat
         let size = view.frame.size
@@ -1018,7 +1041,7 @@ class ViewerController: UIViewController {
                 if detailViewHeight < halfHeight {
                     heightOffset = halfHeight
                 } else {
-                    //more than half height. show full details\
+                    //more than half height. show full details
                     heightOffset = min(height - detailViewHeight, halfHeight)
                 }
             }
@@ -1146,6 +1169,7 @@ class ViewerController: UIViewController {
     
     private func showHorizontalDetails(animate: Bool, reset: Bool) {
         
+        guard let detailView = self.detailView else { return }
         let trailingOffset: CGFloat
         let topOffset: CGFloat
         let height = view.frame.height
@@ -1222,7 +1246,7 @@ class ViewerController: UIViewController {
     
     private func updateHorizontalConstraintsShow(height: CGFloat, topOffset: CGFloat, trailingOffset: CGFloat) {
 
-        detailViewTopConstraint?.constant = topOffset
+        detailViewTopConstraint?.constant = -topOffset
         
         imageViewHeightConstraint?.constant = height
         videoViewHeightConstraint?.constant = height
@@ -1246,7 +1270,6 @@ class ViewerController: UIViewController {
         
         imageViewTrailingConstraint?.constant = 0
         videoViewRightConstraint?.constant = 0
-        detailViewLeadingConstraint?.constant = 0
         
         view.layoutIfNeeded()
     }

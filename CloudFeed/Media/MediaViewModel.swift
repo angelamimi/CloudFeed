@@ -161,7 +161,7 @@ final class MediaViewModel: NSObject {
     
     func metadataSearch(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool) {
 
-        fetchTask = Task(priority: .high) { [weak self] in
+        fetchTask = Task { [weak self] in
             guard let self else { return }
             
             let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
@@ -179,7 +179,7 @@ final class MediaViewModel: NSObject {
     
     func filter(type: Global.FilterType, toDate: Date, fromDate: Date) {
         
-        fetchTask = Task(priority: .high) { [weak self] in
+        fetchTask = Task { [weak self] in
             guard let self else { return }
             
             let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: Global.shared.limit)
@@ -194,30 +194,32 @@ final class MediaViewModel: NSObject {
     
     func sync(type: Global.FilterType, toDate: Date, fromDate: Date) {
         
-        fetchTask = Task(priority: .background) { [weak self] in
-            guard let self else { return }
+        fetchTask = Task { [weak self] in
             
             //Self.logger.debug("sync() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
             //Self.logger.debug("sync() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
             
-            let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 0)
+            let results = await self?.search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 0)
             
             if Task.isCancelled { return }
             
-            guard results.metadatas != nil else {
-                delegate.searchResultReceived(resultItemCount: nil)
+            guard results != nil && results!.metadatas != nil else {
+                self?.delegate.searchResultReceived(resultItemCount: nil)
                 return
             }
             
-            var added = getAddedMetadata(metadatas: results.metadatas!)
-            added.append(contentsOf: results.added)
+            var added = self?.getAddedMetadata(metadatas: results!.metadatas!)
+            
+            added?.append(contentsOf: results!.added)
             
             //results.updated accounts for favorites updated remotely. Also need to account for favorites updated locally.
             //have to compare what is displayed with what was just fetched
-            var updated = getUpdatedFavorites(metadatas: results.metadatas!)
-            updated.append(contentsOf: results.updated)
+            var updated = self?.getUpdatedFavorites(metadatas: results!.metadatas!)
+            updated?.append(contentsOf: results!.updated)
 
-            syncDatasource(added: added, updated: updated, deleted: results.deleted)
+            if added != nil && updated != nil {
+                self?.syncDatasource(added: added!, updated: updated!, deleted: results!.deleted)
+            }
         }
     }
     

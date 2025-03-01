@@ -10,51 +10,17 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DetailView" customModule="CloudFeed" customModuleProvider="target">
-            <connections>
-                <outlet property="aperatureLabel" destination="Vfn-Mg-pgJ" id="6nH-a8-TYg"/>
-                <outlet property="cameraLabel" destination="x9M-ZG-hZS" id="K3w-gz-mcx"/>
-                <outlet property="cameraView" destination="Npf-m5-tBN" id="AzW-0E-oiH"/>
-                <outlet property="contentStackView" destination="Dqg-wy-mZm" id="ikd-a9-aAx"/>
-                <outlet property="contentStackViewBottomConstraint" destination="aP0-hj-MEW" id="n8I-ZR-f3d"/>
-                <outlet property="contentStackViewHeightConstraint" destination="mPv-SC-DY6" id="STB-x9-b6Z"/>
-                <outlet property="divider1Label" destination="Mld-Pp-6Do" id="BuY-C2-jEd"/>
-                <outlet property="divider2Label" destination="o3V-Y9-p60" id="Wab-Er-Nky"/>
-                <outlet property="divider3Label" destination="cHd-XY-hab" id="Ayu-wI-nkR"/>
-                <outlet property="divider4Label" destination="C2o-pO-xDs" id="7ss-Ym-va5"/>
-                <outlet property="divider5Label" destination="nDL-GM-2wf" id="KbS-q4-sXH"/>
-                <outlet property="durationLabel" destination="cPO-5m-foL" id="Hqd-GD-Wis"/>
-                <outlet property="durationLabelWidthConstraint" destination="DQr-eG-noi" id="Fto-8W-ft0"/>
-                <outlet property="exposureLabel" destination="iAf-dD-zZ1" id="pnD-97-t1w"/>
-                <outlet property="exposureTimeLabel" destination="yFj-Vj-Hmw" id="2Ee-Hb-oAZ"/>
-                <outlet property="exposureTimeLabelWidthConstraint" destination="Bj1-2i-Z49" id="FaH-Ae-TPL"/>
-                <outlet property="fileDateLabel" destination="HLA-7S-wTg" id="XrW-v8-Kpr"/>
-                <outlet property="fileNameLabel" destination="y5V-cf-Wmp" id="e5j-N7-kJF"/>
-                <outlet property="focalLengthLabel" destination="oDb-7C-4cH" id="X4s-cc-5HR"/>
-                <outlet property="fpsLabel" destination="2TD-ZB-yaQ" id="GAI-o3-xDw"/>
-                <outlet property="fpsLabelWidthConstraint" destination="bbY-Np-OKD" id="aUv-RE-OlA"/>
-                <outlet property="isoLabel" destination="gei-ae-rtk" id="fhG-MO-rjH"/>
-                <outlet property="isoLabelWidthConstraint" destination="ljb-Ir-3bK" id="lOb-Cl-PNj"/>
-                <outlet property="lensLabel" destination="Vku-zE-MVR" id="uqD-16-Nsj"/>
-                <outlet property="mapView" destination="4W4-ha-tvj" id="c9I-M9-XeD"/>
-                <outlet property="metadataButton" destination="nJZ-9S-aFh" id="f70-3K-ofX"/>
-                <outlet property="metadataStackView" destination="Tff-op-Ovl" id="i5Y-hN-tx2"/>
-                <outlet property="sizeLabel" destination="fhR-TL-HoQ" id="0Vw-c4-4AC"/>
-                <outlet property="typeImageView" destination="uuI-wU-dJi" id="u6E-XZ-uBZ"/>
-                <outlet property="typeLabel" destination="9B7-Dc-tdS" id="wm0-Jw-fXy"/>
-                <outlet property="typeView" destination="pQm-1F-ZfI" id="QEc-zb-KYt"/>
-            </connections>
-        </placeholder>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" id="iN0-l3-epB">
+        <view contentMode="scaleToFill" restorationIdentifier="DetailView" id="iN0-l3-epB" customClass="DetailView" customModule="CloudFeed" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="393" height="501"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <stackView opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Dqg-wy-mZm">
-                    <rect key="frame" x="16" y="75" width="361" height="409"/>
+                    <rect key="frame" x="16" y="75" width="361" height="400"/>
                     <subviews>
-                        <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" axis="vertical" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="oDw-rA-o3U">
-                            <rect key="frame" x="0.0" y="0.0" width="361" height="4"/>
+                        <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" axis="vertical" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="oDw-rA-o3U" userLabel="Basic Info Stack View">
+                            <rect key="frame" x="0.0" y="0.0" width="361" height="139"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="1000" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HLA-7S-wTg" userLabel="File Date Label">
                                     <rect key="frame" x="0.0" y="0.0" width="361" height="0.0"/>
@@ -64,7 +30,7 @@
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="1000" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y5V-cf-Wmp" userLabel="File Name Label">
-                                    <rect key="frame" x="0.0" y="4" width="361" height="0.0"/>
+                                    <rect key="frame" x="0.0" y="139" width="361" height="0.0"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                     <color key="textColor" systemColor="secondaryLabelColor"/>
@@ -73,7 +39,7 @@
                             </subviews>
                         </stackView>
                         <view contentMode="scaleToFill" verticalHuggingPriority="1000" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Npf-m5-tBN" userLabel="Camera View">
-                            <rect key="frame" x="0.0" y="20" width="361" height="128"/>
+                            <rect key="frame" x="0.0" y="155" width="361" height="128"/>
                             <subviews>
                                 <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="YrH-Yc-3br" userLabel="Camera Make Model Stack View">
                                     <rect key="frame" x="0.0" y="0.0" width="361" height="34"/>
@@ -277,40 +243,44 @@
                                 <constraint firstAttribute="trailing" secondItem="Tff-op-Ovl" secondAttribute="trailing" identifier="Camera view trailing to metadata stack view trailing" id="uCk-x8-pwe"/>
                                 <constraint firstItem="YrH-Yc-3br" firstAttribute="leading" secondItem="Npf-m5-tBN" secondAttribute="leading" id="vlz-1p-Usy"/>
                             </constraints>
-                            <edgeInsets key="layoutMargins" top="12" left="8" bottom="8" right="8"/>
+                            <edgeInsets key="layoutMargins" top="12" left="16" bottom="8" right="16"/>
                         </view>
-                        <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="1000" zoomEnabled="NO" scrollEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" showsPointsOfInterest="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4W4-ha-tvj">
-                            <rect key="frame" x="0.0" y="164" width="361" height="128"/>
+                        <mapView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="1000" zoomEnabled="NO" scrollEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" showsPointsOfInterest="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4W4-ha-tvj">
+                            <rect key="frame" x="0.0" y="291" width="361" height="128"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="128" id="1SP-JV-E90"/>
                             </constraints>
+                            <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
                             <standardMapConfiguration key="preferredConfiguration"/>
                         </mapView>
                         <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nJZ-9S-aFh" userLabel="Metadata Button">
-                            <rect key="frame" x="0.0" y="308" width="361" height="35"/>
+                            <rect key="frame" x="0.0" y="299" width="361" height="35"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="35" id="UoK-MV-H9H"/>
                             </constraints>
+                            <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
                             <state key="normal" title="Button"/>
                             <buttonConfiguration key="configuration" style="gray"/>
                         </button>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2bm-Yb-Q5w" userLabel="Filler View">
-                            <rect key="frame" x="0.0" y="359" width="361" height="50"/>
+                            <rect key="frame" x="0.0" y="350" width="361" height="50"/>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         </view>
                     </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="trailing" secondItem="4W4-ha-tvj" secondAttribute="trailing" id="4O7-eh-hjN"/>
                         <constraint firstAttribute="trailing" secondItem="nJZ-9S-aFh" secondAttribute="trailing" id="NQ7-h0-b8r"/>
                         <constraint firstItem="nJZ-9S-aFh" firstAttribute="leading" secondItem="Dqg-wy-mZm" secondAttribute="leading" id="OUG-JZ-0VW"/>
-                        <constraint firstItem="Npf-m5-tBN" firstAttribute="leading" secondItem="Dqg-wy-mZm" secondAttribute="leading" id="hfz-TJ-jEi"/>
+                        <constraint firstAttribute="trailing" secondItem="Npf-m5-tBN" secondAttribute="trailing" id="S8R-zj-kdd"/>
+                        <constraint firstItem="Npf-m5-tBN" firstAttribute="leading" secondItem="Dqg-wy-mZm" secondAttribute="leading" id="eG2-cf-KkC"/>
                         <constraint firstAttribute="height" priority="250" constant="400" id="mPv-SC-DY6"/>
                         <constraint firstItem="4W4-ha-tvj" firstAttribute="leading" secondItem="Dqg-wy-mZm" secondAttribute="leading" id="ngs-YO-S7b"/>
-                        <constraint firstAttribute="trailing" secondItem="Npf-m5-tBN" secondAttribute="trailing" id="uG6-5O-YYO"/>
                     </constraints>
                 </stackView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstItem="Dqg-wy-mZm" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="EOR-2h-RwZ"/>
                 <constraint firstItem="Dqg-wy-mZm" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="aDV-HJ-FDl"/>
@@ -318,11 +288,45 @@
                 <constraint firstItem="Dqg-wy-mZm" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" constant="-16" id="fSt-7E-NtH"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <edgeInsets key="layoutMargins" top="16" left="16" bottom="16" right="16"/>
             <variation key="default">
                 <mask key="constraints">
                     <exclude reference="aP0-hj-MEW"/>
                 </mask>
             </variation>
+            <connections>
+                <outlet property="aperatureLabel" destination="Vfn-Mg-pgJ" id="nFq-ZK-vfD"/>
+                <outlet property="cameraLabel" destination="x9M-ZG-hZS" id="6bp-Uv-uJs"/>
+                <outlet property="cameraView" destination="Npf-m5-tBN" id="u7O-Ga-lrH"/>
+                <outlet property="contentStackView" destination="Dqg-wy-mZm" id="Ad3-13-8Th"/>
+                <outlet property="contentStackViewBottomConstraint" destination="aP0-hj-MEW" id="Jj2-Xq-kcU"/>
+                <outlet property="contentStackViewHeightConstraint" destination="mPv-SC-DY6" id="KVu-xr-ePX"/>
+                <outlet property="divider1Label" destination="Mld-Pp-6Do" id="exz-uy-hlB"/>
+                <outlet property="divider2Label" destination="o3V-Y9-p60" id="C20-ba-0S3"/>
+                <outlet property="divider3Label" destination="cHd-XY-hab" id="TBp-TG-EfJ"/>
+                <outlet property="divider4Label" destination="C2o-pO-xDs" id="sQN-Xw-jGe"/>
+                <outlet property="divider5Label" destination="nDL-GM-2wf" id="jGq-Nj-buQ"/>
+                <outlet property="durationLabel" destination="cPO-5m-foL" id="kPU-07-vHp"/>
+                <outlet property="durationLabelWidthConstraint" destination="DQr-eG-noi" id="lPg-6Q-rqZ"/>
+                <outlet property="exposureLabel" destination="iAf-dD-zZ1" id="w0r-zE-UMj"/>
+                <outlet property="exposureTimeLabel" destination="yFj-Vj-Hmw" id="Qul-V3-iwr"/>
+                <outlet property="exposureTimeLabelWidthConstraint" destination="Bj1-2i-Z49" id="Xb4-RF-jJn"/>
+                <outlet property="fileDateLabel" destination="HLA-7S-wTg" id="dcg-U4-TAA"/>
+                <outlet property="fileNameLabel" destination="y5V-cf-Wmp" id="7HN-wH-5k1"/>
+                <outlet property="focalLengthLabel" destination="oDb-7C-4cH" id="RyX-84-4iZ"/>
+                <outlet property="fpsLabel" destination="2TD-ZB-yaQ" id="8jH-PQ-HU1"/>
+                <outlet property="fpsLabelWidthConstraint" destination="bbY-Np-OKD" id="7Pk-Fb-z2i"/>
+                <outlet property="isoLabel" destination="gei-ae-rtk" id="NIK-e2-nQH"/>
+                <outlet property="isoLabelWidthConstraint" destination="ljb-Ir-3bK" id="MyL-R4-ST9"/>
+                <outlet property="lensLabel" destination="Vku-zE-MVR" id="8pd-PC-QN1"/>
+                <outlet property="mapView" destination="4W4-ha-tvj" id="tOB-w8-JHC"/>
+                <outlet property="metadataButton" destination="nJZ-9S-aFh" id="GSc-6V-C6L"/>
+                <outlet property="metadataStackView" destination="Tff-op-Ovl" id="0m1-A2-tjB"/>
+                <outlet property="sizeLabel" destination="fhR-TL-HoQ" id="dKK-nt-To5"/>
+                <outlet property="typeImageView" destination="uuI-wU-dJi" id="OyM-uh-tkU"/>
+                <outlet property="typeLabel" destination="9B7-Dc-tdS" id="T9X-iO-nf2"/>
+                <outlet property="typeView" destination="pQm-1F-ZfI" id="H5I-8V-gtp"/>
+            </connections>
             <point key="canvasLocation" x="125.95419847328243" y="65.140845070422543"/>
         </view>
     </objects>
