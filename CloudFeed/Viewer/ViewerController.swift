@@ -984,6 +984,8 @@ class ViewerController: UIViewController {
         detailViewHeightConstraint?.isActive = true
         detailViewLeadingConstraint?.isActive = true
         
+        detailViewHeightConstraint?.priority = .defaultLow
+        
         view.layoutIfNeeded()
     }
     
