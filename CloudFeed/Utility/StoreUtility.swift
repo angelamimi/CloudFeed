@@ -323,7 +323,7 @@ struct StoreUtility: Sendable {
         }
     }
 
-    func removeDocumentsDirectory() {
+    func removeDocumentsDirectory() async {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).map(\.path)
         if paths.count > 0 {
             try? FileManager.default.removeItem(atPath: paths[0])

@@ -60,7 +60,7 @@ final class SettingsViewModel: NSObject {
         
         let store = dataService.store
         
-        Task(priority: .high) { [weak self] in
+        Task { [weak self] in
             
             if let account = Environment.current.currentUser?.account {
                 self?.dataService.clearDatabase(account: account, removeAccount: false)
@@ -76,13 +76,13 @@ final class SettingsViewModel: NSObject {
         
         let store = dataService.store
         
-        Task(priority: .high) { [weak self] in
+        Task { [weak self] in
             
             await store.clearCache()
-            store.removeDocumentsDirectory()
+            await store.removeDocumentsDirectory()
             store.deleteAllChainStore()
             
-            self?.dataService.removeDatabase()
+            await self?.dataService.removeDatabase()
             
             self?.delegate.applicationReset()
         }

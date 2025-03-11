@@ -124,7 +124,7 @@ final class DataService: NSObject, Sendable {
         databaseManager.clearDatabase(account: account, removeAccount: removeAccount)
     }
     
-    func removeDatabase() {
+    func removeDatabase() async {
         databaseManager.removeDatabase()
     }
     
