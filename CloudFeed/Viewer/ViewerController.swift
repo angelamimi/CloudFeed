@@ -981,12 +981,12 @@ class ViewerController: UIViewController {
         let diff = resizeSize.height - renderSize.height
         
         var newScale = 1.0
-        var shiftUpOnly = false
+        var shiftOnly = false
         
         if (resizeSize.height > renderSize.height) && diff >= 1.0 {
 
             if resizeSize.width == renderSize.width {
-                shiftUpOnly = true //don't transform, just shift up when details appear
+                shiftOnly = true //don't transform, just shift up when details appear
             } else {
                 newScale = resizeSize.height / renderSize.height
             }
@@ -995,13 +995,13 @@ class ViewerController: UIViewController {
 
             newScale = resizeSize.width / renderSize.width
         }
-        
+
         if transformImage {
             imageView.transform = CGAffineTransform(scaleX: newScale, y: newScale)
             videoView?.transform = CGAffineTransform(scaleX: newScale, y: newScale)
         }
         
-        if shiftUpOnly && transformImage {
+        if shiftOnly && transformImage {
             imageViewTopConstraint.constant = -(resizeSize.height - renderSize.height)
             updateVerticalConstraintsShow(heightOffset: resizeSize.height)
         } else {
@@ -1112,11 +1112,12 @@ class ViewerController: UIViewController {
         
         let scale: CGFloat = scaleW > scaleH ? scaleW : scaleH
         let resizeSize: CGSize = CGSize(width: round(originalSize.width * scale), height: round(originalSize.height * scale))
+        let diff = abs(resizeSize.width - renderSize.width)
         
         var newScale = 1.0
         var shiftOnly = false
         
-        if resizeSize.width == renderSize.width {
+        if resizeSize.width == renderSize.width || (diff > 0 && diff < 1) {
             
             if resizeSize.height > renderSize.height {
                 newScale = resizeSize.height / renderSize.height
