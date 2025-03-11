@@ -24,13 +24,13 @@ import os.log
 
 @MainActor
 protocol DetailsControllerDelegate: AnyObject {
-    func showAllMetadataDetails()
+    func showAllMetadataDetails(metadata: Metadata)
 }
 
 //DetailsView container used for pad only
 class DetailsController: UIViewController {
     
-    @IBOutlet weak var detailView: DetailView!
+    private weak var detailView: DetailView!
     
     var metadata: Metadata?
     var url: URL?
@@ -44,46 +44,66 @@ class DetailsController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        initDetailView()
         detailView.delegate = self
         
         addGestures()
         bindDetailView()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-       
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            
-            let detailHeight = detailView.height()
-            let width = view.frame.width
-            
-            UIView.animate(withDuration: 0.2, animations: { [weak self] in
-                self?.preferredContentSize = CGSize(width: width, height: detailHeight)
-            })
-        }
+    override func viewDidLayoutSubviews() {
+        setPreferredSize()
     }
     
-    func populateDetails(url: URL) {
-
-        guard let metadata = metadata else { return }
+    func populateDetails(metadata: Metadata, url: URL) {
         
-        detailView.metadata = metadata
-        detailView.url = url
+        self.metadata = metadata
+        self.url = url
         
-        detailView.populateDetails()
+        detailView.initDetails(metadata: metadata, url: url)
+        
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            self?.detailView?.alpha = 0.4
+            self?.detailView?.layoutIfNeeded()
+        }, completion: { [weak self] _ in
+            self?.detailView.populateDetails()
+        })
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
         dismiss(animated: false)
     }
     
+    private func initDetailView() {
+        
+        guard let detailView = Bundle.main.loadNibNamed("DetailView", owner: self, options: nil)?.first as? DetailView else { return }
+        
+        self.detailView = detailView
+        
+        view.addSubview(detailView)
+        
+        detailView.translatesAutoresizingMaskIntoConstraints = false
+        
+        detailView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        detailView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor).isActive = true
+        detailView.widthAnchor.constraint(equalToConstant: preferredContentSize.width).isActive = true
+        
+        let heightAnchor = detailView.heightAnchor.constraint(equalToConstant: 0)
+        heightAnchor.priority = .defaultLow
+        heightAnchor.isActive = true
+        
+        view.layoutIfNeeded()
+    }
+    
     private func bindDetailView() {
         
         guard let metadata = metadata else { return }
- 
+        
         detailView.metadata = metadata
         detailView.url = url
+        
+        detailView.fillerView.isHidden = true
         
         detailView.populateDetails()
     }
@@ -99,11 +119,23 @@ class DetailsController: UIViewController {
         view.addGestureRecognizer(swipeUpRecognizer)
         view.addGestureRecognizer(swipeDownRecognizer)
     }
+    
+    private func setPreferredSize() {
+        let targetSize = CGSize(width: 400, height: detailView.height())
+        preferredContentSize = detailView.systemLayoutSizeFitting(targetSize)
+    }
 }
 
 extension DetailsController : DetailViewDelegate {
     
-    func showAllDetails() {
-        delegate?.showAllMetadataDetails()
+    func detailsLoaded() {
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            self?.detailView.alpha = 1
+            self?.detailView.layoutIfNeeded()
+        })
+    }
+    
+    func showAllDetails(metadata: Metadata) {
+        delegate?.showAllMetadataDetails(metadata: metadata)
     }
 }

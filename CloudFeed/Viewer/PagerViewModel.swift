@@ -82,6 +82,11 @@ final class PagerViewModel: NSObject {
     func downloadLivePhotoVideo(metadata: Metadata) async {
         await dataService.download(metadata: metadata, selector: "")
     }
+    
+    func getFilePath(_ metadata: Metadata) -> String? {
+        guard dataService.store.fileExists(metadata) else { return nil }
+        return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
+    }
 }
 
 extension PagerViewModel {

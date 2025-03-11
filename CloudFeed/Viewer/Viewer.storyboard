@@ -119,6 +119,7 @@
                         <outlet property="activityIndicator" destination="kG3-WY-mSO" id="ONA-0w-Df9"/>
                         <outlet property="imageView" destination="gnc-Wf-rti" id="Cuh-lC-UtQ"/>
                         <outlet property="imageViewHeightConstraint" destination="u4l-oU-PNv" id="bfm-zB-LO9"/>
+                        <outlet property="imageViewLeadingConstraint" destination="2t2-uN-rfx" id="81I-DN-W3U"/>
                         <outlet property="imageViewTopConstraint" destination="qvw-9n-KQ1" id="DLB-Km-L48"/>
                         <outlet property="imageViewTrailingConstraint" destination="fni-Al-I0J" id="3sR-Q9-UIm"/>
                         <outlet property="statusContainerTopConstraint" destination="1Vf-rW-uGX" id="Ela-4G-725"/>
@@ -208,38 +209,9 @@
                     <view key="view" contentMode="scaleToFill" id="uMS-Ws-hUq">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uns-6d-V3K" customClass="DetailView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="59" width="400" height="220"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" priority="250" constant="220" id="6lL-mT-sDR"/>
-                                    <constraint firstAttribute="width" constant="400" identifier="Popover detail view 400" id="HIQ-zf-XH7"/>
-                                </constraints>
-                            </view>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="rK7-NA-i7O"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="rK7-NA-i7O" firstAttribute="bottom" secondItem="uns-6d-V3K" secondAttribute="bottom" identifier="Popover detail view bottom to safe area bottom" id="0eH-kJ-hEZ"/>
-                            <constraint firstItem="uns-6d-V3K" firstAttribute="width" secondItem="rK7-NA-i7O" secondAttribute="width" identifier="Popover detail view width" id="4IN-jr-0dN"/>
-                            <constraint firstItem="uns-6d-V3K" firstAttribute="height" secondItem="rK7-NA-i7O" secondAttribute="height" identifier="Popover detail view height" id="gDH-Gt-mOo"/>
-                            <constraint firstItem="uns-6d-V3K" firstAttribute="top" secondItem="rK7-NA-i7O" secondAttribute="top" identifier="Popover detail view top to safe area top" id="gfw-2Q-N5L"/>
-                            <constraint firstItem="uns-6d-V3K" firstAttribute="leading" secondItem="rK7-NA-i7O" secondAttribute="leading" identifier="Popover detail view leading to safe area leading" id="nzm-Tl-Urb"/>
-                            <constraint firstItem="rK7-NA-i7O" firstAttribute="trailing" secondItem="uns-6d-V3K" secondAttribute="trailing" identifier="Popover detail view trailing to safe area trailing" id="oEm-ck-UWa"/>
-                        </constraints>
-                        <variation key="default">
-                            <mask key="constraints">
-                                <exclude reference="oEm-ck-UWa"/>
-                                <exclude reference="0eH-kJ-hEZ"/>
-                                <exclude reference="4IN-jr-0dN"/>
-                                <exclude reference="gDH-Gt-mOo"/>
-                            </mask>
-                        </variation>
                     </view>
-                    <connections>
-                        <outlet property="detailView" destination="uns-6d-V3K" id="5pI-Xl-PfQ"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xdP-Yo-YSL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

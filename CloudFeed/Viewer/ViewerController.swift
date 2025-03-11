@@ -31,6 +31,7 @@ protocol ViewerDelegate: AnyObject {
     func singleTapped()
     func videoError()
     func updateStatus(status: Global.ViewerStatus)
+    func mediaLoaded(metadata: Metadata, url: URL)
 }
 
 class ViewerController: UIViewController {
@@ -45,10 +46,10 @@ class ViewerController: UIViewController {
     
     @IBOutlet weak var imageViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var imageViewLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewTrailingConstraint: NSLayoutConstraint!
     @IBOutlet weak var statusContainerTopConstraint: NSLayoutConstraint!
     
-    weak var delegate: ViewerDelegate?
     private weak var detailView: DetailView?
     private weak var videoView: UIView?
     private weak var videoViewHeightConstraint: NSLayoutConstraint?
@@ -57,6 +58,8 @@ class ViewerController: UIViewController {
     private weak var detailViewWidthConstraint: NSLayoutConstraint?
     private weak var detailViewHeightConstraint: NSLayoutConstraint?
     private weak var detailViewLeadingConstraint: NSLayoutConstraint?
+    
+    weak var delegate: ViewerDelegate?
     
     var metadata: Metadata = Metadata(obj: tableMetadata())
     var path: String?
@@ -96,12 +99,6 @@ class ViewerController: UIViewController {
         statusContainerView.layer.cornerRadius = 14
 
         initGestureRecognizers()
-        
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            detailView?.removeFromSuperview()
-        } else {
-            detailView?.delegate = self
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -179,6 +176,53 @@ class ViewerController: UIViewController {
         videoView = nil
 
         imageView.isHidden = false
+    }
+    
+    func handleSwipeUp() {
+        
+        if !detailsVisible() {
+            
+            if metadata.video {
+                videoSetupForDetails()
+            }
+        }
+        
+        showDetails(animate: true, reset: false)
+    }
+    
+    func handleSwipeDown() {
+        
+        if detailsScrolled() {
+            scrollDownDetails()
+        } else {
+            hideDetails(animate: true, hideStatus: false, status: .title)
+        }
+    }
+    
+    func handlePresentationControllerDidDismiss() {
+
+        guard disappearing == false else { return }
+        
+        if metadata.video {
+            //usability. making sure video controls are not covered by the title bar after dismissing details popover
+            delegate?.updateStatus(status: .fullscreen)
+        } else {
+            delegate?.updateStatus(status: .title)
+            
+            if metadata.livePhoto {
+                statusContainerView.isHidden = false
+            }
+        }
+    }
+    
+    func getUrl() -> URL? {
+        
+        if metadata.image, let path = viewModel.getFilePath(metadata) {
+            return URL.init(filePath: path)
+        } else if metadata.video && path != nil && !path!.isEmpty {
+            return URL.init(string: path!)
+        }
+        return nil
     }
     
     private func hideAll() {
@@ -371,20 +415,7 @@ class ViewerController: UIViewController {
         guard url != nil else { return }
         
         if UIDevice.current.userInterfaceIdiom == .pad {
-            
-            if let popover = presentedViewController as? DetailsController {
-                
-                if popover.isBeingDismissed {
-                    presentedViewController?.dismiss(animated: false, completion: {
-                        DispatchQueue.main.async { [weak self] in
-                            self?.presentDetailPopover()
-                        }
-                    })
-                } else {
-                    popover.metadata = metadata
-                    popover.populateDetails(url: url!)
-                }
-            }
+            delegate?.mediaLoaded(metadata: metadata, url: url!)
         } else {
             detailView?.metadata = metadata
             detailView?.url = url!
@@ -487,15 +518,6 @@ class ViewerController: UIViewController {
         imageView.addGestureRecognizer(singleTapRecognizer!)
         
         panRecognizer?.isEnabled = false
-        
-        let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
-        swipeUpRecognizer.direction = .up
-        
-        let swipeDownRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
-        swipeDownRecognizer.direction = .down
-        
-        view.addGestureRecognizer(swipeUpRecognizer)
-        view.addGestureRecognizer(swipeDownRecognizer)
     }
     
     private func videoSetupForDetails() {
@@ -518,36 +540,11 @@ class ViewerController: UIViewController {
         let detailsVisible = currentStatus() == .details
         
         if UIDevice.current.userInterfaceIdiom != .pad && detailsVisible {
-            
-            if isPortrait() {
-                calculateVerticalConstraintsShow(transformImage: imageViewRatioWithinThreshold(), height: imageViewHeightConstraint.constant)
-            }
-        }
-    }
-    
-    @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
 
-        if swipeGesture.direction == .up {
-            
-            if !detailsVisible() {
-                
-                if metadata.video {
-                    videoSetupForDetails()
-                }
-            }
-            
-            showDetails(animate: true, reset: false)
-            
-        } else {
-            
-            if metadata.video && UIDevice.current.userInterfaceIdiom == .pad {
-                //skip hiding details. see handlePresentationControllerDidDismiss
+            if isPortrait() {
+                showVerticalDetails(animate: false, reset: true)
             } else {
-                if detailsScrolled() {
-                    scrollDownDetails()
-                } else {
-                    hideDetails(animate: true, hideStatus: false, status: .title)
-                }
+                showHorizontalDetails(animate: false, reset: true)
             }
         }
     }
@@ -556,7 +553,7 @@ class ViewerController: UIViewController {
         if isPortrait() {
             return imageViewHeightConstraint.constant < view.frame.height / 2
         } else {
-            return detailViewTopConstraint?.constant ?? 0 > view.frame.height
+            return detailViewTopConstraint?.constant ?? 0 < -(view.frame.height)
         }
     }
     
@@ -568,9 +565,6 @@ class ViewerController: UIViewController {
                 delegate?.singleTapped()
                 toggleStatusVisibility()
                 toggleControlsVisibility()
-            } else {
-                presentedViewController?.dismiss(animated: true)
-                hideDetails(animate: true, hideStatus: false, status: .title)
             }
         } else {
 
@@ -599,22 +593,6 @@ class ViewerController: UIViewController {
             addControls()
         } else {
             controlsView!.isHidden = !controlsView!.isHidden
-        }
-    }
-    
-    private func handlePresentationControllerDidDismiss() {
-
-        guard disappearing == false else { return }
-        
-        if metadata.video {
-            //usability. making sure video controls are not covered by the title bar after dismissing details popover
-            delegate?.updateStatus(status: .fullscreen)
-        } else {
-            delegate?.updateStatus(status: .title)
-            
-            if metadata.livePhoto {
-                statusContainerView.isHidden = false
-            }
         }
     }
     
@@ -777,68 +755,29 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func getUrl() -> URL? {
-        
-        if metadata.image, let path = viewModel.getFilePath(metadata) {
-            return URL.init(filePath: path)
-        } else if metadata.video && path != nil && !path!.isEmpty {
-            return URL.init(string: path!)
-        }
-        return nil
-    }
-    
     private func detailsVisible() -> Bool {
         if UIDevice.current.userInterfaceIdiom == .pad {
             return presentedViewController != nil
         } else {
             //Size of zero = haven't laid out subviews. Details not really visible.
-            return size != .zero && detailView != nil && detailView!.frame.origin.y < view.frame.size.height
-        }
-    }
-    
-    private func presentDetailPopover() {
-        
-        let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
-        
-        controller.delegate = self
-        controller.url = getUrl()
-        controller.metadata = metadata
-        controller.modalPresentationStyle = .popover
-        controller.preferredContentSize = CGSize(width: 400, height: 220)
-        
-        if let popover = controller.popoverPresentationController {
-
-            popover.delegate = self
-            popover.sourceView = imageView
-            popover.sourceRect = CGRect(x: view.frame.width, y: 80, width: 100, height: 100)
-            popover.permittedArrowDirections = []
-            
-            let sheet = popover.adaptiveSheetPresentationController
-            sheet.largestUndimmedDetentIdentifier = .medium
-            sheet.detents = [.medium()]
-        }
-        
-        if presentedViewController == nil {
-            present(controller, animated: true)
-        }
-    }
-    
-    private func switchToAllDetails() {
-        
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            
-            guard presentedViewController != nil else { return }
-            
-            let preferredHeight = presentedViewController?.preferredContentSize.height
-            
-            presentedViewController?.dismiss(animated: true, completion: {
-                DispatchQueue.main.async { [weak self] in
-                    self?.presentAllDetailsPopover(preferredHeight: preferredHeight)
+            if size == .zero || detailView == nil {
+                return false
+            } else {
+                if isPortrait() {
+                    return verticalDetailsVisible()
+                } else {
+                    return horizontalDetailsVisible()
                 }
-            })
-        } else {
-            presentAllDetailsSheet()
+            }
         }
+    }
+    
+    private func verticalDetailsVisible() -> Bool {
+        return detailViewTopConstraint?.constant ?? -1 == 0
+    }
+    
+    private func horizontalDetailsVisible() -> Bool {
+        return detailViewTopConstraint?.constant ?? -1 != 0
     }
     
     private func initDetailController() -> DetailController {
@@ -855,11 +794,13 @@ class ViewerController: UIViewController {
         
         return controller
     }
-    
+
     private func presentAllDetailsSheet() {
         
+        guard let details = detailView else { return }
+        
         let controller = initDetailController()
-        let height = view.frame.height - imageViewHeightConstraint.constant
+        let height = view.frame.height - details.frame.minY
         
         if let sheet = controller.sheetPresentationController {
             sheet.detents = [.custom { _ in
@@ -869,31 +810,6 @@ class ViewerController: UIViewController {
         }
         
         present(controller, animated: true)
-    }
-    
-    private func presentAllDetailsPopover(preferredHeight: CGFloat?) {
-        
-        let controller = initDetailController()
-        let height = preferredHeight == nil ? 500 : preferredHeight!
-        
-        controller.modalPresentationStyle = .popover
-        controller.preferredContentSize = CGSize(width: 500, height: height)
-        
-        if let popover = controller.popoverPresentationController {
-
-            popover.delegate = self
-            popover.sourceView = imageView
-            popover.sourceRect = CGRect(x: view.frame.width, y: 80, width: 100, height: 100)
-            popover.permittedArrowDirections = []
-            
-            let sheet = popover.adaptiveSheetPresentationController
-            sheet.largestUndimmedDetentIdentifier = .medium
-            sheet.detents = [.medium()]
-        }
-        
-        if presentedViewController == nil {
-            present(controller, animated: true)
-        }
     }
     
     private func showDetails(animate: Bool, reset: Bool) {
@@ -911,32 +827,10 @@ class ViewerController: UIViewController {
             imageViewHeightConstraint?.constant = view.frame.height
             videoViewHeightConstraint?.constant = view.frame.height
             
-            if presentedViewController == nil {
-                presentDetailPopover()
-            } else {
-                
-                if let popover = presentedViewController!.popoverPresentationController {
-                    //popover is moved off the screen sometimes on rotation. reset it.
-                    popover.sourceRect = CGRect(x: view.frame.width, y: 80, width: 100, height: 100)
-                }
-
-                if presentedViewController!.isBeingDismissed {
-                    presentedViewController?.dismiss(animated: false, completion: {
-                        DispatchQueue.main.async { [weak self] in
-                            self?.presentDetailPopover()
-                        }
-                    })
-                }
-            }
         } else if UIDevice.current.userInterfaceIdiom == .phone {
 
             if detailView == nil {
                 initDetailView()
-            }
-            
-            //end up with not fully dismissed details sheet if rotated while presented. this dismisses on rotation.
-            if presentedViewController != nil {
-                presentedViewController?.dismiss(animated: false)
             }
             
             //video view is added at runtime, which ends up in front of detail view. bring detail view back to front
@@ -966,13 +860,13 @@ class ViewerController: UIViewController {
         
         guard let detailView = Bundle.main.loadNibNamed("DetailView", owner: self, options: nil)?.first as? DetailView else { return }
         
+        detailView.delegate = self
+        
         self.detailView = detailView
 
         view.addSubview(detailView)
         
         detailView.translatesAutoresizingMaskIntoConstraints = false
-        
-        detailView.backgroundColor = .blue
         
         detailViewTopConstraint = detailView.topAnchor.constraint(equalTo: imageView.bottomAnchor)
         detailViewWidthConstraint = detailView.widthAnchor.constraint(equalToConstant: imageView.frame.width)
@@ -1029,8 +923,9 @@ class ViewerController: UIViewController {
         let size = view.frame.size
         let height = size.height
         let halfHeight = height / 2
+        let visible = verticalDetailsVisible()
         
-        if detailView.frame.origin.y < height {
+        if visible {
 
             //details visible. snap to half or full detail
             if Int(detailView.frame.origin.y) > Int(halfHeight) || reset == true {
@@ -1143,6 +1038,8 @@ class ViewerController: UIViewController {
     
     private func updateVerticalConstraintsShow(heightOffset: CGFloat) {
         
+        imageViewLeadingConstraint?.constant = 0
+
         imageViewTrailingConstraint?.constant = 0
         videoViewRightConstraint?.constant = 0
 
@@ -1172,46 +1069,84 @@ class ViewerController: UIViewController {
     private func showHorizontalDetails(animate: Bool, reset: Bool) {
         
         guard let detailView = self.detailView else { return }
+        
+        let allowTransform = imageViewRatioWithinThreshold()
         let trailingOffset: CGFloat
         let topOffset: CGFloat
         let height = view.frame.height
         let halfWidth = view.frame.width / 2
-
-        if detailView.frame.origin.y < height && reset == false {
+        let visible = horizontalDetailsVisible()
+        
+        if visible && reset == false {
             //details visible. show more if can
             trailingOffset = (halfWidth)
-            topOffset = max(detailView.height(), height)
+            topOffset = max(detailView.frame.size.height, height)
         } else {
-            
             //details not visible yet. snap top of detail visible
             trailingOffset = (halfWidth)
             topOffset = height
         }
         
         if animate && !UIAccessibility.isReduceMotionEnabled {
-            
-            UIView.animate(withDuration: 0.3, delay: 0.0, options: .curveLinear, animations: {
-                self.updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset)
+
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveLinear, animations: {
+                self.calculateHorizontalConstraintsShow(transformImage: allowTransform, height: height, topOffset: topOffset, trailingOffset: trailingOffset)
             })
             
-            if imageViewRatioWithinThreshold() {
-                UIView.transition(with: imageView, duration: 0.2, options: .transitionCrossDissolve, animations: {
-                    self.updateContentMode(contentMode: .scaleAspectFill)
-                })
-            }
-            
         } else {
-            updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset)
+            calculateHorizontalConstraintsShow(transformImage: allowTransform, height: height, topOffset: topOffset, trailingOffset: trailingOffset)
+        }
+    }
+    
+    private func calculateHorizontalConstraintsShow(transformImage: Bool, height: CGFloat, topOffset: CGFloat, trailingOffset: CGFloat) {
+        
+        guard let originalSize = imageView.image?.size else {
+            updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset, shift: false)
+            return
+        }
+        
+        let renderSize = CGSize(width: trailingOffset, height: height)
+        
+        let scaleW: CGFloat = renderSize.width / originalSize.width
+        let scaleH: CGFloat = renderSize.height / originalSize.height
+        
+        let scale: CGFloat = scaleW > scaleH ? scaleW : scaleH
+        let resizeSize: CGSize = CGSize(width: round(originalSize.width * scale), height: round(originalSize.height * scale))
+        
+        var newScale = 1.0
+        var shiftOnly = false
+        
+        if resizeSize.width == renderSize.width {
             
-            if imageViewRatioWithinThreshold() {
-                updateContentMode(contentMode: .scaleAspectFill)
+            if resizeSize.height > renderSize.height {
+                newScale = resizeSize.height / renderSize.height
             }
+        } else if resizeSize.height == renderSize.height {
+            
+            if resizeSize.width > renderSize.width {
+                shiftOnly = true
+            }
+        }
+        
+        if transformImage && newScale != 1.0 {
+            imageView.transform = CGAffineTransform(scaleX: newScale, y: newScale)
+            videoView?.transform = CGAffineTransform(scaleX: newScale, y: newScale)
+        }
+        
+        if shiftOnly && transformImage {
+            
+            imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
+            videoView?.transform = CGAffineTransform(scaleX: 1, y: 1)
+
+            updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset, shift: true)
+        } else {
+            updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset, shift: false)
         }
     }
     
     private func scrollDownHorizontalDetails() {
         
-        self.detailViewTopConstraint?.constant = view.frame.height
+        self.detailViewTopConstraint?.constant = -(view.frame.height)
         
         if UIAccessibility.isReduceMotionEnabled {
             self.view.layoutIfNeeded()
@@ -1246,21 +1181,27 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func updateHorizontalConstraintsShow(height: CGFloat, topOffset: CGFloat, trailingOffset: CGFloat) {
+    private func updateHorizontalConstraintsShow(height: CGFloat, topOffset: CGFloat, trailingOffset: CGFloat, shift: Bool) {
 
         detailViewTopConstraint?.constant = -topOffset
         
         imageViewHeightConstraint?.constant = height
         videoViewHeightConstraint?.constant = height
                          
-        imageViewTrailingConstraint?.constant = trailingOffset
-        videoViewRightConstraint?.constant = -trailingOffset
-        
-        detailViewWidthConstraint?.constant = trailingOffset
-        detailViewLeadingConstraint?.constant = trailingOffset
+        if shift {
+            imageViewLeadingConstraint?.constant = -trailingOffset
+            imageViewTrailingConstraint?.constant = 0
+            detailViewLeadingConstraint?.constant = trailingOffset * 2
+            videoViewRightConstraint?.constant = -(trailingOffset * 2)
+        } else {
+            imageViewTrailingConstraint?.constant = trailingOffset
+            detailViewLeadingConstraint?.constant = trailingOffset
+            videoViewRightConstraint?.constant = -trailingOffset
+        }
 
+        detailViewWidthConstraint?.constant = trailingOffset
         detailViewHeightConstraint?.constant = height
-        
+
         imageViewTopConstraint.constant = 0
         
         view.layoutIfNeeded()
@@ -1270,8 +1211,12 @@ class ViewerController: UIViewController {
         
         detailViewTopConstraint?.constant = 0
         
+        imageViewLeadingConstraint?.constant = 0
+        
         imageViewTrailingConstraint?.constant = 0
         videoViewRightConstraint?.constant = 0
+        
+        imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
         
         view.layoutIfNeeded()
     }
@@ -1313,13 +1258,6 @@ extension ViewerController: UIGestureRecognizerDelegate {
         }
         
         return false
-    }
-}
-
-extension ViewerController: UIPopoverPresentationControllerDelegate {
-    
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        handlePresentationControllerDidDismiss()
     }
 }
 
@@ -1448,14 +1386,11 @@ extension ViewerController: VLCCustomDialogRendererProtocol {
 
 extension ViewerController: DetailViewDelegate {
     
-    func showAllDetails() {
-        switchToAllDetails()
+    func detailsLoaded() {
+        //not needed for phone. only pad. see DetailsController.
     }
-}
-
-extension ViewerController: DetailsControllerDelegate {
     
-    func showAllMetadataDetails() {
-        switchToAllDetails()
+    func showAllDetails(metadata: Metadata) {
+        presentAllDetailsSheet()
     }
 }

@@ -26,7 +26,8 @@ import UIKit
 
 @MainActor
 protocol DetailViewDelegate: AnyObject {
-    func showAllDetails()
+    func showAllDetails(metadata: Metadata)
+    func detailsLoaded()
 }
 
 class DetailView: UIView {
@@ -37,6 +38,8 @@ class DetailView: UIView {
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var metadataButton: UIButton!
+    
+    @IBOutlet weak var fillerView: UIView!
     
     @IBOutlet weak var metadataStackView: UIStackView!
     
@@ -93,7 +96,7 @@ class DetailView: UIView {
     
     func height() -> CGFloat {
         guard subviews.count > 0 else { return 0 }
-        return contentStackView.frame.height + 16
+        return contentStackView.frame.height
     }
     
     func populateDetails() {
@@ -101,13 +104,15 @@ class DetailView: UIView {
         guard metadata != nil && subviews.count > 0 else { return }
         
         populateMetadataDetails()
-        
+
         if metadata!.video {
             setVideoLabelVisibility()
             populateVideoDetails()
         } else {
             setImageLabelVisibility()
-            populateImageDetails()
+            Task.detached { [weak self] in
+                await self?.populateImageDetails()
+            }
         }
     }
     
@@ -136,7 +141,7 @@ class DetailView: UIView {
         
         typeView.clipsToBounds = true
         typeView.layer.cornerRadius = 3
-
+        
         fileNameLabel.text = Strings.DetailNameNone
         fileNameLabel.accessibilityLabel = Strings.DetailName
         fileNameLabel.accessibilityValue = Strings.DetailNameNone
@@ -144,6 +149,25 @@ class DetailView: UIView {
         fileDateLabel.text = Strings.DetailDateNone
         fileDateLabel.accessibilityLabel = Strings.DetailFileDate
         fileDateLabel.accessibilityValue = Strings.DetailDateNone
+
+        resetLabels()
+
+        isoLabel.isAccessibilityElement = false
+        focalLengthLabel.isAccessibilityElement = false
+        exposureLabel.isAccessibilityElement = false
+        aperatureLabel.isAccessibilityElement = false
+        exposureTimeLabel.isAccessibilityElement = false
+        fpsLabel.isAccessibilityElement = false
+        durationLabel.isAccessibilityElement = false
+        
+        mapView.layer.cornerRadius = 8
+        mapView.delegate = self
+        
+        cameraView.minimumContentSizeCategory = .small
+        cameraView.maximumContentSizeCategory = .extraExtraLarge
+    }
+    
+    private func resetLabels() {
         
         cameraLabel.text = Strings.DetailCameraNone
         cameraLabel.accessibilityLabel = Strings.DetailCameraDescription
@@ -164,24 +188,12 @@ class DetailView: UIView {
         exposureTimeLabel.text = "-"
         fpsLabel.text = "-"
         durationLabel.text = "-"
-
-        isoLabel.isAccessibilityElement = false
-        focalLengthLabel.isAccessibilityElement = false
-        exposureLabel.isAccessibilityElement = false
-        aperatureLabel.isAccessibilityElement = false
-        exposureTimeLabel.isAccessibilityElement = false
-        fpsLabel.isAccessibilityElement = false
-        durationLabel.isAccessibilityElement = false
-        
-        mapView.layer.cornerRadius = 8
-        mapView.delegate = self
-        
-        cameraView.minimumContentSizeCategory = .small
-        cameraView.maximumContentSizeCategory = .extraExtraLarge
     }
     
     @objc private func showAllDetails() {
-        delegate?.showAllDetails()
+        if metadata != nil {
+            delegate?.showAllDetails(metadata: metadata!)
+        }
     }
     
     private func populateMetadataDetails() {
@@ -266,9 +278,16 @@ class DetailView: UIView {
         divider5Label.isHidden = false
     }
     
+    func initDetails(metadata: Metadata, url: URL) {
+        self.metadata = metadata
+        self.url = url
+    }
+    
     private func populateVideoDetails() {
 
         guard url != nil else { return }
+        
+        resetLabels()
         
         let asset = AVAsset(url: url!)
                 
@@ -276,15 +295,17 @@ class DetailView: UIView {
         populateVideoMetadata(asset: asset)
     }
     
-    private func populateImageDetails() {
+    private func populateImageDetails() async {
         
         guard url != nil else { return }
         
-        guard let originalSource = CGImageSourceCreateWithURL(url! as CFURL, nil) else { return }
-        guard let fileProperties = CGImageSourceCopyProperties(originalSource, nil) else { return }
-        let properties = NSMutableDictionary(dictionary: fileProperties)
+        resetLabels()
 
-        guard let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else { return }
+        guard let originalSource = CGImageSourceCreateWithURL(url! as CFURL, nil),
+              let fileProperties = CGImageSourceCopyProperties(originalSource, nil),
+              let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else { return }
+        
+        let properties = NSMutableDictionary(dictionary: fileProperties)
         let imagePropertyDict = NSMutableDictionary(dictionary: imageProperties)
         
         populateImageSizeInfo(pixelProperties: imagePropertyDict, sizeProperties: properties)
@@ -355,9 +376,9 @@ class DetailView: UIView {
         }
         
         if label != nil && !label!.isEmpty {
-            cameraLabel.text = label
-            cameraLabel.accessibilityLabel = Strings.DetailCameraDescription
-            cameraLabel.accessibilityValue = label
+            setMakeModelText(label!)
+        } else {
+            setMakeModelText(Strings.DetailCameraNone)
         }
     }
     
@@ -376,6 +397,8 @@ class DetailView: UIView {
         
         if width == nil || height == nil || width == 0 || height == 0 {
             //Self.logger.debug("No pixel info")
+            sizeLabel.text = Strings.DetailSizeNone
+            sizeLabel.accessibilityValue = Strings.DetailSizeNone
         } else {
             
             formattedPixels = "\(width!) x \(height!)"
@@ -411,6 +434,7 @@ class DetailView: UIView {
         let make = exif[kCGImagePropertyExifLensMake] as? String
         let model = exif[kCGImagePropertyExifLensModel] as? String
         let lens: String?
+        let lensText: String
         
         if make != nil && model != nil {
             if model!.starts(with: make!) {
@@ -427,9 +451,13 @@ class DetailView: UIView {
         }
         
         if lens != nil && !lens!.isEmpty {
-            lensLabel.text = lens
-            lensLabel.accessibilityValue = lens
+            lensText = lens!
+        } else {
+            lensText = Strings.DetailLensNone
         }
+        
+        lensLabel.text = lensText
+        lensLabel.accessibilityValue = lensText
         
         if let iso = exif[kCGImagePropertyExifISOSpeedRatings] as? [Int] {
             if iso.isEmpty || iso.count == 0 {
@@ -557,6 +585,8 @@ class DetailView: UIView {
             setMakeModelText(make!)
         } else if !hasText(make) && hasText(model) {
             setMakeModelText(model!)
+        } else {
+            setMakeModelText(Strings.DetailCameraNone)
         }
     }
      
@@ -638,10 +668,37 @@ class DetailView: UIView {
     private func showLocation(latitudeValue: Double?, longitudeValue: Double?) async {
         
         guard let latitude = latitudeValue, let longitude = longitudeValue, !(latitude == 0 && longitude == 0) else {
-            mapView.isHidden = true
+            await setMapHidden(true)
             return
         }
+        
+        await setMapHidden(false)
+        await addMapAnnotation(latitude: latitude, longitude: longitude)
+    }
+    
+    private func setMapHidden(_ hidden: Bool) async {
+        
+        if mapView.isHidden == hidden {
+            delegate?.detailsLoaded()
+            return
+        }
+        
+        mapView.isHidden = hidden
+        mapView.alpha = 1
+        contentStackView.setNeedsLayout()
 
+        await withCheckedContinuation { continuation in
+            UIView.animate(withDuration: 0.2, animations: { [weak self] in
+                self?.contentStackView.layoutIfNeeded()
+            }, completion: { [weak self] _ in
+                self?.delegate?.detailsLoaded()
+                continuation.resume()
+            })
+        }
+    }
+    
+    private func addMapAnnotation(latitude: Double, longitude: Double) async {
+        
         let annotation = MKPointAnnotation()
         
         annotation.coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
@@ -657,9 +714,9 @@ class DetailView: UIView {
             annotation.title = locationName
         }
 
+        mapView.removeAnnotations(mapView.annotations)
         mapView.addAnnotation(annotation)
         mapView.setRegion(region, animated: false)
-        mapView.isHidden = false
     }
 }
 

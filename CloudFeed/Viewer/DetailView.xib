@@ -17,7 +17,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <stackView opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Dqg-wy-mZm">
-                    <rect key="frame" x="0.0" y="59" width="478" height="428"/>
+                    <rect key="frame" x="0.0" y="59" width="478" height="394"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" axis="vertical" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="oDw-rA-o3U" userLabel="Basic Info Stack View">
                             <rect key="frame" x="16" y="16" width="446" height="101"/>
@@ -278,23 +278,28 @@
                         <constraint firstItem="4W4-ha-tvj" firstAttribute="leading" secondItem="Dqg-wy-mZm" secondAttribute="leadingMargin" id="ngs-YO-S7b"/>
                     </constraints>
                     <edgeInsets key="layoutMargins" top="16" left="16" bottom="16" right="16"/>
+                    <variation key="default">
+                        <mask key="constraints">
+                            <exclude reference="mPv-SC-DY6"/>
+                        </mask>
+                    </variation>
                 </stackView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
-            <color key="backgroundColor" systemColor="systemIndigoColor"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstItem="Dqg-wy-mZm" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="0hZ-QX-v30"/>
                 <constraint firstItem="Dqg-wy-mZm" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="6pp-Ws-13m"/>
-                <constraint firstAttribute="bottom" secondItem="Dqg-wy-mZm" secondAttribute="bottom" id="BzB-Zy-zvO"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="Dqg-wy-mZm" secondAttribute="bottom" id="BzB-Zy-zvO"/>
                 <constraint firstItem="Dqg-wy-mZm" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="Mb5-bb-0mn"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <edgeInsets key="layoutMargins" top="16" left="16" bottom="16" right="16"/>
             <connections>
                 <outlet property="aperatureLabel" destination="Vfn-Mg-pgJ" id="nFq-ZK-vfD"/>
                 <outlet property="cameraLabel" destination="x9M-ZG-hZS" id="6bp-Uv-uJs"/>
                 <outlet property="cameraView" destination="Npf-m5-tBN" id="u7O-Ga-lrH"/>
                 <outlet property="contentStackView" destination="Dqg-wy-mZm" id="Ad3-13-8Th"/>
+                <outlet property="contentStackViewBottomConstraint" destination="BzB-Zy-zvO" id="q2S-O0-bsN"/>
                 <outlet property="contentStackViewHeightConstraint" destination="mPv-SC-DY6" id="KVu-xr-ePX"/>
                 <outlet property="divider1Label" destination="Mld-Pp-6Do" id="exz-uy-hlB"/>
                 <outlet property="divider2Label" destination="o3V-Y9-p60" id="C20-ba-0S3"/>
@@ -308,6 +313,7 @@
                 <outlet property="exposureTimeLabelWidthConstraint" destination="Bj1-2i-Z49" id="Xb4-RF-jJn"/>
                 <outlet property="fileDateLabel" destination="HLA-7S-wTg" id="dcg-U4-TAA"/>
                 <outlet property="fileNameLabel" destination="y5V-cf-Wmp" id="7HN-wH-5k1"/>
+                <outlet property="fillerView" destination="2bm-Yb-Q5w" id="4o8-2w-EIk"/>
                 <outlet property="focalLengthLabel" destination="oDb-7C-4cH" id="RyX-84-4iZ"/>
                 <outlet property="fpsLabel" destination="2TD-ZB-yaQ" id="8jH-PQ-HU1"/>
                 <outlet property="fpsLabelWidthConstraint" destination="bbY-Np-OKD" id="7Pk-Fb-z2i"/>
@@ -343,9 +349,6 @@
         </systemColor>
         <systemColor name="systemGray6Color">
             <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemIndigoColor">
-            <color red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

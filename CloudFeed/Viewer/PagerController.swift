@@ -37,7 +37,7 @@ class PagerController: UIViewController {
     }
     
     weak var currentViewController: ViewerController? {
-        return pageViewController?.viewControllers![0] as? ViewerController
+        return pageViewController?.viewControllers?[0] as? ViewerController
     }
     
     private static let logger = Logger(
@@ -51,13 +51,7 @@ class PagerController: UIViewController {
         pageViewController?.delegate = viewModel
         pageViewController?.dataSource = viewModel
         
-        let longPress = UILongPressGestureRecognizer()
-        longPress.delaysTouchesBegan = true
-        longPress.minimumPressDuration = 0.3
-        longPress.delegate = self
-        longPress.addTarget(self, action: #selector(handleLongPress(gestureRecognizer:)))
-        
-        pageViewController?.view.addGestureRecognizer(longPress)
+        initGestureRecognizers()
         
         let metadata = viewModel.currentMetadata()
         let viewerMedia = viewModel.initViewer()
@@ -123,6 +117,26 @@ class PagerController: UIViewController {
         titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize).isActive = true
     }
     
+    private func initGestureRecognizers() {
+        
+        let longPress = UILongPressGestureRecognizer()
+        longPress.delaysTouchesBegan = true
+        longPress.minimumPressDuration = 0.3
+        longPress.delegate = self
+        longPress.addTarget(self, action: #selector(handleLongPress(gestureRecognizer:)))
+        
+        pageViewController?.view.addGestureRecognizer(longPress)
+        
+        let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
+        swipeUpRecognizer.direction = .up
+        
+        let swipeDownRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
+        swipeDownRecognizer.direction = .down
+        
+        view.addGestureRecognizer(swipeUpRecognizer)
+        view.addGestureRecognizer(swipeDownRecognizer)
+    }
+    
     private func willEnterForegroundNotification() {
         if isViewLoaded && view.window != nil {
             currentViewController?.willEnterForeground()
@@ -186,9 +200,141 @@ class PagerController: UIViewController {
     private func getFileName(_ metadata: Metadata) -> String {
         return (metadata.fileNameView as NSString).deletingPathExtension
     }
+    
+    private func presentDetailPopover() {
+
+        let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
+        
+        guard let current = currentViewController else { return }
+        
+        controller.delegate = self
+        controller.url = current.getUrl()
+        controller.metadata = current.metadata
+        controller.modalPresentationStyle = .popover
+        controller.preferredContentSize = CGSize(width: 400, height: 200)
+        
+        if let popover = controller.popoverPresentationController {
+            
+            popover.delegate = self
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.frame.width, y: 150, width: 100, height: 100)
+            popover.permittedArrowDirections = []
+            popover.passthroughViews = [view]
+
+            let sheet = popover.adaptiveSheetPresentationController
+            sheet.largestUndimmedDetentIdentifier = .medium
+            sheet.detents = [.medium()]
+        }
+
+        if presentedViewController == nil {
+            present(controller, animated: true)
+        }
+    }
+    
+    @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
+        
+        if swipeGesture.direction == .up {
+            
+            updateStatus(status: .details)
+            
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                if presentedViewController == nil {
+                    presentDetailPopover()
+                }
+            } else {
+                currentViewController?.handleSwipeUp()
+            }
+        } else {
+            
+            updateStatus(status: .title)
+            
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                presentedViewController?.dismiss(animated: true)
+            } else {
+                currentViewController?.handleSwipeDown()
+            }
+        }
+    }
+    
+    private func switchToAllDetails(metadata: Metadata) {
+        
+        guard presentedViewController != nil else { return }
+        
+        let preferredHeight = presentedViewController?.preferredContentSize.height
+        
+        presentedViewController?.dismiss(animated: true, completion: {
+            DispatchQueue.main.async { [weak self] in
+                self?.presentAllDetailsPopover(metadata: metadata, preferredHeight: preferredHeight)
+            }
+        })
+    }
+    
+    private func presentAllDetailsPopover(metadata: Metadata, preferredHeight: CGFloat?) {
+        
+        let controller = initDetailController(metadata: metadata)
+        let height = preferredHeight == nil ? 500 : preferredHeight!
+        
+        controller.modalPresentationStyle = .popover
+        controller.preferredContentSize = CGSize(width: 500, height: height)
+        
+        if let popover = controller.popoverPresentationController {
+
+            popover.delegate = self
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.frame.width, y: 80, width: 100, height: 100)
+            popover.permittedArrowDirections = []
+            
+            let sheet = popover.adaptiveSheetPresentationController
+            sheet.largestUndimmedDetentIdentifier = .medium
+            sheet.detents = [.medium()]
+        }
+        
+        if presentedViewController == nil {
+            present(controller, animated: true)
+        }
+    }
+    
+    private func initDetailController(metadata: Metadata) -> DetailController {
+        
+        let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailController") as! DetailController
+        let mediaPath = viewModel.getFilePath(metadata)
+        let viewModel = DetailViewModel()
+        
+        viewModel.delegate = controller
+        viewModel.mediaPath = mediaPath
+        viewModel.metadata = metadata
+        
+        controller.viewModel = viewModel
+        
+        return controller
+    }
+}
+
+extension PagerController: DetailsControllerDelegate {
+    
+    func showAllMetadataDetails(metadata: Metadata) {
+        switchToAllDetails(metadata: metadata)
+    }
+}
+
+extension PagerController: UIPopoverPresentationControllerDelegate {
+
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        currentViewController?.handlePresentationControllerDidDismiss()
+    }
 }
 
 extension PagerController: ViewerDelegate {
+    
+    func mediaLoaded(metadata: Metadata, url: URL) {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if let details = presentedViewController as? DetailsController {
+                if let current = currentViewController?.metadata.id, current == metadata.id {
+                    details.populateDetails(metadata: metadata, url: url)
+                }
+            }
+        }
+    }
     
     func videoError() {
         coordinator.showVideoError()
@@ -224,10 +370,25 @@ extension PagerController: ViewerDelegate {
 extension PagerController: PagerViewModelDelegate {
 
     func finishedPaging(metadata: Metadata) {
+
         DispatchQueue.main.async { [weak self] in
             self?.titleView?.title.text = self?.getFileName(metadata)
         }
+        
         setFavoriteMenu(isFavorite: metadata.favorite)
+        
+        if let detail = presentedViewController as? DetailsController,
+           let presentedId = detail.metadata?.id,
+           let currentId = currentViewController?.metadata.id {
+
+            if currentId == metadata.id && presentedId != metadata.id {
+                
+                if let url = currentViewController?.getUrl() {
+                    detail.populateDetails(metadata: metadata, url: url)
+                }
+            }
+        }
+        
     }
     
     func finishedUpdatingFavorite(isFavorite: Bool) {
