@@ -344,6 +344,7 @@ extension CollectionController : UIScrollViewDelegate {
         let containsLast = collectionView.indexPathsForVisibleItems.contains(IndexPath(item: count - 1, section: 0))
         
         if containsLast {
+            activityIndicator.stopAnimating()
             loadMoreIndicator.startAnimating()
             delegate?.loadMore()
         }
