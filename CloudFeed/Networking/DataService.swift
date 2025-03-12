@@ -302,7 +302,7 @@ final class DataService: NSObject, Sendable {
                                                           serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath)
         
         if error == false {
-            databaseManager.addLocalFile(metadata: metadata)
+            await databaseManager.addLocalFile(metadata: metadata)
         }
     }
     

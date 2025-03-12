@@ -49,12 +49,13 @@ extension DatabaseManager {
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
                                        category: String(describing: DatabaseManager.self) + "LocalFile")
     
-    func addLocalFile(metadata: Metadata) {
+    @MainActor
+    func addLocalFile(metadata: Metadata) async {
         
-        let realm = try! Realm()
+        let realm = try! await Realm()
         
         do {
-            try realm.write {
+            try await realm.asyncWrite {
                 
                 let addObject = getTableLocalFile(predicate: NSPredicate(format: "ocId == %@", metadata.ocId)) ?? tableLocalFile()
                 
