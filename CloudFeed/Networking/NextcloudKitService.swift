@@ -229,7 +229,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool) {
 
         let limit: Int = limit
-        let options = NKRequestOptions(timeout: 300)
+        let options = NKRequestOptions(timeout: 120, queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         let greaterDate = Calendar.current.date(byAdding: .second, value: -1, to: fromDate)!
         let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: toDate)!
@@ -239,17 +239,16 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                 path: mediaPath,
                 lessDate: lessDate,
                 greaterDate: greaterDate,
-                elementDate: "d:getlastmodified/",
+                elementDate: "d:getlastmodified",
                 limit: limit,
-                showHiddenFiles: false,
                 account: account,
                 options: options) { responseAccount, files, data, error in
                     
-                    //Self.logger.debug("searchMedia() - files count: \(files.count) toDate: \(toDate.formatted(date: .abbreviated, time: .standard)) fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
+                    //Self.logger.debug("searchMedia() - files count: \(files?.count ?? -1) toDate: \(toDate.formatted(date: .abbreviated, time: .standard)) fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
                     
                     if error == .success && responseAccount == account && files != nil && files!.count > 0 {
                         continuation.resume(returning: (Array(files!.map { Metadata.init(file: $0) }), false))
-                    } else if error == .success &&  files != nil && files!.count == 0 {
+                    } else if error == .success && files != nil && files!.count == 0 {
                         continuation.resume(returning: ([], false))
                     } else if error != .success {
                         Self.logger.error("[ERROR] Media search new media error code \(error.errorCode) \(error.errorDescription)")
@@ -349,7 +348,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         } else {
             isTrusted = false
         }
-        
+
         if isTrusted {
             completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
         } else {
