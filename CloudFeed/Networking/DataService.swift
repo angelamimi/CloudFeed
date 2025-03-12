@@ -404,7 +404,7 @@ final class DataService: NSObject, Sendable {
         let metadatasResult = databaseManager.getMetadatas(predicate: predicate)
         
         //add, update, delete stored metadata
-        let result = databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
+        let result = await databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
 
         let typeResult = filterMediaResult(type: type, result: result)
         

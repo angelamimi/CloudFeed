@@ -456,7 +456,8 @@ extension DatabaseManager {
         return metadatas
     }
     
-    func processMetadatas(_ metadatas: [Metadata], metadatasResult: [Metadata]) -> (added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
+    @MainActor
+    func processMetadatas(_ metadatas: [Metadata], metadatasResult: [Metadata]) async -> (added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
         
         var updatedOcIds: [String] = []
         var addedOcIds: [String] = []
@@ -467,8 +468,8 @@ extension DatabaseManager {
         
         do {
 
-            let realm = try Realm()
-            try realm.write {
+            let realm = try await Realm()
+            try await realm.asyncWrite {
                 
                 //delete
                 for metadataResult in metadatasResult {
