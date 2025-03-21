@@ -23,9 +23,11 @@ import UIKit
 
 class LoginServerController: UIViewController {
     
+    @IBOutlet weak var logoImageView: UIImageView!
     @IBOutlet weak var serverURLLabel: UILabel!
     @IBOutlet weak var serverURLTextField: UITextField!
     @IBOutlet weak var serverURLButton: UIButton!
+    @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var centerConstraint: NSLayoutConstraint!
     
     @IBAction func doneEditing(_ sender: Any) {
@@ -36,7 +38,11 @@ class LoginServerController: UIViewController {
         processURL()
     }
     
-    var coordinator: LoginServerCoordinator!
+    @IBAction func closeButtonClicked(_ sender: Any) {
+        dismiss(animated: true)
+    }
+    
+    var coordinator: LoginCoordinator!
     var viewModel: LoginServerViewModel!
     
     var centerOffset: Double = 0
@@ -46,13 +52,25 @@ class LoginServerController: UIViewController {
         serverURLLabel.text = Strings.LoginServerLabel
         serverURLButton.setTitle(Strings.LoginServerButton, for: .normal)
         
-        navigationController?.setNavigationBarHidden(true, animated: false)
-        
-        centerOffset = centerConstraint.constant
-        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        
+        if parent != nil && parent!.isBeingPresented {
+            serverURLLabel.textColor = .label
+            serverURLTextField.backgroundColor = .systemBackground
+            serverURLTextField.borderStyle = .line
+            logoImageView.isHidden = true
+            closeButton.isHidden = false
+            centerConstraint.constant = -50
+            view.backgroundColor = .systemBackground
+        }
+        
+        centerOffset = centerConstraint.constant
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     deinit {
@@ -78,9 +96,10 @@ class LoginServerController: UIViewController {
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
            let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
            let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
-            
-            let bottom = serverURLButton.frame.origin.y + serverURLButton.frame.height + 8
 
+            let bottom = serverURLButton.frame.origin.y + serverURLButton.frame.height + 16
+            
+            //TODO: shift is still off
             if bottom > keyboardFrame.minY {
                 
                 let shift = bottom - keyboardFrame.minY
@@ -118,19 +137,19 @@ class LoginServerController: UIViewController {
         Task { [weak self] in
             
             if let result = await self?.viewModel.beginLoginFlow(url: url) {
-                
-                if !result.supported {
+               if !result.supported {
                     self?.coordinator.showUnsupportedVersionErrorPrompt()
                 } else if result.errorCode != nil {
                     if result.errorCode == NSURLErrorServerCertificateUntrusted {
                         if let host = URL(string: url)?.host() {
                             self?.coordinator.showUntrustedWarningPrompt(host: host)
                         }
+                    } else {
+                        self?.coordinator.showServerConnectionErrorPrompt()
                     }
                 } else {
                     self?.coordinator.navigateToWebLogin(token: result.token, endpoint: result.endpoint, login: result.login)
                 }
-                
             } else {
                 self?.coordinator.showServerConnectionErrorPrompt()
             }

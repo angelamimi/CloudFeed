@@ -24,16 +24,19 @@ import UIKit
 @MainActor
 protocol CacheDelegate: AnyObject {
     func cacheCleared()
+    func clearUser()
 }
 
 @MainActor
 final class SettingsCoordinator {
     
     let navigationController: UINavigationController
+    let dataService: DataService
     let cacheDelegate: CacheDelegate
     
-    init(navigationController: UINavigationController, cacheDelegate: CacheDelegate) {
+    init(navigationController: UINavigationController, dataService: DataService, cacheDelegate: CacheDelegate) {
         self.navigationController = navigationController
+        self.dataService = dataService
         self.cacheDelegate = cacheDelegate
     }
     
@@ -66,5 +69,18 @@ final class SettingsCoordinator {
         }))
         
         navigationController.present(alert, animated: true)
+    }
+    
+    func launchAddAccount() {
+        let coordinator = LoginServerModalCoordinator(navigationController: navigationController, dataService: dataService)
+        coordinator.delegate = self
+        coordinator.start()
+    }
+}
+
+extension SettingsCoordinator: UserDelegate {
+    
+    func currentUserChanged() {
+        cacheDelegate.clearUser()
     }
 }

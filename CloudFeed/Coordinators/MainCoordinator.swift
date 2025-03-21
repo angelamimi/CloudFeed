@@ -59,6 +59,14 @@ extension MainCoordinator: UITabBarControllerDelegate {
 
 extension MainCoordinator: CacheDelegate {
     
+    func clearUser() {
+        
+        let settingsNavController = tabBarController.viewControllers?[2] as! UINavigationController
+        let settingsController = settingsNavController.viewControllers[0] as! SettingsController
+
+        settingsController.clear()
+    }
+    
     func cacheCleared() {
 
         let mediaNavController = tabBarController.viewControllers?[0] as! UINavigationController
@@ -90,7 +98,7 @@ extension MainCoordinator {
         
         mediaViewController.coordinator = MediaCoordinator(navigationController: mediaNavController, dataService: dataService)
         favoritesViewController.coordinator = FavoritesCoordinator(navigationController: favoritesNavController, dataService: dataService)
-        settingsViewController.coordinator = SettingsCoordinator(navigationController: settingsNavController, cacheDelegate: self)
+        settingsViewController.coordinator = SettingsCoordinator(navigationController: settingsNavController, dataService: dataService, cacheDelegate: self)
         
         mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService, cacheManager: cacheManager)
         favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager)

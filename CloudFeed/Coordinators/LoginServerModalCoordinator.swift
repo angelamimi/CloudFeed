@@ -1,9 +1,9 @@
 //
-//  LoginServerCoordinator.swift
+//  LoginServerModalCoordinator.swift
 //  CloudFeed
 //
-//  Created by Angela Jarosz on 9/3/23.
-//  Copyright © 2023 Angela Jarosz. All rights reserved.
+//  Created by Angela Jarosz on 3/18/25.
+//  Copyright © 2025 Angela Jarosz. All rights reserved.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,45 +21,41 @@
 
 import UIKit
 
-final class LoginServerCoordinator : LoginCoordinator {
+@MainActor
+protocol UserDelegate: AnyObject {
+    func currentUserChanged()
+}
+
+final class LoginServerModalCoordinator : LoginCoordinator {
     
-    private let window: UIWindow
-    
-    init(window: UIWindow, dataService: DataService) {
-        
-        let navigationController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController() as! UINavigationController
-        
-        self.window = window
-        
-        super.init(navigationController: navigationController, dataService: dataService)
-    }
+    weak var delegate: UserDelegate?
     
     override func start() {
-
-        let loginServerController = navigationController.viewControllers[0] as! LoginServerController
+        
+        let loginNavigationController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController() as! UINavigationController
+        let loginServerController = loginNavigationController.viewControllers[0] as! LoginServerController
         
         loginServerController.viewModel = LoginServerViewModel(dataService: dataService)
         loginServerController.coordinator = self
+
+        loginNavigationController.modalPresentationStyle = .fullScreen
         
-        window.rootViewController = navigationController
-        window.makeKeyAndVisible()
+        navigationController.present(loginNavigationController, animated: true)
     }
     
     override func navigateToWebLogin(token: String, endpoint: String, login: String) {
-        let coordinator = LoginWebCoordinator(delegate: self, navigationController: navigationController, dataService: dataService, token: token, endpoint: endpoint, login: login)
+        let loginNavigationController = navigationController.presentedViewController as! UINavigationController
+        let coordinator = LoginWebCoordinator(delegate: self, navigationController: loginNavigationController, dataService: dataService, token: token, endpoint: endpoint, login: login)
         coordinator.start()
     }
     
     func handleLoginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
-
-        navigationController.setViewControllers([], animated: false)
-        
-        let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
-        mainCoordinator.start()
+        delegate?.currentUserChanged()
+        navigationController.dismiss(animated: true)
     }
 }
 
-extension LoginServerCoordinator: LoginDelegate {
+extension LoginServerModalCoordinator: LoginDelegate {
     
     func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
         handleLoginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)

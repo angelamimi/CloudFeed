@@ -86,7 +86,7 @@ final class LoginPollController: UIViewController {
     }
 }
 
-extension LoginPollController: LoginDelegate {
+/*extension LoginPollController: LoginDelegate {
     
     func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
         coordinator.handleLoginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
@@ -95,4 +95,4 @@ extension LoginPollController: LoginDelegate {
     func loginError() {
         coordinator.showInitFailedPrompt()
     }
-}
+}*/

@@ -22,7 +22,7 @@
 import UIKit
 
 @MainActor
-protocol Coordinator: NSObject {
+protocol Coordinator: AnyObject {
     
     func start()
     func navigate(to coordinator: Coordinator)

@@ -29,7 +29,8 @@ class SettingsController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
+    @IBOutlet weak var addAccountButton: UIBarButtonItem!
+
     private var profileName: String = ""
     private var profileEmail: String = ""
     private var profileImage: UIImage?
@@ -46,6 +47,8 @@ class SettingsController: UIViewController {
         
         title = Strings.SettingsNavTitle
         
+        addAccountButton.menu = buildAccountsMenu()
+        
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -59,6 +62,11 @@ class SettingsController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         requestProfile()
         calculateCacheSize()
+    }
+    
+    func clear() {
+        requestProfile()
+        viewModel.clearCache()
     }
     
     private func startActivityIndicator() {
@@ -96,6 +104,66 @@ class SettingsController: UIViewController {
     
     private func showProfileLoadfailedError() {
         coordinator.showProfileLoadfailedError()
+    }
+    
+    private func buildAccountsMenu() -> UIMenu {
+        
+        let accountActions = UIDeferredMenuElement.uncached ({ [weak self] completion in
+            Task {
+                let items = await self?.buildAccountMenuItems()
+                completion(items == nil ? [] : items!)
+            }
+        })
+        
+        var addAccountItems: [UIMenuElement] = []
+
+        let addAccountAction = UIAction(title: Strings.SettingsMenuAddAccount, image: UIImage(systemName: "person.crop.circle.badge.plus"), state: .off) { [weak self] action in
+            self?.addAccount()
+        }
+        
+        addAccountItems.append(addAccountAction)
+        
+        let addAccountSubmenu = UIMenu(title: "", options: [.displayInline], children: addAccountItems)
+
+        return UIMenu(children: [accountActions] + [addAccountSubmenu])
+    }
+    
+    private func buildAccountMenuItems() async -> [UIAction] {
+        
+        let accounts = viewModel.getAccounts()
+        var accountActions: [UIAction] = []
+        
+        for account in accounts {
+            
+            await viewModel.downloadAvatar(account: account, user: account.user)
+            
+            let image = await viewModel.loadAvatar(account: account)
+            let name: String
+            
+            if account.alias.isEmpty {
+                name = account.displayName
+            } else {
+                name = account.alias
+            }
+            
+            let action = UIAction(title: name, image: image, state: account.active ? .on : .off) { [weak self] _ in
+                if !account.active {
+                    self?.changeAccount(account: account.account)
+                }
+            }
+
+            accountActions.append(action)
+        }
+        
+        return accountActions
+    }
+    
+    private func addAccount() {
+        coordinator.launchAddAccount()
+    }
+    
+    private func changeAccount(account: String) {
+        viewModel.changeAccount(account: account)
     }
 }
 
@@ -207,6 +275,20 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
 }
 
 extension SettingsController: SettingsDelegate {
+    
+    func userChangeError() {
+        DispatchQueue.main.async { [weak self] in
+            self?.stopActivityIndicator()
+            self?.coordinator.showProfileLoadfailedError()
+        }
+    }
+    
+    func userChanged() {
+        DispatchQueue.main.async { [weak self] in
+            self?.stopActivityIndicator()
+            self?.clear()
+        }
+    }
     
     func applicationReset() {
         exit(0)

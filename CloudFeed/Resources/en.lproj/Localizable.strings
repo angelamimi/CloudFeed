@@ -21,7 +21,7 @@
 "Reset.Action" = "Reset";
 
 /* Settings - Profile fetch error dialog */
-"Profile.Error.Message" = "Failed to load Profile.";
+"Profile.Error.Message" = "Failed to load account.";
 
 /* Settings */
 "Settings.Nav.Title" = "Settings";
@@ -33,6 +33,7 @@
 "Settings.Label.Version" = "Version";
 "Settings.Label.VersionUnknown" = "unknown";
 "Settings.Label.CacheSize" = "Cache Size";
+"Settings.Menu.AddAccount" = "Add Account";
 
 /* Login */
 "Init.Error.Message" = "Initialization failed. Please try again.";

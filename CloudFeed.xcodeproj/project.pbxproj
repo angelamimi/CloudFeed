@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		39030F7C2D88CB6200F90E9B /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39030F7B2D88CB6200F90E9B /* LoginCoordinator.swift */; };
+		39030F7E2D89F96200F90E9B /* LoginServerModalCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39030F7D2D89F96200F90E9B /* LoginServerModalCoordinator.swift */; };
 		3903CE6B2AA4D871003E7E41 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE6A2AA4D871003E7E41 /* AppCoordinator.swift */; };
 		3903CE6D2AA4DC37003E7E41 /* LoginServerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE6C2AA4DC37003E7E41 /* LoginServerCoordinator.swift */; };
 		3903CE6F2AA51468003E7E41 /* LoginWebCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3903CE6E2AA51468003E7E41 /* LoginWebCoordinator.swift */; };
@@ -143,6 +145,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		39030F7B2D88CB6200F90E9B /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
+		39030F7D2D89F96200F90E9B /* LoginServerModalCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerModalCoordinator.swift; sourceTree = "<group>"; };
 		3903CE6A2AA4D871003E7E41 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		3903CE6C2AA4DC37003E7E41 /* LoginServerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerCoordinator.swift; sourceTree = "<group>"; };
 		3903CE6E2AA51468003E7E41 /* LoginWebCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWebCoordinator.swift; sourceTree = "<group>"; };
@@ -273,7 +277,9 @@
 			children = (
 				390C57DF2A9E3BBB00D9E268 /* Coordinator.swift */,
 				3903CE6A2AA4D871003E7E41 /* AppCoordinator.swift */,
+				39030F7B2D88CB6200F90E9B /* LoginCoordinator.swift */,
 				3903CE6C2AA4DC37003E7E41 /* LoginServerCoordinator.swift */,
+				39030F7D2D89F96200F90E9B /* LoginServerModalCoordinator.swift */,
 				3903CE6E2AA51468003E7E41 /* LoginWebCoordinator.swift */,
 				3903CE702AA75132003E7E41 /* MainCoordinator.swift */,
 				3903CE722AA78375003E7E41 /* MediaCoordinator.swift */,
@@ -628,6 +634,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				392735B829BE50780058796A /* LoginWebController.swift in Sources */,
+				39030F7C2D88CB6200F90E9B /* LoginCoordinator.swift in Sources */,
 				3903CE712AA75132003E7E41 /* MainCoordinator.swift in Sources */,
 				39271D7029DA622700522DFD /* DatabaseManager+LocalFile.swift in Sources */,
 				39B449A92AEAA790003DA6BA /* PreviewController.swift in Sources */,
@@ -673,6 +680,7 @@
 				398D14CC2B93B76700526E42 /* CacheManager.swift in Sources */,
 				395F3A1A2A9678340004FF32 /* Environment.swift in Sources */,
 				3903CE7D2AA78C72003E7E41 /* PagerCoordinator.swift in Sources */,
+				39030F7E2D89F96200F90E9B /* LoginServerModalCoordinator.swift in Sources */,
 				3903CE732AA78375003E7E41 /* MediaCoordinator.swift in Sources */,
 				39EED48C2B56FF2B00475802 /* DatabaseManager+Capabilities.swift in Sources */,
 				3927356D29BD1E820058796A /* SceneDelegate.swift in Sources */,

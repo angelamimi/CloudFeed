@@ -107,6 +107,21 @@ extension DatabaseManager {
         return tableAccount.init(value: result)
     }
     
+    func getAccountsOrderedByAlias() -> [tableAccount] {
+        do {
+            let realm = try Realm()
+            let sorted = [SortDescriptor(keyPath: "active", ascending: false),
+                          SortDescriptor(keyPath: "alias", ascending: true),
+                          SortDescriptor(keyPath: "displayName", ascending: true),
+                          SortDescriptor(keyPath: "user", ascending: true)]
+            let results = realm.objects(tableAccount.self).sorted(by: sorted)
+            return Array(results.map { tableAccount.init(value: $0) })
+        } catch let error as NSError {
+            Self.logger.error("Could not access database: \(error)")
+        }
+        return []
+    }
+    
     @discardableResult
     func setActiveAccount(_ account: String) -> tableAccount? {
 
@@ -132,5 +147,18 @@ extension DatabaseManager {
         }
 
         return tableAccount.init(value: accountReturn)
+    }
+    
+    func setAccountUserProfile(account: String, displayName: String) {
+        do {
+            let realm = try Realm()
+            try realm.write {
+                if let result = realm.objects(tableAccount.self).filter("account == %@", account).first {
+                    result.displayName = displayName
+                }
+            }
+        } catch let error {
+            Self.logger.error("Could not write to database: \(error)")
+        }
     }
 }

@@ -117,6 +117,16 @@ final class DataService: NSObject, Sendable {
         store.setPassword(account, password: password)
     }
     
+    func getAccountsOrderedByAlias() -> [tableAccount] {
+        return databaseManager.getAccountsOrderedByAlias()
+    }
+    
+    func updateAccount(account: String) async {
+        
+        let profile = await getUserProfile(account: account)
+        databaseManager.setAccountUserProfile(account: account, displayName: profile.profileDisplayName)
+    }
+    
     
     // MARK: -
     // MARK: Database Management
@@ -160,13 +170,7 @@ final class DataService: NSObject, Sendable {
     func downloadAvatar(fileName: String, account: tableAccount) async {
         
         let fileNameLocalPath = store.getUserDirectory() + "/" + fileName
-        
-        guard !FileManager.default.fileExists(atPath: fileNameLocalPath) else {
-            return
-        }
-        
         let etag = databaseManager.getAvatar(fileName: fileName)?.etag
-        
         let avatarSize = Global.shared.avatarSizeBase * Int(UIScreen.main.scale)
         
         let etagResult = await nextcloudService.downloadAvatar(account: account.account, userId: account.userId, fileName: fileName,
@@ -490,10 +494,7 @@ final class DataService: NSObject, Sendable {
     
     // MARK: -
     // MARK: Profile
-    @MainActor
-    func getUserProfile() async -> (profileDisplayName: String, profileEmail: String) {
-        guard let account = Environment.current.currentUser?.account else { return ("", "") }
+    func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String) {
         return await nextcloudService.getUserProfile(account: account)
     }
-
 }

@@ -31,11 +31,11 @@ class LoginWebController: UIViewController {
     
     @IBOutlet weak var webView: WKWebView!
     
-    private var urlBase: String?
-    
-    private var configServerUrl: String?
-    private var configUsername: String?
-    private var configPassword: String?
+    var token: String!
+    var endpoint: String!
+    var login: String!
+
+    var timerTask: Task<Void, Error>?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -52,49 +52,75 @@ class LoginWebController: UIViewController {
         webView.navigationDelegate = self
 
         executeLoginFlowRequest()
+        beginPolling()
     }
     
-    func setURL(url: String) {
-        urlBase = url
+    override func viewWillDisappear(_ animated: Bool) {
+        endPolling()
     }
-    
+
     private func executeLoginFlowRequest() {
         
-        guard urlBase != nil else { return }
-        
-        let serverURL: String = urlBase! + Global.shared.loginLocation
-        
-        guard let inputURL = URL(string: serverURL) else {
+        guard let url = URL(string: login) else {
             coordinator.showInvalidURLPrompt()
             return
         }
         
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records, completionHandler: {
+                self.loadRequest(url: url)
+            })
+        }
+    }
+    
+    private func loadRequest(url: URL) {
+        
         let languageCode: String? = NSLocale.preferredLanguages[0]
         
-        var request = URLRequest(url: inputURL)
+        var request = URLRequest(url: url)
         
         request.setValue(languageCode, forHTTPHeaderField: "ACCEPT-LANGUAGE")
         request.setValue("true", forHTTPHeaderField: "OCS-APIREQUEST")
 
         webView.load(request)
     }
+    
+    private func beginPolling() {
+        
+        endPolling()
+        
+        guard let token = self.token, let endpoint = self.endpoint else { return }
+            
+        timerTask = Task.detached { [weak self] in
+            
+            while !Task.isCancelled {
+                
+                try await Task.sleep(for: .seconds(2))
+                
+                if Task.isCancelled { break }
+
+                await self?.viewModel.loginPoll(token: token, endpoint: endpoint)
+            }
+        }
+    }
+    
+    private func endPolling() {
+        timerTask?.cancel()
+        timerTask = nil
+    }
 
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
         
         guard let url = webView.url else { return }
-        guard urlBase != nil else { return }
         
         let urlString: String = url.absoluteString.lowercased()
 
         // prevent http redirection
-        if urlBase!.lowercased().hasPrefix(Global.shared.http) && urlString.lowercased().hasPrefix(Global.shared.https) {
+        if login.lowercased().hasPrefix(Global.shared.http) && urlString.hasPrefix(Global.shared.https) {
             //Self.logger.error("didReceiveServerRedirectForProvisionalNavigation() - preventing redirect to \(urlString)")
             return
-        }
-        
-        if urlString.hasPrefix(Global.shared.prefix) == true && urlString.contains(Global.shared.urlValidation) == true {
-            webView.stopLoading()
-            processResult(url: url)
         }
     }
     
@@ -110,44 +136,6 @@ class LoginWebController: UIViewController {
         //Self.logger.error("didFailProvisionalNavigation() - errorMessage: \(errorMessage)")
 
         coordinator.showInvalidURLPrompt()
-    }
-    
-    private func processResult(url: URL) {
-        //  From NextCloud - iOSClient/Login/NCLoginWeb.swift
-        //  Created by Marino Faggiana on 21/08/2019.
-        //  Copyright © 2019 Marino Faggiana. All rights reserved.
-        var server: String = ""
-        var user: String = ""
-        var password: String = ""
-
-        let keyValue = url.path.components(separatedBy: "&")
-        for value in keyValue {
-            if value.contains("server:") { server = value }
-            if value.contains("user:") { user = value }
-            if value.contains("password:") { password = value }
-        }
-
-        if server != "" && user != "" && password != "" {
-
-            let server: String = server.replacingOccurrences(of: "/server:", with: "")
-            let username: String = user.replacingOccurrences(of: "user:", with: "").replacingOccurrences(of: "+", with: " ")
-            let password: String = password.replacingOccurrences(of: "password:", with: "")
-
-            viewModel.login(server: server, username: username, password: password)
-        } else {
-            coordinator.showInitFailedPrompt()
-        }
-    }
-}
-
-extension LoginWebController: LoginDelegate {
-    
-    func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
-        coordinator.handleLoginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
-    }
-    
-    func loginError() {
-        coordinator.showInitFailedPrompt()
     }
 }
 
@@ -166,4 +154,3 @@ extension LoginWebController: WKNavigationDelegate {
         }
     }
 }
-

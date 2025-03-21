@@ -21,9 +21,9 @@
 
 import UIKit
 
-final class LoginWebCoordinator : NSObject, Coordinator {
+final class LoginWebCoordinator : Coordinator {
     
-    private let window: UIWindow
+    private let delegate: LoginDelegate
     private let navigationController: UINavigationController
     private let dataService: DataService
     
@@ -31,57 +31,44 @@ final class LoginWebCoordinator : NSObject, Coordinator {
     private let endpoint: String
     private let login: String
     
-    init(window: UIWindow, navigationController: UINavigationController, dataService: DataService, token: String, endpoint: String, login: String) {
-        self.window = window
+    init(delegate: LoginDelegate, navigationController: UINavigationController, dataService: DataService, token: String, endpoint: String, login: String) {
+        
+        self.delegate = delegate
         self.navigationController = navigationController
         self.dataService = dataService
+        
         self.token = token
         self.endpoint = endpoint
         self.login = login
     }
     
     func start() {
-
-        let controller = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(identifier: "LoginPollController") as! LoginPollController
-
-        controller.token = token
-        controller.endpoint = endpoint
-        controller.login = login
-        controller.coordinator = self
-        controller.viewModel = LoginViewModel(delegate: controller, dataService: dataService)
         
-        navigationController.pushViewController(controller, animated: true)
+        let loginController = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(identifier: "LoginWebController") as! LoginWebController
+        
+        loginController.token = token
+        loginController.endpoint = endpoint
+        loginController.login = login
+        
+        loginController.coordinator = self
+        loginController.viewModel = LoginViewModel(delegate: self, dataService: dataService)
+        
+        self.navigationController.pushViewController(loginController, animated: true)
+    }
+}
+
+extension LoginWebCoordinator: LoginDelegate {
+    
+    func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
+        delegate.loginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
+    }
+    
+    func loginError() {
+        delegate.loginError()
     }
 }
 
 extension LoginWebCoordinator {
-    
-    func handleLoginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
-
-        navigationController.setViewControllers([], animated: false)
-        
-        if Environment.current.setCurrentUser(account: account, urlBase: urlBase, user: user, userId: userId) {
-            dataService.setup(account: account)
-        }
-        
-        if let currentUser = Environment.current.currentUser {
-            dataService.appendSession(userAccount: currentUser)
-        }
-        
-        let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
-        mainCoordinator.start()
-    }
-    
-    func showInitFailedPrompt() {
-        
-        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.InitErrorMessage, preferredStyle: .alert)
-
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.navigationController.popViewController(animated: true)
-        }))
-
-        navigationController.present(alertController, animated: true)
-    }
     
     func showInvalidURLPrompt() {
         

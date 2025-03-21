@@ -23,6 +23,8 @@ import UIKit
 
 @MainActor
 protocol SettingsDelegate: AnyObject {
+    func userChanged()
+    func userChangeError()
     func applicationReset()
     func cacheCleared()
     func cacheCalculated(cacheSize: Int64)
@@ -40,16 +42,21 @@ final class SettingsViewModel: NSObject {
         self.dataService = dataService
     }
     
+    func getAccounts() -> [tableAccount] {
+        return dataService.getAccountsOrderedByAlias()
+    }
+    
     func requestProfile() {
         
         guard let account = dataService.getActiveAccount() else { return }
         
         Task { [weak self] in
             guard let self else { return }
+            guard let currentUser = Environment.current.currentUser else { return }
             
-            let result = await dataService.getUserProfile()
+            let result = await dataService.getUserProfile(account: currentUser.account)
             
-            await downloadAvatar(account: account)
+            await downloadAvatar(account: account, user: currentUser.user)
             let image = await loadAvatar(account: account)
             
             delegate.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail, profileImage: image)
@@ -58,15 +65,13 @@ final class SettingsViewModel: NSObject {
 
     func clearCache() {
         
-        let store = dataService.store
-        
         Task { [weak self] in
             
             if let account = Environment.current.currentUser?.account {
                 self?.dataService.clearDatabase(account: account, removeAccount: false)
             }
             
-            await store.clearCache()
+            await self?.dataService.store.clearCache()
             
             self?.delegate.cacheCleared()
         }
@@ -95,9 +100,28 @@ final class SettingsViewModel: NSObject {
         delegate.cacheCalculated(cacheSize: totalSize)
     }
     
-    private func downloadAvatar(account: tableAccount) async {
+    func changeAccount(account: String) {
         
-        guard let user = Environment.current.currentUser?.user else { return }
+        Task { [weak self] in
+            
+            guard let tableAccount = self?.dataService.setActiveAccount(account) else {
+                self?.delegate.userChangeError()
+                return
+            }
+            
+            if Environment.current.setCurrentUser(account: account, urlBase: tableAccount.urlBase, user: tableAccount.user, userId: tableAccount.userId) {
+                self?.dataService.setup(account: account)
+            }
+             
+            if let currentUser = Environment.current.currentUser {
+                self?.dataService.appendSession(userAccount: currentUser)
+                await self?.dataService.updateAccount(account: currentUser.account)
+                self?.delegate.userChanged()
+            }
+        }
+    }
+    
+    func downloadAvatar(account: tableAccount, user: String) async {
         
         let userBaseUrl = buildUserBaseUrl(account)
         let fileName = userBaseUrl + "-" + user + ".png"
@@ -109,7 +133,7 @@ final class SettingsViewModel: NSObject {
         return account.user + "-" + (URL(string: account.urlBase)?.host ?? "")
     }
     
-    private func loadAvatar(account: tableAccount) async -> UIImage? {
+    func loadAvatar(account: tableAccount) async -> UIImage? {
 
         let userBaseUrl = buildUserBaseUrl(account)
         let image = loadUserImage(for: account.userId, userBaseUrl: userBaseUrl)

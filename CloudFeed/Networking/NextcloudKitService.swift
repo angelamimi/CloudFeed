@@ -194,14 +194,14 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                 avatarSizeRounded: avatarSizeRounded,
                 etag: etag, 
                 account: account,
-                options: options) { _, image, _, etag, _, error in
+                options: options) { _, image, _, newEtag, _, error in
                     
-                    guard let etag = etag, error == .success else {
-                        Self.logger.error("downloadAvatar() - error: \(error.errorDescription)")
-                        continuation.resume(returning: nil)
+                    if let newEtag, etag != newEtag, error == .success {
+                        continuation.resume(returning: newEtag)
                         return
                     }
-                    continuation.resume(returning: etag)
+                    
+                    continuation.resume(returning: nil)
                 }
         }
     }
@@ -306,7 +306,6 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                     continuation.resume(returning: ("", ""))
                     return
                 }
-                
                 continuation.resume(returning: (userProfile.displayName, userProfile.email))
             }
         }

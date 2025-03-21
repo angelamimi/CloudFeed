@@ -68,12 +68,21 @@ final class LoginViewModel: NSObject {
         // Add new account
         dataService?.deleteAccount(account)
         dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
-
+        
         Task { @MainActor [weak self] in
             
             guard let tableAccount = self?.dataService?.setActiveAccount(account) else {
                 self?.delegate?.loginError()
                 return
+            }
+            
+            if Environment.current.setCurrentUser(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId) {
+                self?.dataService?.setup(account: account)
+            }
+             
+            if let currentUser = Environment.current.currentUser {
+                self?.dataService?.appendSession(userAccount: currentUser)
+                await self?.dataService?.updateAccount(account: currentUser.account)
             }
             
             self?.delegate?.loginSuccess(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)

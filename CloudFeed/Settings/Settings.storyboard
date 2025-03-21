@@ -125,9 +125,12 @@
                             <constraint firstItem="W00-FN-fR1" firstAttribute="bottom" secondItem="XZE-fJ-x6B" secondAttribute="bottom" constant="20" id="xNh-hk-Got"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Settings" id="Tkp-FB-ZVc"/>
+                    <navigationItem key="navigationItem" title="Settings" id="Tkp-FB-ZVc">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" changesSelectionAsPrimaryAction="YES" id="rFT-Vi-fhu"/>
+                    </navigationItem>
                     <connections>
                         <outlet property="activityIndicator" destination="uKk-De-qmb" id="2tq-d9-Hf5"/>
+                        <outlet property="addAccountButton" destination="rFT-Vi-fhu" id="xMr-Ut-fCv"/>
                         <outlet property="tableView" destination="XZE-fJ-x6B" id="iqp-OC-9Wa"/>
                     </connections>
                 </viewController>
@@ -161,7 +164,7 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondarySystemGroupedBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -170,7 +173,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGroupedBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

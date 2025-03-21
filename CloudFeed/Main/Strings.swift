@@ -52,6 +52,7 @@ extension Strings {
     public static let SettingsLabelVersion = NSLocalizedString("Settings.Label.Version", comment: "")
     public static let SettingsLabelVersionUnknown = NSLocalizedString("Settings.Label.VersionUnknown", comment: "")
     public static let SettingsLabelCacheSize = NSLocalizedString("Settings.Label.CacheSize", comment: "")
+    public static let SettingsMenuAddAccount = NSLocalizedString("Settings.Menu.AddAccount", comment: "")
     
     //Initialization and Login
     public static let InitErrorMessage = NSLocalizedString("Init.Error.Message", comment: "")
