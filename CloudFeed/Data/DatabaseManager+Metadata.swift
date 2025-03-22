@@ -540,13 +540,13 @@ extension DatabaseManager {
         
         return getMetadataFromOcId(ocId)
     }
-    
-    func updateMetadatasFavorite(account: String, metadatas: [Metadata]) {
 
-        let realm = try! Realm()
+    @MainActor
+    func updateMetadatasFavorite(account: String, metadatas: [Metadata]) async {
 
         do {
-            try realm.write {
+            let realm = try await Realm()
+            try await realm.asyncWrite {
                 let results = realm.objects(tableMetadata.self).filter("account == %@ AND favorite == true", account)
                 for result in results {
                     result.favorite = false

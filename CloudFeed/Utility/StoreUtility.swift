@@ -209,12 +209,12 @@ struct StoreUtility: Sendable {
         return false
     }
     
-    func cleanupFileCache() {
+    func cleanupFileCache() async {
         
         guard let cachePath = getFileCachePath(), let fileCacheDirectory = URL(string: cachePath) else { return }
         let maxFileCache = 1024 * 1024 * Global.shared.fileCacheLimit
         let deleteLimit = maxFileCache / 2 //delete half the cache
-        var totalSize = FileSystemUtility.getDirectorySize(directory: cachePath)
+        var totalSize = await FileSystemUtility.getDirectorySize(directory: cachePath)
         
         guard totalSize > maxFileCache else {
             return

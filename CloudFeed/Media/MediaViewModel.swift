@@ -82,8 +82,8 @@ final class MediaViewModel: NSObject {
     }
     
     func cleanupFileCache() {
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            self?.dataService.store.cleanupFileCache()
+        Task { [weak self] in
+            await self?.dataService.store.cleanupFileCache()
         }
     }
     

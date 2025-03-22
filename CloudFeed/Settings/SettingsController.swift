@@ -58,12 +58,12 @@ class SettingsController: UIViewController {
         backgroundColorView.backgroundColor = UIColor.systemGroupedBackground
         UITableViewCell.appearance().selectedBackgroundView = backgroundColorView
     }
-
-    override func viewWillAppear(_ animated: Bool) {
+    
+    override func viewDidAppear(_ animated: Bool) {
         requestProfile()
         calculateCacheSize()
     }
-    
+
     func clear() {
         requestProfile()
         viewModel.clearCache()
@@ -308,8 +308,10 @@ extension SettingsController: SettingsDelegate {
         cacheSizeDescription = ByteCountFormatter.string(fromByteCount: cacheSize, countStyle: .binary)
         
         DispatchQueue.main.async { [weak self] in
-            self?.tableView.reloadRows(at: [IndexPath(item: 1, section: 0)], with: .automatic)
-            self?.tableView.reloadData()
+            if self?.tableView.window != nil {
+                self?.tableView.reloadRows(at: [IndexPath(item: 1, section: 0)], with: .automatic)
+                self?.tableView.reloadData()
+            }
         }
     }
     
@@ -320,6 +322,9 @@ extension SettingsController: SettingsDelegate {
         self.profileEmail = profileEmail
         
         DispatchQueue.main.async { [weak self] in
+            
+            guard self?.tableView.window != nil else { return }
+            
             self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .automatic)
             self?.stopActivityIndicator()
             

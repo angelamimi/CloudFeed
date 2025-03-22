@@ -233,7 +233,7 @@ final class DataService: NSObject, Sendable {
         
         guard listingResult.files != nil else { return true }
         
-        databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: listingResult.files!)
+        await databaseManager.updateMetadatasFavorite(account: listingResult.account, metadatas: listingResult.files!)
         
         return false
     }

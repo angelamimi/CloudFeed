@@ -95,9 +95,12 @@ final class SettingsViewModel: NSObject {
     
     func calculateCacheSize() {
 
-        let totalSize = FileSystemUtility.getDirectorySize(directory: dataService.store.cacheDirectory)
+        let dir = dataService.store.cacheDirectory
         
-        delegate.cacheCalculated(cacheSize: totalSize)
+        Task { [weak self] in
+            let totalSize = await FileSystemUtility.getDirectorySize(directory: dir)
+            self?.delegate.cacheCalculated(cacheSize: totalSize)
+        }
     }
     
     func changeAccount(account: String) {

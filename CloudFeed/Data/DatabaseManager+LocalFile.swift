@@ -52,9 +52,9 @@ extension DatabaseManager {
     @MainActor
     func addLocalFile(metadata: Metadata) async {
         
-        let realm = try! await Realm()
-        
         do {
+            let realm = try await Realm()
+            
             try await realm.asyncWrite {
                 
                 let addObject = getTableLocalFile(predicate: NSPredicate(format: "ocId == %@", metadata.ocId)) ?? tableLocalFile()

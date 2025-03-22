@@ -33,7 +33,7 @@ final class FileSystemUtility {
         category: String(describing: FileSystemUtility.self)
     )
     
-    static func getDirectorySize(directory: String) -> Int64 {
+    static func getDirectorySize(directory: String) async -> Int64 {
         
         let url = URL(fileURLWithPath: directory)
         let manager = FileManager.default

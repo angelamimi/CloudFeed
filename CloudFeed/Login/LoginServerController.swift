@@ -97,7 +97,7 @@ class LoginServerController: UIViewController {
            let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
            let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
 
-            let bottom = serverURLButton.frame.origin.y + serverURLButton.frame.height + 16
+            let bottom = serverURLButton.frame.maxY + 16
             
             //TODO: shift is still off
             if bottom > keyboardFrame.minY {
