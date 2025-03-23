@@ -224,10 +224,6 @@ class DetailView: UIView {
         } else {
             typeImageView.isHidden = true
         }
-        
-        /*Task.detached { [weak self] in
-            await self?.showLocation(latitudeValue: self?.metadata?.latitude, longitudeValue: self?.metadata?.longitude)
-        }*/
     }
     
     private func setImageLabelVisibility() {
@@ -296,7 +292,7 @@ class DetailView: UIView {
     }
     
     private func populateImageDetails() async {
-        
+
         guard url != nil else { return }
         
         resetLabels()
@@ -309,7 +305,7 @@ class DetailView: UIView {
         let imagePropertyDict = NSMutableDictionary(dictionary: imageProperties)
         
         populateImageSizeInfo(pixelProperties: imagePropertyDict, sizeProperties: properties)
-        populateImageLocationInfo(imageProperties: imagePropertyDict)
+        await populateImageLocationInfo(imageProperties: imagePropertyDict)
         
         if let exif = imagePropertyDict[kCGImagePropertyExifDictionary] as? [NSString: AnyObject] {
             populateImageExifInfo(exif)
@@ -320,10 +316,12 @@ class DetailView: UIView {
         }
     }
     
-    private func populateImageLocationInfo(imageProperties: NSMutableDictionary) {
+    private func populateImageLocationInfo(imageProperties: NSMutableDictionary) async {
         
-        guard metadata != nil && metadata!.longitude == 0 && metadata!.latitude == 0 else { return } //already have location
-        guard let gpsData = imageProperties[kCGImagePropertyGPSDictionary] as? [NSString: AnyObject] else { return }
+        guard let gpsData = imageProperties[kCGImagePropertyGPSDictionary] as? [NSString: AnyObject] else {
+            await setMapHidden(true)
+            return
+        }
         
         let latitudeValue = gpsData[kCGImagePropertyGPSLatitude] as? Double
         let longitudeValue = gpsData[kCGImagePropertyGPSLongitude] as? Double
@@ -520,9 +518,9 @@ class DetailView: UIView {
                 
                 await self?.populateVideoSize(metadata: metadata, videoTrack: videoTrack)
 
-            } else {
-                //Self.logger.debug("populateVideoDetails() - no video tracks found")
             }
+            
+            await self?.setMapHidden(true)
         }
     }
     
@@ -550,6 +548,7 @@ class DetailView: UIView {
             }
             
             self?.populateVideoCameraMakeModel(make: make, model: model)
+            await self?.setMapHidden(true)
         }
     }
     
@@ -666,7 +665,7 @@ class DetailView: UIView {
     }
 
     private func showLocation(latitudeValue: Double?, longitudeValue: Double?) async {
-        
+
         guard let latitude = latitudeValue, let longitude = longitudeValue, !(latitude == 0 && longitude == 0) else {
             await setMapHidden(true)
             return
@@ -677,7 +676,7 @@ class DetailView: UIView {
     }
     
     private func setMapHidden(_ hidden: Bool) async {
-        
+
         if mapView.isHidden == hidden {
             delegate?.detailsLoaded()
             return
