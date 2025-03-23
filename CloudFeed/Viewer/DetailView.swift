@@ -299,7 +299,10 @@ class DetailView: UIView {
 
         guard let originalSource = CGImageSourceCreateWithURL(url! as CFURL, nil),
               let fileProperties = CGImageSourceCopyProperties(originalSource, nil),
-              let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else { return }
+              let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else {
+            await setMapHidden(true)
+            return
+        }
         
         let properties = NSMutableDictionary(dictionary: fileProperties)
         let imagePropertyDict = NSMutableDictionary(dictionary: imageProperties)
