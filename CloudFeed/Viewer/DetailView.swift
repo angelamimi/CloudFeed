@@ -225,9 +225,9 @@ class DetailView: UIView {
             typeImageView.isHidden = true
         }
         
-        Task.detached { [weak self] in
+        /*Task.detached { [weak self] in
             await self?.showLocation(latitudeValue: self?.metadata?.latitude, longitudeValue: self?.metadata?.longitude)
-        }
+        }*/
     }
     
     private func setImageLabelVisibility() {

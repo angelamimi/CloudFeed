@@ -99,7 +99,6 @@ class LoginServerController: UIViewController {
 
             let bottom = serverURLButton.frame.maxY + 16
             
-            //TODO: shift is still off
             if bottom > keyboardFrame.minY {
                 
                 let shift = bottom - keyboardFrame.minY
