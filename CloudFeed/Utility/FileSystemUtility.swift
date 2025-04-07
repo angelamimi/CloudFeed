@@ -40,13 +40,23 @@ final class FileSystemUtility {
         var totalSize: Int64 = 0
 
         if let enumerator = manager.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles]) {
-            for case let fileURL as URL in enumerator {
+            
+            let fileURLs = enumerator.compactMap { $0 as? URL }
+            
+            for fileURL in fileURLs {
                 if let attributes = try? manager.attributesOfItem(atPath: fileURL.path) {
                     if let size = attributes[.size] as? Int64 {
                         totalSize += size
                     }
                 }
             }
+            /*for case let fileURL as URL in enumerator {
+                if let attributes = try? manager.attributesOfItem(atPath: fileURL.path) {
+                    if let size = attributes[.size] as? Int64 {
+                        totalSize += size
+                    }
+                }
+            }*/
         }
 
         return totalSize

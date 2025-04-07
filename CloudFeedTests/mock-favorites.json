@@ -4,11 +4,12 @@
        "classFile": "image",
        "contentType": "image/jpeg",
        "favorite": "true",
-       "fileName": "testfile1.jpg",
+       "fileName": "testfile222.jpg",
        "ocId": "00000296oco9frygcvqs",
        "path": "/remote.php/dav/files/testuser1/Photos/",
        "date": "2020-07-04 03:31:25",
-       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos"
+       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos",
+       "livePhotoFile": ""
    },
 
    {
@@ -16,11 +17,25 @@
        "classFile": "image",
        "contentType": "image/jpeg",
        "favorite": "true",
-       "fileName": "testfile2.jpg",
-       "ocId": "00000298oco9frygcvqs",
+       "fileName": "testfile333.jpg",
+       "ocId": "00000294oco9frygcvqs",
        "path": "/remote.php/dav/files/testuser1/Photos/",
-       "date": "2020-07-04 03:31:25",
-       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos"
+       "date": "2020-07-05 03:31:25",
+       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos",
+       "livePhotoFile": ""
+   },
+   
+   {
+       "account": "testuser1 https://cloud.test1.com",
+       "classFile": "image",
+       "contentType": "image/jpeg",
+       "favorite": "true",
+       "fileName": "testfile111.jpg",
+       "ocId": "00000214oco9frygcvqs",
+       "path": "/remote.php/dav/files/testuser1/Photos/",
+       "date": "2020-06-05 03:31:25",
+       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos",
+       "livePhotoFile": ""
    },
    
    {
@@ -32,7 +47,8 @@
        "ocId": "00000469oco9frygcvqs",
        "path": "/remote.php/dav/files/testuser1/Photos/Olive/",
        "date": "2020-07-04 03:31:25",
-       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos/Olive"
+       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos/Olive",
+       "livePhotoFile": "IMG_0347.mov"
    },
    
    {
@@ -44,7 +60,8 @@
        "ocId": "00000470oco9frygcvqs",
        "path": "/remote.php/dav/files/testuser1/Photos/Olive/",
        "date": "2020-07-04 03:31:25",
-       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos/Olive"
+       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos/Olive",
+       "livePhotoFile": "IMG_0347.jpg"
    },
    
    {
@@ -54,9 +71,10 @@
        "favorite": "true",
        "fileName": "Frog.jpg",
        "ocId": "00000298oco9frygcvqs",
-       "path": "/remote.php/dav/files/testuser1/Photos/",
+       "path": "/remote.php/dav/files/testuser2/Photos/",
        "date": "2020-07-04 03:31:25",
-       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos"
+       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser2/Photos",
+       "livePhotoFile": ""
    },
    
    {
@@ -64,11 +82,25 @@
        "classFile": "image",
        "contentType": "image/jpeg",
        "favorite": "false",
-       "fileName": "IMG_0347.jpg",
-       "ocId": "00000469oco9frygcvqs",
+       "fileName": "IMG_0348.jpg",
+       "ocId": "00000abcdfrygcvqs",
        "path": "/remote.php/dav/files/testuser1/Photos/Olive/",
-       "date": "2020-07-04 03:31:25",
-       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos/Olive"
+       "date": "2023-07-04 03:31:25",
+       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos/Olive",
+       "livePhotoFile": ""
+   },
+   
+   {
+       "account": "testuser1 https://cloud.test1.com",
+       "classFile": "video",
+       "contentType": "video/quicktime",
+       "favorite": "true",
+       "fileName": "VID_0002.mov",
+       "ocId": "OCID0000000000000027",
+       "path": "/remote.php/dav/files/testuser1/Photos/Olive/",
+       "date": "2024-12-25 11:31:25",
+       "serverUrl": "https://cloud.test1.com/remote.php/dav/files/testuser1/Photos/Olive",
+       "livePhotoFile": ""
    }
 ]
 

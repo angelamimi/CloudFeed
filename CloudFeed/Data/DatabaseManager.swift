@@ -36,17 +36,19 @@ final class DatabaseManager: Sendable {
         category: String(describing: DatabaseManager.self)
     )
     
-    func setup() -> Bool {
+    func setup(fileUrl: URL) -> Bool {
         
-        let config = Realm.Configuration(schemaVersion: 2)
+        let config = Realm.Configuration(fileURL: fileUrl, schemaVersion: 2)
+        
         Realm.Configuration.defaultConfiguration = config
         
-        let fileUrl = config.fileURL?.description
-        
-        if FileManager.default.fileExists(atPath: fileUrl!) {
-            NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE FOUND in " + fileUrl!)
-        } else {
-            NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE NOT FOUND in " + fileUrl!)
+        if ProcessInfo.processInfo.environment["XCInjectBundleInto"] == nil {
+            let path = fileUrl.path
+            if FileManager.default.fileExists(atPath: path) {
+                NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE FOUND in " + path)
+            } else {
+                NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE NOT FOUND in " + path)
+            }
         }
         
         do {

@@ -108,8 +108,42 @@ extension MockNextcloudKitService {
         var resultFiles: [CloudFeed.Metadata] = []
         
         for fileJSON in filesJSON {
+            
+            let file = tableMetadata.init()
+            
+            file.account = fileJSON["account"] as! String
+            file.contentType = fileJSON["contentType"] as! String
+            file.favorite = fileJSON["favorite"] as! String == "true" ? true : false
+            file.fileName = fileJSON["fileName"] as! String
+            file.ocId = fileJSON["ocId"] as! String
+            file.path = fileJSON["path"] as! String
+            file.serverUrl = fileJSON["serverUrl"] as! String
+            file.classFile = fileJSON["classFile"] as! String
+            file.livePhotoFile = fileJSON["livePhotoFile"] as! String? ?? ""
+            
+            if fileJSON["date"] is String {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
+                let date = dateFormatter.date(from: fileJSON["date"] as! String)
+                file.date = date! as NSDate
+            }
+            
+            resultFiles.append(CloudFeed.Metadata.init(obj: file))
+        }
+
+        return resultFiles
+    }
+    
+    /* 'NKFile' initializer is inaccessible due to 'internal' protection level
+    func parseMetadata(fileName: String) -> [CloudFeed.Metadata] {
+        
+        let filesJSON = readMocks(fileName: fileName)
+        var resultFiles: [CloudFeed.Metadata] = []
+        
+        for fileJSON in filesJSON {
 
             let file = NKFile()
+            
             file.account = fileJSON["account"] as! String
             file.contentType = fileJSON["contentType"] as! String
             file.favorite = fileJSON["favorite"] as! String == "true" ? true : false
@@ -131,7 +165,7 @@ extension MockNextcloudKitService {
         }
         
         return resultFiles
-    }
+    }*/
     
     func readMocks(fileName: String) -> [NSDictionary] {
         

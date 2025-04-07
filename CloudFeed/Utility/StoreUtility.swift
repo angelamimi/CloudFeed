@@ -38,6 +38,22 @@ struct StoreUtility: Sendable {
         return path
     }
     
+    var databaseDirectory: URL? {
+        
+        let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+        
+        do {
+            let url = directory!.appendingPathComponent( "DB", isDirectory: true)
+            
+            if !FileManager.default.fileExists(atPath: url.path) {
+                try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            }
+            return url
+        } catch  {
+            return nil
+        }
+    }
+    
     var certificatesDirectory: URL? {
         
         let directory = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first

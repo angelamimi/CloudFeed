@@ -187,17 +187,20 @@ final class FavoritesViewModel: NSObject {
         delegate.fetching()
                 
         fetchTask = Task { [weak self] in
-            guard let self else { return }
-            
-            let error = await dataService.getFavorites()
-            
-            if Task.isCancelled { return }
-            
-            handleFavoriteResult(error: error)
-            
-            let resultMetadatas = dataService.paginateFavoriteMetadata(type: type, fromDate: Date.distantPast, toDate: Date.distantFuture, offsetDate: nil, offsetName: nil)
-            await applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
+            await self?.fetch(type: type, refresh: refresh)
         }
+    }
+    
+    func fetch(type: Global.FilterType, refresh: Bool) async {
+        
+        let error = await dataService.getFavorites()
+        
+        if Task.isCancelled { return }
+        
+        handleFavoriteResult(error: error)
+        
+        let resultMetadatas = dataService.paginateFavoriteMetadata(type: type, fromDate: Date.distantPast, toDate: Date.distantFuture, offsetDate: nil, offsetName: nil)
+        await applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
     }
     
     func filter(type: Global.FilterType, from: Date, to: Date) {
@@ -457,6 +460,8 @@ final class FavoritesViewModel: NSObject {
         }
         
         //Self.logger.debug("applyDatasourceChanges() - adds: \(adds.count) updates: \(updates.count)")
+        
+        delegate.fetchResultReceived(resultItemCount: metadatas.count)
 
         DispatchQueue.main.async { [weak self] in
             self?.dataSource.apply(snapshot, animatingDifferences: true)

@@ -50,7 +50,7 @@ class MediaController: CollectionController {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        viewModel.cancelLoads()
+        viewModel.cancel()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -178,6 +178,7 @@ extension MediaController: CollectionDelegate {
     
     func columnCountChanged(columnCount: Int) {
         viewModel.saveColumnCount(columnCount)
+        refreshVisibleItems()
     }
     
     func scrollSpeedChanged(scrolling: Bool) {
@@ -304,14 +305,12 @@ extension MediaController: MediaViewController {
     func zoomInGrid() {
         if viewModel.currentItemCount() > 0 {
             zoomIn()
-            refreshVisibleItems()
         }
     }
     
     func zoomOutGrid() {
         if viewModel.currentItemCount() > 0 {
             zoomOut()
-            refreshVisibleItems()
         }
     }
     

@@ -155,26 +155,35 @@ final class MediaViewModel: NSObject {
         dataService.store.setMediaColumnCount(columnCount)
     }
     
+    func cancel() {
+        cancelLoads()
+        fetchTask?.cancel()
+    }
+    
     func cancelLoads() {
         cacheManager.cancelAll()
     }
-    
-    func metadataSearch(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool) {
 
+    func metadataSearch(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool) {
         fetchTask = Task { [weak self] in
-            guard let self else { return }
-            
-            let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
-            
-            guard let resultMetadatas = results.metadatas else {
-                delegate.searchResultReceived(resultItemCount: nil)
-                return
-            }
-            
-            if Task.isCancelled { return }
-            
-            applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
+            await self?.metadataSearch(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, refresh: refresh)
         }
+    }
+    
+    func metadataSearch(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool) async {
+
+        let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
+
+        guard let resultMetadatas = results.metadatas else {
+            delegate.searchResultReceived(resultItemCount: nil)
+            return
+        }
+        
+        if Task.isCancelled {
+            return
+        }
+        
+        applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
     }
     
     func filter(type: Global.FilterType, toDate: Date, fromDate: Date) {
@@ -456,6 +465,8 @@ final class MediaViewModel: NSObject {
         if updates.count > 0 {
             snapshot.reconfigureItems(updates)
         }
+        
+        delegate.searchResultReceived(resultItemCount: metadatas.count)
         
         dataSource.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
             self?.delegate.dataSourceUpdated(refresh: refresh)

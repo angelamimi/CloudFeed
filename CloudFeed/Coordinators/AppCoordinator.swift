@@ -40,7 +40,12 @@ final class AppCoordinator: NSObject, Coordinator {
             return
         }
         
-        if dbManager.setup() {
+        guard let dbUrl = store.databaseDirectory?.appending(path: "CloudFeed.realm") else {
+            showInitFailedError()
+            return
+        }
+
+        if dbManager.setup(fileUrl: dbUrl) {
             showInitFailedError()
             return
         }
