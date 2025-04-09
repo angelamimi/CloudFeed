@@ -395,10 +395,6 @@ final class DataService: NSObject, Sendable {
             return ([], [], [], [], true)
         }
         
-        //convert to metadata
-        //let metadataCollection = searchResult.files.count == 0 ? [] : databaseManager.convertFilesToMetadatas(searchResult.files)
-        let metadataCollection = searchResult.files
-        
         //get stored metadata
         let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@) AND date >= %@ AND date <= %@",
                                     account, startServerUrl,
@@ -408,7 +404,7 @@ final class DataService: NSObject, Sendable {
         let metadatasResult = databaseManager.getMetadatas(predicate: predicate)
         
         //add, update, delete stored metadata
-        let result = await databaseManager.processMetadatas(metadataCollection, metadatasResult: metadatasResult)
+        let result = await databaseManager.processMetadatas(searchResult.files, metadatasResult: metadatasResult)
 
         let typeResult = filterMediaResult(type: type, result: result)
         

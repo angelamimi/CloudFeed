@@ -21,8 +21,6 @@ class MediaTests {
     var dataService: DataService?
     var databaseManager: DatabaseManager?
     
-    var mediaViewModel: MediaViewModel?
-    
     init() async throws {
         try setup()
     }
@@ -33,20 +31,30 @@ class MediaTests {
         }
     }
 
-    @Test("DataService.searchMedia")
-    func searchMediaTest() async throws {
+    @Test("DataService.searchMedia", arguments: [CloudFeed.Global.FilterType.all, .video, .image])
+    func searchMediaTest(type: CloudFeed.Global.FilterType) async throws {
         
-        let toDate = Date()
-        let fromDate = Date()
+        let toDate = Date.distantFuture
+        let fromDate = Date.distantPast
         
-        let result = await dataService?.searchMedia(type: .all, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20)
+        let result = await dataService?.searchMedia(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20)
         
         try #require(result != nil)
-        
-        #expect(result?.added.count == 26)
+
         #expect(result?.updated.count == 0)
         #expect(result?.deleted.count == 0)
-        #expect(result?.metadatas.count == 0)
+        
+        switch type {
+        case .all:
+            #expect(result?.added.count == 26)
+            #expect(result?.metadatas.count == 25)
+        case .image:
+            #expect(result?.added.count == 24)
+            #expect(result?.metadatas.count == 23)
+        case .video:
+            #expect(result?.added.count == 2)
+            #expect(result?.metadatas.count == 2)
+        }
     }
     
     @Test("FavoritesViewModel.fetch", arguments: [CloudFeed.Global.FilterType.all, .video, .image])
@@ -67,8 +75,10 @@ class MediaTests {
                 }
                 confirm()
             })
+            
             let viewModel = FavoritesViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager)
             viewModel.initDataSource(collectionView: collectionView)
+            
             await viewModel.fetch(type: type, refresh: false)
         }
     }
@@ -97,11 +107,10 @@ class MediaTests {
                 confirm()
             })
             
-            mediaViewModel = MediaViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager)
-            
-            mediaViewModel?.initDataSource(collectionView: collectionView)
+            let mediaViewModel = MediaViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager)
+            mediaViewModel.initDataSource(collectionView: collectionView)
 
-            await mediaViewModel?.metadataSearch(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, refresh: false)
+            await mediaViewModel.metadataSearch(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, refresh: false)
         }
     }
     
