@@ -187,18 +187,20 @@ final class MediaViewModel: NSObject {
     }
     
     func filter(type: Global.FilterType, toDate: Date, fromDate: Date) {
-        
         fetchTask = Task { [weak self] in
-            guard let self else { return }
-            
-            let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: Global.shared.limit)
-            
-            if Task.isCancelled { return }
-            
-            guard results.metadatas != nil else { return }
-            
-            applyDatasourceChanges(metadatas: results.metadatas!, refresh: true)
+            await self?.filter(type: type, toDate: toDate, fromDate: fromDate)
         }
+    }
+    
+    func filter(type: Global.FilterType, toDate: Date, fromDate: Date) async {
+        
+        let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: Global.shared.limit)
+        
+        if Task.isCancelled { return }
+        
+        guard results.metadatas != nil else { return }
+        
+        applyDatasourceChanges(metadatas: results.metadatas!, refresh: true)
     }
     
     func sync(type: Global.FilterType, toDate: Date, fromDate: Date) {

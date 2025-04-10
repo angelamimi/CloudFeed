@@ -114,6 +114,38 @@ class MediaTests {
         }
     }
     
+    @Test("MediaViewModel.filter", arguments: [CloudFeed.Global.FilterType.all, .video, .image])
+    func filterTest(type: CloudFeed.Global.FilterType) async throws {
+        
+        let toDate = try Date("2024-12-31T00:00:00Z", strategy: .iso8601)
+        let fromDate = try Date("2022-01-01T00:00:00Z", strategy: .iso8601)
+        
+        let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewLayout())
+        
+        let cacheManager = CacheManager(dataService: dataService!)
+        
+        await confirmation() { confirm in
+            
+            let delegate = MockMediaDelegate(onSearchResultReceived: { resultItemCount in
+
+                switch type {
+                case .all:
+                    #expect(resultItemCount == 4)
+                case .image:
+                    #expect(resultItemCount == 2)
+                case .video:
+                    #expect(resultItemCount == 2)
+                }
+                confirm()
+            })
+            
+            let mediaViewModel = MediaViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager)
+            mediaViewModel.initDataSource(collectionView: collectionView)
+            
+            await mediaViewModel.filter(type: type, toDate: toDate, fromDate: fromDate)
+        }
+    }
+    
     private func setup() throws {
         
         databaseManager = DatabaseManager()
