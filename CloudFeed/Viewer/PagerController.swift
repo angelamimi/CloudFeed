@@ -214,10 +214,10 @@ class PagerController: UIViewController {
         controller.preferredContentSize = CGSize(width: 400, height: 200)
         
         if let popover = controller.popoverPresentationController {
-            
+
             popover.delegate = self
             popover.sourceView = view
-            popover.sourceRect = CGRect(x: view.frame.width, y: 150, width: 100, height: 100)
+            popover.sourceRect = CGRect(x: view.frame.width, y: 0, width: 1, height: 1)
             popover.permittedArrowDirections = []
             popover.passthroughViews = [view]
 
@@ -246,12 +246,14 @@ class PagerController: UIViewController {
             }
         } else {
             
-            updateStatus(status: .title)
-            
             if UIDevice.current.userInterfaceIdiom == .pad {
+                updateStatus(status: .title)
                 presentedViewController?.dismiss(animated: true)
             } else {
-                currentViewController?.handleSwipeDown()
+                let scrolledOnly = currentViewController?.handleSwipeDown() ?? false
+                if !scrolledOnly {
+                    updateStatus(status: .title)
+                }
             }
         }
     }

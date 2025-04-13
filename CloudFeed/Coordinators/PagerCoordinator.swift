@@ -52,10 +52,22 @@ final class PagerCoordinator {
         viewerPager.coordinator = self
         
         navigationController.pushViewController(viewerPager, animated: true)
+        
+        if UIDevice.current.userInterfaceIdiom == .pad,
+           #available(iOS 18.0, *),
+           let tab = navigationController.parent as? UITabBarController {
+            tab.setTabBarHidden(true, animated: !UIAccessibility.isReduceMotionEnabled)
+        }
     }
     
     func pagingEndedWith(metadata: Metadata) {
         delegate.pagingEndedWith(metadata: metadata)
+        
+        if UIDevice.current.userInterfaceIdiom == .pad,
+           #available(iOS 18.0, *),
+           let tab = navigationController.parent as? UITabBarController {
+            tab.setTabBarHidden(false, animated: !UIAccessibility.isReduceMotionEnabled)
+        }
     }
     
     func showFavoriteUpdateFailedError() {

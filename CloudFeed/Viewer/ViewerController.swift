@@ -190,12 +190,14 @@ class ViewerController: UIViewController {
         showDetails(animate: true, reset: false)
     }
     
-    func handleSwipeDown() {
+    func handleSwipeDown() -> Bool {
         
         if detailsScrolled() {
             scrollDownDetails()
+            return true
         } else {
             hideDetails(animate: true, hideStatus: false, status: .title)
+            return false
         }
     }
     
@@ -933,7 +935,7 @@ class ViewerController: UIViewController {
                 heightOffset = halfHeight
             } else {
                 
-                let detailViewHeight = detailView.height()
+                let detailViewHeight = detailView.frame.height - 16 //fillerView's padding
                 
                 if detailViewHeight < halfHeight {
                     heightOffset = halfHeight

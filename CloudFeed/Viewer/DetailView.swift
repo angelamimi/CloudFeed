@@ -690,7 +690,7 @@ class DetailView: UIView {
         contentStackView.setNeedsLayout()
 
         await withCheckedContinuation { continuation in
-            UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            UIView.animate(withDuration: 0.4, animations: { [weak self] in
                 self?.contentStackView.layoutIfNeeded()
             }, completion: { [weak self] _ in
                 self?.delegate?.detailsLoaded()
@@ -717,8 +717,8 @@ class DetailView: UIView {
         }
 
         mapView.removeAnnotations(mapView.annotations)
-        mapView.addAnnotation(annotation)
         mapView.setRegion(region, animated: false)
+        mapView.addAnnotation(annotation)
     }
 }
 
