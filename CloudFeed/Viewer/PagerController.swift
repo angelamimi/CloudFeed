@@ -262,28 +262,25 @@ class PagerController: UIViewController {
         
         guard presentedViewController != nil else { return }
         
-        let preferredHeight = presentedViewController?.preferredContentSize.height
-        
         presentedViewController?.dismiss(animated: true, completion: {
             DispatchQueue.main.async { [weak self] in
-                self?.presentAllDetailsPopover(metadata: metadata, preferredHeight: preferredHeight)
+                self?.presentAllDetailsPopover(metadata: metadata)
             }
         })
     }
     
-    private func presentAllDetailsPopover(metadata: Metadata, preferredHeight: CGFloat?) {
+    private func presentAllDetailsPopover(metadata: Metadata) {
         
         let controller = initDetailController(metadata: metadata)
-        let height = preferredHeight == nil ? 500 : preferredHeight!
         
         controller.modalPresentationStyle = .popover
-        controller.preferredContentSize = CGSize(width: 500, height: height)
+        controller.preferredContentSize = CGSize(width: view.frame.width / 2.5, height: view.frame.height / 2.5)
         
         if let popover = controller.popoverPresentationController {
 
             popover.delegate = self
             popover.sourceView = view
-            popover.sourceRect = CGRect(x: view.frame.width, y: 80, width: 100, height: 100)
+            popover.sourceRect = CGRect(x: view.frame.width, y: 0, width: 1, height: 1)
             popover.permittedArrowDirections = []
             
             let sheet = popover.adaptiveSheetPresentationController

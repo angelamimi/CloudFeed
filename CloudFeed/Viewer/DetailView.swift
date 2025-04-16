@@ -162,6 +162,7 @@ class DetailView: UIView {
         
         mapView.layer.cornerRadius = 8
         mapView.delegate = self
+        mapView.alpha = 0
         
         cameraView.minimumContentSizeCategory = .small
         cameraView.maximumContentSizeCategory = .extraExtraLarge
@@ -686,13 +687,15 @@ class DetailView: UIView {
         }
         
         mapView.isHidden = hidden
-        mapView.alpha = 1
         contentStackView.setNeedsLayout()
 
         await withCheckedContinuation { continuation in
-            UIView.animate(withDuration: 0.4, animations: { [weak self] in
+            UIView.animate(withDuration: 0.2, animations: { [weak self] in
                 self?.contentStackView.layoutIfNeeded()
             }, completion: { [weak self] _ in
+                UIView.animate(withDuration: 0.4, animations: { [weak self] in
+                    self?.mapView.alpha = 1
+                })
                 self?.delegate?.detailsLoaded()
                 continuation.resume()
             })
