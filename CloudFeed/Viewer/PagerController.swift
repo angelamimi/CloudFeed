@@ -191,10 +191,17 @@ class PagerController: UIViewController {
     
     private func showTitle() {
         titleView?.isHidden = false
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            self?.titleView?.alpha = 1
+        })
     }
     
     private func hideTitle() {
-        titleView?.isHidden = true
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            self?.titleView?.alpha = 0
+        }, completion: { [weak self] _ in
+            self?.titleView?.isHidden = true
+        })
     }
     
     private func getFileName(_ metadata: Metadata) -> String {

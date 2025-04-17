@@ -330,6 +330,7 @@ class ViewerController: UIViewController {
     
     private func initControls() {
         controlsView = ControlsView.init(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
+        controlsView?.alpha = 0
     }
     
     private func showControls() {
@@ -341,6 +342,10 @@ class ViewerController: UIViewController {
             controlsView?.frame = view.frame
             controlsView?.isHidden = false
         }
+        
+        UIView.animate(withDuration: 0.5, animations: { [weak self] in
+            self?.controlsView?.alpha = 1
+        })
     }
     
     private func addControls() {
@@ -594,7 +599,18 @@ class ViewerController: UIViewController {
             initControls()
             addControls()
         } else {
-            controlsView!.isHidden = !controlsView!.isHidden
+            if controlsView!.isHidden {
+                controlsView!.isHidden = false
+                UIView.animate(withDuration: 0.2, animations: { [weak self] in
+                    self?.controlsView!.alpha = 1
+                })
+            } else {
+                UIView.animate(withDuration: 0.2, animations: { [weak self] in
+                    self?.controlsView!.alpha = 0
+                }, completion: { [weak self] _ in
+                    self?.controlsView!.isHidden = true
+                })
+            }
         }
     }
     
@@ -775,7 +791,10 @@ class ViewerController: UIViewController {
     }
     
     private func verticalDetailsVisible() -> Bool {
-        return detailViewTopConstraint?.constant ?? -1 == 0
+        if let constant = imageViewHeightConstraint?.constant {
+            return constant != view.frame.height
+        }
+        return false
     }
     
     private func horizontalDetailsVisible() -> Bool {
