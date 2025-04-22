@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -16,7 +16,7 @@
             <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3eV-3U-YdS" userLabel="Filter Button">
-                    <rect key="frame" x="298" y="52" width="40" height="40"/>
+                    <rect key="frame" x="298" y="99" width="40" height="40"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="ohG-8C-4o9"/>
                         <constraint firstAttribute="height" constant="40" id="rQG-ad-ips"/>
@@ -29,7 +29,7 @@
                     </buttonConfiguration>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0HJ-5a-GPf" userLabel="Menu Button">
-                    <rect key="frame" x="342" y="52" width="40" height="40"/>
+                    <rect key="frame" x="342" y="99" width="40" height="40"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="40" id="Dbr-eL-8MJ"/>
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="20" id="Osl-hJ-cBj"/>
@@ -44,19 +44,19 @@
                     </buttonConfiguration>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ABi-ln-iPL" userLabel="Done Button">
-                    <rect key="frame" x="366" y="55" width="24" height="34"/>
+                    <rect key="frame" x="366" y="102" width="24" height="34"/>
                     <color key="tintColor" systemColor="labelColor"/>
                     <state key="normal" title="Button"/>
                     <buttonConfiguration key="configuration" style="plain"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k2S-Un-QnP" userLabel="Cancel Button">
-                    <rect key="frame" x="0.0" y="55" width="24" height="34"/>
+                    <rect key="frame" x="0.0" y="102" width="24" height="34"/>
                     <color key="tintColor" systemColor="labelColor"/>
                     <state key="normal" title="Button"/>
                     <buttonConfiguration key="configuration" style="plain"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hCV-CC-q7z">
-                    <rect key="frame" x="0.0" y="55" width="40" height="34"/>
+                    <rect key="frame" x="0.0" y="102" width="40" height="34"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="j81-PV-qBl"/>
                     </constraints>
@@ -65,7 +65,7 @@
                     <buttonConfiguration key="configuration" style="plain" image="chevron.left" catalog="system"/>
                 </button>
                 <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jPn-bk-o2e" userLabel="Title">
-                    <rect key="frame" x="44" y="72" width="246" height="0.0"/>
+                    <rect key="frame" x="44" y="119" width="246" height="0.0"/>
                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                     <nil key="highlightedColor"/>
                 </label>
@@ -103,6 +103,7 @@
                 <outlet property="menuButtonTrailingConstraint" destination="YzA-WV-I0C" id="GBg-NK-VE0"/>
                 <outlet property="menuButtonWidthConstraint" destination="Osl-hJ-cBj" id="WV3-uS-qnx"/>
                 <outlet property="title" destination="jPn-bk-o2e" id="LOL-N5-U61"/>
+                <outlet property="titleTrailingConstraint" destination="e3i-ad-Q8Y" id="apg-Am-jDm"/>
             </connections>
             <point key="canvasLocation" x="-52.307692307692307" y="67.535545023696685"/>
         </view>

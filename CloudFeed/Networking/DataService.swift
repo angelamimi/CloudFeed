@@ -44,7 +44,6 @@ final class DataService: NSObject, Sendable {
     
     func setup() {
         nextcloudService.setup()
-        NextcloudKit.shared.nkCommonInstance.levelLog = 0
     }
     
     func setup(account: String) {
@@ -70,12 +69,12 @@ final class DataService: NSObject, Sendable {
         return await nextcloudService.checkServerStatus(url: url)
     }
     
-    func appendSession(userAccount: UserAccount) {
+    func appendSession(account: String, user: String, userId: String, urlBase: String) {
         
-        let password = store.getPassword(userAccount.account) ?? ""
-        let serverVersionMajor = databaseManager.getCapabilitiesServerInt(account: userAccount.account, elements: Global.shared.capabilitiesVersionMajor)
+        let password = store.getPassword(account) ?? ""
+        let serverVersionMajor = databaseManager.getCapabilitiesServerInt(account: account, elements: Global.shared.capabilitiesVersionMajor)
         
-        nextcloudService.appendSession(account: userAccount.account, urlBase: userAccount.urlBase, user: userAccount.user, userId: userAccount.userId,
+        nextcloudService.appendSession(account: account, urlBase: urlBase, user: user, userId: userId,
                                        password: password, userAgent: Global.shared.userAgent, nextcloudVersion: serverVersionMajor,
                                        groupIdentifier: Global.shared.groupIdentifier)
     }
@@ -170,12 +169,16 @@ final class DataService: NSObject, Sendable {
     func downloadAvatar(fileName: String, account: tableAccount) async {
         
         let fileNameLocalPath = store.getUserDirectory() + "/" + fileName
-        let etag = databaseManager.getAvatar(fileName: fileName)?.etag
-        let avatarSize = Global.shared.avatarSizeBase * Int(UIScreen.main.scale)
         
+        var etag: String? = nil
+        if FileManager.default.fileExists(atPath: fileNameLocalPath) {
+            etag = databaseManager.getAvatar(fileName: fileName)?.etag
+        }
+        
+        let avatarSize = Global.shared.avatarSizeBase * Int(UIScreen.main.scale)
         let etagResult = await nextcloudService.downloadAvatar(account: account.account, userId: account.userId, fileName: fileName,
                                                                fileNameLocalPath: fileNameLocalPath, etag: etag, avatarSize: avatarSize, avatarSizeRounded: Global.shared.avatarSizeRounded)
-        
+
         guard etagResult != nil else { return }
         databaseManager.addAvatar(fileName: fileName, etag: etagResult!)
     }

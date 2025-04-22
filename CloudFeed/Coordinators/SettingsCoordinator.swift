@@ -45,7 +45,8 @@ final class SettingsCoordinator {
     }
     
     func showAcknowledgements() {
-        navigationController.pushViewController(AcknowledgementsController(), animated: true)
+        let controller = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: "Acknowledgements")
+        navigationController.pushViewController(controller, animated: true)
     }
     
     func showProfileLoadfailedError() {

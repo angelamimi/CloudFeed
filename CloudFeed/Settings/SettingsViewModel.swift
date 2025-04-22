@@ -117,7 +117,7 @@ final class SettingsViewModel: NSObject {
             }
              
             if let currentUser = Environment.current.currentUser {
-                self?.dataService.appendSession(userAccount: currentUser)
+                self?.dataService.appendSession(account: currentUser.account, user: currentUser.user, userId: currentUser.userId, urlBase: currentUser.urlBase)
                 await self?.dataService.updateAccount(account: currentUser.account)
                 self?.delegate.userChanged()
             }

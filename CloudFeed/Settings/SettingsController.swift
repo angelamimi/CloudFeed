@@ -29,7 +29,9 @@ class SettingsController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var addAccountButton: UIBarButtonItem!
+    @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
+    
+    private var titleView: TitleView?
 
     private var profileName: String = ""
     private var profileEmail: String = ""
@@ -45,17 +47,18 @@ class SettingsController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = Strings.SettingsNavTitle
-        
-        addAccountButton.menu = buildAccountsMenu()
+        navigationController?.isNavigationBarHidden = true
         
         tableView.delegate = self
         tableView.dataSource = self
         
         tableView.rowHeight = UITableView.automaticDimension
         
+        initTitleView()
+        initConstraints()
+        
         let backgroundColorView = UIView()
-        backgroundColorView.backgroundColor = UIColor.systemGroupedBackground
+        backgroundColorView.backgroundColor = .systemGroupedBackground
         UITableViewCell.appearance().selectedBackgroundView = backgroundColorView
     }
     
@@ -67,6 +70,31 @@ class SettingsController: UIViewController {
     func clear() {
         requestProfile()
         viewModel.clearCache()
+    }
+    
+    private func initTitleView() {
+        
+        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
+        
+        titleView?.title.text = Strings.SettingsNavTitle
+        titleView?.backgroundColor = .systemGroupedBackground
+        titleView?.initMenu(menu: buildAccountsMenu())
+        
+        self.view.addSubview(titleView!)
+    }
+    
+    private func initConstraints() {
+
+        titleView?.translatesAutoresizingMaskIntoConstraints = false
+        
+        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+        titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
+        titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
+        
+        let titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
+        titleViewHeightAnchor?.isActive = true
+        
+        tableViewTopConstraint.constant = Global.shared.titleSize
     }
     
     private func startActivityIndicator() {

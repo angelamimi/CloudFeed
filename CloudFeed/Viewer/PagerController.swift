@@ -63,7 +63,7 @@ class PagerController: UIViewController {
         
         titleView?.mediaView = self
         titleView?.title.text = getFileName(metadata)
-        titleView?.initNavigation()
+        titleView?.initNavigation(withMenu: true)
         
         setFavoriteMenu(isFavorite: metadata.favorite)
         

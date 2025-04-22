@@ -73,6 +73,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     
     func setup() {
         NextcloudKit.shared.setup(delegate: self)
+        NextcloudKit.shared.nkCommonInstance.levelLog = 0
     }
     
     func getCapabilities(account: String) async -> (account: String?, data: Data?) {

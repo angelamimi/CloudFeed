@@ -22,8 +22,12 @@
 import UIKit
 import os.log
 
-final class AcknowledgementsController : UITableViewController {
+final class AcknowledgementsController : UIViewController { //UITableViewController {
     
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
+    
+    private var titleView: TitleView?
     private var acknowledgements: [NSDictionary] = []
     
     private static let logger = Logger(
@@ -41,6 +45,10 @@ final class AcknowledgementsController : UITableViewController {
         item.tintColor = .label
         navigationItem.leftBarButtonItem = item
         
+        initTitleView()
+        initConstraints()
+        titleView?.initNavigation(withMenu: false)
+        
         tableView.register(UINib(nibName: "AcknowledgementCell", bundle: nil), forCellReuseIdentifier: "AcknowledgementCell")
         
         tableView.rowHeight = UITableView.automaticDimension;
@@ -48,6 +56,9 @@ final class AcknowledgementsController : UITableViewController {
         
         tableView.layoutMargins = UIEdgeInsets.zero
         tableView.separatorInset = UIEdgeInsets.zero
+        
+        tableView.dataSource = self
+        tableView.delegate = self
         
         guard let plistURL = Bundle.main.url(forResource: "Acknowledgements", withExtension: "plist") else {
             Self.logger.error("Failed to load Acknowledgements.plist")
@@ -61,16 +72,44 @@ final class AcknowledgementsController : UITableViewController {
     @objc public func didTapCloseButton() {
         navigationController?.popViewController(animated: true)
     }
+    
+    private func initTitleView() {
+        
+        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
+        
+        titleView?.title.text = Strings.SettingsItemAcknowledgements
+        titleView?.mediaView = self
+        
+        self.view.addSubview(titleView!)
+    }
+    
+    private func initConstraints() {
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
+        titleView?.translatesAutoresizingMaskIntoConstraints = false
+        
+        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+        titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
+        titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
+        
+        let titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
+        titleViewHeightAnchor?.isActive = true
+        
+        tableViewTopConstraint.constant = Global.shared.titleSize
+        titleView?.titleTrailingConstraint.constant = -80
+    }
+}
+
+extension AcknowledgementsController: UITableViewDelegate, UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return acknowledgements.count
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "AcknowledgementCell", for: indexPath) as! AcknowledgementCell
         let acknowledgement = acknowledgements[indexPath.row]
         cell.titleLabel.text = acknowledgement.object(forKey: "title") as? String
@@ -78,8 +117,28 @@ final class AcknowledgementsController : UITableViewController {
         return cell
     }
     
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
          return UITableView.automaticDimension
     }
+}
+
+extension AcknowledgementsController: MediaViewController {
+    
+    func zoomInGrid() {}
+    func zoomOutGrid() {}
+    func filter() {}
+    func edit() {}
+    func endEdit() {}
+    
+    func cancel() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    func titleTouched() {
+        tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+    }
+    
+    func updateLayout(_ layout: String) {}
+    func updateMediaType(_ type: Global.FilterType) {}
 }
 

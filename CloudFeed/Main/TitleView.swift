@@ -51,6 +51,7 @@ class TitleView: UIView {
     @IBOutlet weak var filterButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var filterButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var filterButtonTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var titleTrailingConstraint: NSLayoutConstraint!
     
     weak var mediaView: MediaViewController?
     
@@ -98,6 +99,11 @@ class TitleView: UIView {
     
     func hideFilterButton() {
         filterButton.isHidden = true
+    }
+    
+    func initMenu(menu: UIMenu) {
+        menuButton.menu = menu
+        backButtonConstraint.constant = 4
     }
     
     func initMenu(allowEdit: Bool, layoutType: String, filterType: Global.FilterType) {
@@ -167,13 +173,15 @@ class TitleView: UIView {
         backButtonConstraint.constant = 4
     }
     
-    func initNavigation() {
+    func initNavigation(withMenu: Bool) {
         
         title.isHidden = false
         backButton.isHidden = false
         
         doneButton.isHidden = true
         cancelButton.isHidden = true
+        
+        menuButton.isHidden = !withMenu
     }
     
     func beginEdit() {

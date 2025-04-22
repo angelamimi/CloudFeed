@@ -12,7 +12,7 @@
         <!--Acknowledgements-->
         <scene sceneID="OG4-0c-9Sg">
             <objects>
-                <tableViewController storyboardIdentifier="acknowledgements" title="Acknowledgements" id="a97-07-QAM" customClass="AcknowledgementsController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="acknowledgementsOLD" title="Acknowledgements" id="a97-07-QAM" customClass="AcknowledgementsController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="QMw-aL-nyC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -27,6 +27,38 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ej4-Xd-nJD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="973" y="-688"/>
+        </scene>
+        <!--Acknowledgements Controller-->
+        <scene sceneID="rhv-2U-jyp">
+            <objects>
+                <viewController storyboardIdentifier="Acknowledgements" id="w98-2j-0u1" customClass="AcknowledgementsController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="xEJ-rN-Ggn">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="PZB-X6-n0h">
+                                <rect key="frame" x="0.0" y="118" width="393" height="666"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Gd-aa-nL7"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="6Gd-aa-nL7" firstAttribute="bottom" secondItem="PZB-X6-n0h" secondAttribute="bottom" id="6eV-EC-ige"/>
+                            <constraint firstItem="PZB-X6-n0h" firstAttribute="leading" secondItem="6Gd-aa-nL7" secondAttribute="leading" id="Fp2-Lb-1SS"/>
+                            <constraint firstItem="PZB-X6-n0h" firstAttribute="top" secondItem="6Gd-aa-nL7" secondAttribute="top" id="IFY-iq-fUV"/>
+                            <constraint firstItem="PZB-X6-n0h" firstAttribute="trailing" secondItem="6Gd-aa-nL7" secondAttribute="trailing" id="PzX-Ss-FU6"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="tableView" destination="PZB-X6-n0h" id="EnQ-ou-g7i"/>
+                        <outlet property="tableViewTopConstraint" destination="IFY-iq-fUV" id="N8b-qC-mS7"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="45V-Yj-Iw8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1811.4503816793892" y="-675.35211267605632"/>
         </scene>
         <!--Settings-->
         <scene sceneID="5rG-2U-jWo">
@@ -125,15 +157,11 @@
                             <constraint firstItem="W00-FN-fR1" firstAttribute="bottom" secondItem="XZE-fJ-x6B" secondAttribute="bottom" constant="20" id="xNh-hk-Got"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Settings" id="Tkp-FB-ZVc">
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="rFT-Vi-fhu">
-                            <color key="tintColor" systemColor="labelColor"/>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Settings" id="Tkp-FB-ZVc"/>
                     <connections>
                         <outlet property="activityIndicator" destination="uKk-De-qmb" id="2tq-d9-Hf5"/>
-                        <outlet property="addAccountButton" destination="rFT-Vi-fhu" id="xMr-Ut-fCv"/>
                         <outlet property="tableView" destination="XZE-fJ-x6B" id="iqp-OC-9Wa"/>
+                        <outlet property="tableViewTopConstraint" destination="gh3-3z-1It" id="GAH-gr-zcS"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zX3-PX-o9U" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -166,7 +194,7 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondarySystemGroupedBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -175,7 +203,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGroupedBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

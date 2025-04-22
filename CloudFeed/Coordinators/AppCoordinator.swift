@@ -63,12 +63,15 @@ final class AppCoordinator: NSObject, Coordinator {
                 }
             }
             
-            if let currentUser = Environment.current.currentUser {
+            if Environment.current.currentUser != nil {
                 
-                dataService.appendSession(userAccount: currentUser)
-                
+                for acc in dataService.getAccountsOrderedByAlias() {
+                    dataService.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
+                }
+
                 let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
                 mainCoordinator.start()
+                
             } else {
                 let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)
                 loginServerCoordinator.start()
