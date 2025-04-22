@@ -110,7 +110,7 @@ class FavoritesController: CollectionController {
     private func syncFavorites() {
 
         if collectionView.isHidden == true && emptyView.isHidden == false {
-            emptyView.hide() //hiding empty view during sync looks better
+            emptyView.hide(animate: false) //hiding empty view during sync looks better
         }
         
         let visibleDateRange = getVisibleItemData()

@@ -51,17 +51,33 @@ class EmptyView: UIView {
         descriptionLabel.text = description
     }
     
-    func hide() {
-        isHidden = true
+    func hide(animate: Bool = true) {
+        setVisibility(isHidden: true, animate: animate)
     }
     
     func show() {
-        isHidden = false
+        setVisibility(isHidden: false, animate: true)
     }
     
     func updateText(title: String, description: String) {
         titleLabel.text = title
         descriptionLabel.text = description
+    }
+    
+    private func setVisibility(isHidden: Bool, animate: Bool) {
+        if animate {
+            if isHidden == false {
+                self.isHidden = isHidden
+            }
+            UIView.animate(withDuration: 0.4, animations: { [weak self] in
+                self?.alpha = isHidden ? 0 : 1
+            }, completion: { [weak self] _ in
+                self?.isHidden = isHidden
+            })
+        } else {
+            self.isHidden = isHidden
+            alpha = isHidden ? 0 : 1
+        }
     }
     
     private func initView() {
@@ -70,6 +86,7 @@ class EmptyView: UIView {
         
         view.frame = bounds
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        alpha = 0
         
         addSubview(view)
     }

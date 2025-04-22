@@ -106,7 +106,7 @@ class MediaController: CollectionController {
     private func syncMedia() {
 
         if collectionView.isHidden == true && emptyView.isHidden == false {
-            emptyView.hide() //hiding empty view during sync looks better
+            emptyView.hide(animate: false) //hiding empty view during sync looks better
         }
         
         let syncDateRange = getSyncDateRange()
