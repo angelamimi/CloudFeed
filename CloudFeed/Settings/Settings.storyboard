@@ -26,7 +26,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ej4-Xd-nJD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="973" y="-688"/>
+            <point key="canvasLocation" x="1030" y="-1473"/>
         </scene>
         <!--Acknowledgements Controller-->
         <scene sceneID="rhv-2U-jyp">
@@ -58,7 +58,76 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="45V-Yj-Iw8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1811.4503816793892" y="-675.35211267605632"/>
+            <point key="canvasLocation" x="1731" y="-1473"/>
+        </scene>
+        <!--Profile Controller-->
+        <scene sceneID="27H-M7-KbK">
+            <objects>
+                <viewController storyboardIdentifier="Profile" id="yYb-Z2-c5M" customClass="ProfileController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="gkF-BF-bkI">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="7aa-bY-IbB">
+                                <rect key="frame" x="8" y="118" width="393" height="674"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="700" id="CAl-hh-4nf"/>
+                                </constraints>
+                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="AvatarCell" rowHeight="200" id="Qgc-Hk-JkU" customClass="AvatarCell" customModule="CloudFeed" customModuleProvider="target">
+                                        <rect key="frame" x="20" y="55.333332061767578" width="353" height="200"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Qgc-Hk-JkU" id="hNz-dC-VWL">
+                                            <rect key="frame" x="0.0" y="0.0" width="353" height="200"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="wlZ-ZK-hEO">
+                                                    <rect key="frame" x="101.66666666666669" y="11" width="150" height="150"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="150" id="41c-XO-gV3"/>
+                                                        <constraint firstAttribute="height" constant="150" id="eXn-Wm-HCl"/>
+                                                    </constraints>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="wlZ-ZK-hEO" firstAttribute="top" secondItem="hNz-dC-VWL" secondAttribute="topMargin" id="Eua-rN-Zpd"/>
+                                                <constraint firstItem="wlZ-ZK-hEO" firstAttribute="centerX" secondItem="hNz-dC-VWL" secondAttribute="centerX" id="gmO-2R-3Mn"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
+                                        <color key="tintColor" systemColor="labelColor"/>
+                                        <connections>
+                                            <outlet property="avatarImageView" destination="wlZ-ZK-hEO" id="CgP-sL-KYr"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="SIs-7a-gvV">
+                                <rect key="frame" x="178" y="407.66666666666669" width="37" height="37"/>
+                                <color key="color" systemColor="labelColor"/>
+                            </activityIndicatorView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="RyP-Ow-G0j"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="7aa-bY-IbB" firstAttribute="trailing" secondItem="RyP-Ow-G0j" secondAttribute="trailing" constant="8" id="AII-gj-anW"/>
+                            <constraint firstItem="7aa-bY-IbB" firstAttribute="top" secondItem="RyP-Ow-G0j" secondAttribute="top" id="IWx-nD-2z3"/>
+                            <constraint firstItem="7aa-bY-IbB" firstAttribute="leading" secondItem="RyP-Ow-G0j" secondAttribute="leading" constant="8" id="PbH-xm-vxV"/>
+                            <constraint firstItem="SIs-7a-gvV" firstAttribute="centerY" secondItem="gkF-BF-bkI" secondAttribute="centerY" id="cpS-Kv-wAT"/>
+                            <constraint firstItem="SIs-7a-gvV" firstAttribute="centerX" secondItem="gkF-BF-bkI" secondAttribute="centerX" id="edV-em-YcM"/>
+                            <constraint firstItem="7aa-bY-IbB" firstAttribute="bottom" secondItem="RyP-Ow-G0j" secondAttribute="bottom" constant="8" id="lH4-h4-fVS"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="activityIndicator" destination="SIs-7a-gvV" id="dPc-E3-aGf"/>
+                        <outlet property="tableView" destination="7aa-bY-IbB" id="vuf-D0-90j"/>
+                        <outlet property="tableViewTopConstraint" destination="IWx-nD-2z3" id="HNv-dX-Ifw"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="eq3-gm-X6W" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1030" y="-688"/>
         </scene>
         <!--Settings-->
         <scene sceneID="5rG-2U-jWo">
@@ -68,10 +137,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="uKk-De-qmb">
-                                <rect key="frame" x="178" y="407.66666666666669" width="37" height="37"/>
-                                <color key="color" systemColor="labelColor"/>
-                            </activityIndicatorView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="XZE-fJ-x6B">
                                 <rect key="frame" x="-8" y="162" width="409" height="602"/>
                                 <constraints>
@@ -144,6 +209,10 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="uKk-De-qmb">
+                                <rect key="frame" x="178" y="407.66666666666669" width="37" height="37"/>
+                                <color key="color" systemColor="labelColor"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="W00-FN-fR1"/>
                         <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>

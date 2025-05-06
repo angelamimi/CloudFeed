@@ -25,12 +25,14 @@ import UIKit
 protocol CacheDelegate: AnyObject {
     func cacheCleared()
     func clearUser()
+    func reset()
 }
 
 @MainActor
 final class SettingsCoordinator {
     
-    let navigationController: UINavigationController
+    weak var navigationController: UINavigationController!
+    
     let dataService: DataService
     let cacheDelegate: CacheDelegate
     
@@ -46,6 +48,12 @@ final class SettingsCoordinator {
     
     func showAcknowledgements() {
         let controller = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: "Acknowledgements")
+        navigationController.pushViewController(controller, animated: true)
+    }
+    
+    func showProfile() {
+        let controller = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: "Profile") as! ProfileController
+        controller.viewModel = ProfileViewModel(delegate: controller, accountDelegate: controller, dataService: dataService, coordinator: self)
         navigationController.pushViewController(controller, animated: true)
     }
     
@@ -72,10 +80,26 @@ final class SettingsCoordinator {
         navigationController.present(alert, animated: true)
     }
     
+    func checkRemoveAccount(remove: @escaping () -> Void) {
+        
+        let alert = UIAlertController(title: Strings.ProfileRemoveTitle, message: Strings.ProfileRemoveMessage, preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: Strings.CancelAction, style: .cancel))
+        alert.addAction(UIAlertAction(title: Strings.ProfileRemoveAction, style: .destructive, handler: { _ in
+            remove()
+        }))
+        
+        navigationController.present(alert, animated: true)
+    }
+    
     func launchAddAccount() {
         let coordinator = LoginServerModalCoordinator(navigationController: navigationController, dataService: dataService)
         coordinator.delegate = self
         coordinator.start()
+    }
+    
+    func applicationReset() {
+        cacheDelegate.reset()
     }
 }
 

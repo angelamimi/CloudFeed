@@ -33,15 +33,21 @@ final class LoginViewModel: NSObject {
     
     weak var delegate: LoginDelegate?
     weak var dataService: DataService?
+    let coordinator: LoginWebCoordinator
     
     private static let logger = Logger(
             subsystem: Bundle.main.bundleIdentifier!,
             category: String(describing: LoginViewModel.self)
         )
     
-    init(delegate: LoginDelegate, dataService: DataService) {
+    init(delegate: LoginDelegate, dataService: DataService, coordinator: LoginWebCoordinator) {
         self.delegate = delegate
         self.dataService = dataService
+        self.coordinator = coordinator
+    }
+    
+    func showInvalidURLPrompt() {
+        coordinator.showInvalidURLPrompt()
     }
 
     func loginPoll(token: String, endpoint: String) async {

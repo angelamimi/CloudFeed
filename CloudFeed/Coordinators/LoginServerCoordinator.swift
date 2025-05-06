@@ -38,9 +38,8 @@ final class LoginServerCoordinator : LoginCoordinator {
 
         let loginServerController = navigationController.viewControllers[0] as! LoginServerController
         
-        loginServerController.viewModel = LoginServerViewModel(dataService: dataService)
-        loginServerController.coordinator = self
-        
+        loginServerController.viewModel = LoginServerViewModel(dataService: dataService, coordinator: self)
+
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
     }

@@ -54,6 +54,15 @@ extension Strings {
     public static let SettingsLabelCacheSize = NSLocalizedString("Settings.Label.CacheSize", comment: "")
     public static let SettingsMenuAddAccount = NSLocalizedString("Settings.Menu.AddAccount", comment: "")
     
+    //Profile
+    public static let ProfileNavTitle = NSLocalizedString("Profile.Nav.Title", comment: "")
+    public static let ProfileItemName = NSLocalizedString("Profile.Item.Name", comment: "")
+    public static let ProfileItemEmail = NSLocalizedString("Profile.Item.Email", comment: "")
+    public static let ProfileItemRemoveAccount = NSLocalizedString("Profile.Item.RemoveAccount", comment: "")
+    public static let ProfileRemoveTitle = NSLocalizedString("Profile.Remove.Title", comment: "")
+    public static let ProfileRemoveMessage = NSLocalizedString("Profile.Remove.Message", comment: "")
+    public static let ProfileRemoveAction = NSLocalizedString("Profile.Remove.Action", comment: "")
+    
     //Initialization and Login
     public static let InitErrorMessage = NSLocalizedString("Init.Error.Message", comment: "")
     public static let UrlErrorMessage = NSLocalizedString("Url.Error.Message", comment: "")

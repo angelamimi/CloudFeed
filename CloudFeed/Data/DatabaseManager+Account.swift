@@ -107,11 +107,10 @@ extension DatabaseManager {
         return tableAccount.init(value: result)
     }
     
-    func getAccountsOrderedByAlias() -> [tableAccount] {
+    func getAccountsOrdered() -> [tableAccount] {
         do {
             let realm = try Realm()
             let sorted = [SortDescriptor(keyPath: "active", ascending: false),
-                          SortDescriptor(keyPath: "alias", ascending: true),
                           SortDescriptor(keyPath: "displayName", ascending: true),
                           SortDescriptor(keyPath: "user", ascending: true)]
             let results = realm.objects(tableAccount.self).sorted(by: sorted)

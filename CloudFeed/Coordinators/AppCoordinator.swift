@@ -65,7 +65,7 @@ final class AppCoordinator: NSObject, Coordinator {
             
             if Environment.current.currentUser != nil {
                 
-                for acc in dataService.getAccountsOrderedByAlias() {
+                for acc in dataService.getAccountsOrdered() {
                     dataService.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
                 }
 

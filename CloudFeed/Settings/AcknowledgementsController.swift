@@ -38,13 +38,6 @@ final class AcknowledgementsController : UIViewController { //UITableViewControl
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.title = Strings.SettingsItemAcknowledgements
-        
-        let item = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .done, target: self, action: #selector(didTapCloseButton))
-        
-        item.tintColor = .label
-        navigationItem.leftBarButtonItem = item
-        
         initTitleView()
         initConstraints()
         titleView?.initNavigation(withMenu: false)
@@ -78,7 +71,7 @@ final class AcknowledgementsController : UIViewController { //UITableViewControl
         titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
         
         titleView?.title.text = Strings.SettingsItemAcknowledgements
-        titleView?.mediaView = self
+        titleView?.navigationDelegate = self
         
         self.view.addSubview(titleView!)
     }
@@ -122,13 +115,7 @@ extension AcknowledgementsController: UITableViewDelegate, UITableViewDataSource
     }
 }
 
-extension AcknowledgementsController: MediaViewController {
-    
-    func zoomInGrid() {}
-    func zoomOutGrid() {}
-    func filter() {}
-    func edit() {}
-    func endEdit() {}
+extension AcknowledgementsController: NavigationDelegate {
     
     func cancel() {
         navigationController?.popViewController(animated: true)
@@ -137,8 +124,5 @@ extension AcknowledgementsController: MediaViewController {
     func titleTouched() {
         tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }
-    
-    func updateLayout(_ layout: String) {}
-    func updateMediaType(_ type: Global.FilterType) {}
 }
 

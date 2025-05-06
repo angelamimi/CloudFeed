@@ -61,7 +61,7 @@ class PagerController: UIViewController {
         titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
         view.addSubview(titleView!)
         
-        titleView?.mediaView = self
+        titleView?.navigationDelegate = self
         titleView?.title.text = getFileName(metadata)
         titleView?.initNavigation(withMenu: true)
         
@@ -438,7 +438,7 @@ extension PagerController: UIGestureRecognizerDelegate {
     }
 }
 
-extension PagerController: MediaViewController {
+extension PagerController: NavigationDelegate {
     
     func cancel() {
         navigationController?.popViewController(animated: true)
@@ -448,13 +448,6 @@ extension PagerController: MediaViewController {
         }
     }
     
-    func updateMediaType(_ type: Global.FilterType) {}
-    func updateLayout(_ layout: String) {}
-    func zoomInGrid() {}
-    func zoomOutGrid() {}
-    func edit() {}
-    func endEdit() {}
     func titleTouched() {}
-    func filter() {}
 }
 

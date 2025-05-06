@@ -24,21 +24,24 @@ import UIKit
 final class MainCoordinator : NSObject, Coordinator {
     
     private let window: UIWindow
-    private let tabBarController: UITabBarController
+    private let dataService: DataService
+
+    private weak var tabBarController: UITabBarController?
     
     init(window: UIWindow, dataService: DataService) {
         
         self.window = window
+        self.dataService = dataService
         
         if window.rootViewController is UITabBarController {
-            tabBarController = window.rootViewController as! UITabBarController
+            tabBarController = window.rootViewController as? UITabBarController
         } else {
-            tabBarController = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as! UITabBarController
+            tabBarController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainTabController") as? UITabBarController
         }
         
         super.init()
-
-        tabBarController.delegate = self
+        
+        tabBarController!.delegate = self
         initTabCoordinators(dataService: dataService)
     }
     
@@ -59,36 +62,49 @@ extension MainCoordinator: UITabBarControllerDelegate {
 
 extension MainCoordinator: CacheDelegate {
     
+    func reset() {
+        clearSettingsController()
+        clearMediaController()
+        clearFavoritesController()
+    }
+    
     func clearUser() {
-        
-        let settingsNavController = tabBarController.viewControllers?[2] as! UINavigationController
-        let settingsController = settingsNavController.viewControllers[0] as! SettingsController
-
-        settingsController.clear()
+        clearSettingsController()
     }
     
     func cacheCleared() {
-
-        let mediaNavController = tabBarController.viewControllers?[0] as! UINavigationController
-        let favoritesNavController = tabBarController.viewControllers?[1] as! UINavigationController
-        
-        let mediaViewController = mediaNavController.viewControllers[0] as! MediaController
-        let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
-        
-        mediaViewController.clear()
-        favoritesViewController.clear()
+        clearMediaController()
+        clearFavoritesController()
     }
 }
 
 extension MainCoordinator {
     
+    private func clearMediaController() {
+        let mediaNavController = tabBarController?.viewControllers?[0] as! UINavigationController
+        let mediaViewController = mediaNavController.viewControllers[0] as! MediaController
+        mediaViewController.clear()
+    }
+    
+    private func clearFavoritesController() {
+        let favoritesNavController = tabBarController?.viewControllers?[1] as! UINavigationController
+        let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
+        favoritesViewController.clear()
+    }
+    
+    private func clearSettingsController() {
+        let settingsNavController = tabBarController?.viewControllers?[2] as! UINavigationController
+        let settingsController = settingsNavController.viewControllers[0] as! SettingsController
+        settingsController.clear()
+    }
+    
     private func initTabCoordinators(dataService: DataService) {
 
-        guard tabBarController.viewControllers != nil && tabBarController.viewControllers?.count == 3 else { return }
+        guard tabBarController?.viewControllers != nil && tabBarController?.viewControllers?.count == 3 else { return }
 
-        let mediaNavController = tabBarController.viewControllers?[0] as! UINavigationController
-        let favoritesNavController = tabBarController.viewControllers?[1] as! UINavigationController
-        let settingsNavController = tabBarController.viewControllers?[2] as! UINavigationController
+        let mediaNavController = tabBarController?.viewControllers?[0] as! UINavigationController
+        let favoritesNavController = tabBarController?.viewControllers?[1] as! UINavigationController
+        let settingsNavController = tabBarController?.viewControllers?[2] as! UINavigationController
         
         let mediaViewController = mediaNavController.viewControllers[0] as! MediaController
         let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
@@ -96,13 +112,13 @@ extension MainCoordinator {
         
         let cacheManager = CacheManager(dataService: dataService)
         
-        mediaViewController.coordinator = MediaCoordinator(navigationController: mediaNavController, dataService: dataService)
-        favoritesViewController.coordinator = FavoritesCoordinator(navigationController: favoritesNavController, dataService: dataService)
-        settingsViewController.coordinator = SettingsCoordinator(navigationController: settingsNavController, dataService: dataService, cacheDelegate: self)
+        let mediaCoordinator = MediaCoordinator(navigationController: mediaNavController, dataService: dataService)
+        let favoriteCoordinator = FavoritesCoordinator(navigationController: favoritesNavController, dataService: dataService)
+        let settingCoordinator = SettingsCoordinator(navigationController: settingsNavController, dataService: dataService, cacheDelegate: self)
         
-        mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService, cacheManager: cacheManager)
-        favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager)
-        settingsViewController.viewModel = SettingsViewModel(delegate: settingsViewController, dataService: dataService)
+        mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService, cacheManager: cacheManager, coordinator: mediaCoordinator)
+        favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager, coordinator: favoriteCoordinator)
+        settingsViewController.viewModel = SettingsViewModel(delegate: settingsViewController, profileDelegate: settingsViewController, dataService: dataService, coordinator: settingCoordinator)
         
         mediaViewController.delegate = mediaViewController
         favoritesViewController.delegate = favoritesViewController

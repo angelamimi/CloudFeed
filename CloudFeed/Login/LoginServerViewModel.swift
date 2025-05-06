@@ -26,9 +26,31 @@ import UIKit
 final class LoginServerViewModel: NSObject {
     
     let dataService: DataService
+    let coordinator: LoginCoordinator
     
-    init(dataService: DataService) {
+    init(dataService: DataService, coordinator: LoginCoordinator) {
         self.dataService = dataService
+        self.coordinator = coordinator
+    }
+    
+    func showInvalidURLPrompt() {
+        coordinator.showInvalidURLPrompt()
+    }
+    
+    func showUnsupportedVersionErrorPrompt() {
+        coordinator.showUnsupportedVersionErrorPrompt()
+    }
+    
+    func showUntrustedWarningPrompt(host: String) {
+        coordinator.showUntrustedWarningPrompt(host: host)
+    }
+    
+    func showServerConnectionErrorPrompt() {
+        coordinator.showServerConnectionErrorPrompt()
+    }
+    
+    func navigateToWebLogin(token: String, endpoint: String, login: String) {
+        coordinator.navigateToWebLogin(token: token, endpoint: endpoint, login: login)
     }
     
     func beginLoginFlow(url: String) async -> (token: String, endpoint: String, login: String, supported: Bool, errorCode: Int?)? {

@@ -41,8 +41,7 @@ class LoginServerController: UIViewController {
     @IBAction func closeButtonClicked(_ sender: Any) {
         dismiss(animated: true)
     }
-    
-    var coordinator: LoginCoordinator!
+
     var viewModel: LoginServerViewModel!
     
     var centerOffset: Double = 0
@@ -58,6 +57,7 @@ class LoginServerController: UIViewController {
         
         if parent != nil && parent!.isBeingPresented {
             serverURLLabel.textColor = .label
+            serverURLTextField.textColor = .label
             serverURLTextField.backgroundColor = .systemBackground
             serverURLTextField.borderStyle = .line
             logoImageView.isHidden = true
@@ -134,23 +134,23 @@ class LoginServerController: UIViewController {
         guard let url = validateUrl() else { return }
         
         Task { [weak self] in
-            
+
             if let result = await self?.viewModel.beginLoginFlow(url: url) {
                if !result.supported {
-                    self?.coordinator.showUnsupportedVersionErrorPrompt()
+                    self?.viewModel.showUnsupportedVersionErrorPrompt()
                 } else if result.errorCode != nil {
                     if result.errorCode == NSURLErrorServerCertificateUntrusted {
                         if let host = URL(string: url)?.host() {
-                            self?.coordinator.showUntrustedWarningPrompt(host: host)
+                            self?.viewModel.showUntrustedWarningPrompt(host: host)
                         }
                     } else {
-                        self?.coordinator.showServerConnectionErrorPrompt()
+                        self?.viewModel.showServerConnectionErrorPrompt()
                     }
                 } else {
-                    self?.coordinator.navigateToWebLogin(token: result.token, endpoint: result.endpoint, login: result.login)
+                    self?.viewModel.navigateToWebLogin(token: result.token, endpoint: result.endpoint, login: result.login)
                 }
             } else {
-                self?.coordinator.showServerConnectionErrorPrompt()
+                self?.viewModel.showServerConnectionErrorPrompt()
             }
         }
     }
@@ -158,13 +158,13 @@ class LoginServerController: UIViewController {
     private func validateUrl() -> String? {
         
         guard var url = serverURLTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
-            coordinator.showInvalidURLPrompt()
+            viewModel.showInvalidURLPrompt()
             return nil
         }
         
         if url.hasSuffix("/") { url = String(url.dropLast()) }
         if url.count == 0 {
-            coordinator.showInvalidURLPrompt()
+            viewModel.showInvalidURLPrompt()
             return nil
         }
         

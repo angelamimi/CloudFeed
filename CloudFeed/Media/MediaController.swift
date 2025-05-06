@@ -25,7 +25,6 @@ import UIKit
 
 class MediaController: CollectionController {
     
-    var coordinator: MediaCoordinator!
     var viewModel: MediaViewModel!
 
     private static let logger = Logger(
@@ -43,12 +42,12 @@ class MediaController: CollectionController {
         collectionView.delegate = self
         
         viewModel.initDataSource(collectionView: collectionView)
-        initTitleView(mediaView: self, allowEdit: false, layoutType: viewModel.getLayoutType())
+        initTitleView(mediaView: self, navigationDelegate: self, allowEdit: false, layoutType: viewModel.getLayoutType())
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
         initConstraints()
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         viewModel.cancel()
     }
@@ -129,7 +128,7 @@ class MediaController: CollectionController {
                 || metadata!.classFile == NKCommon.TypeClassFile.video.rawValue) else { return }
         
         let metadatas = viewModel.getItems()
-        coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
+        viewModel.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
     }
     
     private func getSyncDateRange() -> (toDate: Date?, fromDate: Date?) {
@@ -232,11 +231,8 @@ extension MediaController: MediaDelegate {
         refreshVisibleItems()
     }
     
-    func favoriteUpdated(error: Bool) {
+    func favoriteUpdated(error: Bool) { 
         activityIndicator.stopAnimating()
-        if error {
-            coordinator.showFavoriteUpdateFailedError()
-        }
     }
     
     func searching() {
@@ -247,9 +243,7 @@ extension MediaController: MediaDelegate {
     
     func searchResultReceived(resultItemCount: Int?) {
         if resultItemCount == nil {
-            coordinator.showLoadFailedError(retry: { [weak self] in
-                self?.syncMedia()
-            })
+            syncMedia()
             displayResults(refresh: false)
         }
     }
@@ -267,7 +261,7 @@ extension MediaController: UICollectionViewDelegate {
         guard let image = cell.imageView.image else { return nil }
         guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return nil }
         
-        let previewController = self.coordinator.getPreviewController(metadata: metadata)
+        let previewController = viewModel.getPreviewController(metadata: metadata)
         
         previewController.preferredContentSize = image.size
 
@@ -315,15 +309,19 @@ extension MediaController: MediaViewController {
     }
     
     func filter() {
-        coordinator.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
+        viewModel.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
     }
+    
+    func edit() {}
+    func endEdit() {}
+}
+
+extension MediaController: NavigationDelegate {
     
     func titleTouched() {
         scrollToTop(animated: true)
     }
     
-    func edit() {}
-    func endEdit() {}
     func cancel() {}
 }
 
@@ -335,10 +333,10 @@ extension MediaController: Filterable {
             emptyView.hide() //looks better when searching again
         }
         
-        coordinator.dismissFilter()
+        viewModel.dismissFilter()
         
         if to < from {
-            coordinator.showInvalidFilterError()
+            viewModel.showInvalidFilterError()
         } else {
 
             showEditFilter()
@@ -352,7 +350,7 @@ extension MediaController: Filterable {
     
     func removeFilter() {
         
-        coordinator.dismissFilter()
+        viewModel.dismissFilter()
         
         hideEditFilter()
         hideEmptyView()

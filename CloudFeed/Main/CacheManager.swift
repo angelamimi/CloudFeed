@@ -24,7 +24,7 @@ import os.log
 @MainActor
 final class CacheManager {
     
-    private let dataService: DataService
+    private weak var dataService: DataService!
     private let cache: NSCache<NSString, UIImage>
     private let queue: OperationQueue
         

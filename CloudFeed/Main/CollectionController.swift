@@ -180,12 +180,13 @@ class CollectionController: UIViewController {
         collectionView.isPrefetchingEnabled = false
     }
     
-    func initTitleView(mediaView: MediaViewController, allowEdit: Bool, layoutType: String) {
+    func initTitleView(mediaView: MediaViewController, navigationDelegate: NavigationDelegate, allowEdit: Bool, layoutType: String) {
         
         titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
         self.view.addSubview(titleView!)
         
         titleView?.mediaView = mediaView
+        titleView?.navigationDelegate = navigationDelegate
         titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType, filterType: filterType)
     }
     

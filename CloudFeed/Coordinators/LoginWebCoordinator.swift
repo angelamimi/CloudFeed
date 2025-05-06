@@ -24,7 +24,7 @@ import UIKit
 final class LoginWebCoordinator : Coordinator {
     
     private let delegate: LoginDelegate
-    private let navigationController: UINavigationController
+    private weak var navigationController: UINavigationController!
     private let dataService: DataService
     
     private let token: String
@@ -49,9 +49,7 @@ final class LoginWebCoordinator : Coordinator {
         loginController.token = token
         loginController.endpoint = endpoint
         loginController.login = login
-        
-        loginController.coordinator = self
-        loginController.viewModel = LoginViewModel(delegate: self, dataService: dataService)
+        loginController.viewModel = LoginViewModel(delegate: self, dataService: dataService, coordinator: self)
         
         self.navigationController.pushViewController(loginController, animated: true)
     }

@@ -29,10 +29,14 @@ protocol MediaViewController: AnyObject {
     func filter()
     func edit()
     func endEdit()
-    func cancel()
-    func titleTouched()
     func updateLayout(_ layout: String)
     func updateMediaType(_ type: Global.FilterType)
+}
+
+@MainActor
+protocol NavigationDelegate: AnyObject {
+    func cancel()
+    func titleTouched()
 }
 
 class TitleView: UIView {
@@ -54,6 +58,7 @@ class TitleView: UIView {
     @IBOutlet weak var titleTrailingConstraint: NSLayoutConstraint!
     
     weak var mediaView: MediaViewController?
+    weak var navigationDelegate: NavigationDelegate?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -222,15 +227,15 @@ class TitleView: UIView {
         doneButton.isHidden = true
         cancelButton.isHidden = true
         
-        mediaView?.cancel()
+        navigationDelegate?.cancel()
     }
     
     @objc func goBack() {
-        mediaView?.cancel()
+        navigationDelegate?.cancel()
     }
     
     @objc func titleTouched() {
-        mediaView?.titleTouched()
+        navigationDelegate?.titleTouched()
     }
     
     @objc func editFilter() {

@@ -26,21 +26,26 @@ protocol UserDelegate: AnyObject {
     func currentUserChanged()
 }
 
+@MainActor
+protocol LoginUserDelegate: AnyObject {
+    func loginSuccess()
+}
+
 final class LoginServerModalCoordinator : LoginCoordinator {
     
-    weak var delegate: UserDelegate?
+    var delegate: UserDelegate?
+    var loginDelegate: LoginUserDelegate?
     
     override func start() {
         
-        let loginNavigationController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController() as! UINavigationController
-        let loginServerController = loginNavigationController.viewControllers[0] as! LoginServerController
+        weak var loginNavigationController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController() as? UINavigationController
+        weak var loginServerController = loginNavigationController?.viewControllers[0] as? LoginServerController
         
-        loginServerController.viewModel = LoginServerViewModel(dataService: dataService)
-        loginServerController.coordinator = self
+        loginServerController?.viewModel = LoginServerViewModel(dataService: dataService, coordinator: self)
 
-        loginNavigationController.modalPresentationStyle = .fullScreen
+        loginNavigationController?.modalPresentationStyle = .fullScreen
         
-        navigationController.present(loginNavigationController, animated: true)
+        navigationController.present(loginNavigationController!, animated: true)
     }
     
     override func navigateToWebLogin(token: String, endpoint: String, login: String) {
@@ -50,6 +55,7 @@ final class LoginServerModalCoordinator : LoginCoordinator {
     }
     
     func handleLoginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
+        loginDelegate?.loginSuccess()
         delegate?.currentUserChanged()
         navigationController.dismiss(animated: true)
     }

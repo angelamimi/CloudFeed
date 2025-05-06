@@ -79,6 +79,10 @@ final class DataService: NSObject, Sendable {
                                        groupIdentifier: Global.shared.groupIdentifier)
     }
     
+    func removeSession(account: String) {
+        nextcloudService.removeSession(account: account)
+    }
+    
     func writeCertificate(host: String) {
         
         if let path = store.certificatesDirectory?.path {
@@ -111,13 +115,20 @@ final class DataService: NSObject, Sendable {
         databaseManager.deleteAccount(account)
     }
     
+    func removeAccount(_ account: String) async {
+        clearDatabase(account: account, removeAccount: true)
+        removeSession(account: account)
+        store.setPassword(account, password: nil)
+        await store.clearCache()
+    }
+    
     func addAccount(_ account: String, urlBase: String, user: String, password: String) {
         databaseManager.addAccount(account, urlBase: urlBase, user: user, password: password)
         store.setPassword(account, password: password)
     }
     
-    func getAccountsOrderedByAlias() -> [tableAccount] {
-        return databaseManager.getAccountsOrderedByAlias()
+    func getAccountsOrdered() -> [tableAccount] {
+        return databaseManager.getAccountsOrdered()
     }
     
     func updateAccount(account: String) async {

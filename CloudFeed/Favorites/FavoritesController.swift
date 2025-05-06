@@ -25,7 +25,7 @@ import UIKit
 
 class FavoritesController: CollectionController {
     
-    var coordinator: FavoritesCoordinator!
+    //var coordinator: FavoritesCoordinator!
     var viewModel: FavoritesViewModel!
     
     private var layout: CollectionLayout?
@@ -48,7 +48,7 @@ class FavoritesController: CollectionController {
         viewModel.initDataSource(collectionView: collectionView)
         
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
-        initTitleView(mediaView: self, allowEdit: true, layoutType: viewModel.getLayoutType())
+        initTitleView(mediaView: self, navigationDelegate: self, allowEdit: true, layoutType: viewModel.getLayoutType())
         initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
         initConstraints()
     }
@@ -133,7 +133,7 @@ class FavoritesController: CollectionController {
                 || metadata!.classFile == NKCommon.TypeClassFile.video.rawValue) else { return }
         
         let metadatas = viewModel.getItems()
-        coordinator.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
+        viewModel.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
     }
     
     private func bulkEdit() async {
@@ -259,7 +259,7 @@ extension FavoritesController: FavoritesDelegate {
             collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
                 self?.collectionView.deselectItem(at: $0, animated: false)
             }
-            coordinator.showFavoriteUpdateFailedError()
+            viewModel.showFavoriteUpdateFailedError()
         }
     }
     
@@ -271,7 +271,7 @@ extension FavoritesController: FavoritesDelegate {
     
     func fetchResultReceived(resultItemCount: Int?) {
         if resultItemCount == nil {
-            coordinator.showLoadfailedError()
+            viewModel.showLoadfailedError()
             displayResults(refresh: false)
         }
     }
@@ -324,10 +324,6 @@ extension FavoritesController: MediaViewController {
         }
     }
     
-    func titleTouched() {
-        scrollToTop()
-    }
-    
     func edit() {
         if viewModel.currentItemCount() > 0 {
             titleBeginEdit()
@@ -343,6 +339,17 @@ extension FavoritesController: MediaViewController {
         }
     }
     
+    func filter() {
+        viewModel.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
+    }
+}
+
+extension FavoritesController: NavigationDelegate {
+    
+    func titleTouched() {
+        scrollToTop()
+    }
+    
     func cancel() {
 
         collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
@@ -352,10 +359,6 @@ extension FavoritesController: MediaViewController {
         isEditing = false
         collectionView.allowsMultipleSelection = false
         reloadSection()
-    }
-    
-    func filter() {
-        coordinator.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
     }
 }
 
@@ -367,10 +370,10 @@ extension FavoritesController: Filterable {
             emptyView.hide() //looks better when searching again
         }
         
-        coordinator.dismissFilter()
+        viewModel.dismissFilter()
         
         if to < from {
-            coordinator.showInvalidFilterError()
+            viewModel.showInvalidFilterError()
         } else {
 
             showEditFilter()
@@ -384,7 +387,7 @@ extension FavoritesController: Filterable {
     
     func removeFilter() {
         
-        coordinator.dismissFilter()
+        viewModel.dismissFilter()
         
         hideEditFilter()
         hideEmptyView()
@@ -425,7 +428,7 @@ extension FavoritesController: UICollectionViewDelegate {
         guard let image = cell.imageView.image else { return nil }
         guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return nil }
         
-        let previewController = self.coordinator.getPreviewController(metadata: metadata)
+        let previewController = viewModel.getPreviewController(metadata: metadata)
         
         previewController.preferredContentSize = image.size
 

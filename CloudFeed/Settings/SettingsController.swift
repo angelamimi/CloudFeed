@@ -24,7 +24,6 @@ import UIKit
 
 class SettingsController: UIViewController {
     
-    var coordinator: SettingsCoordinator!
     var viewModel: SettingsViewModel!
 
     @IBOutlet weak var tableView: UITableView!
@@ -68,6 +67,12 @@ class SettingsController: UIViewController {
     }
 
     func clear() {
+
+        profileName = ""
+        profileEmail = ""
+        profileImage = nil
+        tableView.reloadData()
+        
         requestProfile()
         viewModel.clearCache()
     }
@@ -108,22 +113,20 @@ class SettingsController: UIViewController {
     }
     
     private func requestProfile() {
-        startActivityIndicator()
-        viewModel.requestProfile()
-    }
-    
-    private func acknowledgements() {
-        coordinator.showAcknowledgements()
-    }
-    
-    private func checkReset() {
-        coordinator.checkReset { [weak self] in
-            self?.reset()
+        if Environment.current.currentUser == nil {
+            viewModel.addAccount()
+        } else {
+            startActivityIndicator()
+            viewModel.requestProfile()
         }
     }
     
-    private func reset() {
-        viewModel.reset()
+    private func acknowledgements() {
+        viewModel.showAcknowledgements()
+    }
+    
+    private func checkReset() {
+        viewModel.checkReset()
     }
     
     private func calculateCacheSize() {
@@ -131,7 +134,7 @@ class SettingsController: UIViewController {
     }
     
     private func showProfileLoadfailedError() {
-        coordinator.showProfileLoadfailedError()
+        viewModel.showProfileLoadfailedError()
     }
     
     private func buildAccountsMenu() -> UIMenu {
@@ -166,13 +169,7 @@ class SettingsController: UIViewController {
             await viewModel.downloadAvatar(account: account, user: account.user)
             
             let image = await viewModel.loadAvatar(account: account)
-            let name: String
-            
-            if account.alias.isEmpty {
-                name = account.displayName
-            } else {
-                name = account.alias
-            }
+            let name = account.displayName
             
             let action = UIAction(title: name, image: image, state: account.active ? .on : .off) { [weak self] _ in
                 if !account.active {
@@ -187,7 +184,7 @@ class SettingsController: UIViewController {
     }
     
     private func addAccount() {
-        coordinator.launchAddAccount()
+        viewModel.addAccount()
     }
     
     private func changeAccount(account: String) {
@@ -199,13 +196,16 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        if indexPath.section == 1 && indexPath.item == 0 {
+        if indexPath.section == 0 && indexPath.item == 0 {
+            viewModel.showProfile()
+        } else if indexPath.section == 1 && indexPath.item == 0 {
             acknowledgements()
         } else if indexPath.section == 2 && indexPath.item == 0 {
             startActivityIndicator()
             viewModel.clearCache()
         } else if indexPath.section == 2 && indexPath.item == 1 {
             checkReset()
+            tableView.deselectRow(at: indexPath, animated: true)
         }
     }
     
@@ -245,6 +245,8 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             cell.updateProfileImage(profileImage)
             cell.updateProfile(profileEmail, fullName: profileName)
             
+            cell.accessoryType = .disclosureIndicator
+            
             return cell
             
         } else {
@@ -256,9 +258,9 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             content.textProperties.lineBreakMode = .byWordWrapping
             
             content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 24.0, leading: 0, bottom: 24.0, trailing: 0)
-            
+
             if indexPath.section == 1 && indexPath.item == 0 {
-                
+
                 content.image = UIImage(systemName: "person.wave.2")
                 content.text = Strings.SettingsItemAcknowledgements
                 cell.tintColor = UIColor.label
@@ -302,46 +304,10 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension SettingsController: SettingsDelegate {
+extension SettingsController: ProfileDelegate {
     
-    func userChangeError() {
-        DispatchQueue.main.async { [weak self] in
-            self?.stopActivityIndicator()
-            self?.coordinator.showProfileLoadfailedError()
-        }
-    }
-    
-    func userChanged() {
-        DispatchQueue.main.async { [weak self] in
-            self?.stopActivityIndicator()
-            self?.clear()
-        }
-    }
-    
-    func applicationReset() {
-        exit(0)
-    }
-    
-    func cacheCleared() {
-        coordinator.cacheCleared()
-        calculateCacheSize()
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.stopActivityIndicator()
-        }
-    }
-    
-    func cacheCalculated(cacheSize: Int64) {
-        
-        cacheSizeDescription = ByteCountFormatter.string(fromByteCount: cacheSize, countStyle: .binary)
-        
-        DispatchQueue.main.async { [weak self] in
-            if self?.tableView.window != nil {
-                self?.tableView.reloadRows(at: [IndexPath(item: 1, section: 0)], with: .automatic)
-                self?.tableView.reloadData()
-            }
-        }
-    }
+    func beginSwitchingAccounts() {}
+    func noAccountsFound() {}
     
     func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?) {
         
@@ -358,6 +324,44 @@ extension SettingsController: SettingsDelegate {
             
             if profileName == "" && profileEmail == "" {
                 self?.showProfileLoadfailedError()
+            }
+        }
+    }
+}
+
+extension SettingsController: SettingsDelegate {
+    
+    func userChangeError() {
+        DispatchQueue.main.async { [weak self] in
+            self?.stopActivityIndicator()
+            self?.viewModel.showProfileLoadfailedError()
+        }
+    }
+    
+    func userChanged() {
+        DispatchQueue.main.async { [weak self] in
+            self?.stopActivityIndicator()
+            self?.clear()
+        }
+    }
+    
+    func cacheCleared() {
+        
+        calculateCacheSize()
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.stopActivityIndicator()
+        }
+    }
+    
+    func cacheCalculated(cacheSize: Int64) {
+        
+        cacheSizeDescription = ByteCountFormatter.string(fromByteCount: cacheSize, countStyle: .binary)
+        
+        DispatchQueue.main.async { [weak self] in
+            if self?.tableView.window != nil {
+                self?.tableView.reloadRows(at: [IndexPath(item: 1, section: 0)], with: .automatic)
+                self?.tableView.reloadData()
             }
         }
     }

@@ -76,7 +76,8 @@ class MediaTests {
                 confirm()
             })
             
-            let viewModel = FavoritesViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager)
+            let coordinator = FavoritesCoordinator(navigationController: UINavigationController(), dataService: dataService!)
+            let viewModel = FavoritesViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager, coordinator: coordinator)
             viewModel.initDataSource(collectionView: collectionView)
             
             await viewModel.fetch(type: type, refresh: false)
@@ -107,7 +108,8 @@ class MediaTests {
                 confirm()
             })
             
-            let mediaViewModel = MediaViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager)
+            let coordinator = MediaCoordinator(navigationController: UINavigationController(), dataService: dataService!)
+            let mediaViewModel = MediaViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager, coordinator: coordinator)
             mediaViewModel.initDataSource(collectionView: collectionView)
 
             await mediaViewModel.metadataSearch(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, refresh: false)
@@ -139,7 +141,8 @@ class MediaTests {
                 confirm()
             })
             
-            let mediaViewModel = MediaViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager)
+            let coordinator = MediaCoordinator(navigationController: UINavigationController(), dataService: dataService!)
+            let mediaViewModel = MediaViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager, coordinator: coordinator)
             mediaViewModel.initDataSource(collectionView: collectionView)
             
             await mediaViewModel.filter(type: type, toDate: toDate, fromDate: fromDate)

@@ -61,6 +61,8 @@
 		3929A8882C35CEE6003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 3929A8862C35CEE6003B48CF /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		3929A8892C35EB5A003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 392718632C359F95001C57C0 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		393D18932C8C9B5100971014 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393D18922C8C9B5100971014 /* ControlsView.swift */; };
+		394F70102DB9579B00A34FEC /* ProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394F700F2DB9579B00A34FEC /* ProfileController.swift */; };
+		394F70122DB957EC00A34FEC /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394F70112DB957EC00A34FEC /* ProfileViewModel.swift */; };
 		395C14E52B1C03FF00074EB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 395C14E42B1C03FF00074EB8 /* Assets.xcassets */; };
 		395F3A1A2A9678340004FF32 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395F3A192A9678340004FF32 /* Environment.swift */; };
 		395F3A1C2A96812E0004FF32 /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395F3A1B2A96812E0004FF32 /* UserAccount.swift */; };
@@ -86,6 +88,7 @@
 		39A83B062D4D7D850059C403 /* CertificateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A83B052D4D7D850059C403 /* CertificateController.swift */; };
 		39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; };
 		39A896402C7FED9C003827B8 /* MobileVLCKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		39AD95882DB92B0D0032EF06 /* AvatarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AD95872DB92B0D0032EF06 /* AvatarCell.swift */; };
 		39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F0C29C53FD300704670 /* CollectionViewCell.swift */; };
 		39B03F0F29C53FD300704670 /* CollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39B03F0D29C53FD300704670 /* CollectionViewCell.xib */; };
 		39B03F1229C636B500704670 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F1129C636B500704670 /* SettingsController.swift */; };
@@ -199,6 +202,8 @@
 		392735B929BE52600058796A /* LoginServerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerController.swift; sourceTree = "<group>"; };
 		392735BD29BE738F0058796A /* CloudFeed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudFeed.entitlements; sourceTree = "<group>"; };
 		393D18922C8C9B5100971014 /* ControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsView.swift; sourceTree = "<group>"; };
+		394F700F2DB9579B00A34FEC /* ProfileController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileController.swift; sourceTree = "<group>"; };
+		394F70112DB957EC00A34FEC /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		395C14E42B1C03FF00074EB8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		395F3A192A9678340004FF32 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		395F3A1B2A96812E0004FF32 /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
@@ -222,6 +227,7 @@
 		399C88122D131D9700694EA2 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
 		39A83B052D4D7D850059C403 /* CertificateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateController.swift; sourceTree = "<group>"; };
 		39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MobileVLCKit.xcframework; path = Carthage/Build/MobileVLCKit.xcframework; sourceTree = "<group>"; };
+		39AD95872DB92B0D0032EF06 /* AvatarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCell.swift; sourceTree = "<group>"; };
 		39B03F0C29C53FD300704670 /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
 		39B03F0D29C53FD300704670 /* CollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionViewCell.xib; sourceTree = "<group>"; };
 		39B03F1129C636B500704670 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
@@ -482,6 +488,9 @@
 				39B03F1129C636B500704670 /* SettingsController.swift */,
 				391579A92AB3D8B800DFEAB1 /* SettingsViewModel.swift */,
 				3966634029DCD4E8005727D4 /* ProfileCell.swift */,
+				39AD95872DB92B0D0032EF06 /* AvatarCell.swift */,
+				394F700F2DB9579B00A34FEC /* ProfileController.swift */,
+				394F70112DB957EC00A34FEC /* ProfileViewModel.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -661,12 +670,14 @@
 				391579A82AB33F0000DFEAB1 /* FavoritesViewModel.swift in Sources */,
 				39271D6429D9091600522DFD /* DetailCell.swift in Sources */,
 				39E1701E2D271D0300790920 /* LoginServerViewModel.swift in Sources */,
+				39AD95882DB92B0D0032EF06 /* AvatarCell.swift in Sources */,
 				3903CE6D2AA4DC37003E7E41 /* LoginServerCoordinator.swift in Sources */,
 				39E570742B5DE80A00548E02 /* FilterController.swift in Sources */,
 				392735AB29BE2DAA0058796A /* DatabaseManager+Account.swift in Sources */,
 				39B03F1429C6384300704670 /* FileSystemUtility.swift in Sources */,
 				395F3A1C2A96812E0004FF32 /* UserAccount.swift in Sources */,
 				391579A32AAF4C5000DFEAB1 /* ViewerViewModel.swift in Sources */,
+				394F70102DB9579B00A34FEC /* ProfileController.swift in Sources */,
 				39271D6C29DA26CF00522DFD /* ViewerController.swift in Sources */,
 				39C1BBB02CBC2F2A00206EB5 /* AsyncOperation.swift in Sources */,
 				39271D6E29DA274800522DFD /* PagerController.swift in Sources */,
@@ -701,6 +712,7 @@
 				39271D7529DA66D800522DFD /* UIImage+Extensions.swift in Sources */,
 				39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */,
 				3903CE752AA7840B003E7E41 /* FavoritesCoordinator.swift in Sources */,
+				394F70122DB957EC00A34FEC /* ProfileViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

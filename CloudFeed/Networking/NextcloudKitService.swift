@@ -36,6 +36,7 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func setup()
     func getCapabilities(account: String) async -> (account: String?, data: Data?)
     func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, nextcloudVersion: Int, groupIdentifier: String)
+    func removeSession(account: String)
     func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)?
     func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)?
     func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?)
@@ -93,6 +94,10 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                                           userId: userId, password: password,
                                           userAgent: userAgent, nextcloudVersion: nextcloudVersion,
                                           groupIdentifier: groupIdentifier)
+    }
+    
+    func removeSession(account: String) {
+        NextcloudKit.shared.removeSession(account: account)
     }
     
     func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)? {

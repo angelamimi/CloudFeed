@@ -26,10 +26,9 @@ import WebKit
 
 class LoginWebController: UIViewController {
     
-    var coordinator: LoginWebCoordinator!
-    var viewModel: LoginViewModel!
-    
     @IBOutlet weak var webView: WKWebView!
+    
+    var viewModel: LoginViewModel!
     
     var token: String!
     var endpoint: String!
@@ -62,15 +61,15 @@ class LoginWebController: UIViewController {
     private func executeLoginFlowRequest() {
         
         guard let url = URL(string: login) else {
-            coordinator.showInvalidURLPrompt()
+            viewModel.showInvalidURLPrompt()
             return
         }
         
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
 
         WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
-            WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records, completionHandler: {
-                self.loadRequest(url: url)
+            WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records, completionHandler: { [weak self] in
+                self?.loadRequest(url: url)
             })
         }
     }
@@ -135,7 +134,7 @@ class LoginWebController: UIViewController {
         
         //Self.logger.error("didFailProvisionalNavigation() - errorMessage: \(errorMessage)")
 
-        coordinator.showInvalidURLPrompt()
+        viewModel.showInvalidURLPrompt()
     }
 }
 

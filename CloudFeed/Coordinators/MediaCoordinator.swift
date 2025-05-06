@@ -24,7 +24,8 @@ import UIKit
 @MainActor
 final class MediaCoordinator {
     
-    private let navigationController: UINavigationController
+    weak var navigationController: UINavigationController!
+
     private let dataService: DataService
     
     init(navigationController: UINavigationController, dataService: DataService) {

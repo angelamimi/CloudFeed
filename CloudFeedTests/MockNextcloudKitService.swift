@@ -41,6 +41,10 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         
     }
     
+    func removeSession(account: String) {
+        
+    }
+    
     func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)? {
         return nil
     }

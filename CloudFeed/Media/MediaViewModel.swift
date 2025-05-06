@@ -39,9 +39,11 @@ final class MediaViewModel: NSObject {
     
     private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata.ID>!
     
-    private let delegate: MediaDelegate
+    private let coordinator: MediaCoordinator
+    private weak var delegate: MediaDelegate!
+    
     private let dataService: DataService
-    let cacheManager: CacheManager
+    private let cacheManager: CacheManager
     
     private var metadatas: [Metadata.ID: Metadata] = [:]
     
@@ -56,10 +58,11 @@ final class MediaViewModel: NSObject {
         category: String(describing: MediaViewModel.self)
     )
     
-    init(delegate: MediaDelegate, dataService: DataService, cacheManager: CacheManager) {
+    init(delegate: MediaDelegate, dataService: DataService, cacheManager: CacheManager, coordinator: MediaCoordinator) {
         self.delegate = delegate
         self.dataService = dataService
         self.cacheManager = cacheManager
+        self.coordinator = coordinator
         
         super.init()
     }
@@ -175,7 +178,11 @@ final class MediaViewModel: NSObject {
         let results = await search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: Global.shared.limit)
 
         guard let resultMetadatas = results.metadatas else {
-            delegate.searchResultReceived(resultItemCount: nil)
+            
+            coordinator.showLoadFailedError(retry: { [weak self] in
+                self?.delegate.searchResultReceived(resultItemCount: nil)
+            })
+            
             return
         }
         
@@ -273,27 +280,47 @@ final class MediaViewModel: NSObject {
     func toggleFavorite(metadata: Metadata) {
         
         Task { [weak self] in
-            guard let self else { return }
-            
-            let result = await dataService.toggleFavoriteMetadata(metadata)
+
+            let result = await self?.dataService.toggleFavoriteMetadata(metadata)
 
             if result == nil {
-                self.delegate.favoriteUpdated(error: true)
+                self?.delegate.favoriteUpdated(error: true)
+                self?.coordinator.showFavoriteUpdateFailedError()
             } else {
 
-                metadatas[metadata.id]?.favorite = result!.favorite
+                self?.metadatas[metadata.id]?.favorite = result!.favorite
                 
                 DispatchQueue.main.async { [weak self] in
-                    guard let self else { return }
                     
-                    var snapshot = self.dataSource.snapshot()
-                    snapshot.reconfigureItems([metadata.id])
-                    
-                    self.dataSource.apply(snapshot, animatingDifferences: false)
-                    self.delegate.favoriteUpdated(error: false)
+                    if var snapshot = self?.dataSource.snapshot() {
+                        snapshot.reconfigureItems([metadata.id])
+                        
+                        self?.dataSource.apply(snapshot, animatingDifferences: false)
+                        self?.delegate.favoriteUpdated(error: false)
+                    }
                 }
             }
         }
+    }
+    
+    func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
+        coordinator.showViewerPager(currentIndex: currentIndex, metadatas: metadatas)
+    }
+    
+    func getPreviewController(metadata: Metadata) -> PreviewController {
+        return coordinator.getPreviewController(metadata: metadata)
+    }
+    
+    func showFilter(filterable: Filterable, from: Date?, to: Date?) {
+        coordinator.showFilter(filterable: filterable, from: from, to: to)
+    }
+    
+    func dismissFilter() {
+        coordinator.dismissFilter()
+    }
+    
+    func showInvalidFilterError() {
+        coordinator.showInvalidFilterError()
     }
     
     private func getAddedMetadata(metadatas: [Metadata]) -> [Metadata] {

@@ -39,7 +39,9 @@ final class FavoritesViewModel: NSObject {
     
     private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata.ID>!
     
-    private let delegate: FavoritesDelegate
+    private let coordinator: FavoritesCoordinator
+    private weak var delegate: FavoritesDelegate!
+    
     private let dataService: DataService
     private let cacheManager: CacheManager
     
@@ -56,17 +58,18 @@ final class FavoritesViewModel: NSObject {
         category: String(describing: FavoritesViewModel.self)
     )
     
-    init(delegate: FavoritesDelegate, dataService: DataService, cacheManager: CacheManager) {
+    init(delegate: FavoritesDelegate, dataService: DataService, cacheManager: CacheManager, coordinator: FavoritesCoordinator) {
         self.delegate = delegate
         self.dataService = dataService
         self.cacheManager = cacheManager
+        self.coordinator = coordinator
     }
     
     func initDataSource(collectionView: UICollectionView) {
 
-        dataSource = UICollectionViewDiffableDataSource<Int, Metadata.ID>(collectionView: collectionView) { (collectionView: UICollectionView, indexPath: IndexPath, metadataId: Metadata.ID) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Int, Metadata.ID>(collectionView: collectionView) { [weak self] (collectionView: UICollectionView, indexPath: IndexPath, metadataId: Metadata.ID) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            self.populateCell(metadataId: metadataId, cell: cell, indexPath: indexPath, collectionView: collectionView)
+            self?.populateCell(metadataId: metadataId, cell: cell, indexPath: indexPath, collectionView: collectionView)
             return cell
         }
 
@@ -272,6 +275,34 @@ final class FavoritesViewModel: NSObject {
         var snapshot = dataSource.snapshot()
         snapshot.reconfigureItems(items)
         dataSource.apply(snapshot)
+    }
+    
+    func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
+        coordinator.showViewerPager(currentIndex: currentIndex, metadatas: metadatas)
+    }
+    
+    func getPreviewController(metadata: Metadata) -> PreviewController {
+        return coordinator.getPreviewController(metadata: metadata)
+    }
+    
+    func showFilter(filterable: Filterable, from: Date?, to: Date?) {
+        coordinator.showFilter(filterable: filterable, from: from, to: to)
+    }
+    
+    func dismissFilter() {
+        coordinator.dismissFilter()
+    }
+    
+    func showInvalidFilterError() {
+        coordinator.showInvalidFilterError()
+    }
+    
+    func showLoadfailedError() {
+        coordinator.showLoadfailedError()
+    }
+    
+    func showFavoriteUpdateFailedError() {
+        coordinator.showFavoriteUpdateFailedError()
     }
     
     private func handleFavoriteResult(error: Bool) {
