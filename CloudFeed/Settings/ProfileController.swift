@@ -153,6 +153,7 @@ extension ProfileController : UITableViewDelegate, UITableViewDataSource {
             
             //var config = UIListContentConfiguration.cell()
             var config = cell.defaultContentConfiguration()
+
             config.prefersSideBySideTextAndSecondaryText = true
             config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
             config.secondaryTextProperties.font = UIFont.preferredFont(forTextStyle: .body)

@@ -66,12 +66,10 @@ class LoginWebController: UIViewController {
         }
         
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-
-        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
-            WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records, completionHandler: { [weak self] in
-                self?.loadRequest(url: url)
-            })
-        }
+        
+        WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), modifiedSince: .distantPast, completionHandler: { [weak self] in
+            self?.loadRequest(url: url)
+        })
     }
     
     private func loadRequest(url: URL) {

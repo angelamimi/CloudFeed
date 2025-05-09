@@ -35,7 +35,7 @@ protocol AccountDelegate: AnyObject {
 }
 
 @MainActor
-class ProfileViewModel: NSObject {
+class ProfileViewModel {
 
     let dataService: DataService
 

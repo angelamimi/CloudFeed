@@ -57,6 +57,12 @@ final class SettingsCoordinator {
         navigationController.pushViewController(controller, animated: true)
     }
     
+    func showDisplay() {
+        let controller = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: "Display") as! DisplayController
+        controller.viewModel = DisplayViewModel(dataService: dataService)
+        navigationController.pushViewController(controller, animated: true)
+    }
+    
     func showProfileLoadfailedError() {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.ProfileErrorMessage, preferredStyle: .alert)

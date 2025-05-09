@@ -507,4 +507,15 @@ final class DataService: NSObject, Sendable {
     func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String) {
         return await nextcloudService.getUserProfile(account: account)
     }
+    
+    
+    // MARK: -
+    // MARK: Settings
+    func saveDisplayStyle(style: UIUserInterfaceStyle?) {
+        store.setDisplayStyle(style: style)
+    }
+    
+    func getDisplayStyle() -> UIUserInterfaceStyle? {
+        return store.getDisplayStyle()
+    }
 }

@@ -65,6 +65,10 @@ final class AppCoordinator: NSObject, Coordinator {
             
             if Environment.current.currentUser != nil {
                 
+                if let style = dataService.getDisplayStyle() {
+                    window.overrideUserInterfaceStyle = style
+                }
+                
                 for acc in dataService.getAccountsOrdered() {
                     dataService.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
                 }

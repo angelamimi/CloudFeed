@@ -27,12 +27,18 @@
 "Settings.Nav.Title" = "Settings";
 "Settings.Section.Information" = "Information";
 "Settings.Section.Data" = "Data";
+"Settings.Section.Display" = "Display";
+"Settings.Section.DisplayMode" = "Display Mode";
+"Settings.Item.Appearance" = "Appearance";
 "Settings.Item.Acknowledgements" = "Acknowledgements";
 "Settings.Item.ClearCache" = "Clear Cache";
 "Settings.Item.ResetApplication" = "Reset Application";
 "Settings.Label.Version" = "Version";
 "Settings.Label.VersionUnknown" = "unknown";
 "Settings.Label.CacheSize" = "Cache Size";
+"Settings.Label.SystemStyle" = "Use system style";
+"Settings.Label.Dark" = "Dark";
+"Settings.Label.Light" = "Light";
 "Settings.Menu.AddAccount" = "Add Account";
 
 /* Profile */

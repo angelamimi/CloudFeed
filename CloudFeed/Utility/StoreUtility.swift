@@ -80,6 +80,26 @@ struct StoreUtility: Sendable {
         Keychain(service: Global.shared.keyChain)[key] = password
     }
     
+    func getDisplayStyle() -> UIUserInterfaceStyle? {
+        
+        if let value = Keychain(service: Global.shared.keyChain)["displayStyle"] {
+            return value == "light" ? .light : .dark
+        }
+        
+        return nil
+    }
+    
+    func setDisplayStyle(style: UIUserInterfaceStyle?) {
+        
+        var value: String? = nil
+        
+        if style != nil {
+            value = style == .light ? "light" : "dark"
+        }
+ 
+        Keychain(service: Global.shared.keyChain)["displayStyle"] = value
+    }
+    
     @MainActor
     func getMediaColumnCount() -> Int! {
 

@@ -199,25 +199,30 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         if indexPath.section == 0 && indexPath.item == 0 {
             viewModel.showProfile()
         } else if indexPath.section == 1 && indexPath.item == 0 {
-            acknowledgements()
+            viewModel.showDisplay()
+            tableView.deselectRow(at: indexPath, animated: true)
         } else if indexPath.section == 2 && indexPath.item == 0 {
+            acknowledgements()
+        } else if indexPath.section == 3 && indexPath.item == 0 {
             startActivityIndicator()
             viewModel.clearCache()
-        } else if indexPath.section == 2 && indexPath.item == 1 {
+        } else if indexPath.section == 3 && indexPath.item == 1 {
             checkReset()
             tableView.deselectRow(at: indexPath, animated: true)
         }
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 3
+        return 4
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
         if section == 1 {
-            return Strings.SettingsSectionInformation
+            return Strings.SettingsSectionDisplay
         } else if section == 2 {
+            return Strings.SettingsSectionInformation
+        } else if section == 3 {
             return Strings.SettingsSectionData
         }
         return ""
@@ -225,7 +230,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if section == 0 {
+        if section == 0 || section == 1 {
             return 1
         } else {
             return 2
@@ -257,16 +262,23 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             content.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
             content.textProperties.lineBreakMode = .byWordWrapping
             
-            content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 24.0, leading: 0, bottom: 24.0, trailing: 0)
+            content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 20.0, leading: 0, bottom: 20.0, trailing: 0)
 
             if indexPath.section == 1 && indexPath.item == 0 {
+                
+                content.image = UIImage(systemName: "sun.max")
+                content.text = Strings.SettingsItemAppearance
+                cell.tintColor = UIColor.label
+                cell.accessoryType = .disclosureIndicator
+                
+            } else if indexPath.section == 2 && indexPath.item == 0 {
 
                 content.image = UIImage(systemName: "person.wave.2")
                 content.text = Strings.SettingsItemAcknowledgements
                 cell.tintColor = UIColor.label
                 cell.accessoryType = .disclosureIndicator
                 
-            } else if indexPath.section == 1 && indexPath.item == 1 {
+            } else if indexPath.section == 2 && indexPath.item == 1 {
                 
                 content.image = UIImage(systemName: "info.circle")
                 cell.accessoryType = .none
@@ -281,7 +293,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                     content.text = "\(Strings.SettingsLabelVersion) (\(Strings.SettingsLabelVersionUnknown)))"
                 }
                 
-            } else if indexPath.section == 2 && indexPath.item == 0 {
+            } else if indexPath.section == 3 && indexPath.item == 0 {
                 
                 content.image = UIImage(systemName: "trash")
                 content.text = Strings.SettingsItemClearCache
@@ -289,7 +301,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 cell.tintColor = UIColor.label
                 cell.accessoryType = .none
                 
-            } else if indexPath.section == 2 && indexPath.item == 1 {
+            } else if indexPath.section == 3 && indexPath.item == 1 {
                 
                 content.image = UIImage(systemName: "xmark.octagon")
                 content.text = Strings.SettingsItemResetApplication

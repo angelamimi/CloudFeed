@@ -102,4 +102,8 @@ final class SettingsViewModel: ProfileViewModel {
     func showProfile() {
         coordinator.showProfile()
     }
+    
+    func showDisplay() {
+        coordinator.showDisplay()
+    }
 }

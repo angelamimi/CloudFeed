@@ -46,12 +46,18 @@ extension Strings {
     public static let SettingsNavTitle = NSLocalizedString("Settings.Nav.Title", comment: "")
     public static let SettingsSectionInformation = NSLocalizedString("Settings.Section.Information", comment: "")
     public static let SettingsSectionData = NSLocalizedString("Settings.Section.Data", comment: "")
+    public static let SettingsSectionDisplay = NSLocalizedString("Settings.Section.Display", comment: "")
+    public static let SettingsSectionDisplayMode = NSLocalizedString("Settings.Section.DisplayMode", comment: "")
+    public static let SettingsItemAppearance = NSLocalizedString("Settings.Item.Appearance", comment: "")
     public static let SettingsItemAcknowledgements = NSLocalizedString("Settings.Item.Acknowledgements", comment: "")
     public static let SettingsItemClearCache = NSLocalizedString("Settings.Item.ClearCache", comment: "")
     public static let SettingsItemResetApplication = NSLocalizedString("Settings.Item.ResetApplication", comment: "")
+    public static let SettingsItemSystemStyle = NSLocalizedString("Settings.Label.SystemStyle", comment: "")
     public static let SettingsLabelVersion = NSLocalizedString("Settings.Label.Version", comment: "")
     public static let SettingsLabelVersionUnknown = NSLocalizedString("Settings.Label.VersionUnknown", comment: "")
     public static let SettingsLabelCacheSize = NSLocalizedString("Settings.Label.CacheSize", comment: "")
+    public static let SettingsLabelDark = NSLocalizedString("Settings.Label.Dark", comment: "")
+    public static let SettingsLabelLight = NSLocalizedString("Settings.Label.Light", comment: "")
     public static let SettingsMenuAddAccount = NSLocalizedString("Settings.Menu.AddAccount", comment: "")
     
     //Profile
