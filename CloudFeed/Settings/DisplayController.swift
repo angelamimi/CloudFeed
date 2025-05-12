@@ -25,8 +25,8 @@ final class DisplayController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var titleView: TitleView!
     
-    private var titleView: TitleView?
     private var style: UIUserInterfaceStyle?
     
     var viewModel: DisplayViewModel?
@@ -40,7 +40,6 @@ final class DisplayController: UIViewController {
         
         initObservers()
         initTitleView()
-        initConstraints()
         
         style = viewModel?.getStyle()
     }
@@ -65,28 +64,10 @@ final class DisplayController: UIViewController {
     }
     
     private func initTitleView() {
-        
-        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
         titleView?.navigationDelegate = self
         titleView?.initNavigation(withMenu: false)
         titleView?.title.text = Strings.SettingsItemAppearance
         titleView?.backgroundColor = .systemGroupedBackground
-        
-        self.view.addSubview(titleView!)
-    }
-    
-    private func initConstraints() {
-
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
-        
-        let titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
-        titleViewHeightAnchor?.isActive = true
-        
-        tableViewTopConstraint.constant = Global.shared.titleSize
     }
     
     @objc

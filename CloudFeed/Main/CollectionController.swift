@@ -41,9 +41,9 @@ class CollectionController: UIViewController {
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
     @IBOutlet weak var emptyView: EmptyView!
     @IBOutlet weak var collectionViewTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var titleView: TitleView!
     
     private var refreshControl = UIRefreshControl()
-    private var titleView: TitleView?
     private var titleViewHeightAnchor: NSLayoutConstraint?
     
     var filterFromDate: Date?
@@ -131,20 +131,6 @@ class CollectionController: UIViewController {
         return filterFromDate != nil && filterToDate != nil
     }
     
-    func initConstraints() {
-
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
-        
-        titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
-        titleViewHeightAnchor?.isActive = true
-        
-        collectionViewTopConstraint?.constant = Global.shared.titleSize
-    }
-    
     func zoomIn() {
         
         guard let layout = collectionView.collectionViewLayout as? CollectionLayout else { return }
@@ -181,10 +167,6 @@ class CollectionController: UIViewController {
     }
     
     func initTitleView(mediaView: MediaViewController, navigationDelegate: NavigationDelegate, allowEdit: Bool, layoutType: String) {
-        
-        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
-        self.view.addSubview(titleView!)
-        
         titleView?.mediaView = mediaView
         titleView?.navigationDelegate = navigationDelegate
         titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType, filterType: filterType)

@@ -25,7 +25,6 @@ import UIKit
 
 class FavoritesController: CollectionController {
     
-    //var coordinator: FavoritesCoordinator!
     var viewModel: FavoritesViewModel!
     
     private var layout: CollectionLayout?
@@ -50,7 +49,6 @@ class FavoritesController: CollectionController {
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initTitleView(mediaView: self, navigationDelegate: self, allowEdit: true, layoutType: viewModel.getLayoutType())
         initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
-        initConstraints()
     }
     
     override func viewWillDisappear(_ animated: Bool) {

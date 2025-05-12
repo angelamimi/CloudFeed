@@ -45,7 +45,6 @@ class MediaController: CollectionController {
         initTitleView(mediaView: self, navigationDelegate: self, allowEdit: false, layoutType: viewModel.getLayoutType())
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
-        initConstraints()
     }
 
     override func viewWillDisappear(_ animated: Bool) {

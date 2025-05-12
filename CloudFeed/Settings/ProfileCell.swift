@@ -24,6 +24,7 @@ import UIKit
 class ProfileCell: UITableViewCell {
     
     @IBOutlet weak var profileImageView: UIImageView!
+    @IBOutlet weak var profileImageViewTopContraint: NSLayoutConstraint!
     @IBOutlet weak var profileEmailLabel: UILabel!
     @IBOutlet weak var profileNameLabel: UILabel!
 
@@ -37,6 +38,14 @@ class ProfileCell: UITableViewCell {
         
             profileNameLabel.font = UIFont.preferredFont(forTextStyle: .body)
             profileEmailLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        }
+    }
+    
+    func isPadded(padded: Bool) {
+        if padded {
+            profileImageViewTopContraint.constant = 24
+        } else {
+            profileImageViewTopContraint.constant = 0
         }
     }
 

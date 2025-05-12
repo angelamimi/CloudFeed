@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="fcr-Np-qj8">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="fcr-Np-qj8">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,12 +18,19 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JeB-gU-3iL" customClass="EmptyView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                                <rect key="frame" x="0.0" y="162" width="393" height="573"/>
                                 <viewLayoutGuide key="safeArea" id="Cly-Il-3CM"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="N29-De-e2J" customClass="TitleView" customModule="CloudFeed" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="162" width="393" height="50"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="ef9-LW-7Qs"/>
+                                </constraints>
+                            </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="a9G-dO-ziM">
-                                <rect key="frame" x="0.0" y="153" width="393" height="616"/>
+                                <rect key="frame" x="0.0" y="212" width="393" height="523"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="iPj-6Z-dE2">
                                     <size key="itemSize" width="128" height="128"/>
@@ -34,11 +41,11 @@
                                 <cells/>
                             </collectionView>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="DdN-52-ltZ">
-                                <rect key="frame" x="178" y="408" width="37" height="37"/>
+                                <rect key="frame" x="178" y="407.66666666666669" width="37" height="37"/>
                                 <color key="color" systemColor="labelColor"/>
                             </activityIndicatorView>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="U1v-Hu-l3P">
-                                <rect key="frame" x="0.0" y="719" width="393" height="50"/>
+                                <rect key="frame" x="0.0" y="685" width="393" height="50"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="U25-pM-xCC"/>
                                 </constraints>
@@ -48,14 +55,17 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="a9G-dO-ziM" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="3uO-CX-4DQ"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="N29-De-e2J" secondAttribute="trailing" id="9Ge-Jt-vw0"/>
                             <constraint firstItem="JeB-gU-3iL" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="9Iq-75-ptA"/>
                             <constraint firstItem="U1v-Hu-l3P" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="DE2-Wo-rrM"/>
+                            <constraint firstItem="N29-De-e2J" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="GM5-hl-oDN"/>
                             <constraint firstItem="DdN-52-ltZ" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="Oml-VI-paj"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="JeB-gU-3iL" secondAttribute="trailing" id="OuV-AZ-MJH"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="U1v-Hu-l3P" secondAttribute="trailing" id="R01-ue-lMy"/>
                             <constraint firstItem="a9G-dO-ziM" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="50" id="ZEf-Pq-neZ"/>
                             <constraint firstItem="DdN-52-ltZ" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" id="g1S-K2-znh"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="a9G-dO-ziM" secondAttribute="trailing" id="hmH-fm-8bV"/>
+                            <constraint firstItem="N29-De-e2J" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="jmx-1X-q1g"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="a9G-dO-ziM" secondAttribute="bottom" id="k8M-wy-Iya"/>
                             <constraint firstItem="JeB-gU-3iL" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="oQU-Td-6Wf"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="U1v-Hu-l3P" secondAttribute="bottom" id="qQ0-8t-zGr"/>
@@ -71,6 +81,7 @@
                         <outlet property="collectionViewTopConstraint" destination="ZEf-Pq-neZ" id="nxu-Ot-T2M"/>
                         <outlet property="emptyView" destination="JeB-gU-3iL" id="TG6-dc-QxX"/>
                         <outlet property="loadMoreIndicator" destination="U1v-Hu-l3P" id="L4g-K5-coT"/>
+                        <outlet property="titleView" destination="N29-De-e2J" id="dzL-nL-lC2"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -86,7 +97,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aSr-df-6n1" customClass="FilterView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <rect key="frame" x="0.0" y="118" width="393" height="666"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                         </subviews>
@@ -113,7 +124,7 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="fcr-Np-qj8" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="6b2-dc-D8M">
-                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

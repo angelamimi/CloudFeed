@@ -26,10 +26,9 @@ final class ProfileController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var titleView: TitleView!
     
     var viewModel: ProfileViewModel?
-    
-    private var titleView: TitleView?
 
     private var profileName: String = ""
     private var profileEmail: String = ""
@@ -44,7 +43,6 @@ final class ProfileController: UIViewController {
         tableView.dataSource = self
         
         initTitleView()
-        initConstraints()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -73,28 +71,9 @@ final class ProfileController: UIViewController {
     }
     
     private func initTitleView() {
-        
-        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
         titleView?.navigationDelegate = self
         titleView?.initNavigation(withMenu: false)
         titleView?.title.text = Strings.ProfileNavTitle
-        titleView?.backgroundColor = .systemGroupedBackground
-        
-        self.view.addSubview(titleView!)
-    }
-    
-    private func initConstraints() {
-
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
-        
-        let titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
-        titleViewHeightAnchor?.isActive = true
-        
-        tableViewTopConstraint.constant = Global.shared.titleSize
     }
 }
 
@@ -151,13 +130,12 @@ extension ProfileController : UITableViewDelegate, UITableViewDataSource {
             cell.selectionStyle = .none
             cell.backgroundColor = .secondarySystemGroupedBackground
             
-            //var config = UIListContentConfiguration.cell()
             var config = cell.defaultContentConfiguration()
 
             config.prefersSideBySideTextAndSecondaryText = true
             config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
             config.secondaryTextProperties.font = UIFont.preferredFont(forTextStyle: .body)
-            config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 16.0, leading: 0, bottom: 16.0, trailing: 0)
+            config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 20.0, leading: 0, bottom: 20.0, trailing: 0)
             
             if indexPath.section == 1 && indexPath.item == 0 {
                 config.text = Strings.ProfileItemName

@@ -17,7 +17,36 @@
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="UBd-sK-qSk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2286" y="39"/>
+            <point key="canvasLocation" x="-2134" y="39"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="cvV-Cr-hqA">
+            <objects>
+                <tabBarController storyboardIdentifier="MainSplitTabController" id="YZp-6f-KOu" sceneMemberID="viewController">
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="oln-3j-QNP">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="ET6-Yb-pwS" kind="relationship" relationship="viewControllers" id="c8I-tM-W6e"/>
+                        <segue destination="FoW-v3-mzT" kind="relationship" relationship="viewControllers" id="Xvi-iG-97F"/>
+                        <segue destination="kcU-Uc-diI" kind="relationship" relationship="viewControllers" id="BDA-ex-GvK"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="y0O-m2-8Pt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-2680" y="349"/>
+        </scene>
+        <!--SplitController-->
+        <scene sceneID="sk2-nw-yNm">
+            <objects>
+                <viewControllerPlaceholder storyboardName="Settings" referencedIdentifier="SplitController" id="kcU-Uc-diI" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Item" id="8Tl-ru-JmC"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gcn-s3-s40" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1448" y="349"/>
         </scene>
         <!--Favorites-->
         <scene sceneID="cAk-4a-nYC">
@@ -27,7 +56,7 @@
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Fsp-eJ-Xz9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1613" y="90"/>
+            <point key="canvasLocation" x="-1614" y="89"/>
         </scene>
         <!--Settings-->
         <scene sceneID="PoH-aX-Nxn">
@@ -37,7 +66,7 @@
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VRJ-bg-f4S" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-967" y="39"/>
+            <point key="canvasLocation" x="-1056" y="39"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="0xg-Uy-Mhm">
@@ -60,6 +89,10 @@
             <point key="canvasLocation" x="-1612" y="-385"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="Xvi-iG-97F"/>
+        <segue reference="c8I-tM-W6e"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

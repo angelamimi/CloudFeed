@@ -116,4 +116,14 @@ final class Global: Sendable {
         case details = "details"        //title hidden. details visible.
         case title = "title"            //title visible. details hidden.
     }
+    
+    // MARK: - Settings
+    //
+    enum SettingsMode {
+        case all
+        case account
+        case display
+        case information
+        case data
+    }
 }

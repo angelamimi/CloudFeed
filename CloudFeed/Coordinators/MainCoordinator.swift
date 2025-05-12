@@ -36,13 +36,23 @@ final class MainCoordinator : NSObject, Coordinator {
         if window.rootViewController is UITabBarController {
             tabBarController = window.rootViewController as? UITabBarController
         } else {
-            tabBarController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainTabController") as? UITabBarController
+            
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                tabBarController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainSplitTabController") as? UITabBarController
+            } else {
+                tabBarController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainTabController") as? UITabBarController
+            }
         }
         
         super.init()
         
         tabBarController!.delegate = self
-        initTabCoordinators(dataService: dataService)
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            initSplitTabCoordinators(dataService: dataService)
+        } else {
+            initTabCoordinators(dataService: dataService)
+        }
     }
     
     func start() {
@@ -93,9 +103,15 @@ extension MainCoordinator {
     }
     
     private func clearSettingsController() {
-        let settingsNavController = tabBarController?.viewControllers?[2] as! UINavigationController
-        let settingsController = settingsNavController.viewControllers[0] as! SettingsController
-        settingsController.clear()
+        if tabBarController?.viewControllers?[2] is UINavigationController {
+            let settingsNavController = tabBarController?.viewControllers?[2] as! UINavigationController
+            let settingsController = settingsNavController.viewControllers[0] as! SettingsController
+            settingsController.clear()
+        } else {
+            let settingsSplitController = tabBarController?.viewControllers?[2] as! UISplitViewController
+            let settingsController = settingsSplitController.viewController(for: .secondary) as! SettingsController
+            settingsController.clear()
+        }
     }
     
     private func initTabCoordinators(dataService: DataService) {
@@ -120,7 +136,70 @@ extension MainCoordinator {
         favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager, coordinator: favoriteCoordinator)
         settingsViewController.viewModel = SettingsViewModel(delegate: settingsViewController, profileDelegate: settingsViewController, dataService: dataService, coordinator: settingCoordinator)
         
+        settingsViewController.mode = .all
+        
         mediaViewController.delegate = mediaViewController
         favoritesViewController.delegate = favoritesViewController
+    }
+    
+    private func initSplitTabCoordinators(dataService: DataService) {
+        
+        guard tabBarController?.viewControllers != nil && tabBarController?.viewControllers?.count == 3 else { return }
+
+        let mediaNavController = tabBarController?.viewControllers?[0] as! UINavigationController
+        let favoritesNavController = tabBarController?.viewControllers?[1] as! UINavigationController
+        let settingsSplitController = tabBarController?.viewControllers?[2] as! UISplitViewController
+        
+        settingsSplitController.title = Strings.SettingsNavTitle
+        
+        let menuController = settingsSplitController.viewController(for: .primary) as! MenuController
+        menuController.delegate = self
+        
+        let mediaViewController = mediaNavController.viewControllers[0] as! MediaController
+        let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
+        let settingsController = settingsSplitController.viewController(for: .secondary) as! SettingsController
+        
+        settingsController.mode = .account
+        
+        let cacheManager = CacheManager(dataService: dataService)
+        
+        let mediaCoordinator = MediaCoordinator(navigationController: mediaNavController, dataService: dataService)
+        let favoriteCoordinator = FavoritesCoordinator(navigationController: favoritesNavController, dataService: dataService)
+        let settingCoordinator = SettingsCoordinator(navigationController: settingsController.navigationController!, dataService: dataService, cacheDelegate: self)
+        
+        mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService, cacheManager: cacheManager, coordinator: mediaCoordinator)
+        favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager, coordinator: favoriteCoordinator)
+        settingsController.viewModel = SettingsViewModel(delegate: settingsController, profileDelegate: settingsController, dataService: dataService, coordinator: settingCoordinator)
+        
+        mediaViewController.delegate = mediaViewController
+        favoritesViewController.delegate = favoritesViewController
+    }
+    
+    private func updateMode(_ mode: Global.SettingsMode) {
+        let settingsSplitController = tabBarController?.viewControllers?[2] as! UISplitViewController
+        let settingsController = settingsSplitController.viewController(for: .secondary) as! SettingsController
+        
+        settingsController.navigationController?.popToRootViewController(animated: false)
+        
+        settingsController.updateMode(mode)
+    }
+}
+
+extension MainCoordinator: MenuDelegate {
+    
+    func selectProfile() {
+        updateMode(.account)
+    }
+    
+    func selectDisplay() {
+        updateMode(.display)
+    }
+    
+    func selectInformation() {
+        updateMode(.information)
+    }
+    
+    func selectData() {
+        updateMode(.data)
     }
 }

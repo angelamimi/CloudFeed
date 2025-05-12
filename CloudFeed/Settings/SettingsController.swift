@@ -29,14 +29,15 @@ class SettingsController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
-    
-    private var titleView: TitleView?
+    @IBOutlet weak var titleView: TitleView!
 
     private var profileName: String = ""
     private var profileEmail: String = ""
     private var profileImage: UIImage?
     
     private var cacheSizeDescription: String = ""
+    
+    var mode: Global.SettingsMode = .all
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -54,11 +55,10 @@ class SettingsController: UIViewController {
         tableView.rowHeight = UITableView.automaticDimension
         
         initTitleView()
-        initConstraints()
         
-        let backgroundColorView = UIView()
-        backgroundColorView.backgroundColor = .systemGroupedBackground
-        UITableViewCell.appearance().selectedBackgroundView = backgroundColorView
+        //let backgroundColorView = UIView()
+        //backgroundColorView.backgroundColor = .systemGroupedBackground
+        //UITableViewCell.appearance().selectedBackgroundView = backgroundColorView
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -77,39 +77,47 @@ class SettingsController: UIViewController {
         viewModel.clearCache()
     }
     
-    private func initTitleView() {
+    func updateMode(_ mode: Global.SettingsMode) {
         
-        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
+        self.mode = mode
         
-        titleView?.title.text = Strings.SettingsNavTitle
-        titleView?.backgroundColor = .systemGroupedBackground
-        titleView?.initMenu(menu: buildAccountsMenu())
+        var title = ""
         
-        self.view.addSubview(titleView!)
+        switch mode {
+        case .account:
+            title = Strings.ProfileNavTitle
+            titleView.menuButton.isHidden = false
+        case .data:
+            title = Strings.SettingsSectionData
+            titleView.menuButton.isHidden = true
+        case .display:
+            title = Strings.SettingsSectionDisplay
+            titleView.menuButton.isHidden = true
+        case .information:
+            title = Strings.SettingsSectionInformation
+            titleView.menuButton.isHidden = true
+        default:
+            title = ""
+            titleView.menuButton.isHidden = true
+        }
+        
+        titleView.title.text = title
+        tableView.reloadData()
     }
     
-    private func initConstraints() {
-
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
-        
-        let titleViewHeightAnchor = titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize)
-        titleViewHeightAnchor?.isActive = true
-        
-        tableViewTopConstraint.constant = Global.shared.titleSize
+    private func initTitleView() {
+        titleView?.title.text = Strings.SettingsNavTitle
+        titleView?.initMenu(menu: buildAccountsMenu())
     }
     
     private func startActivityIndicator() {
         activityIndicator.startAnimating()
-        self.view.isUserInteractionEnabled = false
+        view.isUserInteractionEnabled = false
     }
     
     private func stopActivityIndicator() {
         activityIndicator.stopAnimating()
-        self.view.isUserInteractionEnabled = true
+        view.isUserInteractionEnabled = true
     }
     
     private func requestProfile() {
@@ -196,44 +204,97 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        if indexPath.section == 0 && indexPath.item == 0 {
-            viewModel.showProfile()
-        } else if indexPath.section == 1 && indexPath.item == 0 {
-            viewModel.showDisplay()
-            tableView.deselectRow(at: indexPath, animated: true)
-        } else if indexPath.section == 2 && indexPath.item == 0 {
-            acknowledgements()
-        } else if indexPath.section == 3 && indexPath.item == 0 {
-            startActivityIndicator()
-            viewModel.clearCache()
-        } else if indexPath.section == 3 && indexPath.item == 1 {
-            checkReset()
-            tableView.deselectRow(at: indexPath, animated: true)
+        
+        switch mode {
+        case .account:
+            if indexPath.section == 0 && indexPath.item == 0 {
+                viewModel.showProfile()
+            }
+        case .display:
+            if indexPath.section == 0 && indexPath.item == 0 {
+                viewModel.showDisplay()
+            }
+        case .information:
+            if indexPath.section == 0 && indexPath.item == 0 {
+                acknowledgements()
+            }
+        case .data:
+            if indexPath.section == 0 && indexPath.item == 0 {
+                viewModel.clearCache()
+            } else if indexPath.section == 0 && indexPath.item == 1 {
+                checkReset()
+            }
+        case .all:
+            if indexPath.section == 0 && indexPath.item == 0 {
+                viewModel.showProfile()
+            } else if indexPath.section == 1 && indexPath.item == 0 {
+                viewModel.showDisplay()
+                tableView.deselectRow(at: indexPath, animated: true)
+            } else if indexPath.section == 2 && indexPath.item == 0 {
+                acknowledgements()
+            } else if indexPath.section == 3 && indexPath.item == 0 {
+                startActivityIndicator()
+                viewModel.clearCache()
+            } else if indexPath.section == 3 && indexPath.item == 1 {
+                checkReset()
+                tableView.deselectRow(at: indexPath, animated: true)
+            }
         }
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 4
+        
+        switch mode {
+        case .account:
+            return 1
+        case .display:
+            return 1
+        case .information:
+            return 1
+        case .data:
+            return 1
+        case .all:
+            return 4
+        }
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        
-        if section == 1 {
-            return Strings.SettingsSectionDisplay
-        } else if section == 2 {
-            return Strings.SettingsSectionInformation
-        } else if section == 3 {
-            return Strings.SettingsSectionData
+        if mode == .all {
+            if section == 1 {
+                return Strings.SettingsSectionDisplay
+            } else if section == 2 {
+                return Strings.SettingsSectionInformation
+            } else if section == 3 {
+                return Strings.SettingsSectionData
+            }
         }
         return ""
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        if section == 0 || section == 1 {
-            return 1
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if mode == .all {
+            return UITableView.automaticDimension
         } else {
+            return 8 //.leastNormalMagnitude
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch mode {
+        case .account:
+            return 1
+        case .display:
+            return 1
+        case .information:
             return 2
+        case .data:
+            return 2
+        case .all:
+            if section == 0 || section == 1 {
+                return 1
+            } else {
+                return 2
+            }
         }
     }
     
@@ -242,77 +303,151 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        if indexPath.section == 0 && indexPath.item == 0 {
-            
-            let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileCell", for: indexPath) as! ProfileCell
-            
-            cell.updateProfileImage(profileImage)
-            cell.updateProfile(profileEmail, fullName: profileName)
-            
-            cell.accessoryType = .disclosureIndicator
-            
-            return cell
-            
-        } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsCell", for: indexPath)
-
-            var content = cell.defaultContentConfiguration()
-            
-            content.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
-            content.textProperties.lineBreakMode = .byWordWrapping
-            
-            content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 20.0, leading: 0, bottom: 20.0, trailing: 0)
-
-            if indexPath.section == 1 && indexPath.item == 0 {
-                
-                content.image = UIImage(systemName: "sun.max")
-                content.text = Strings.SettingsItemAppearance
-                cell.tintColor = UIColor.label
-                cell.accessoryType = .disclosureIndicator
-                
-            } else if indexPath.section == 2 && indexPath.item == 0 {
-
-                content.image = UIImage(systemName: "person.wave.2")
-                content.text = Strings.SettingsItemAcknowledgements
-                cell.tintColor = UIColor.label
-                cell.accessoryType = .disclosureIndicator
-                
-            } else if indexPath.section == 2 && indexPath.item == 1 {
-                
-                content.image = UIImage(systemName: "info.circle")
-                cell.accessoryType = .none
-                cell.tintColor = UIColor.label
-                cell.selectionStyle = .none
-                
-                if let dictionary = Bundle.main.infoDictionary,
-                    let version = dictionary["CFBundleShortVersionString"] as? String,
-                    let build = dictionary["CFBundleVersion"] as? String {
-                    content.text = "\(Strings.SettingsLabelVersion) \(version) (\(build))"
-                } else {
-                    content.text = "\(Strings.SettingsLabelVersion) (\(Strings.SettingsLabelVersionUnknown)))"
-                }
-                
-            } else if indexPath.section == 3 && indexPath.item == 0 {
-                
-                content.image = UIImage(systemName: "trash")
-                content.text = Strings.SettingsItemClearCache
-                content.secondaryText = "\(Strings.SettingsLabelCacheSize): \(cacheSizeDescription)"
-                cell.tintColor = UIColor.label
-                cell.accessoryType = .none
-                
-            } else if indexPath.section == 3 && indexPath.item == 1 {
-                
-                content.image = UIImage(systemName: "xmark.octagon")
-                content.text = Strings.SettingsItemResetApplication
-                cell.tintColor = UIColor.red
-                cell.accessoryType = .none
+        switch mode {
+        case .account:
+            return configureProfileCell(indexPath)
+        case .display:
+            return configureAppearanceCell(indexPath)
+        case .information:
+            if indexPath.section == 0 && indexPath.item == 0 {
+                return configureAcknowledgementsCell(indexPath)
+            } else if indexPath.section == 0 && indexPath.item == 1 {
+                return configureVersionCell(indexPath)
             }
-            
-            cell.contentConfiguration = content
-            
-            return cell
+        case .data:
+            if indexPath.section == 0 && indexPath.item == 0 {
+                return configureCacheCell(indexPath)
+            } else if indexPath.section == 0 && indexPath.item == 1 {
+                return configureResetCell(indexPath)
+            }
+        case .all:
+            if indexPath.section == 0 && indexPath.item == 0 {
+                return configureProfileCell(indexPath)
+            } else if indexPath.section == 1 && indexPath.item == 0 {
+                return configureAppearanceCell(indexPath)
+            } else if indexPath.section == 2 && indexPath.item == 0 {
+                return configureAcknowledgementsCell(indexPath)
+            } else if indexPath.section == 2 && indexPath.item == 1 {
+                return configureVersionCell(indexPath)
+            } else if indexPath.section == 3 && indexPath.item == 0 {
+                return configureCacheCell(indexPath)
+            } else if indexPath.section == 3 && indexPath.item == 1 {
+                return configureResetCell(indexPath)
+            }
         }
+        return UITableViewCell()
+    }
+    
+    private func buildSettingsCellContent(indexPath: IndexPath) -> (cell: UITableViewCell, content: UIListContentConfiguration) {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsCell", for: indexPath)
+
+        var content = cell.defaultContentConfiguration()
+        
+        content.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
+        content.textProperties.lineBreakMode = .byWordWrapping
+        
+        content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 20.0, leading: 0, bottom: 20.0, trailing: 0)
+
+        return (cell, content)
+    }
+    
+    private func configureProfileCell(_ indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileCell", for: indexPath) as! ProfileCell
+        
+        cell.updateProfileImage(profileImage)
+        cell.updateProfile(profileEmail, fullName: profileName)
+        
+        cell.accessoryType = .disclosureIndicator
+        
+        if mode == .all {
+            cell.isPadded(padded: false)
+        } else {
+            cell.backgroundColor = .secondarySystemGroupedBackground
+            cell.isPadded(padded: true)
+        }
+        
+        return cell
+    }
+    
+    private func configureAppearanceCell(_ indexPath: IndexPath) -> UITableViewCell {
+        
+        var result = buildSettingsCellContent(indexPath: indexPath)
+        
+        result.content.image = UIImage(systemName: "sun.max")
+        result.content.text = Strings.SettingsItemAppearance
+        result.cell.tintColor = UIColor.label
+        result.cell.accessoryType = .disclosureIndicator
+        
+        result.cell.contentConfiguration = result.content
+        
+        return result.cell
+    }
+    
+    private func configureAcknowledgementsCell(_ indexPath: IndexPath) -> UITableViewCell {
+        
+        var result = buildSettingsCellContent(indexPath: indexPath)
+        
+        result.content.image = UIImage(systemName: "person.wave.2")
+        result.content.text = Strings.SettingsItemAcknowledgements
+        result.cell.tintColor = UIColor.label
+        result.cell.accessoryType = .disclosureIndicator
+        
+        result.cell.contentConfiguration = result.content
+        
+        return result.cell
+    }
+    
+    private func configureVersionCell(_ indexPath: IndexPath) -> UITableViewCell {
+        
+        var result = buildSettingsCellContent(indexPath: indexPath)
+        
+        result.content.image = UIImage(systemName: "info.circle")
+        result.cell.accessoryType = .none
+        result.cell.tintColor = UIColor.label
+        result.cell.selectionStyle = .none
+        
+        if let dictionary = Bundle.main.infoDictionary,
+            let version = dictionary["CFBundleShortVersionString"] as? String,
+            let build = dictionary["CFBundleVersion"] as? String {
+            result.content.text = "\(Strings.SettingsLabelVersion) \(version) (\(build))"
+        } else {
+            result.content.text = "\(Strings.SettingsLabelVersion) (\(Strings.SettingsLabelVersionUnknown)))"
+        }
+        
+        result.cell.contentConfiguration = result.content
+        
+        return result.cell
+    }
+    
+    private func configureCacheCell(_ indexPath: IndexPath) -> UITableViewCell {
+        
+        var result = buildSettingsCellContent(indexPath: indexPath)
+        
+        result.content.image = UIImage(systemName: "trash")
+        result.content.text = Strings.SettingsItemClearCache
+        result.content.secondaryText = "\(Strings.SettingsLabelCacheSize): \(cacheSizeDescription)"
+        result.cell.tintColor = UIColor.label
+        result.cell.accessoryType = .none
+        
+        result.cell.contentConfiguration = result.content
+        
+        return result.cell
+    }
+    
+    private func configureResetCell(_ indexPath: IndexPath) -> UITableViewCell {
+        
+        var result = buildSettingsCellContent(indexPath: indexPath)
+        
+        result.content.image = UIImage(systemName: "xmark.octagon")
+        result.content.text = Strings.SettingsItemResetApplication
+        result.cell.tintColor = UIColor.red
+        result.cell.accessoryType = .none
+        
+        result.cell.contentConfiguration = result.content
+        
+        return result.cell
     }
 }
 

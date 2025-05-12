@@ -65,9 +65,18 @@ class TitleView: UIView {
         category: String(describing: TitleView.self)
     )
     
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        initSubviews()
+    }
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-        
+
         MainActor.assumeIsolated {
             
             self.minimumContentSizeCategory = .large
@@ -108,7 +117,7 @@ class TitleView: UIView {
     
     func initMenu(menu: UIMenu) {
         menuButton.menu = menu
-        backButtonConstraint.constant = 4
+        backButtonConstraint.constant = 8
     }
     
     func initMenu(allowEdit: Bool, layoutType: String, filterType: Global.FilterType) {
@@ -174,8 +183,13 @@ class TitleView: UIView {
         } else {
             menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, typeMenu])
         }
-        
-        backButtonConstraint.constant = 4
+
+        backButtonConstraint.constant = 8
+    }
+    
+    func initTitleOnly() {
+        backButtonConstraint.constant = 8
+        menuButton.isHidden = true
     }
     
     func initNavigation(withMenu: Bool) {
@@ -245,6 +259,24 @@ class TitleView: UIView {
     private func initText() {
         doneButton.setTitle(Strings.TitleApply, for: .normal)
         cancelButton.setTitle(Strings.TitleCancel, for: .normal)
+    }
+    
+    private func initSubviews() {
+
+        let nib = UINib(nibName: "TitleView", bundle: Bundle(for: type(of: self)))
+        let container = nib.instantiate(withOwner: self, options: nil).first as! UIView
+        
+        addSubview(container)
+        
+        container.backgroundColor = self.backgroundColor
+        container.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            container.topAnchor.constraint(equalTo: topAnchor),
+            container.leftAnchor.constraint(equalTo: leftAnchor),
+            container.rightAnchor.constraint(equalTo: rightAnchor),
+            container.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
     }
 }
 
