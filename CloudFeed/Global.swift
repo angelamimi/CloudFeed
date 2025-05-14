@@ -43,11 +43,8 @@ final class Global: Sendable {
     
     // MARK: - Storage
     //
-    let providerStorage               = "File Provider Storage"
     let groupIdentifier               = "group.com.angelamimi.cloudfeed"
-    let userDataDirectory             = "Library/Application Support/UserData"
     let databaseDirectory             = "Library/Application Support/CloudFeed"
-    let databaseDefault               = "cloudfeed.realm"
     
     let databaseSchemaVersion: UInt64 = 1
     
