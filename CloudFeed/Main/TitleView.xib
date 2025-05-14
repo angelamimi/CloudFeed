@@ -4,7 +4,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
-        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -32,20 +31,21 @@
         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iN0-l3-epB">
             <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
             <subviews>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3eV-3U-YdS" userLabel="Filter Button">
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" pointerInteraction="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3eV-3U-YdS" userLabel="Filter Button">
                     <rect key="frame" x="298" y="99" width="40" height="40"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="ohG-8C-4o9"/>
                         <constraint firstAttribute="height" constant="40" id="rQG-ad-ips"/>
                     </constraints>
                     <state key="normal" title="Button"/>
-                    <buttonConfiguration key="configuration" style="filled" image="calendar" catalog="system" cornerStyle="capsule">
+                    <buttonConfiguration key="configuration" style="filled" image="calendar" catalog="system">
                         <backgroundConfiguration key="background">
-                            <color key="backgroundColor" name="AccentColor"/>
+                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         </backgroundConfiguration>
+                        <color key="baseForegroundColor" systemColor="labelColor"/>
                     </buttonConfiguration>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0HJ-5a-GPf" userLabel="Menu Button">
+                <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" pointerInteraction="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0HJ-5a-GPf" userLabel="Menu Button">
                     <rect key="frame" x="342" y="99" width="40" height="40"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="40" id="Dbr-eL-8MJ"/>
@@ -54,10 +54,8 @@
                     </constraints>
                     <color key="tintColor" systemColor="labelColor"/>
                     <state key="normal" title="Button"/>
-                    <buttonConfiguration key="configuration" style="plain" image="ellipsis" catalog="system" cornerStyle="capsule">
-                        <backgroundConfiguration key="background">
-                            <color key="backgroundColor" systemColor="systemFillColor"/>
-                        </backgroundConfiguration>
+                    <buttonConfiguration key="configuration" style="plain" image="ellipsis.circle" catalog="system" cornerStyle="capsule">
+                        <color key="baseForegroundColor" systemColor="labelColor"/>
                     </buttonConfiguration>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ABi-ln-iPL" userLabel="Done Button">
@@ -112,18 +110,12 @@
     <resources>
         <image name="calendar" catalog="system" width="128" height="107"/>
         <image name="chevron.left" catalog="system" width="97" height="128"/>
-        <image name="ellipsis" catalog="system" width="128" height="37"/>
-        <namedColor name="AccentColor">
-            <color red="0.0" green="0.57300001382827759" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-        </namedColor>
+        <image name="ellipsis.circle" catalog="system" width="128" height="123"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
-        <systemColor name="systemFillColor">
-            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
