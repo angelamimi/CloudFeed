@@ -29,7 +29,6 @@ class SettingsController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
-    @IBOutlet weak var titleView: TitleView!
 
     private var profileName: String = ""
     private var profileEmail: String = ""
@@ -46,19 +45,13 @@ class SettingsController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        navigationController?.isNavigationBarHidden = true
-        
+
         tableView.delegate = self
         tableView.dataSource = self
         
         tableView.rowHeight = UITableView.automaticDimension
         
-        initTitleView()
-        
-        //let backgroundColorView = UIView()
-        //backgroundColorView.backgroundColor = .systemGroupedBackground
-        //UITableViewCell.appearance().selectedBackgroundView = backgroundColorView
+        initTitle()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -84,30 +77,44 @@ class SettingsController: UIViewController {
         var title = ""
         
         switch mode {
-        case .account:
-            title = Strings.ProfileNavTitle
-            titleView.menuButton.isHidden = false
-        case .data:
-            title = Strings.SettingsSectionData
-            titleView.menuButton.isHidden = true
-        case .display:
-            title = Strings.SettingsSectionDisplay
-            titleView.menuButton.isHidden = true
-        case .information:
-            title = Strings.SettingsSectionInformation
-            titleView.menuButton.isHidden = true
-        default:
+        case .account: title = Strings.ProfileNavTitleView
+        case .data: title = Strings.SettingsSectionData
+        case .display: title = Strings.SettingsSectionDisplay
+        case .information: title = Strings.SettingsSectionInformation
+        default: 
             title = ""
-            titleView.menuButton.isHidden = true
         }
         
-        titleView.title.text = title
+        navigationItem.title = title
+        
+        if mode == .account && navigationItem.rightBarButtonItem == nil {
+            let item = UIBarButtonItem(image: .init(systemName: "ellipsis.circle"), menu: buildAccountsMenu())
+            item.tintColor = .label
+            navigationItem.setRightBarButton(item, animated: true)
+        } else if mode != .account {
+            navigationItem.rightBarButtonItem = nil
+        }
+        
         tableView.reloadData()
     }
     
-    private func initTitleView() {
-        titleView?.title.text = Strings.SettingsNavTitle
-        titleView?.initMenu(menu: buildAccountsMenu())
+    private func initTitle() {
+        navigationItem.title = Strings.SettingsNavTitle
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
+        
+        if mode == .all {
+            navigationController?.navigationBar.prefersLargeTitles = true
+        }
+        
+        let item = UIBarButtonItem(image: .init(systemName: "ellipsis.circle"), menu: buildAccountsMenu())
+        item.tintColor = .label
+        navigationItem.setRightBarButton(item, animated: true)
     }
     
     private func startActivityIndicator() {
@@ -203,7 +210,6 @@ class SettingsController: UIViewController {
 extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
         
         switch mode {
         case .account:
@@ -361,11 +367,8 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         
         cell.accessoryType = .disclosureIndicator
         
-        if mode == .all {
-            cell.isPadded(padded: false)
-        } else {
+        if mode != .all {
             cell.backgroundColor = .secondarySystemGroupedBackground
-            cell.isPadded(padded: true)
         }
         
         return cell

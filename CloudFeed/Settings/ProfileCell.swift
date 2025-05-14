@@ -40,14 +40,6 @@ class ProfileCell: UITableViewCell {
             profileEmailLabel.font = UIFont.preferredFont(forTextStyle: .body)
         }
     }
-    
-    func isPadded(padded: Bool) {
-        if padded {
-            profileImageViewTopContraint.constant = 24
-        } else {
-            profileImageViewTopContraint.constant = 0
-        }
-    }
 
     func updateProfileImage(_ image: UIImage?) {
 

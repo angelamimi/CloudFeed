@@ -26,11 +26,11 @@ import os.log
 
 class PagerController: UIViewController {
     
+    @IBOutlet weak var titleView: TitleView!
+    
     var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
     var status: Global.ViewerStatus = .title
-    
-    private weak var titleView: TitleView?
     
     weak var pageViewController: UIPageViewController? {
         return children[0] as? UIPageViewController
@@ -58,9 +58,6 @@ class PagerController: UIViewController {
         
         pageViewController?.setViewControllers([viewerMedia], direction: .forward, animated: true, completion: nil)
         
-        titleView = Bundle.main.loadNibNamed("TitleView", owner: self, options: nil)?.first as? TitleView
-        view.addSubview(titleView!)
-        
         titleView?.navigationDelegate = self
         titleView?.title.text = getFileName(metadata)
         titleView?.initNavigation(withMenu: true)
@@ -70,7 +67,6 @@ class PagerController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
         
         initObservers()
-        initConstraints()
   }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -105,16 +101,6 @@ class PagerController: UIViewController {
                 self?.willEnterForegroundNotification()
             }
         }
-    }
-    
-    private func initConstraints() {
-        
-        titleView?.translatesAutoresizingMaskIntoConstraints = false
-        
-        titleView?.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        titleView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
-        titleView?.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-        titleView?.heightAnchor.constraint(equalToConstant: Global.shared.titleSize).isActive = true
     }
     
     private func initGestureRecognizers() {

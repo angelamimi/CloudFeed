@@ -25,7 +25,6 @@ final class DisplayController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
-    @IBOutlet weak var titleView: TitleView!
     
     private var style: UIUserInterfaceStyle?
     
@@ -33,13 +32,11 @@ final class DisplayController: UIViewController {
     
     override func viewDidLoad() {
         
-        navigationController?.isNavigationBarHidden = true
-        
         tableView.delegate = self
         tableView.dataSource = self
         
         initObservers()
-        initTitleView()
+        initTitle()
         
         style = viewModel?.getStyle()
     }
@@ -63,11 +60,15 @@ final class DisplayController: UIViewController {
         }
     }
     
-    private func initTitleView() {
-        titleView?.navigationDelegate = self
-        titleView?.initNavigation(withMenu: false)
-        titleView?.title.text = Strings.SettingsItemAppearance
-        titleView?.backgroundColor = .systemGroupedBackground
+    private func initTitle() {
+        navigationItem.title = Strings.SettingsItemAppearance
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
     }
     
     @objc
@@ -112,17 +113,6 @@ final class DisplayController: UIViewController {
         
         updateUserInterfaceStyle(style!)
         return style!
-    }
-}
-
-extension DisplayController: NavigationDelegate {
-    
-    func cancel() {
-        navigationController?.popViewController(animated: true)
-    }
-    
-    func titleTouched() {
-        tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }
 }
 

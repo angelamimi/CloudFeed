@@ -176,12 +176,22 @@ extension MainCoordinator {
     }
     
     private func updateMode(_ mode: Global.SettingsMode) {
+        
         let settingsSplitController = tabBarController?.viewControllers?[2] as! UISplitViewController
-        let settingsController = settingsSplitController.viewController(for: .secondary) as! SettingsController
         
-        settingsController.navigationController?.popToRootViewController(animated: false)
-        
-        settingsController.updateMode(mode)
+        if let controller = settingsSplitController.viewController(for: .secondary) {
+            
+            if controller is SettingsController {
+                (controller as! SettingsController).updateMode(mode)
+            } else {
+                
+                controller.navigationController?.popToRootViewController(animated: false)
+                
+                if let settings = settingsSplitController.viewController(for: .secondary) as? SettingsController {
+                    settings.updateMode(mode)
+                }
+            }
+        }
     }
 }
 

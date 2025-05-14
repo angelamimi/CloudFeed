@@ -9,25 +9,6 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Acknowledgements-->
-        <scene sceneID="OG4-0c-9Sg">
-            <objects>
-                <tableViewController storyboardIdentifier="acknowledgementsOLD" title="Acknowledgements" id="a97-07-QAM" customClass="AcknowledgementsController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="QMw-aL-nyC">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                        <connections>
-                            <outlet property="dataSource" destination="a97-07-QAM" id="nVl-ie-aCi"/>
-                            <outlet property="delegate" destination="a97-07-QAM" id="czF-Kb-BJ4"/>
-                        </connections>
-                    </tableView>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ej4-Xd-nJD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1030" y="-1473"/>
-        </scene>
         <!--Acknowledgements Controller-->
         <scene sceneID="rhv-2U-jyp">
             <objects>
@@ -36,35 +17,22 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zuP-Tb-I6V" customClass="TitleView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="118" width="393" height="50"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="I3v-Gu-jQh"/>
-                                </constraints>
-                            </view>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="PZB-X6-n0h">
-                                <rect key="frame" x="0.0" y="168" width="393" height="616"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="PZB-X6-n0h">
+                                <rect key="frame" x="0.0" y="118" width="393" height="666"/>
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Gd-aa-nL7"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="6Gd-aa-nL7" firstAttribute="bottom" secondItem="PZB-X6-n0h" secondAttribute="bottom" id="6eV-EC-ige"/>
                             <constraint firstItem="PZB-X6-n0h" firstAttribute="leading" secondItem="6Gd-aa-nL7" secondAttribute="leading" id="Fp2-Lb-1SS"/>
-                            <constraint firstItem="PZB-X6-n0h" firstAttribute="top" secondItem="6Gd-aa-nL7" secondAttribute="top" constant="50" id="IFY-iq-fUV"/>
+                            <constraint firstItem="PZB-X6-n0h" firstAttribute="top" secondItem="6Gd-aa-nL7" secondAttribute="top" id="IFY-iq-fUV"/>
                             <constraint firstItem="PZB-X6-n0h" firstAttribute="trailing" secondItem="6Gd-aa-nL7" secondAttribute="trailing" id="PzX-Ss-FU6"/>
-                            <constraint firstItem="zuP-Tb-I6V" firstAttribute="top" secondItem="6Gd-aa-nL7" secondAttribute="top" id="cwz-5e-8o1"/>
-                            <constraint firstItem="6Gd-aa-nL7" firstAttribute="trailing" secondItem="zuP-Tb-I6V" secondAttribute="trailing" id="fya-fB-9hl"/>
-                            <constraint firstItem="zuP-Tb-I6V" firstAttribute="leading" secondItem="6Gd-aa-nL7" secondAttribute="leading" id="l8q-u1-s2q"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="tableView" destination="PZB-X6-n0h" id="EnQ-ou-g7i"/>
                         <outlet property="tableViewTopConstraint" destination="IFY-iq-fUV" id="N8b-qC-mS7"/>
-                        <outlet property="titleView" destination="zuP-Tb-I6V" id="8zt-m5-R99"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="45V-Yj-Iw8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -92,13 +60,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rik-g3-uUb" customClass="TitleView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="8" y="162" width="377" height="50"/>
-                                <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="gnj-R7-d8d"/>
-                                </constraints>
-                            </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="giX-XS-qkr">
                                 <rect key="frame" x="0.0" y="168" width="393" height="616"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
@@ -107,10 +68,7 @@
                         <viewLayoutGuide key="safeArea" id="wZx-23-NaP"/>
                         <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="wZx-23-NaP" firstAttribute="trailing" secondItem="rik-g3-uUb" secondAttribute="trailing" constant="8" id="3Gg-E1-Dni"/>
-                            <constraint firstItem="rik-g3-uUb" firstAttribute="leading" secondItem="wZx-23-NaP" secondAttribute="leading" constant="8" id="9iR-ZC-Lgk"/>
                             <constraint firstItem="giX-XS-qkr" firstAttribute="top" secondItem="wZx-23-NaP" secondAttribute="top" constant="6" id="MWv-3b-8SW"/>
-                            <constraint firstItem="rik-g3-uUb" firstAttribute="top" secondItem="wZx-23-NaP" secondAttribute="top" id="NkC-uD-Ekx"/>
                             <constraint firstItem="wZx-23-NaP" firstAttribute="bottom" secondItem="giX-XS-qkr" secondAttribute="bottom" id="ngI-4o-a9A"/>
                             <constraint firstItem="wZx-23-NaP" firstAttribute="trailing" secondItem="giX-XS-qkr" secondAttribute="trailing" id="v2O-XQ-Tnm"/>
                             <constraint firstItem="giX-XS-qkr" firstAttribute="leading" secondItem="wZx-23-NaP" secondAttribute="leading" id="wGU-cS-Dfj"/>
@@ -120,7 +78,6 @@
                     <connections>
                         <outlet property="tableView" destination="giX-XS-qkr" id="iie-r6-m4W"/>
                         <outlet property="tableViewTopConstraint" destination="MWv-3b-8SW" id="ADB-mm-Mv2"/>
-                        <outlet property="titleView" destination="rik-g3-uUb" id="MV6-Mg-XfQ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eqm-HF-3Am" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -135,15 +92,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KJL-Uc-pxt" customClass="TitleView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="118" width="393" height="50"/>
-                                <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="s9Q-Wb-5JA"/>
-                                </constraints>
-                            </view>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="7aa-bY-IbB">
-                                <rect key="frame" x="6" y="168" width="393" height="624"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="7aa-bY-IbB">
+                                <rect key="frame" x="6" y="118" width="393" height="674"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="AvatarCell" rowHeight="200" id="Qgc-Hk-JkU" customClass="AvatarCell" customModule="CloudFeed" customModuleProvider="target">
@@ -154,7 +104,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="wlZ-ZK-hEO">
-                                                    <rect key="frame" x="101.66666666666669" y="11" width="150" height="150"/>
+                                                    <rect key="frame" x="101.66666666666669" y="25" width="150" height="150"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="150" id="41c-XO-gV3"/>
                                                         <constraint firstAttribute="height" constant="150" id="eXn-Wm-HCl"/>
@@ -162,7 +112,7 @@
                                                 </imageView>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="wlZ-ZK-hEO" firstAttribute="top" secondItem="hNz-dC-VWL" secondAttribute="topMargin" id="Eua-rN-Zpd"/>
+                                                <constraint firstItem="wlZ-ZK-hEO" firstAttribute="centerY" secondItem="hNz-dC-VWL" secondAttribute="centerY" id="PNX-mG-Fap"/>
                                                 <constraint firstItem="wlZ-ZK-hEO" firstAttribute="centerX" secondItem="hNz-dC-VWL" secondAttribute="centerX" id="gmO-2R-3Mn"/>
                                             </constraints>
                                         </tableViewCellContentView>
@@ -182,15 +132,12 @@
                         <viewLayoutGuide key="safeArea" id="RyP-Ow-G0j"/>
                         <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="KJL-Uc-pxt" firstAttribute="leading" secondItem="RyP-Ow-G0j" secondAttribute="leading" id="6d2-pq-328"/>
                             <constraint firstItem="7aa-bY-IbB" firstAttribute="trailing" secondItem="RyP-Ow-G0j" secondAttribute="trailing" constant="6" id="AII-gj-anW"/>
-                            <constraint firstItem="7aa-bY-IbB" firstAttribute="top" secondItem="RyP-Ow-G0j" secondAttribute="top" constant="50" id="IWx-nD-2z3"/>
+                            <constraint firstItem="7aa-bY-IbB" firstAttribute="top" secondItem="RyP-Ow-G0j" secondAttribute="top" id="IWx-nD-2z3"/>
                             <constraint firstItem="7aa-bY-IbB" firstAttribute="leading" secondItem="RyP-Ow-G0j" secondAttribute="leading" constant="6" id="PbH-xm-vxV"/>
                             <constraint firstItem="7aa-bY-IbB" firstAttribute="centerX" secondItem="gkF-BF-bkI" secondAttribute="centerX" priority="999" id="R2f-uR-Q2b"/>
                             <constraint firstItem="SIs-7a-gvV" firstAttribute="centerY" secondItem="gkF-BF-bkI" secondAttribute="centerY" id="cpS-Kv-wAT"/>
                             <constraint firstItem="SIs-7a-gvV" firstAttribute="centerX" secondItem="gkF-BF-bkI" secondAttribute="centerX" id="edV-em-YcM"/>
-                            <constraint firstItem="KJL-Uc-pxt" firstAttribute="top" secondItem="RyP-Ow-G0j" secondAttribute="top" id="hSi-0I-fW5"/>
-                            <constraint firstItem="RyP-Ow-G0j" firstAttribute="trailing" secondItem="KJL-Uc-pxt" secondAttribute="trailing" id="iRG-Nn-MqO"/>
                             <constraint firstItem="7aa-bY-IbB" firstAttribute="bottom" secondItem="RyP-Ow-G0j" secondAttribute="bottom" constant="8" id="lH4-h4-fVS"/>
                         </constraints>
                     </view>
@@ -198,12 +145,11 @@
                         <outlet property="activityIndicator" destination="SIs-7a-gvV" id="dPc-E3-aGf"/>
                         <outlet property="tableView" destination="7aa-bY-IbB" id="vuf-D0-90j"/>
                         <outlet property="tableViewTopConstraint" destination="IWx-nD-2z3" id="HNv-dX-Ifw"/>
-                        <outlet property="titleView" destination="KJL-Uc-pxt" id="JI3-Pq-1Ex"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eq3-gm-X6W" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="314" y="-1473"/>
+            <point key="canvasLocation" x="856" y="-1473"/>
         </scene>
         <!--Display Controller-->
         <scene sceneID="LuA-Hr-KUF">
@@ -213,15 +159,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Eb3-Zl-kzB" customClass="TitleView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="118" width="393" height="50"/>
-                                <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="is2-cH-Hx0"/>
-                                </constraints>
-                            </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="z5m-SG-sGd">
-                                <rect key="frame" x="8" y="168" width="377" height="608"/>
+                                <rect key="frame" x="8" y="118" width="377" height="658"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="ModeCell" rowHeight="193" id="LZD-ZS-vpL" customClass="ModeCell" customModule="CloudFeed" customModuleProvider="target">
@@ -310,19 +249,15 @@
                         <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="z5m-SG-sGd" firstAttribute="leading" secondItem="zce-1G-FQC" secondAttribute="leading" priority="999" constant="8" id="4JQ-zo-Ks0"/>
-                            <constraint firstItem="Eb3-Zl-kzB" firstAttribute="top" secondItem="zce-1G-FQC" secondAttribute="top" id="RU5-Io-7PD"/>
                             <constraint firstItem="zce-1G-FQC" firstAttribute="trailing" secondItem="z5m-SG-sGd" secondAttribute="trailing" priority="999" constant="8" id="WXZ-Ah-a9O"/>
                             <constraint firstItem="z5m-SG-sGd" firstAttribute="centerX" secondItem="HM7-vs-Y2E" secondAttribute="centerX" priority="999" id="d97-bh-6nT"/>
                             <constraint firstItem="zce-1G-FQC" firstAttribute="bottom" secondItem="z5m-SG-sGd" secondAttribute="bottom" constant="8" id="neN-nT-XrZ"/>
-                            <constraint firstItem="zce-1G-FQC" firstAttribute="trailing" secondItem="Eb3-Zl-kzB" secondAttribute="trailing" id="oPW-Vb-Yc1"/>
-                            <constraint firstItem="Eb3-Zl-kzB" firstAttribute="leading" secondItem="zce-1G-FQC" secondAttribute="leading" id="pU0-fC-tlS"/>
-                            <constraint firstItem="z5m-SG-sGd" firstAttribute="top" secondItem="zce-1G-FQC" secondAttribute="top" constant="50" id="scD-Ok-GdQ"/>
+                            <constraint firstItem="z5m-SG-sGd" firstAttribute="top" secondItem="zce-1G-FQC" secondAttribute="top" id="scD-Ok-GdQ"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="tableView" destination="z5m-SG-sGd" id="iMl-FS-svE"/>
                         <outlet property="tableViewTopConstraint" destination="scD-Ok-GdQ" id="N3E-4O-oUB"/>
-                        <outlet property="titleView" destination="Eb3-Zl-kzB" id="nS3-Pe-7xF"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9fO-Cq-gfP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -337,15 +272,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bT0-Wg-gMR" customClass="TitleView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="8" y="162" width="377" height="50"/>
-                                <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="Mdx-7a-9h9"/>
-                                </constraints>
-                            </view>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="XZE-fJ-x6B">
-                                <rect key="frame" x="6" y="212" width="381" height="552"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="XZE-fJ-x6B">
+                                <rect key="frame" x="6" y="163" width="381" height="601"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="ProfileCell" rowHeight="200" id="ss6-9g-Eac" userLabel="profileCell" customClass="ProfileCell" customModule="CloudFeed" customModuleProvider="target">
@@ -384,17 +312,19 @@
                                             <constraints>
                                                 <constraint firstItem="0xh-Ae-GcS" firstAttribute="top" secondItem="gKx-sO-EbR" secondAttribute="bottom" id="5JR-Mc-Z1r"/>
                                                 <constraint firstAttribute="bottom" secondItem="0xh-Ae-GcS" secondAttribute="bottom" constant="20" id="Abs-fw-LeH"/>
-                                                <constraint firstAttribute="trailing" secondItem="gKx-sO-EbR" secondAttribute="trailing" constant="8" id="Bh5-qK-LNr"/>
                                                 <constraint firstItem="gKx-sO-EbR" firstAttribute="top" secondItem="caQ-Jq-qnc" secondAttribute="bottom" constant="15" id="Ch5-wq-USr"/>
-                                                <constraint firstItem="caQ-Jq-qnc" firstAttribute="centerX" secondItem="a8Z-ao-YNc" secondAttribute="centerX" id="J3F-LN-kQ8"/>
-                                                <constraint firstAttribute="trailing" secondItem="0xh-Ae-GcS" secondAttribute="trailing" constant="8" id="aEK-ep-Quq"/>
-                                                <constraint firstItem="gKx-sO-EbR" firstAttribute="leading" secondItem="a8Z-ao-YNc" secondAttribute="leading" constant="8" id="cmV-JS-KeM"/>
                                                 <constraint firstItem="caQ-Jq-qnc" firstAttribute="top" secondItem="a8Z-ao-YNc" secondAttribute="top" constant="24" id="d9x-Eu-ch8"/>
-                                                <constraint firstItem="0xh-Ae-GcS" firstAttribute="leading" secondItem="a8Z-ao-YNc" secondAttribute="leading" constant="8" id="sLQ-2x-Rb7"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                                         <color key="tintColor" systemColor="labelColor"/>
+                                        <constraints>
+                                            <constraint firstItem="gKx-sO-EbR" firstAttribute="leading" secondItem="a8Z-ao-YNc" secondAttribute="leading" constant="8" id="3di-v8-dlF"/>
+                                            <constraint firstItem="a8Z-ao-YNc" firstAttribute="trailing" secondItem="0xh-Ae-GcS" secondAttribute="trailing" constant="8" id="GR3-Wb-M1y"/>
+                                            <constraint firstItem="0xh-Ae-GcS" firstAttribute="leading" secondItem="a8Z-ao-YNc" secondAttribute="leading" constant="8" id="PhA-4X-Wfb"/>
+                                            <constraint firstItem="a8Z-ao-YNc" firstAttribute="trailing" secondItem="gKx-sO-EbR" secondAttribute="trailing" constant="8" id="eFI-s2-DnE"/>
+                                            <constraint firstItem="caQ-Jq-qnc" firstAttribute="centerX" secondItem="a8Z-ao-YNc" secondAttribute="centerX" id="rVJ-cs-WqC"/>
+                                        </constraints>
                                         <connections>
                                             <outlet property="profileEmailLabel" destination="0xh-Ae-GcS" id="dw1-fn-xqi"/>
                                             <outlet property="profileImageView" destination="caQ-Jq-qnc" id="cUc-H2-Rgf"/>
@@ -425,13 +355,10 @@
                             <constraint firstItem="uKk-De-qmb" firstAttribute="centerX" secondItem="3s0-UW-uuw" secondAttribute="centerX" id="4NK-XH-sJd"/>
                             <constraint firstItem="uKk-De-qmb" firstAttribute="centerY" secondItem="3s0-UW-uuw" secondAttribute="centerY" id="9MN-eB-xKs"/>
                             <constraint firstItem="XZE-fJ-x6B" firstAttribute="trailing" secondItem="W00-FN-fR1" secondAttribute="trailing" constant="-6" id="Mie-N0-sOt"/>
-                            <constraint firstItem="bT0-Wg-gMR" firstAttribute="leading" secondItem="W00-FN-fR1" secondAttribute="leading" constant="8" id="U26-WO-tDb"/>
                             <constraint firstItem="W00-FN-fR1" firstAttribute="leading" secondItem="XZE-fJ-x6B" secondAttribute="leading" constant="-6" id="Vsq-T4-Ksy"/>
-                            <constraint firstItem="XZE-fJ-x6B" firstAttribute="top" secondItem="W00-FN-fR1" secondAttribute="top" constant="50" id="gh3-3z-1It"/>
+                            <constraint firstItem="XZE-fJ-x6B" firstAttribute="top" secondItem="W00-FN-fR1" secondAttribute="top" constant="1" id="gh3-3z-1It"/>
                             <constraint firstItem="XZE-fJ-x6B" firstAttribute="centerX" secondItem="3s0-UW-uuw" secondAttribute="centerX" priority="999" id="j1Z-q9-5k9"/>
                             <constraint firstItem="W00-FN-fR1" firstAttribute="bottom" secondItem="XZE-fJ-x6B" secondAttribute="bottom" constant="20" id="xNh-hk-Got"/>
-                            <constraint firstItem="W00-FN-fR1" firstAttribute="trailing" secondItem="bT0-Wg-gMR" secondAttribute="trailing" constant="8" id="yWV-cW-VhU"/>
-                            <constraint firstItem="bT0-Wg-gMR" firstAttribute="top" secondItem="W00-FN-fR1" secondAttribute="top" id="zgr-N6-yQL"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Settings" id="Tkp-FB-ZVc"/>
@@ -439,7 +366,6 @@
                         <outlet property="activityIndicator" destination="uKk-De-qmb" id="2tq-d9-Hf5"/>
                         <outlet property="tableView" destination="XZE-fJ-x6B" id="iqp-OC-9Wa"/>
                         <outlet property="tableViewTopConstraint" destination="gh3-3z-1It" id="GAH-gr-zcS"/>
-                        <outlet property="titleView" destination="bT0-Wg-gMR" id="CHE-Gg-htg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zX3-PX-o9U" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -482,9 +408,6 @@
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondarySystemGroupedBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
-        <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGroupedBackgroundColor">

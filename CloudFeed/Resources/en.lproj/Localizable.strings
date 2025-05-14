@@ -43,6 +43,8 @@
 
 /* Profile */
 "Profile.Nav.Title" = "Account";
+"Profile.Nav.Title.View" = "View Account";
+"Profile.Nav.Title.Manage" = "Manage Account";
 "Profile.Item.Name" = "Name";
 "Profile.Item.Email" = "Email";
 "Profile.Item.RemoveAccount" = "Remove local account";

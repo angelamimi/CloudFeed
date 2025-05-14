@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="r40-jb-ixQ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="r40-jb-ixQ">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,23 +18,36 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="W1n-Dw-rA6">
-                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <rect key="frame" x="0.0" y="118" width="393" height="666"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <connections>
                                     <segue destination="KfW-kE-79u" kind="embed" id="jcx-X3-EqB"/>
                                 </connections>
                             </containerView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P4k-Fh-Hxp" customClass="TitleView" customModule="CloudFeed" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="118" width="393" height="50"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="8sQ-TF-d1c"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="TIa-9d-2uX"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="W1n-Dw-rA6" firstAttribute="top" secondItem="TIa-9d-2uX" secondAttribute="top" id="9aU-V0-Zai"/>
                             <constraint firstItem="TIa-9d-2uX" firstAttribute="trailing" secondItem="W1n-Dw-rA6" secondAttribute="trailing" id="In1-ax-uxC"/>
+                            <constraint firstItem="P4k-Fh-Hxp" firstAttribute="top" secondItem="TIa-9d-2uX" secondAttribute="top" id="auS-gL-BAQ"/>
                             <constraint firstItem="TIa-9d-2uX" firstAttribute="bottom" secondItem="W1n-Dw-rA6" secondAttribute="bottom" id="hJO-ZY-DSR"/>
                             <constraint firstItem="W1n-Dw-rA6" firstAttribute="leading" secondItem="TIa-9d-2uX" secondAttribute="leading" id="hWt-eU-Bou"/>
+                            <constraint firstItem="P4k-Fh-Hxp" firstAttribute="leading" secondItem="TIa-9d-2uX" secondAttribute="leading" id="yWC-sM-7qw"/>
+                            <constraint firstItem="TIa-9d-2uX" firstAttribute="trailing" secondItem="P4k-Fh-Hxp" secondAttribute="trailing" id="zEI-Jw-GNN"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="KHH-pV-Az5"/>
+                    <connections>
+                        <outlet property="titleView" destination="P4k-Fh-Hxp" id="5bf-fh-cRn"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gzJ-F7-ztV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -57,14 +70,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView opaque="NO" clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gnc-Wf-rti">
-                                <rect key="frame" x="0.0" y="59" width="393" height="300"/>
+                                <rect key="frame" x="0.0" y="118" width="393" height="300"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="300" id="u4l-oU-PNv"/>
                                 </constraints>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JHA-Xd-uSt">
-                                <rect key="frame" x="8" y="117" width="76.333333333333329" height="28"/>
+                                <rect key="frame" x="8" y="176" width="76.333333333333329" height="28"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="uI2-yM-R6H">
                                         <rect key="frame" x="8.0000000000000036" y="4" width="58.333333333333343" height="20"/>
@@ -96,7 +109,7 @@
                                 </constraints>
                             </view>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="kG3-WY-mSO">
-                                <rect key="frame" x="186.66666666666666" y="198" width="20" height="22"/>
+                                <rect key="frame" x="186.66666666666666" y="257" width="20" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="20" id="h3D-xJ-7pm"/>
                                     <constraint firstAttribute="height" constant="22" id="zmt-FF-tSn"/>
@@ -141,7 +154,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" estimatedSectionHeaderHeight="-1" sectionFooterHeight="28" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="iW4-aT-FE7">
-                                <rect key="frame" x="0.0" y="59" width="377" height="759"/>
+                                <rect key="frame" x="0.0" y="118" width="377" height="666"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="DetailCell" id="Jb7-Y3-rrm" customClass="DetailCell" customModule="CloudFeed" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="50" width="377" height="36.666667938232422"/>

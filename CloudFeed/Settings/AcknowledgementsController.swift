@@ -26,7 +26,6 @@ final class AcknowledgementsController : UIViewController { //UITableViewControl
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
-    @IBOutlet weak var titleView: TitleView!
     
     private var acknowledgements: [NSDictionary] = []
     
@@ -38,17 +37,12 @@ final class AcknowledgementsController : UIViewController { //UITableViewControl
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        initTitleView()
-        initConstraints()
-        titleView?.initNavigation(withMenu: false)
+        initTitle()
         
         tableView.register(UINib(nibName: "AcknowledgementCell", bundle: nil), forCellReuseIdentifier: "AcknowledgementCell")
         
         tableView.rowHeight = UITableView.automaticDimension;
         tableView.estimatedRowHeight = 120;
-        
-        tableView.layoutMargins = UIEdgeInsets.zero
-        tableView.separatorInset = UIEdgeInsets.zero
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -62,21 +56,23 @@ final class AcknowledgementsController : UIViewController { //UITableViewControl
         acknowledgements = array
     }
     
-    @objc public func didTapCloseButton() {
-        navigationController?.popViewController(animated: true)
-    }
-    
-    private func initTitleView() {
-        titleView?.title.text = Strings.SettingsItemAcknowledgements
-        titleView?.navigationDelegate = self
-    }
-    
-    private func initConstraints() {
-        titleView?.titleTrailingConstraint.constant = -80
+    private func initTitle() {
+        navigationItem.title = Strings.SettingsItemAcknowledgements
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
     }
 }
 
 extension AcknowledgementsController: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return .leastNormalMagnitude
+    }
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -96,17 +92,6 @@ extension AcknowledgementsController: UITableViewDelegate, UITableViewDataSource
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
          return UITableView.automaticDimension
-    }
-}
-
-extension AcknowledgementsController: NavigationDelegate {
-    
-    func cancel() {
-        navigationController?.popViewController(animated: true)
-    }
-    
-    func titleTouched() {
-        tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }
 }
 

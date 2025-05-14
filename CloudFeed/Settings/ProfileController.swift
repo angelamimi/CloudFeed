@@ -26,7 +26,6 @@ final class ProfileController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
-    @IBOutlet weak var titleView: TitleView!
     
     var viewModel: ProfileViewModel?
 
@@ -37,12 +36,10 @@ final class ProfileController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.isNavigationBarHidden = true
-        
         tableView.delegate = self
         tableView.dataSource = self
         
-        initTitleView()
+        initTitle()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -70,10 +67,15 @@ final class ProfileController: UIViewController {
         activityIndicator.stopAnimating()
     }
     
-    private func initTitleView() {
-        titleView?.navigationDelegate = self
-        titleView?.initNavigation(withMenu: false)
-        titleView?.title.text = Strings.ProfileNavTitle
+    private func initTitle() {
+        navigationItem.title = Strings.ProfileNavTitleManage
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
     }
 }
 
@@ -204,16 +206,5 @@ extension ProfileController: ProfileDelegate {
                 self?.viewModel?.showProfileLoadfailedError()
             }
         }
-    }
-}
-
-extension ProfileController: NavigationDelegate {
-    
-    func cancel() {
-        navigationController?.popViewController(animated: true)
-    }
-    
-    func titleTouched() {
-        tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }
 }

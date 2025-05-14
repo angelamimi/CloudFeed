@@ -38,16 +38,21 @@ class MenuController: UIViewController {
     var delegate: MenuDelegate?
     
     override func viewDidLoad() {
-
-        titleView.title.text = Strings.SettingsNavTitle
-        titleView.initTitleOnly()
-        
-        navigationController?.isNavigationBarHidden = true
         
         tableView.dataSource = self
         tableView.delegate = self
 
-        tableViewTopConstraint.constant = 58
+        tableViewTopConstraint.constant = 16 //58
+        
+        navigationItem.title = Strings.SettingsNavTitle
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
     }
     
     override func viewDidAppear(_ animated: Bool) {
