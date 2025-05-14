@@ -62,6 +62,7 @@ final class DisplayController: UIViewController {
     
     private func initTitle() {
         navigationItem.title = Strings.SettingsItemAppearance
+        navigationItem.largeTitleDisplayMode = .never
         
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()

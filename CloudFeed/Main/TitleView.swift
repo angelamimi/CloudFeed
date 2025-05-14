@@ -79,14 +79,9 @@ class TitleView: UIView {
 
         MainActor.assumeIsolated {
             
-            self.minimumContentSizeCategory = .large
-            self.maximumContentSizeCategory = .accessibilityExtraLarge
+            minimumContentSizeCategory = .large
             
             title.minimumContentSizeCategory = .accessibilityMedium
-            filterButton.minimumContentSizeCategory = .large
-            filterButton.maximumContentSizeCategory = .extraExtraExtraLarge
-            menuButton.minimumContentSizeCategory = .extraExtraLarge
-            menuButton.maximumContentSizeCategory = .accessibilityLarge
 
             initText()
             

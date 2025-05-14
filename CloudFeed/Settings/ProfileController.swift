@@ -69,6 +69,7 @@ final class ProfileController: UIViewController {
     
     private func initTitle() {
         navigationItem.title = Strings.ProfileNavTitleManage
+        navigationItem.largeTitleDisplayMode = .never
         
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()

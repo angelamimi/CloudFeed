@@ -58,6 +58,7 @@ final class AcknowledgementsController : UIViewController { //UITableViewControl
     
     private func initTitle() {
         navigationItem.title = Strings.SettingsItemAcknowledgements
+        navigationItem.largeTitleDisplayMode = .never
         
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
