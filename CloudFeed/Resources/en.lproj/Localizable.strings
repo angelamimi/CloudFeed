@@ -14,6 +14,8 @@
 "Yes.Action" = "Yes";
 "No.Action" = "No";
 "Live.Title" = "LIVE";
+"Switch.Value.On" = "On";
+"Switch.Value.Off" = "Off";
 
 /* Settings - Application reset dialog */
 "Reset.Title" = "Reset Application";
@@ -106,6 +108,7 @@
 "Title.AllItems" = "All Items";
 "Title.VideosOnly" = "Videos Only";
 "Title.ImagesOnly" = "Images Only";
+"Title.Menu" = "Menu";
 
 
 /* Image Detail and EXIF */

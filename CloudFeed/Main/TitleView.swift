@@ -252,6 +252,9 @@ class TitleView: UIView {
     }
     
     private func initText() {
+        
+        menuButton.accessibilityLabel = Strings.TitleMenu
+        
         doneButton.setTitle(Strings.TitleApply, for: .normal)
         cancelButton.setTitle(Strings.TitleCancel, for: .normal)
     }

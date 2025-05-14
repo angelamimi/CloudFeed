@@ -45,6 +45,14 @@ class ModeCell: UITableViewCell {
             darkLabel.text = Strings.SettingsLabelDark
             lightLabel.text = Strings.SettingsLabelLight
             
+            darkStackView.isAccessibilityElement = true
+            darkStackView.accessibilityTraits = [.button]
+            darkStackView.accessibilityLabel = Strings.SettingsLabelDark
+            
+            lightStackView.isAccessibilityElement = true
+            lightStackView.accessibilityTraits = [.button]
+            lightStackView.accessibilityLabel = Strings.SettingsLabelLight
+            
             let lightTap = UITapGestureRecognizer(target: self, action: #selector(lightStackViewTapped))
             lightStackView.addGestureRecognizer(lightTap)
         

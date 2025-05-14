@@ -173,6 +173,9 @@ extension DisplayController : UITableViewDelegate, UITableViewDataSource {
                 switchView.setOn(style == nil, animated: true)
                 switchView.addTarget(self, action: #selector(systemSwitchChanged(_:)), for: .valueChanged)
                 
+                cell.isAccessibilityElement = true
+                cell.accessibilityLabel = Strings.SettingsItemSystemStyle
+                cell.accessibilityValue = style == nil ? Strings.SwitchValueOn : Strings.SwitchValueOff
                 cell.accessoryView = switchView
             }
             

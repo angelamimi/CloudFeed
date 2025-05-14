@@ -33,6 +33,8 @@ extension Strings {
     public static let YesAction = NSLocalizedString("Yes.Action", comment: "")
     public static let NoAction = NSLocalizedString("No.Action", comment: "")
     public static let LiveTitle = NSLocalizedString("Live.Title", comment: "")
+    public static let SwitchValueOn = NSLocalizedString("Switch.Value.On", comment: "")
+    public static let SwitchValueOff = NSLocalizedString("Switch.Value.Off", comment: "")
     
     //Settings - Application reset Dialog
     public static let ResetAction = NSLocalizedString("Reset.Action", comment: "")
@@ -125,6 +127,7 @@ extension Strings {
     public static let TitleAllItems = NSLocalizedString("Title.AllItems", comment: "")
     public static let TitleVideosOnly = NSLocalizedString("Title.VideosOnly", comment: "")
     public static let TitleImagesOnly = NSLocalizedString("Title.ImagesOnly", comment: "")
+    public static let TitleMenu = NSLocalizedString("Title.Menu", comment: "")
     
     //Image Detail and EXIF
     public static let DetailSectionGeneral = NSLocalizedString("Detail.Section.General", comment: "")
