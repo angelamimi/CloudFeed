@@ -311,12 +311,13 @@ class DetailView: UIView {
         populateImageSizeInfo(pixelProperties: imagePropertyDict, sizeProperties: properties)
         await populateImageLocationInfo(imageProperties: imagePropertyDict)
         
-        if let exif = imagePropertyDict[kCGImagePropertyExifDictionary] as? [NSString: AnyObject] {
-            populateImageExifInfo(exif)
-        }
-
+        var camera: String? = ""
         if let tiff = imagePropertyDict[kCGImagePropertyTIFFDictionary] as? [NSString: AnyObject] {
-            populateImageTiffInfo(tiff)
+            camera = populateImageTiffInfo(tiff)
+        }
+        
+        if let exif = imagePropertyDict[kCGImagePropertyExifDictionary] as? [NSString: AnyObject] {
+            populateImageExifInfo(exif, camera)
         }
     }
     
@@ -357,7 +358,7 @@ class DetailView: UIView {
         return (latitude: latitude! * latitudeDirection, longitude: longitude! * longitudeDirection)
     }
     
-    private func populateImageTiffInfo(_ tiff: [NSString: AnyObject]) {
+    private func populateImageTiffInfo(_ tiff: [NSString: AnyObject]) -> String? {
         
         let make = tiff[kCGImagePropertyTIFFMake] as? String
         let model = tiff[kCGImagePropertyTIFFModel] as? String
@@ -382,6 +383,8 @@ class DetailView: UIView {
         } else {
             setMakeModelText(Strings.DetailCameraNone)
         }
+        
+        return label
     }
     
     private func populateImageSizeInfo(pixelProperties: NSMutableDictionary, sizeProperties: NSMutableDictionary) {
@@ -431,7 +434,7 @@ class DetailView: UIView {
         sizeLabel.accessibilityValue = finalFormattedSize
     }
     
-    private func populateImageExifInfo(_ exif: [NSString: AnyObject]) {
+    private func populateImageExifInfo(_ exif: [NSString: AnyObject], _ camera: String?) {
         
         let make = exif[kCGImagePropertyExifLensMake] as? String
         let model = exif[kCGImagePropertyExifLensModel] as? String
@@ -453,11 +456,16 @@ class DetailView: UIView {
         }
         
         if lens != nil && !lens!.isEmpty {
-            lensText = lens!
+            if camera != nil && !camera!.isEmpty && lens!.starts(with: camera!) {
+                let text = lens!.suffix(from: camera!.endIndex).description.trimmingCharacters(in: .whitespaces)
+                lensText = text.prefix(1).uppercased() + text.dropFirst()
+            } else {
+                lensText = lens!
+            }
         } else {
             lensText = Strings.DetailLensNone
         }
-        
+
         lensLabel.text = lensText
         lensLabel.accessibilityValue = lensText
         
