@@ -46,6 +46,7 @@ final class PagerViewModel: ShareViewModel {
         self.currentIndex = currentIndex
         self.metadatas = metadatas
         self.pagerCoordinator = pagerCoordinator
+        self.viewerDelegate = viewerDelegate
         
         super.init(dataService: dataService, shareDelegate: delegate)
     }

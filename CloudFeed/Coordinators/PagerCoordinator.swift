@@ -42,13 +42,13 @@ final class PagerCoordinator {
     func start(currentIndex: Int, metadatas: [Metadata]) {
         
         let viewerCoordinator = ViewerCoordinator(dataService: dataService)
-        let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
-        let viewModel = PagerViewModel(coordinator: viewerCoordinator, pagerCoordinator: self, dataService: dataService, delegate: viewerPager, viewerDelegate:viewerPager, currentIndex: currentIndex, metadatas: metadatas)
+        weak var viewerPager: PagerController? = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as? PagerController
+        let viewModel = PagerViewModel(coordinator: viewerCoordinator, pagerCoordinator: self, dataService: dataService, delegate: viewerPager!, viewerDelegate: viewerPager!, currentIndex: currentIndex, metadatas: metadatas)
         
-        viewerPager.viewModel = viewModel
-        viewerPager.coordinator = self
+        viewerPager!.viewModel = viewModel
+        viewerPager!.coordinator = self
         
-        navigationController.pushViewController(viewerPager, animated: true)
+        navigationController.pushViewController(viewerPager!, animated: true)
         
         if UIDevice.current.userInterfaceIdiom == .pad,
            #available(iOS 18.0, *),
