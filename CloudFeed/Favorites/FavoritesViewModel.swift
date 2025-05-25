@@ -24,7 +24,7 @@ import os.log
 import UIKit
 
 @MainActor
-protocol FavoritesDelegate: AnyObject {
+protocol FavoritesDelegate: ShareDelegate {
     func fetching()
     func dataSourceUpdated(refresh: Bool)
     func bulkEditFinished(error: Bool)
@@ -33,16 +33,15 @@ protocol FavoritesDelegate: AnyObject {
 }
 
 @MainActor
-final class FavoritesViewModel: NSObject {
+final class FavoritesViewModel: ShareViewModel {
     
     var pauseLoading: Bool = false
-    
+
     private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata.ID>!
     
     private let coordinator: FavoritesCoordinator
     private weak var delegate: FavoritesDelegate!
     
-    private let dataService: DataService
     private let cacheManager: CacheManager
     
     private var metadatas: [Metadata.ID: Metadata] = [:]
@@ -60,9 +59,10 @@ final class FavoritesViewModel: NSObject {
     
     init(delegate: FavoritesDelegate, dataService: DataService, cacheManager: CacheManager, coordinator: FavoritesCoordinator) {
         self.delegate = delegate
-        self.dataService = dataService
         self.cacheManager = cacheManager
         self.coordinator = coordinator
+        
+        super.init(dataService: dataService, shareDelegate: delegate)
     }
     
     func initDataSource(collectionView: UICollectionView) {
@@ -76,6 +76,10 @@ final class FavoritesViewModel: NSObject {
         var snapshot = dataSource.snapshot()
         snapshot.appendSections([0])
         dataSource.applySnapshotUsingReloadData(snapshot)
+    }
+    
+    override func share(urls: [URL]) {
+        coordinator.share(urls)
     }
     
     func getItemAtIndexPath(_ indexPath: IndexPath) -> Metadata? {
@@ -305,6 +309,18 @@ final class FavoritesViewModel: NSObject {
         coordinator.showFavoriteUpdateFailedError()
     }
     
+    func share(indexPaths: [IndexPath]) {
+        var selectedMetadatas: [Metadata] = []
+        for indexPath in indexPaths {
+            guard let id = dataSource.itemIdentifier(for: indexPath) else { continue }
+            guard let metadata = metadatas[id] else { continue }
+            
+            selectedMetadatas.append(metadata)
+        }
+        
+        share(metadatas: selectedMetadatas)
+    }
+    
     private func handleFavoriteResult(error: Bool) {
         if error {
             delegate.fetchResultReceived(resultItemCount: nil)
@@ -501,10 +517,9 @@ final class FavoritesViewModel: NSObject {
     }
 }
 
-extension FavoritesViewModel: DownloadOperationDelegate {
+extension FavoritesViewModel: DownloadPreviewOperationDelegate {
     
-    func imageDownloaded(metadata: Metadata) {
-        
+    func previewDownloaded(metadata: Metadata) {
         var snapshot = dataSource.snapshot()
         let displayed = snapshot.itemIdentifiers(inSection: 0)
         

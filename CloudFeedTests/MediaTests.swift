@@ -186,13 +186,15 @@ class MediaTests {
 }
 
 final class MockFavoritesDelegate: FavoritesDelegate {
-    
+
     let onFetchResultReceived: ((Int) -> Void)
     
     init(onFetchResultReceived: @escaping (Int) -> Void) {
         self.onFetchResultReceived = onFetchResultReceived
     }
     
+    func shareComplete() {}
+    func progressUpdated(_ progress: Double) {}
     func fetching() {}
     func dataSourceUpdated(refresh: Bool) {}
     func bulkEditFinished(error: Bool) {}
@@ -214,6 +216,9 @@ final class MockMediaDelegate: MediaDelegate {
     func dataSourceUpdated(refresh: Bool) {}
     func favoriteUpdated(error: Bool) {}
     func searching() {}
+    func shareComplete() {}
+    func progressUpdated(_ progress: Double) {}
+    func selectCellUpdated(cell: CloudFeed.CollectionViewCell, indexPath: IndexPath) {}
     
     func searchResultReceived(resultItemCount: Int?) {
         onSearchResultReceived(resultItemCount ?? -1)

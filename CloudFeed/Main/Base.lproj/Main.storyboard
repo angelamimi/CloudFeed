@@ -36,7 +36,7 @@
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="y0O-m2-8Pt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2680" y="349"/>
+            <point key="canvasLocation" x="-2770" y="360"/>
         </scene>
         <!--SplitController-->
         <scene sceneID="sk2-nw-yNm">
@@ -46,7 +46,7 @@
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gcn-s3-s40" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1448" y="349"/>
+            <point key="canvasLocation" x="-1057" y="85"/>
         </scene>
         <!--Favorites-->
         <scene sceneID="cAk-4a-nYC">
@@ -56,7 +56,7 @@
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Fsp-eJ-Xz9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1614" y="89"/>
+            <point key="canvasLocation" x="-1614" y="39"/>
         </scene>
         <!--Settings-->
         <scene sceneID="PoH-aX-Nxn">

@@ -42,7 +42,7 @@ class MediaController: CollectionController {
         collectionView.delegate = self
         
         viewModel.initDataSource(collectionView: collectionView)
-        initTitleView(mediaView: self, navigationDelegate: self, allowEdit: false, layoutType: viewModel.getLayoutType())
+        initTitleView(mediaView: self, navigationDelegate: self, allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
     }
@@ -141,6 +141,12 @@ class MediaController: CollectionController {
         }
     }
     
+    private func shareMenuAction(metadata: Metadata) -> UIAction {
+        return UIAction(title: Strings.ShareAction, image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
+            self?.share([metadata])
+        }
+    }
+    
     private func favoriteMenuAction(metadata: Metadata) -> UIAction {
         
         if metadata.favorite {
@@ -166,9 +172,39 @@ class MediaController: CollectionController {
             displayResults(refresh: refresh, emptyViewTitle: Strings.MediaEmptyTitle, emptyViewDescription: Strings.MediaEmptyDescription)
         }
     }
+    
+    private func share(_ metadatas: [Metadata]) {
+        showProgressView()
+        viewModel.share(metadatas: metadatas)
+    }
+    
+    private func reloadSection() {
+        viewModel.reload()
+    }
+    
+    private func bulkSelect() {
+        guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
+        viewModel.share(indexPaths: indexPaths)
+    }
+    
+    private func reset() {
+        
+        collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
+            self?.collectionView.deselectItem(at: $0, animated: false)
+        }
+
+        isEditing = false
+        collectionView.allowsMultipleSelection = false
+        reloadSection()
+    }
 }
 
 extension MediaController: CollectionDelegate {
+    
+    func cancelDownloads() {
+        viewModel.cancelDownloads()
+        reset()
+    }
     
     func enteringForeground() {
         syncMedia()
@@ -246,12 +282,56 @@ extension MediaController: MediaDelegate {
             displayResults(refresh: false)
         }
     }
+    
+    func shareComplete() {
+        if view.subviews.last is ProgressView {
+            view.subviews.last?.removeFromSuperview()
+            collectionView.isUserInteractionEnabled = true
+            titleView.isUserInteractionEnabled = true
+        }
+        reset()
+    }
+    
+    func progressUpdated(_ progress: Double) { 
+        if view.subviews.last is ProgressView,
+           let progressView = view.subviews.last as? ProgressView {
+            let currentProgress = progressView.progressView.progress
+            progressView.progressView.setProgress(currentProgress + Float(progress), animated: true)
+        }
+    }
+    
+    func selectCellUpdated(cell: CollectionViewCell, indexPath: IndexPath) {
+        if isEditing {
+            cell.selectMode(true)
+            if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
+                cell.selected(true)
+            } else {
+                cell.selected(false)
+            }
+        } else {
+            cell.selectMode(false)
+        }
+    }
 }
 
 extension MediaController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        openViewer(indexPath: indexPath)
+        if isEditing {
+            if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
+                cell.selected(true)
+            }
+        } else {
+            openViewer(indexPath: indexPath)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        if isEditing {
+            if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
+                cell.selected(false)
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
@@ -266,7 +346,9 @@ extension MediaController: UICollectionViewDelegate {
 
         let config = UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: { previewController }, actionProvider: { [weak self] _ in
             guard let self else { return .init(children: []) }
-            return UIMenu(title: "", options: .displayInline, children: [self.favoriteMenuAction(metadata: metadata)])
+            return UIMenu(title: "",
+                          options: .displayInline,
+                          children: [self.favoriteMenuAction(metadata: metadata), self.shareMenuAction(metadata: metadata)])
         })
         
         return config
@@ -283,6 +365,15 @@ extension MediaController: UICollectionViewDelegate {
 
 extension MediaController: MediaViewController {
     
+    func select() {
+        if viewModel.currentItemCount() > 0 {
+            titleBeginSelect()
+            isEditing = true
+            collectionView.allowsMultipleSelection = true
+            reloadSection()
+        }
+    }
+    
     func updateMediaType(_ type: Global.FilterType) {
         filterType = type
         clear()
@@ -291,7 +382,7 @@ extension MediaController: MediaViewController {
     
     func updateLayout(_ layout: String) {
         viewModel.updateLayoutType(layout)
-        reloadMenu(allowEdit: false, layoutType: viewModel.getLayoutType())
+        reloadMenu(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
         updateLayoutType(layout)
     }
     
@@ -311,8 +402,19 @@ extension MediaController: MediaViewController {
         viewModel.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
     }
     
-    func edit() {}
-    func endEdit() {}
+    func edit() {
+        if viewModel.currentItemCount() > 0 {
+            titleBeginEdit()
+            isEditing = true
+            collectionView.allowsMultipleSelection = true
+            reloadSection()
+        }
+    }
+    
+    func endEdit() {
+        showProgressView()
+        bulkSelect()
+    }
 }
 
 extension MediaController: NavigationDelegate {
@@ -321,7 +423,9 @@ extension MediaController: NavigationDelegate {
         scrollToTop(animated: true)
     }
     
-    func cancel() {}
+    func cancel() {
+        reset()
+    }
 }
 
 extension MediaController: Filterable {

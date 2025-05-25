@@ -62,7 +62,7 @@ class PagerController: UIViewController {
         titleView?.title.text = getFileName(metadata)
         titleView?.initNavigation(withMenu: true)
         
-        setFavoriteMenu(isFavorite: metadata.favorite)
+        setMenu(isFavorite: metadata.favorite)
         
         navigationController?.setNavigationBarHidden(true, animated: false)
         
@@ -129,8 +129,9 @@ class PagerController: UIViewController {
         }
     }
 
-    private func setFavoriteMenu(isFavorite: Bool) {
+    private func setMenu(isFavorite: Bool) {
 
+        guard let currentViewController = currentViewController else { return }
         var action: UIAction
         
         if (isFavorite) {
@@ -142,8 +143,12 @@ class PagerController: UIViewController {
                 self.toggleFavoriteNetwork(isFavorite: true)
             }
         }
+
+        let shareAction = UIAction(title: Strings.ShareAction, image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
+            self?.share([currentViewController.metadata])
+        }
         
-        let menu = UIMenu(children: [action])
+        let menu = UIMenu(children: [action, shareAction])
         
         DispatchQueue.main.async { [weak self] in
             self?.titleView?.menuButton.menu = menu
@@ -152,6 +157,30 @@ class PagerController: UIViewController {
     
     private func toggleFavoriteNetwork(isFavorite: Bool) {
         viewModel.toggleFavorite(isFavorite: isFavorite)
+    }
+    
+    private func share(_ metadatas: [Metadata]) {
+        showProgressView()
+        viewModel.share(metadatas: metadatas)
+    }
+    
+    private func showProgressView() {
+        
+        guard let progressView = Bundle.main.loadNibNamed("ProgressView", owner: self, options: nil)?.first as? ProgressView else { return }
+
+        progressView.delegate = self
+
+        view.addSubview(progressView)
+        titleView.isUserInteractionEnabled = false
+        currentViewController?.view.isUserInteractionEnabled = false
+        
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+
+        progressView.widthAnchor.constraint(equalToConstant: 250).isActive = true
+        progressView.heightAnchor.constraint(equalToConstant: view.frame.height).isActive = true
+
+        progressView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        progressView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
     
     private func getVideoURL(metadata: Metadata) -> URL? {
@@ -367,7 +396,7 @@ extension PagerController: PagerViewModelDelegate {
             self?.titleView?.title.text = self?.getFileName(metadata)
         }
         
-        setFavoriteMenu(isFavorite: metadata.favorite)
+        setMenu(isFavorite: metadata.favorite)
         
         if let detail = presentedViewController as? DetailsController,
            let presentedId = detail.metadata?.id,
@@ -384,12 +413,28 @@ extension PagerController: PagerViewModelDelegate {
     }
     
     func finishedUpdatingFavorite(isFavorite: Bool) {
-        setFavoriteMenu(isFavorite: isFavorite)
+        setMenu(isFavorite: isFavorite)
     }
     
     func saveFavoriteError() {
         DispatchQueue.main.async { [weak self] in
             self?.coordinator.showFavoriteUpdateFailedError()
+        }
+    }
+    
+    func shareComplete() {
+        if view.subviews.last is ProgressView {
+            view.subviews.last?.removeFromSuperview()
+            titleView.isUserInteractionEnabled = true
+            currentViewController?.view.isUserInteractionEnabled = true
+        }
+    }
+    
+    func progressUpdated(_ progress: Double) {
+        if view.subviews.last is ProgressView,
+           let progressView = view.subviews.last as? ProgressView {
+            let currentProgress = progressView.progressView.progress
+            progressView.progressView.setProgress(currentProgress + Float(progress), animated: true)
         }
     }
 }
@@ -437,3 +482,12 @@ extension PagerController: NavigationDelegate {
     func titleTouched() {}
 }
 
+extension PagerController: ProgressDelegate {
+
+    func progressCancelled() {
+        titleView.isUserInteractionEnabled = true
+        currentViewController?.view.isUserInteractionEnabled = true
+        
+        viewModel?.cancelDownloads()
+    }
+}

@@ -32,6 +32,7 @@ protocol CollectionDelegate: AnyObject {
     func columnCountChanged(columnCount: Int)
     func scrollSpeedChanged(scrolling: Bool)
     func sizeAtIndexPath(indexPath: IndexPath) -> CGSize
+    func cancelDownloads()
 }
 
 class CollectionController: UIViewController {
@@ -166,10 +167,10 @@ class CollectionController: UIViewController {
         collectionView.isPrefetchingEnabled = false
     }
     
-    func initTitleView(mediaView: MediaViewController, navigationDelegate: NavigationDelegate, allowEdit: Bool, layoutType: String) {
+    func initTitleView(mediaView: MediaViewController, navigationDelegate: NavigationDelegate, allowEdit: Bool, allowSelect: Bool, layoutType: String) {
         titleView?.mediaView = mediaView
         titleView?.navigationDelegate = navigationDelegate
-        titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType, filterType: filterType)
+        titleView?.initMenu(allowEdit: allowEdit, allowSelect: allowSelect, layoutType: layoutType, filterType: filterType)
     }
     
     func initEmptyView(imageSystemName: String, title: String, description: String) {
@@ -185,12 +186,16 @@ class CollectionController: UIViewController {
         layout.layoutType = layoutType
     }
     
-    func reloadMenu(allowEdit: Bool, layoutType: String) {
-        titleView?.initMenu(allowEdit: allowEdit, layoutType: layoutType, filterType: filterType)
+    func reloadMenu(allowEdit: Bool, allowSelect: Bool, layoutType: String) {
+        titleView?.initMenu(allowEdit: allowEdit, allowSelect: allowSelect, layoutType: layoutType, filterType: filterType)
     }
     
     func titleBeginEdit() {
         titleView?.beginEdit()
+    }
+    
+    func titleBeginSelect() {
+        titleView?.beginSelect()
     }
     
     func displayResults(refresh: Bool, emptyViewTitle: String, emptyViewDescription: String) {
@@ -298,6 +303,38 @@ class CollectionController: UIViewController {
         }
         
         return CGSize(width: width, height: height)
+    }
+    
+    func showProgressView() {
+        
+        guard let progressView = Bundle.main.loadNibNamed("ProgressView", owner: self, options: nil)?.first as? ProgressView else { return }
+
+        progressView.delegate = self
+
+        view.addSubview(progressView)
+        titleView.isUserInteractionEnabled = false
+        collectionView.isUserInteractionEnabled = false
+        
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+
+        progressView.widthAnchor.constraint(equalToConstant: 250).isActive = true
+        progressView.heightAnchor.constraint(equalToConstant: view.frame.height).isActive = true
+
+        progressView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        progressView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+    }
+}
+
+extension CollectionController: ProgressDelegate {
+
+    func progressCancelled() {
+        
+        titleView.isUserInteractionEnabled = true
+        collectionView.isUserInteractionEnabled = true
+
+        resetEdit()
+        
+        delegate?.cancelDownloads()
     }
 }
 

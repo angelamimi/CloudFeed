@@ -110,6 +110,10 @@
 "Title.ImagesOnly" = "Images Only";
 "Title.Menu" = "Menu";
 
+/* Sharing */
+"Share.Action" = "Share";
+"Share.Message.Downloading" = "Downloading";
+"Share.Message.Cancel" = "Tap to cancel";
 
 /* Image Detail and EXIF */
 "Detail.Section.General" = "General";

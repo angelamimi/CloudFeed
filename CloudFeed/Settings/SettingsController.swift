@@ -505,8 +505,8 @@ extension SettingsController: SettingsDelegate {
     }
     
     func cacheCalculated(cacheSize: Int64) {
-        
-        cacheSizeDescription = ByteCountFormatter.string(fromByteCount: cacheSize, countStyle: .binary)
+
+        cacheSizeDescription = ByteCountFormatter.string(fromByteCount: cacheSize, countStyle: .file)
         
         DispatchQueue.main.async { [weak self] in
             if self?.tableView.window != nil {

@@ -27,7 +27,13 @@ class FavoritesController: CollectionController {
     
     var viewModel: FavoritesViewModel!
     
+    private enum SelectionMode {
+        case share
+        case favorite
+    }
+    
     private var layout: CollectionLayout?
+    private var selectionMode: SelectionMode?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -47,7 +53,7 @@ class FavoritesController: CollectionController {
         viewModel.initDataSource(collectionView: collectionView)
         
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
-        initTitleView(mediaView: self, navigationDelegate: self, allowEdit: true, layoutType: viewModel.getLayoutType())
+        initTitleView(mediaView: self, navigationDelegate: self, allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
         initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
     }
     
@@ -139,6 +145,11 @@ class FavoritesController: CollectionController {
         await viewModel.bulkEdit(indexPaths: indexPaths)
     }
     
+    private func bulkSelect() {
+        guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
+        viewModel.share(indexPaths: indexPaths)
+    }
+    
     private func reloadSection() {
         viewModel.reload()
     }
@@ -165,6 +176,12 @@ class FavoritesController: CollectionController {
         return (nil, nil)
     }
     
+    private func shareMenuAction(metadata: Metadata) -> UIAction {
+        return UIAction(title: Strings.ShareAction, image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
+            self?.share([metadata])
+        }
+    }
+    
     private func favoriteMenuAction(indexPath: IndexPath) -> UIAction {
         return UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.fill")) { [weak self] _ in
             self?.removeFavorite(indexPath: indexPath)
@@ -184,9 +201,30 @@ class FavoritesController: CollectionController {
             displayResults(refresh: refresh, emptyViewTitle: Strings.FavEmptyTitle, emptyViewDescription: Strings.FavEmptyDescription)
         }
     }
+    
+    private func share(_ metadatas: [Metadata]) {
+        showProgressView()
+        viewModel.share(metadatas: metadatas)
+    }
+    
+    private func reset() {
+        
+        collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
+            self?.collectionView.deselectItem(at: $0, animated: false)
+        }
+
+        isEditing = false
+        collectionView.allowsMultipleSelection = false
+        reloadSection()
+    }
 }
 
 extension FavoritesController: CollectionDelegate {
+
+    func cancelDownloads() {
+        viewModel.cancelDownloads()
+        reset()
+    }
     
     func enteringForeground() {
         syncFavorites()
@@ -241,6 +279,23 @@ extension FavoritesController: CollectionDelegate {
 
 extension FavoritesController: FavoritesDelegate {
     
+    func shareComplete() {
+        if view.subviews.last is ProgressView {
+            view.subviews.last?.removeFromSuperview()
+            collectionView.isUserInteractionEnabled = true
+            titleView.isUserInteractionEnabled = true
+        }
+        reset()
+    }
+    
+    func progressUpdated(_ progress: Double) {
+        if view.subviews.last is ProgressView,
+           let progressView = view.subviews.last as? ProgressView {
+            let currentProgress = progressView.progressView.progress
+            progressView.progressView.setProgress(currentProgress + Float(progress), animated: true)
+        }
+    }
+
     func bulkEditFinished(error: Bool) {
         
         isEditing = false
@@ -282,13 +337,25 @@ extension FavoritesController: FavoritesDelegate {
     func editCellUpdated(cell: CollectionViewCell, indexPath: IndexPath) {
         
         if isEditing {
-            cell.selectMode(true)
-            if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
-                cell.selected(true)
+            if selectionMode == .favorite {
+                cell.favoriteMode(true)
+                cell.selectMode(false)
+                if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
+                    cell.favorited(true)
+                } else {
+                    cell.favorited(false)
+                }
             } else {
-                cell.selected(false)
+                cell.favoriteMode(false)
+                cell.selectMode(true)
+                if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
+                    cell.selected(true)
+                } else {
+                    cell.selected(false)
+                }
             }
         } else {
+            cell.favoriteMode(false)
             cell.selectMode(false)
         }
     }
@@ -304,7 +371,7 @@ extension FavoritesController: MediaViewController {
     
     func updateLayout(_ layout: String) {
         viewModel.updateLayoutType(layout)
-        reloadMenu(allowEdit: true, layoutType: layout)
+        reloadMenu(allowEdit: true, allowSelect: true, layoutType: layout)
         updateLayoutType(layout)
     }
     
@@ -324,6 +391,7 @@ extension FavoritesController: MediaViewController {
     
     func edit() {
         if viewModel.currentItemCount() > 0 {
+            selectionMode = .favorite
             titleBeginEdit()
             isEditing = true
             collectionView.allowsMultipleSelection = true
@@ -331,9 +399,24 @@ extension FavoritesController: MediaViewController {
         }
     }
     
+    func select() {
+        if viewModel.currentItemCount() > 0 {
+            selectionMode = .share
+            titleBeginSelect()
+            isEditing = true
+            collectionView.allowsMultipleSelection = true
+            reloadSection()
+        }
+    }
+    
     func endEdit() {
-        Task { [weak self] in
-            await self?.bulkEdit()
+        if selectionMode == .favorite {
+            Task { [weak self] in
+                await self?.bulkEdit()
+            }
+        } else {
+            showProgressView()
+            bulkSelect()
         }
     }
     
@@ -404,7 +487,11 @@ extension FavoritesController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
-                cell.selected(true)
+                if selectionMode == .favorite {
+                    cell.favorited(true)
+                } else {
+                    cell.selected(true)
+                }
             }
         } else {
             openViewer(indexPath: indexPath)
@@ -414,7 +501,11 @@ extension FavoritesController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
-                cell.selected(false)
+                if selectionMode == .favorite {
+                    cell.favorited(false)
+                } else {
+                    cell.selected(false)
+                }
             }
         }
     }
@@ -432,7 +523,7 @@ extension FavoritesController: UICollectionViewDelegate {
 
         let config = UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: { previewController }, actionProvider: { [weak self] _ in
             guard let self else { return .init(children: []) }
-            return UIMenu(title: "", options: .displayInline, children: [self.favoriteMenuAction(indexPath: indexPath)])
+            return UIMenu(title: "", options: .displayInline, children: [self.favoriteMenuAction(indexPath: indexPath), self.shareMenuAction(metadata: metadata)])
         })
         
         return config

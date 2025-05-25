@@ -41,7 +41,7 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)?
     func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?)
     
-    func download(metadata: Metadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> Bool
+    func download(metadata: Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (_ metadata: Metadata, _ progress: Progress) -> Void) async
     func downloadPreview(account: String, fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String?
     func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int, avatarSizeRounded: Int) async -> String?
     func getDirectDownload(metadata: Metadata) async -> URL?
@@ -144,7 +144,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     
     // MARK: -
     // MARK: Download
-    func download(metadata: Metadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> Bool {
+    func download(metadata: Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (_ metadata: Metadata, _ progress: Progress) -> Void) async {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
@@ -154,16 +154,11 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                 fileNameLocalPath: fileNameLocalPath,
                 account: metadata.account,
                 options: options,
-                requestHandler: { request in }) { (account, etag, date, _, allHeaderFields, afError, error) in
-                    
-                    if afError?.isExplicitlyCancelledError ?? false {
-                        
-                    } else if error == .success {
-                        continuation.resume(returning: false)
-                        return
-                    }
-                    
-                    continuation.resume(returning: true)
+                requestHandler: { request in },
+                progressHandler: { progress in
+                    progressHandler(metadata, progress)
+                }) { (account, etag, date, _, allHeaderFields, afError, error) in
+                    continuation.resume()
                 }
         }
     }

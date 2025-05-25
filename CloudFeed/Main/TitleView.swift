@@ -29,6 +29,7 @@ protocol MediaViewController: AnyObject {
     func filter()
     func edit()
     func endEdit()
+    func select()
     func updateLayout(_ layout: String)
     func updateMediaType(_ type: Global.FilterType)
 }
@@ -115,7 +116,7 @@ class TitleView: UIView {
         backButtonConstraint.constant = 8
     }
     
-    func initMenu(allowEdit: Bool, layoutType: String, filterType: Global.FilterType) {
+    func initMenu(allowEdit: Bool, allowSelect: Bool, layoutType: String, filterType: Global.FilterType) {
         
         let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { [weak self] action in
             self?.mediaView?.zoomInGrid()
@@ -170,15 +171,31 @@ class TitleView: UIView {
         
         let typeMenu = UIMenu(title: "", options: [.displayInline, .singleSelection], children: [allType, imageType, videoType])
         
+        var editAction: UIAction?
+        var selectAction: UIAction?
+        
         if allowEdit {
-            let edit = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { [weak self] action in
+            editAction = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { [weak self] action in
                 self?.mediaView?.edit()
             }
-            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, edit, typeMenu])
+        }
+        
+        if allowSelect {
+            selectAction = UIAction(title: Strings.ShareAction, image: UIImage(systemName: "square.and.arrow.up")) { [weak self] action in
+                self?.mediaView?.select()
+            }
+        }
+
+        if editAction == nil && selectAction != nil {
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, selectAction!, typeMenu])
+        } else if editAction != nil && selectAction == nil {
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, editAction!, typeMenu])
+        } else if editAction != nil && selectAction != nil {
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, editAction!, selectAction!, typeMenu])
         } else {
             menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, typeMenu])
         }
-
+        
         backButtonConstraint.constant = 8
     }
     
@@ -208,6 +225,11 @@ class TitleView: UIView {
         cancelButton.isHidden = false
     }
     
+    func beginSelect() {
+        doneButton.setTitle(Strings.ShareAction, for: .normal)
+        beginEdit() //buttons are the same as edit mode
+    }
+
     func resetEdit() {
         
         menuButton.isHidden = false

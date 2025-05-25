@@ -27,6 +27,7 @@ class CollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var imageStatus: UIImageView!
     @IBOutlet weak var imageFavorite: UIImageView!
+    @IBOutlet weak var selectStatus: UIImageView!
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -67,13 +68,34 @@ class CollectionViewCell: UICollectionViewCell {
     
     func selectMode(_ status: Bool) {
         if status {
+            selectStatus.isHidden = false
+        } else {
+            selectStatus.isHidden = true
+        }
+    }
+    
+    func selected(_ status: Bool) {
+        if status {
+            selectStatus.image = UIImage(systemName: "checkmark.circle")
+            selectStatus.layer.cornerRadius = selectStatus.frame.width / 2
+            selectStatus.backgroundColor = .white
+            selectStatus.tintColor = .tintColor
+        } else {
+            selectStatus.image = UIImage(systemName: "circle")
+            selectStatus.backgroundColor = .clear
+            selectStatus.tintColor = .white
+        }
+    }
+    
+    func favoriteMode(_ status: Bool) {
+        if status {
             imageFavorite.isHidden = false
         } else {
             imageFavorite.isHidden = true
         }
     }
     
-    func selected(_ status: Bool) {
+    func favorited(_ status: Bool) {
         if status {
             imageFavorite.image = UIImage(systemName: "star")
         } else {
@@ -112,5 +134,6 @@ class CollectionViewCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFill
 
         imageFavorite.isHidden = true
+        imageStatus.isHidden = true
     }
 }

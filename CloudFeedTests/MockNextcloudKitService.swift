@@ -64,8 +64,8 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return (account: nil, data: nil)
     }
     
-    func download(metadata: CloudFeed.Metadata, selector: String, serverUrlFileName: String, fileNameLocalPath: String) async -> Bool {
-        return true
+    func download(metadata: CloudFeed.Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (CloudFeed.Metadata, Progress) -> Void) async {
+        
     }
     
     func downloadPreview(account: String, fileId fileNamePath: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String? {

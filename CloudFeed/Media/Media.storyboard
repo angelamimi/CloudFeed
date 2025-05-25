@@ -65,7 +65,7 @@
                         <viewLayoutGuide key="safeArea" id="lJf-TF-9FZ"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="J2a-Pd-Ybs" firstAttribute="top" secondItem="lJf-TF-9FZ" secondAttribute="top" constant="50" id="5T5-ip-1pm"/>
+                            <constraint firstItem="J2a-Pd-Ybs" firstAttribute="top" secondItem="x2w-u6-YTy" secondAttribute="bottom" id="5T5-ip-1pm"/>
                             <constraint firstItem="x2w-u6-YTy" firstAttribute="top" secondItem="lJf-TF-9FZ" secondAttribute="top" id="6me-5q-T7S"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="bottom" secondItem="yeB-rd-53C" secondAttribute="bottom" id="7L8-ZO-fBv"/>
                             <constraint firstItem="5ls-AF-slB" firstAttribute="top" secondItem="lJf-TF-9FZ" secondAttribute="top" id="BJE-Jg-cBh"/>

@@ -307,7 +307,7 @@ final class DataService: NSObject, Sendable {
     
     // MARK: -
     // MARK: Download
-    func download(metadata: Metadata, selector: String) async {
+    func download(metadata: Metadata, progressHandler: @escaping @Sendable (_ metadata: Metadata, _ progress: Progress) -> Void) async {
         
         let serverUrlFileName = metadata.serverUrl + "/" + metadata.fileName
         let fileNameLocalPath = store.getCachePath(metadata.ocId, metadata.fileName)!
@@ -316,12 +316,7 @@ final class DataService: NSObject, Sendable {
             databaseManager.addMetadata(metadata)
         }
         
-        let error = await nextcloudService.download(metadata: metadata, selector: selector,
-                                                          serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath)
-        
-        if error == false {
-            await databaseManager.addLocalFile(metadata: metadata)
-        }
+        await nextcloudService.download(metadata: metadata, serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, progressHandler: progressHandler)
     }
     
     func downloadPreview(metadata: Metadata?) async {

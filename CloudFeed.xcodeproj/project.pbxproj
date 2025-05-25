@@ -40,7 +40,6 @@
 		39271D6429D9091600522DFD /* DetailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D6329D9091600522DFD /* DetailCell.swift */; };
 		39271D6C29DA26CF00522DFD /* ViewerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D6B29DA26CF00522DFD /* ViewerController.swift */; };
 		39271D6E29DA274800522DFD /* PagerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D6D29DA274800522DFD /* PagerController.swift */; };
-		39271D7029DA622700522DFD /* DatabaseManager+LocalFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D6F29DA622700522DFD /* DatabaseManager+LocalFile.swift */; };
 		39271D7329DA667500522DFD /* UIImage+gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D7229DA667500522DFD /* UIImage+gif.swift */; };
 		39271D7529DA66D800522DFD /* UIImage+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D7429DA66D800522DFD /* UIImage+Extensions.swift */; };
 		3927356B29BD1E820058796A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927356A29BD1E820058796A /* AppDelegate.swift */; };
@@ -61,6 +60,10 @@
 		3929A8882C35CEE6003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 3929A8862C35CEE6003B48CF /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		3929A8892C35EB5A003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 392718632C359F95001C57C0 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		393D18932C8C9B5100971014 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393D18922C8C9B5100971014 /* ControlsView.swift */; };
+		39411FBA2DD7AFC800DBFA18 /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39411FB92DD7AFC800DBFA18 /* ProgressView.swift */; };
+		39411FBC2DD7B1A000DBFA18 /* ProgressView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39411FBB2DD7B1A000DBFA18 /* ProgressView.xib */; };
+		39411FBE2DD8CA0D00DBFA18 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39411FBD2DD8CA0D00DBFA18 /* DownloadManager.swift */; };
+		39411FC02DD8CAE900DBFA18 /* DownloadPreviewOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39411FBF2DD8CAE900DBFA18 /* DownloadPreviewOperation.swift */; };
 		394F70102DB9579B00A34FEC /* ProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394F700F2DB9579B00A34FEC /* ProfileController.swift */; };
 		394F70122DB957EC00A34FEC /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394F70112DB957EC00A34FEC /* ProfileViewModel.swift */; };
 		395C14E52B1C03FF00074EB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 395C14E42B1C03FF00074EB8 /* Assets.xcassets */; };
@@ -74,6 +77,7 @@
 		3966634529DF321F005727D4 /* EmptyView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3966634429DF321F005727D4 /* EmptyView.xib */; };
 		3966634729DF34AD005727D4 /* EmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3966634629DF34AD005727D4 /* EmptyView.swift */; };
 		39680C312ABB527800A16D5B /* mock-favorites.json in Resources */ = {isa = PBXBuildFile; fileRef = 39680C302ABB527800A16D5B /* mock-favorites.json */; };
+		396A0DB32DE270C700B0EF87 /* ShareViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396A0DB22DE270C700B0EF87 /* ShareViewModel.swift */; };
 		3972EE9E2ADEC27F0020EEC7 /* CollectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3972EE9D2ADEC27F0020EEC7 /* CollectionController.swift */; };
 		39735A2F2CD14A2800EB4848 /* MediaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39735A2E2CD14A2800EB4848 /* MediaTests.swift */; };
 		3973A38F2DCA96400093F9A6 /* ModeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3973A38E2DCA96400093F9A6 /* ModeCell.swift */; };
@@ -186,7 +190,6 @@
 		39271D6329D9091600522DFD /* DetailCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailCell.swift; sourceTree = "<group>"; };
 		39271D6B29DA26CF00522DFD /* ViewerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerController.swift; sourceTree = "<group>"; };
 		39271D6D29DA274800522DFD /* PagerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerController.swift; sourceTree = "<group>"; };
-		39271D6F29DA622700522DFD /* DatabaseManager+LocalFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+LocalFile.swift"; sourceTree = "<group>"; };
 		39271D7229DA667500522DFD /* UIImage+gif.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+gif.swift"; sourceTree = "<group>"; };
 		39271D7429DA66D800522DFD /* UIImage+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extensions.swift"; sourceTree = "<group>"; };
 		3927356729BD1E820058796A /* CloudFeed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CloudFeed.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -206,6 +209,10 @@
 		392735B929BE52600058796A /* LoginServerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerController.swift; sourceTree = "<group>"; };
 		392735BD29BE738F0058796A /* CloudFeed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CloudFeed.entitlements; sourceTree = "<group>"; };
 		393D18922C8C9B5100971014 /* ControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsView.swift; sourceTree = "<group>"; };
+		39411FB92DD7AFC800DBFA18 /* ProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
+		39411FBB2DD7B1A000DBFA18 /* ProgressView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProgressView.xib; sourceTree = "<group>"; };
+		39411FBD2DD8CA0D00DBFA18 /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		39411FBF2DD8CAE900DBFA18 /* DownloadPreviewOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadPreviewOperation.swift; sourceTree = "<group>"; };
 		394F700F2DB9579B00A34FEC /* ProfileController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileController.swift; sourceTree = "<group>"; };
 		394F70112DB957EC00A34FEC /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		395C14E42B1C03FF00074EB8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -220,6 +227,7 @@
 		3966634629DF34AD005727D4 /* EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyView.swift; sourceTree = "<group>"; };
 		39680C2B2AB9D32F00A16D5B /* CloudFeed.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CloudFeed.xctestplan; sourceTree = "<group>"; };
 		39680C302ABB527800A16D5B /* mock-favorites.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-favorites.json"; sourceTree = "<group>"; };
+		396A0DB22DE270C700B0EF87 /* ShareViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewModel.swift; sourceTree = "<group>"; };
 		3972EE9D2ADEC27F0020EEC7 /* CollectionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionController.swift; sourceTree = "<group>"; };
 		39735A2E2CD14A2800EB4848 /* MediaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaTests.swift; sourceTree = "<group>"; };
 		3973A38E2DCA96400093F9A6 /* ModeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeCell.swift; sourceTree = "<group>"; };
@@ -422,7 +430,6 @@
 				392735AA29BE2DAA0058796A /* DatabaseManager+Account.swift */,
 				39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */,
 				39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */,
-				39271D6F29DA622700522DFD /* DatabaseManager+LocalFile.swift */,
 				39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */,
 			);
 			path = Data;
@@ -435,6 +442,7 @@
 				3966634429DF321F005727D4 /* EmptyView.xib */,
 				39E570752B5DE98100548E02 /* FilterView.xib */,
 				39271D5629D79E7900522DFD /* TitleView.xib */,
+				39411FBB2DD7B1A000DBFA18 /* ProgressView.xib */,
 				39B03F0D29C53FD300704670 /* CollectionViewCell.xib */,
 				39B03F0C29C53FD300704670 /* CollectionViewCell.swift */,
 				3972EE9D2ADEC27F0020EEC7 /* CollectionController.swift */,
@@ -442,11 +450,15 @@
 				398D14CB2B93B76700526E42 /* CacheManager.swift */,
 				39C1BBAF2CBC2F2700206EB5 /* AsyncOperation.swift */,
 				39C1BBAD2CBC2EC800206EB5 /* DownloadOperation.swift */,
+				39411FBF2DD8CAE900DBFA18 /* DownloadPreviewOperation.swift */,
+				39411FBD2DD8CA0D00DBFA18 /* DownloadManager.swift */,
+				396A0DB22DE270C700B0EF87 /* ShareViewModel.swift */,
 				39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */,
 				39E570732B5DE80A00548E02 /* FilterController.swift */,
 				39B449A82AEAA790003DA6BA /* PreviewController.swift */,
 				3966634629DF34AD005727D4 /* EmptyView.swift */,
 				39E570772B5DF7C700548E02 /* FilterView.swift */,
+				39411FB92DD7AFC800DBFA18 /* ProgressView.swift */,
 				39271D5829D7A05100522DFD /* TitleView.swift */,
 				391579AF2AB7464000DFEAB1 /* Strings.swift */,
 			);
@@ -627,6 +639,7 @@
 				3966634329DE190D005727D4 /* Acknowledgements.plist in Resources */,
 				39FE2FE92C8B85F000CE51AC /* ControlsView.xib in Resources */,
 				39271D5729D79E7900522DFD /* TitleView.xib in Resources */,
+				39411FBC2DD7B1A000DBFA18 /* ProgressView.xib in Resources */,
 				39271D4A29D7922D00522DFD /* Media.storyboard in Resources */,
 				3927357229BD1E820058796A /* Main.storyboard in Resources */,
 				3966633F29DCD24A005727D4 /* AcknowledgementCell.xib in Resources */,
@@ -658,7 +671,6 @@
 				39030F7C2D88CB6200F90E9B /* LoginCoordinator.swift in Sources */,
 				39CC72DA2DCA8783007E22B7 /* DisplayViewModel.swift in Sources */,
 				3903CE712AA75132003E7E41 /* MainCoordinator.swift in Sources */,
-				39271D7029DA622700522DFD /* DatabaseManager+LocalFile.swift in Sources */,
 				39B449A92AEAA790003DA6BA /* PreviewController.swift in Sources */,
 				3966633D29DCD170005727D4 /* AcknowledgementCell.swift in Sources */,
 				3966633B29DCD10D005727D4 /* AcknowledgementsController.swift in Sources */,
@@ -685,6 +697,7 @@
 				39271D6429D9091600522DFD /* DetailCell.swift in Sources */,
 				39E1701E2D271D0300790920 /* LoginServerViewModel.swift in Sources */,
 				39AD95882DB92B0D0032EF06 /* AvatarCell.swift in Sources */,
+				39411FBA2DD7AFC800DBFA18 /* ProgressView.swift in Sources */,
 				3903CE6D2AA4DC37003E7E41 /* LoginServerCoordinator.swift in Sources */,
 				39E570742B5DE80A00548E02 /* FilterController.swift in Sources */,
 				392735AB29BE2DAA0058796A /* DatabaseManager+Account.swift in Sources */,
@@ -702,6 +715,7 @@
 				39C31E8E2A7994880045DF50 /* DataService.swift in Sources */,
 				39CC72D82DCA86BD007E22B7 /* DisplayController.swift in Sources */,
 				397B5C3C2C52F4B800EC7923 /* DetailView.swift in Sources */,
+				396A0DB32DE270C700B0EF87 /* ShareViewModel.swift in Sources */,
 				39E593792D25C3CF00BA3C9A /* LoginPollController.swift in Sources */,
 				398D14CC2B93B76700526E42 /* CacheManager.swift in Sources */,
 				395F3A1A2A9678340004FF32 /* Environment.swift in Sources */,
@@ -713,12 +727,14 @@
 				3966634129DCD4E8005727D4 /* ProfileCell.swift in Sources */,
 				39EED48A2B56F9C100475802 /* DatabaseManager+Avatar.swift in Sources */,
 				3903CE7F2AA7ED6D003E7E41 /* ViewerCoordinator.swift in Sources */,
+				39411FC02DD8CAE900DBFA18 /* DownloadPreviewOperation.swift in Sources */,
 				398D14D22B9A4D2700526E42 /* ImageUtility.swift in Sources */,
 				3903CE7B2AA78557003E7E41 /* SettingsCoordinator.swift in Sources */,
 				39C1BBAE2CBC2EDE00206EB5 /* DownloadOperation.swift in Sources */,
 				391579A62AB0BF2C00DFEAB1 /* MediaViewModel.swift in Sources */,
 				397B5C3E2C54625400EC7923 /* DetailsController.swift in Sources */,
 				391579AA2AB3D8B800DFEAB1 /* SettingsViewModel.swift in Sources */,
+				39411FBE2DD8CA0D00DBFA18 /* DownloadManager.swift in Sources */,
 				3972EE9E2ADEC27F0020EEC7 /* CollectionController.swift in Sources */,
 				393D18932C8C9B5100971014 /* ControlsView.swift in Sources */,
 				39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */,

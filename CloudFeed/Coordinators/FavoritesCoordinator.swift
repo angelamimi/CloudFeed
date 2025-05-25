@@ -71,6 +71,20 @@ extension FavoritesCoordinator {
         navigationController.dismiss(animated: true)
     }
     
+    func share(_ urls: [URL]) {
+        let activity = UIActivityViewController(activityItems: urls, applicationActivities: nil)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if let window = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows }).first(where: { $0.isKeyWindow }),
+               let view = window.rootViewController?.view,
+               let popover = activity.popoverPresentationController {
+                popover.permittedArrowDirections = []
+                popover.sourceView = view
+                popover.sourceRect = CGRect(x: view.frame.midX, y: view.frame.midY, width: 0, height: 0)
+            }
+        }
+        navigationController.present(activity, animated: true)
+    }
+    
     func showInvalidFilterError() {
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaInvalidFilter, preferredStyle: .alert)
         

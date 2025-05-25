@@ -1,9 +1,9 @@
 //
-//  CacheManager.swift
+//  DownloadManager.swift
 //  CloudFeed
 //
-//  Created by Angela Jarosz on 3/2/24.
-//  Copyright © 2024 Angela Jarosz. All rights reserved.
+//  Created by Angela Jarosz on 5/17/25.
+//  Copyright © 2025 Angela Jarosz. All rights reserved.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,46 +23,31 @@ import UIKit
 import os.log
 
 @MainActor
-final class CacheManager {
+final class DownloadManager {
     
     private weak var dataService: DataService!
-    private let cache: NSCache<NSString, UIImage>
     private let queue: OperationQueue
         
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
-        category: String(describing: CacheManager.self))
+        category: String(describing: DownloadManager.self))
     
     init(dataService: DataService) {
         self.dataService = dataService
         
-        cache = NSCache<NSString, UIImage>()
-        cache.countLimit = 300
-        
         queue = OperationQueue()
-        queue.name = "downloadQueue"
+        queue.name = "downloadManagerQueue"
         queue.maxConcurrentOperationCount = 5
         queue.qualityOfService = .background
-    }
-    
-    func clear() {
-        cache.removeAllObjects()
     }
     
     func cancelAll() {
         queue.cancelAllOperations()
     }
     
-    func cache(metadata: Metadata, image: UIImage) {
-        cache.setObject(image, forKey: (metadata.ocId + metadata.etag) as NSString)
-    }
-    
-    func cached(ocId: String, etag: String) -> UIImage? {
-        return cache.object(forKey: ocId + etag as NSString)
-    }
-    
-    func download(metadata: Metadata, delegate: DownloadPreviewOperationDelegate) {
-        let operation = DownloadPreviewOperation(metadata, dataService: dataService, delegate: delegate)
+    func download(metadata: Metadata, delegate: DownloadOperationDelegate) {
+        let operation = DownloadOperation(metadata, dataService: dataService, delegate: delegate)
         queue.addOperation(operation)
     }
 }
+

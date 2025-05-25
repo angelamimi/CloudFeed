@@ -1,9 +1,9 @@
 //
-//  DownloadOperation.swift
+//  DownloadPreviewOperation.swift
 //  CloudFeed
 //
-//  Created by Angela Jarosz on 10/13/24.
-//  Copyright © 2024 Angela Jarosz. All rights reserved.
+//  Created by Angela Jarosz on 5/17/25.
+//  Copyright © 2025 Angela Jarosz. All rights reserved.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,24 +23,23 @@ import UIKit
 import os.log
 
 @MainActor
-protocol DownloadOperationDelegate: AnyObject {
-    func downloaded(metadata: Metadata)
-    func progress(metadata: Metadata, progress: Progress)
+protocol DownloadPreviewOperationDelegate: AnyObject {
+    func previewDownloaded(metadata: Metadata)
 }
 
-class DownloadOperation: AsyncOperation, @unchecked Sendable {
+class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable {
     
     private var task: Task<Void, Never>?
     private var metadata: Metadata?
     private weak var dataService: DataService?
-    private weak var delegate: DownloadOperationDelegate?
+    private weak var delegate: DownloadPreviewOperationDelegate?
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DownloadOperation.self)
     )
 
-    init(_ metadata: Metadata, dataService: DataService, delegate: DownloadOperationDelegate) {
+    init(_ metadata: Metadata, dataService: DataService, delegate: DownloadPreviewOperationDelegate) {
         self.metadata = metadata
         self.delegate = delegate
         self.dataService = dataService
@@ -54,7 +53,7 @@ class DownloadOperation: AsyncOperation, @unchecked Sendable {
                 self?.finish()
                 return
             }
-
+            
             await self?.download()
             
             if self?.isCancelled ?? true {
@@ -63,7 +62,7 @@ class DownloadOperation: AsyncOperation, @unchecked Sendable {
             }
             
             if let metadata = self?.metadata {
-                await self?.delegate?.downloaded(metadata: metadata)
+                await self?.delegate?.previewDownloaded(metadata: metadata)
             }
             
             self?.finish()
@@ -78,10 +77,29 @@ class DownloadOperation: AsyncOperation, @unchecked Sendable {
     }
     
     private func download() async {
-        await dataService?.download(metadata: metadata!, progressHandler: { [weak self] metadata, progress in
-            DispatchQueue.main.async { [weak self] in
-                self?.delegate?.progress(metadata: metadata, progress: progress)
-            }
-        })
+        
+        if metadata?.video ?? false {
+            await dataService?.downloadVideoPreview(metadata: metadata)
+        } else if metadata?.svg ?? false {
+            await downloadSVG(metadata: metadata)
+        } else if metadata != nil {
+            await dataService?.downloadPreview(metadata: metadata)
+        }
+    }
+    
+    private func downloadSVG(metadata: Metadata?) async {
+        
+        guard dataService != nil && metadata != nil else { return }
+
+        if !dataService!.store.fileExists(metadata!) {
+            
+            await dataService!.download(metadata: metadata!, progressHandler: { _, _ in })
+            
+            let iconPath = dataService!.store.getIconPath(metadata!.ocId, metadata!.etag)
+            let imagePath = dataService!.store.getCachePath(metadata!.ocId, metadata!.fileNameView)!
+            
+            ImageUtility.loadSVGPreview(metadata: metadata!, imagePath: imagePath, previewPath: iconPath)
+        }
     }
 }
+

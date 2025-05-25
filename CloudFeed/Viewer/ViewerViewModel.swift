@@ -64,7 +64,8 @@ struct ViewerViewModel {
                 await downloadLivePhotoVideo(metadata: videoMetadata)
             }
             
-            await dataService.download(metadata: metadata, selector: "")
+            
+            await dataService.download(metadata: metadata, progressHandler: { _, _ in })
         }
         
         return await getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
@@ -79,7 +80,7 @@ struct ViewerViewModel {
     }
     
     func downloadLivePhotoVideo(metadata: Metadata) async {
-        await dataService.download(metadata: metadata, selector: "")
+        await dataService.download(metadata: metadata, progressHandler: { _, _ in })
     }
     
     func getFilePath(_ metadata: Metadata) -> String? {

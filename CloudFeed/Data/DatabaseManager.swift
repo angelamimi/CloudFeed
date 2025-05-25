@@ -97,7 +97,6 @@ final class DatabaseManager: Sendable {
         
         self.clearTable(tableAvatar.self)
         self.clearTable(tableCapabilities.self, account: account)
-        self.clearTable(tableLocalFile.self, account: account)
         self.clearTable(tableMetadata.self, account: account)
         
         if removeAccount {

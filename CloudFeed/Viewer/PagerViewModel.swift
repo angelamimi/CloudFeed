@@ -22,17 +22,17 @@
 import UIKit
 
 @MainActor
-protocol PagerViewModelDelegate: AnyObject {
+protocol PagerViewModelDelegate: ShareDelegate {
     func finishedPaging(metadata: Metadata)
     func finishedUpdatingFavorite(isFavorite: Bool)
     func saveFavoriteError()
 }
 
 @MainActor
-final class PagerViewModel: NSObject {
+final class PagerViewModel: ShareViewModel {
 
+    private weak var pagerCoordinator: PagerCoordinator?
     private let coordinator: ViewerCoordinator
-    let dataService: DataService
     
     private var currentIndex: Int
     private var metadatas: [Metadata]
@@ -41,11 +41,13 @@ final class PagerViewModel: NSObject {
     weak var delegate: PagerViewModelDelegate?
     weak var viewerDelegate: ViewerDelegate?
     
-    init(coordinator: ViewerCoordinator, dataService: DataService, currentIndex: Int = 0, metadatas: [Metadata]) {
+    init(coordinator: ViewerCoordinator, pagerCoordinator: PagerCoordinator, dataService: DataService, delegate: PagerViewModelDelegate, viewerDelegate: ViewerDelegate, currentIndex: Int = 0, metadatas: [Metadata]) {
         self.coordinator = coordinator
-        self.dataService = dataService
         self.currentIndex = currentIndex
         self.metadatas = metadatas
+        self.pagerCoordinator = pagerCoordinator
+        
+        super.init(dataService: dataService, shareDelegate: delegate)
     }
     
     func currentMetadata() -> Metadata {
@@ -74,18 +76,22 @@ final class PagerViewModel: NSObject {
             }
         }
     }
-    
+
     func getMetadataLivePhoto(metadata: Metadata) -> Metadata? {
         return dataService.getMetadataLivePhoto(metadata: metadata)
     }
     
     func downloadLivePhotoVideo(metadata: Metadata) async {
-        await dataService.download(metadata: metadata, selector: "")
+        await dataService.download(metadata: metadata, progressHandler: { _, _ in })
     }
     
     func getFilePath(_ metadata: Metadata) -> String? {
         guard dataService.store.fileExists(metadata) else { return nil }
         return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
+    }
+    
+    override func share(urls: [URL]) {
+        pagerCoordinator?.share(urls)
     }
 }
 
@@ -139,4 +145,3 @@ extension PagerViewModel: UIPageViewControllerDelegate {
         self.nextIndex = nil
     }
 }
-

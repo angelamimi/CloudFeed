@@ -43,10 +43,7 @@ final class PagerCoordinator {
         
         let viewerCoordinator = ViewerCoordinator(dataService: dataService)
         let viewerPager: PagerController = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as! PagerController
-        let viewModel = PagerViewModel(coordinator: viewerCoordinator, dataService: dataService, currentIndex: currentIndex, metadatas: metadatas)
-        
-        viewModel.delegate = viewerPager
-        viewModel.viewerDelegate = viewerPager
+        let viewModel = PagerViewModel(coordinator: viewerCoordinator, pagerCoordinator: self, dataService: dataService, delegate: viewerPager, viewerDelegate:viewerPager, currentIndex: currentIndex, metadatas: metadatas)
         
         viewerPager.viewModel = viewModel
         viewerPager.coordinator = self
@@ -68,6 +65,20 @@ final class PagerCoordinator {
            let tab = navigationController.parent as? UITabBarController {
             tab.setTabBarHidden(false, animated: !UIAccessibility.isReduceMotionEnabled)
         }
+    }
+    
+    func share(_ urls: [URL]) {
+        let activity = UIActivityViewController(activityItems: urls, applicationActivities: nil)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if let window = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows }).first(where: { $0.isKeyWindow }),
+               let view = window.rootViewController?.view,
+               let popover = activity.popoverPresentationController {
+                popover.permittedArrowDirections = []
+                popover.sourceView = view
+                popover.sourceRect = CGRect(x: view.frame.midX, y: view.frame.midY, width: 0, height: 0)
+            }
+        }
+        navigationController.present(activity, animated: true)
     }
     
     func showFavoriteUpdateFailedError() {

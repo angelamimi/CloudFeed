@@ -129,6 +129,11 @@ extension Strings {
     public static let TitleImagesOnly = NSLocalizedString("Title.ImagesOnly", comment: "")
     public static let TitleMenu = NSLocalizedString("Title.Menu", comment: "")
     
+    //Sharing
+    public static let ShareAction = NSLocalizedString("Share.Action", comment: "")
+    public static let ShareMessageDownloading = NSLocalizedString("Share.Message.Downloading", comment: "")
+    public static let ShareMessageCancel = NSLocalizedString("Share.Message.Cancel", comment: "")
+    
     //Image Detail and EXIF
     public static let DetailSectionGeneral = NSLocalizedString("Detail.Section.General", comment: "")
     public static let DetailSectionGps = NSLocalizedString("Detail.Section.Gps", comment: "")
