@@ -322,6 +322,9 @@ class CollectionController: UIViewController {
 
         progressView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         progressView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        
+        progressView.accessibilityViewIsModal = true
+        UIAccessibility.post(notification: .screenChanged, argument: progressView.downloadingLabel)
     }
 }
 

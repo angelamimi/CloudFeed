@@ -494,6 +494,7 @@ extension FavoritesController: UICollectionViewDelegate {
                 }
             }
         } else {
+            collectionView.deselectItem(at: indexPath, animated: false)
             openViewer(indexPath: indexPath)
         }
     }

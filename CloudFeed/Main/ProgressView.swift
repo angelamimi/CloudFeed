@@ -40,7 +40,6 @@ class ProgressView: UIView {
 
         MainActor.assumeIsolated {
             commonInit()
-            invalidateIntrinsicContentSize()
         }
     }
     

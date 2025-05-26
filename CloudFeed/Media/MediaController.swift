@@ -322,6 +322,7 @@ extension MediaController: UICollectionViewDelegate {
                 cell.selected(true)
             }
         } else {
+            collectionView.deselectItem(at: indexPath, animated: false)
             openViewer(indexPath: indexPath)
         }
     }
