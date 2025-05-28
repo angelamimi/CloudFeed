@@ -105,8 +105,7 @@ class ShareViewModel: NSObject {
         }
         
         shares.removeAll()
-        //print("PagerViewModel.downloadsComplete() - pagerCoordinator? \(self.pagerCoordinator != nil)")
-        //pagerCoordinator?.share(urls)
+
         share(urls: urls)
         shareDelegate?.shareComplete()
     }

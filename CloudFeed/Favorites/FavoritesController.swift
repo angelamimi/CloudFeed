@@ -427,6 +427,8 @@ extension FavoritesController: MediaViewController {
 
 extension FavoritesController: NavigationDelegate {
     
+    func showInfo() {}
+    
     func titleTouched() {
         scrollToTop()
     }

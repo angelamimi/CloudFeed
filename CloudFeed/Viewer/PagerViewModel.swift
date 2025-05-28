@@ -47,6 +47,7 @@ final class PagerViewModel: ShareViewModel {
         self.metadatas = metadatas
         self.pagerCoordinator = pagerCoordinator
         self.viewerDelegate = viewerDelegate
+        self.delegate = delegate
         
         super.init(dataService: dataService, shareDelegate: delegate)
     }
@@ -139,8 +140,7 @@ extension PagerViewModel: UIPageViewControllerDelegate {
             currentIndex = nextIndex!
             
             if currentIndex >= 0 && currentIndex < metadatas.count {
-                let metadata = metadatas[currentIndex]
-                self.delegate?.finishedPaging(metadata: metadata)
+                self.delegate?.finishedPaging(metadata: metadatas[currentIndex])
             }
         }
         self.nextIndex = nil

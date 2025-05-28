@@ -420,6 +420,8 @@ extension MediaController: MediaViewController {
 
 extension MediaController: NavigationDelegate {
     
+    func showInfo() {}
+    
     func titleTouched() {
         scrollToTop(animated: true)
     }

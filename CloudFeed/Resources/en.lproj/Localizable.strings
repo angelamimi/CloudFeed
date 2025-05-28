@@ -115,6 +115,11 @@
 "Share.Message.Downloading" = "Downloading";
 "Share.Message.Cancel" = "Tap to cancel";
 
+/* Viewer */
+"Viewer.Label.Image" = "Image";
+"Viewer.Label.Video" = "Video";
+"Viewer.Label.LivePhoto" = "Live Photo";
+
 /* Image Detail and EXIF */
 "Detail.Section.General" = "General";
 "Detail.Section.Gps" = "GPS";

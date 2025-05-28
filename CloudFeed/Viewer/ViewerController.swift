@@ -87,9 +87,18 @@ class ViewerController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if metadata.video {
+            imageView.accessibilityLabel = Strings.ViewerLabelVideo + " " + metadata.fileNameView 
+        } else if metadata.livePhoto {
+            imageView.accessibilityLabel = Strings.ViewerLabelLivePhoto + " " + metadata.fileNameView
+        } else {
+            imageView.accessibilityLabel = Strings.ViewerLabelImage + " " + metadata.fileNameView
+        }
+        
         if viewModel.isLivePhoto() {
             statusImageView.image = UIImage(systemName: "livephoto")?.withTintColor(.label, renderingMode: .alwaysOriginal)
             statusLabel.text = Strings.LiveTitle
+            statusLabel.accessibilityLabel = Strings.ViewerLabelLivePhoto
         } else {
             statusImageView.image = nil
             statusLabel.text = ""
@@ -97,7 +106,7 @@ class ViewerController: UIViewController {
         
         statusContainerView.isHidden = true
         statusContainerView.layer.cornerRadius = 14
-
+        
         initGestureRecognizers()
     }
     
@@ -833,7 +842,7 @@ class ViewerController: UIViewController {
         present(controller, animated: true)
     }
     
-    private func showDetails(animate: Bool, reset: Bool) {
+    func showDetails(animate: Bool, reset: Bool) {
 
         delegate?.updateStatus(status: .details)
         
@@ -865,15 +874,20 @@ class ViewerController: UIViewController {
                 showHorizontalDetails(animate: animate, reset: reset)
             }
             
-            detailView?.metadata = metadata
+            if let details = detailView {
+                
+                details.metadata = metadata
 
-            if path == nil {
-                detailView?.url = nil
-            } else {
-                detailView?.url = getUrl()
+                if path == nil {
+                    details.url = nil
+                } else {
+                    details.url = getUrl()
+                }
+
+                details.populateDetails()
+
+                UIAccessibility.post(notification: .screenChanged, argument: details.fileDateLabel)
             }
-
-            detailView?.populateDetails()
         }
     }
     

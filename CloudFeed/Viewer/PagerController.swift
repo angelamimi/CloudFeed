@@ -105,13 +105,16 @@ class PagerController: UIViewController {
     
     private func initGestureRecognizers() {
         
-        let longPress = UILongPressGestureRecognizer()
-        longPress.delaysTouchesBegan = true
-        longPress.minimumPressDuration = 0.3
-        longPress.delegate = self
-        longPress.addTarget(self, action: #selector(handleLongPress(gestureRecognizer:)))
-        
-        pageViewController?.view.addGestureRecognizer(longPress)
+        if let pageView = pageViewController?.view {
+            
+            let longPress = UILongPressGestureRecognizer()
+            longPress.delaysTouchesBegan = true
+            longPress.minimumPressDuration = 0.3
+            longPress.delegate = self
+            longPress.addTarget(self, action: #selector(handleLongPress(gestureRecognizer:)))
+            
+            pageView.addGestureRecognizer(longPress)
+        }
         
         let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
         swipeUpRecognizer.direction = .up
@@ -394,7 +397,7 @@ extension PagerController: ViewerDelegate {
 extension PagerController: PagerViewModelDelegate {
 
     func finishedPaging(metadata: Metadata) {
-
+        
         DispatchQueue.main.async { [weak self] in
             self?.titleView?.title.text = self?.getFileName(metadata)
         }
@@ -412,7 +415,6 @@ extension PagerController: PagerViewModelDelegate {
                 }
             }
         }
-        
     }
     
     func finishedUpdatingFavorite(isFavorite: Bool) {
@@ -473,6 +475,10 @@ extension PagerController: UIGestureRecognizerDelegate {
 }
 
 extension PagerController: NavigationDelegate {
+    
+    func showInfo() {
+        currentViewController?.showDetails(animate: true, reset: true)
+    }
     
     func cancel() {
         navigationController?.popViewController(animated: true)

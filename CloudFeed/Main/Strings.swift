@@ -134,6 +134,11 @@ extension Strings {
     public static let ShareMessageDownloading = NSLocalizedString("Share.Message.Downloading", comment: "")
     public static let ShareMessageCancel = NSLocalizedString("Share.Message.Cancel", comment: "")
     
+    //Viewer
+    public static let ViewerLabelImage = NSLocalizedString("Viewer.Label.Image", comment: "")
+    public static let ViewerLabelVideo = NSLocalizedString("Viewer.Label.Video", comment: "")
+    public static let ViewerLabelLivePhoto = NSLocalizedString("Viewer.Label.LivePhoto", comment: "")
+    
     //Image Detail and EXIF
     public static let DetailSectionGeneral = NSLocalizedString("Detail.Section.General", comment: "")
     public static let DetailSectionGps = NSLocalizedString("Detail.Section.Gps", comment: "")

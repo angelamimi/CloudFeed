@@ -38,25 +38,20 @@ protocol MediaViewController: AnyObject {
 protocol NavigationDelegate: AnyObject {
     func cancel()
     func titleTouched()
+    func showInfo()
 }
 
 class TitleView: UIView {
     
     @IBOutlet weak var menuButton: UIButton!
+    @IBOutlet weak var infoButton: UIButton!
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var doneButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var backButton: UIButton!
     @IBOutlet weak var backButtonConstraint: NSLayoutConstraint!
     @IBOutlet weak var filterButton: UIButton!
-    
-    @IBOutlet weak var menuButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var menuButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var menuButtonTrailingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var filterButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var filterButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var filterButtonTrailingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var titleTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var actionButtonStackView: UIStackView!
     
     weak var mediaView: MediaViewController?
     weak var navigationDelegate: NavigationDelegate?
@@ -86,6 +81,9 @@ class TitleView: UIView {
 
             initText()
             
+            infoButton.isHidden = true
+            infoButton.addTarget(self, action: #selector(infoTapped), for: .touchUpInside)
+            
             doneButton.isHidden = true
             doneButton.addTarget(self, action: #selector(endEdit), for: .touchUpInside)
             
@@ -109,11 +107,6 @@ class TitleView: UIView {
     
     func hideFilterButton() {
         filterButton.isHidden = true
-    }
-    
-    func initMenu(menu: UIMenu) {
-        menuButton.menu = menu
-        backButtonConstraint.constant = 8
     }
     
     func initMenu(allowEdit: Bool, allowSelect: Bool, layoutType: String, filterType: Global.FilterType) {
@@ -196,7 +189,7 @@ class TitleView: UIView {
             menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, typeMenu])
         }
         
-        backButtonConstraint.constant = 8
+        backButtonConstraint.constant = 0
     }
     
     func initTitleOnly() {
@@ -207,6 +200,10 @@ class TitleView: UIView {
     func initNavigation(withMenu: Bool) {
         
         title.isHidden = false
+        
+        infoButton.isHidden = false
+        actionButtonStackView.isHidden = false
+    
         backButton.isHidden = false
         
         doneButton.isHidden = true
@@ -217,9 +214,8 @@ class TitleView: UIView {
     
     func beginEdit() {
         
-        menuButton.isHidden = true
         title.isHidden = true
-        filterButton.isHidden = true
+        actionButtonStackView.isHidden = true
         
         doneButton.isHidden = false
         cancelButton.isHidden = false
@@ -232,7 +228,7 @@ class TitleView: UIView {
 
     func resetEdit() {
         
-        menuButton.isHidden = false
+        actionButtonStackView.isHidden = false
         title.isHidden = false
         
         doneButton.isHidden = true
@@ -241,7 +237,7 @@ class TitleView: UIView {
     
     @objc func endEdit() {
         
-        menuButton.isHidden = false
+        actionButtonStackView.isHidden = false
         title.isHidden = false
         
         doneButton.isHidden = true
@@ -252,7 +248,7 @@ class TitleView: UIView {
     
     @objc func cancelEdit() {
         
-        menuButton.isHidden = false
+        actionButtonStackView.isHidden = false
         title.isHidden = false
         
         doneButton.isHidden = true
@@ -273,6 +269,10 @@ class TitleView: UIView {
         mediaView?.filter()
     }
     
+    @objc func infoTapped() {
+        navigationDelegate?.showInfo()
+    }
+    
     private func initText() {
         
         menuButton.accessibilityLabel = Strings.TitleMenu
@@ -282,7 +282,7 @@ class TitleView: UIView {
     }
     
     private func initSubviews() {
-
+        
         let nib = UINib(nibName: "TitleView", bundle: Bundle(for: type(of: self)))
         let container = nib.instantiate(withOwner: self, options: nil).first as! UIView
         
