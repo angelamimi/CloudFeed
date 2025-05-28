@@ -477,6 +477,13 @@ extension PagerController: UIGestureRecognizerDelegate {
 extension PagerController: NavigationDelegate {
     
     func showInfo() {
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if presentedViewController == nil {
+                presentDetailPopover()
+            }
+        }
+        
         currentViewController?.showDetails(animate: true, reset: true)
     }
     

@@ -48,15 +48,15 @@
                     <buttonConfiguration key="configuration" style="plain" image="chevron.left" catalog="system"/>
                 </button>
                 <label opaque="NO" contentMode="left" horizontalHuggingPriority="249" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jPn-bk-o2e" userLabel="Title">
-                    <rect key="frame" x="36" y="397" width="174" height="50"/>
+                    <rect key="frame" x="36" y="397" width="190" height="50"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="50" id="hRJ-b5-Nru"/>
                     </constraints>
                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="250" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="mew-Ct-dkn">
-                    <rect key="frame" x="214" y="402" width="168" height="40"/>
+                <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="250" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="mew-Ct-dkn">
+                    <rect key="frame" x="230" y="402" width="152" height="40"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" pointerInteraction="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3eV-3U-YdS" userLabel="Filter Button">
                             <rect key="frame" x="0.0" y="0.0" width="50.666666666666664" height="40"/>
@@ -69,14 +69,14 @@
                             </buttonConfiguration>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" pointerInteraction="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Hhw-OQ-bgK" userLabel="Info Button">
-                            <rect key="frame" x="58.666666666666686" y="0.0" width="50.666666666666657" height="40"/>
+                            <rect key="frame" x="50.666666666666686" y="0.0" width="50.666666666666657" height="40"/>
                             <state key="normal" title="Button"/>
                             <buttonConfiguration key="configuration" style="plain" image="info.circle" catalog="system">
                                 <color key="baseForegroundColor" systemColor="labelColor"/>
                             </buttonConfiguration>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" pointerInteraction="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0HJ-5a-GPf" userLabel="Menu Button">
-                            <rect key="frame" x="117.33333333333333" y="0.0" width="50.666666666666671" height="40"/>
+                            <rect key="frame" x="101.33333333333331" y="0.0" width="50.666666666666657" height="40"/>
                             <color key="tintColor" systemColor="labelColor"/>
                             <state key="normal" title="Button"/>
                             <buttonConfiguration key="configuration" style="plain" image="ellipsis.circle" catalog="system">
