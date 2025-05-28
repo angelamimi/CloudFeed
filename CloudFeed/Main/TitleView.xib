@@ -79,7 +79,7 @@
                             <rect key="frame" x="117.33333333333333" y="0.0" width="50.666666666666671" height="40"/>
                             <color key="tintColor" systemColor="labelColor"/>
                             <state key="normal" title="Button"/>
-                            <buttonConfiguration key="configuration" style="plain" image="ellipsis.circle" catalog="system" cornerStyle="capsule">
+                            <buttonConfiguration key="configuration" style="plain" image="ellipsis.circle" catalog="system">
                                 <color key="baseForegroundColor" systemColor="labelColor"/>
                             </buttonConfiguration>
                         </button>
@@ -107,7 +107,7 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="mew-Ct-dkn" secondAttribute="trailing" constant="8" id="fnD-cX-cBz"/>
                 <constraint firstItem="k2S-Un-QnP" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="j4h-NX-ExE"/>
             </constraints>
-            <point key="canvasLocation" x="-15" y="65"/>
+            <point key="canvasLocation" x="37" y="54"/>
         </view>
     </objects>
     <resources>
