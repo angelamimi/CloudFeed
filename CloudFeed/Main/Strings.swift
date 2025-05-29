@@ -140,6 +140,7 @@ extension Strings {
     public static let ViewerLabelLivePhoto = NSLocalizedString("Viewer.Label.LivePhoto", comment: "")
     
     //Image Detail and EXIF
+    public static let DetailTitle = NSLocalizedString("Detail.Title", comment: "")
     public static let DetailSectionGeneral = NSLocalizedString("Detail.Section.General", comment: "")
     public static let DetailSectionGps = NSLocalizedString("Detail.Section.Gps", comment: "")
     public static let DetailSectionExif = NSLocalizedString("Detail.Section.Exif", comment: "")

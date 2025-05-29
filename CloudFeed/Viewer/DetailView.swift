@@ -28,6 +28,7 @@ import UIKit
 protocol DetailViewDelegate: AnyObject {
     func showAllDetails(metadata: Metadata)
     func detailsLoaded()
+    func close()
 }
 
 class DetailView: UIView {
@@ -35,6 +36,10 @@ class DetailView: UIView {
     @IBOutlet weak var contentStackView: UIStackView!
     @IBOutlet weak var contentStackViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var contentStackViewBottomConstraint: NSLayoutConstraint!
+    
+    @IBOutlet weak var navigationStackView: UIStackView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var closeButton: UIButton!
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var metadataButton: UIButton!
@@ -116,6 +121,10 @@ class DetailView: UIView {
         }
     }
     
+    func showNavigation() {
+        navigationStackView.isHidden = false
+    }
+    
     private func commonInit() {
 
         initElements()
@@ -132,6 +141,10 @@ class DetailView: UIView {
             contentStackViewHeightConstraint?.isActive = false
             contentStackViewBottomConstraint?.isActive = true
         }
+        
+        titleLabel.text = Strings.DetailTitle
+        
+        closeButton.addTarget(self, action: #selector(closeDetails), for: .touchUpInside)
         
         metadataButton.setTitle(Strings.DetailAll, for: .normal)
         metadataButton.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
@@ -189,6 +202,10 @@ class DetailView: UIView {
         exposureTimeLabel.text = "-"
         fpsLabel.text = "-"
         durationLabel.text = "-"
+    }
+    
+    @objc private func closeDetails() {
+        delegate?.close()
     }
     
     @objc private func showAllDetails() {

@@ -72,7 +72,7 @@ class DetailsController: UIViewController {
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
-        dismiss(animated: false)
+        dismiss(animated: true)
     }
     
     private func initDetailView() {
@@ -82,6 +82,8 @@ class DetailsController: UIViewController {
         self.detailView = detailView
         
         view.addSubview(detailView)
+        
+        detailView.showNavigation()
         
         detailView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -127,6 +129,10 @@ class DetailsController: UIViewController {
 }
 
 extension DetailsController : DetailViewDelegate {
+    
+    func close() {
+        dismiss(animated: true)
+    }
     
     func detailsLoaded() {
         UIView.animate(withDuration: 0.2, animations: { [weak self] in

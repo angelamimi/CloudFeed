@@ -121,6 +121,7 @@
 "Viewer.Label.LivePhoto" = "Live Photo";
 
 /* Image Detail and EXIF */
+"Detail.Title" = "Info";
 "Detail.Section.General" = "General";
 "Detail.Section.Gps" = "GPS";
 "Detail.Section.Exif" = "EXIF";

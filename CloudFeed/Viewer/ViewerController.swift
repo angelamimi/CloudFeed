@@ -1422,9 +1422,8 @@ extension ViewerController: VLCCustomDialogRendererProtocol {
 
 extension ViewerController: DetailViewDelegate {
     
-    func detailsLoaded() {
-        //not needed for phone. only pad. see DetailsController.
-    }
+    func close() {}
+    func detailsLoaded() {}
     
     func showAllDetails(metadata: Metadata) {
         presentAllDetailsSheet()
