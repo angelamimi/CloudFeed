@@ -47,18 +47,17 @@ class CollectionViewCell: UICollectionViewCell {
     }
     
     func resetStatusIcon() {
+        imageStatus.isHidden = true
         imageStatus.image = nil
     }
     
-    func setStatusIcon(icon: UIImage) {
-        imageStatus.image = icon
-    }
-    
     func showVideoIcon() {
+        imageStatus.isHidden = false
         imageStatus.image = UIImage(systemName: "play.fill")
     }
     
     func showLivePhotoIcon() {
+        imageStatus.isHidden = false
         imageStatus.image = UIImage(systemName: "livephoto")
     }
     
