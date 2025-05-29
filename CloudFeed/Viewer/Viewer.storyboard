@@ -28,7 +28,7 @@
                                 <rect key="frame" x="0.0" y="118" width="393" height="50"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="8sQ-TF-d1c"/>
+                                    <constraint firstAttribute="height" priority="250" constant="50" id="8sQ-TF-d1c"/>
                                 </constraints>
                             </view>
                         </subviews>

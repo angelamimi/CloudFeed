@@ -23,11 +23,11 @@
                                 <viewLayoutGuide key="safeArea" id="e0R-in-U75"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="x2w-u6-YTy" customClass="TitleView" customModule="CloudFeed" customModuleProvider="target">
+                            <view contentMode="scaleToFill" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="x2w-u6-YTy" customClass="TitleView" customModule="CloudFeed" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="162" width="393" height="50"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="xDa-rL-Ggw"/>
+                                    <constraint firstAttribute="height" priority="250" constant="50" id="xDa-rL-Ggw"/>
                                 </constraints>
                             </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="J2a-Pd-Ybs">

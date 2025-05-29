@@ -67,7 +67,7 @@ class PagerController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
         
         initObservers()
-  }
+    }
     
     override func viewDidDisappear(_ animated: Bool) {
         titleView?.menuButton.menu = nil
