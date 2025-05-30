@@ -38,17 +38,13 @@ class ViewerController: UIViewController {
     
     var viewModel: ViewerViewModel!
     
-    @IBOutlet weak var statusImageView: UIImageView!
-    @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var statusContainerView: UIView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     @IBOutlet weak var imageViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewTrailingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var statusContainerTopConstraint: NSLayoutConstraint!
     
     private weak var detailView: DetailView?
     private weak var videoView: UIView?
@@ -95,18 +91,6 @@ class ViewerController: UIViewController {
             imageView.accessibilityLabel = Strings.ViewerLabelImage + " " + metadata.fileNameView
         }
         
-        if viewModel.isLivePhoto() {
-            statusImageView.image = UIImage(systemName: "livephoto")?.withTintColor(.label, renderingMode: .alwaysOriginal)
-            statusLabel.text = Strings.LiveTitle
-            statusLabel.accessibilityLabel = Strings.ViewerLabelLivePhoto
-        } else {
-            statusImageView.image = nil
-            statusLabel.text = ""
-        }
-        
-        statusContainerView.isHidden = true
-        statusContainerView.layer.cornerRadius = 14
-        
         initGestureRecognizers()
     }
     
@@ -118,7 +102,7 @@ class ViewerController: UIViewController {
         let currentStatus = currentStatus()
         
         if detailsVisible && currentStatus != .details {
-            hideDetails(animate: false, hideStatus: false, status: currentStatus)
+            hideDetails(animate: false, status: currentStatus)
         }
         
         if currentStatus != .title && controlsView != nil && controlsView!.isHidden == false {
@@ -189,14 +173,19 @@ class ViewerController: UIViewController {
     
     func handleSwipeUp() {
         
-        if !detailsVisible() {
-            
-            if metadata.video {
-                videoSetupForDetails()
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if !detailsVisible() {
+                toggleControlsVisibility()
             }
+        } else {
+            if !detailsVisible() {
+                if metadata.video {
+                    videoSetupForDetails()
+                }
+            }
+            
+            showDetails(animate: true, reset: false)
         }
-        
-        showDetails(animate: true, reset: false)
     }
     
     func handleSwipeDown() -> Bool {
@@ -205,9 +194,13 @@ class ViewerController: UIViewController {
             scrollDownDetails()
             return true
         } else {
-            hideDetails(animate: true, hideStatus: false, status: .title)
+            hideDetails(animate: true, status: .title)
             return false
         }
+    }
+    
+    func handlePadSwipeDown() {
+        toggleControlsVisibility()
     }
     
     func handlePresentationControllerDidDismiss() {
@@ -219,10 +212,6 @@ class ViewerController: UIViewController {
             delegate?.updateStatus(status: .fullscreen)
         } else {
             delegate?.updateStatus(status: .title)
-            
-            if metadata.livePhoto {
-                statusContainerView.isHidden = false
-            }
         }
     }
     
@@ -239,10 +228,6 @@ class ViewerController: UIViewController {
     private func hideAll() {
         delegate?.updateStatus(status: .fullscreen)
         controlsView?.isHidden = true
-        
-        if metadata.livePhoto {
-            statusContainerView.isHidden = true
-        }
     }
     
     private func loadVideo(autoPlay: Bool = false) {
@@ -302,6 +287,10 @@ class ViewerController: UIViewController {
         
         if controlsView != nil && (status == .title || status == .fullscreen) {
             addControls()
+        }
+        
+        if status == .title {
+            showControls()
         }
     }
     
@@ -369,7 +358,7 @@ class ViewerController: UIViewController {
         }
 
         controls.delegate = self
-
+        
         view.addSubview(controls)
         view.bringSubviewToFront(controls)
     }
@@ -407,13 +396,7 @@ class ViewerController: UIViewController {
     }
     
     private func handleImageLoaded(metadata: Metadata) {
-        
         activityIndicator.stopAnimating()
-        
-        if metadata.livePhoto {
-            let status = currentStatus()
-            statusContainerView.isHidden = status == .details || status == .fullscreen
-        }
     }
     
     private func updateDetailsForPath(_ path: String) {
@@ -472,8 +455,6 @@ class ViewerController: UIViewController {
             avpController.allowsPictureInPicturePlayback = false
             
             view.addSubview(videoView!)
-            
-            view.bringSubviewToFront(statusContainerView)
             
             if metadata.livePhoto {
                 //make sure can't see both the imageview and videoview at the same time. looks bad when showing/hiding details
@@ -579,24 +560,17 @@ class ViewerController: UIViewController {
             
             if presentedViewController == nil {
                 delegate?.singleTapped()
-                toggleStatusVisibility()
                 toggleControlsVisibility()
             }
         } else {
+            
+            delegate?.singleTapped()
 
             if detailsVisible() {
-                hideDetails(animate: true, hideStatus: false, status: .title)
+                hideDetails(animate: true, status: .title)
             } else {
-                delegate?.singleTapped()
-                toggleStatusVisibility()
                 toggleControlsVisibility()
             }
-        }
-    }
-    
-    private func toggleStatusVisibility() {
-        if metadata.livePhoto {
-            statusContainerView.isHidden = !statusContainerView.isHidden
         }
     }
     
@@ -626,14 +600,15 @@ class ViewerController: UIViewController {
     @objc private func handleSingleVideoTap(tapGesture: UITapGestureRecognizer) {
         
         if detailsVisible() {
-            hideDetails(animate: true, hideStatus: false, status: .title)
+            hideDetails(animate: true, status: .title)
         } else {
             delegate?.singleTapped()
-            toggleStatusVisibility()
         }
     }
     
     @objc private func handleDoubleTap(tapGesture: UITapGestureRecognizer) {
+        
+        guard detailsVisible() == false else { return }
         
         let currentScale : CGFloat = tapGesture.view?.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
         
@@ -846,8 +821,6 @@ class ViewerController: UIViewController {
 
         delegate?.updateStatus(status: .details)
         
-        statusContainerView.isHidden = true
-        
         if controlsView != nil {
             controlsView!.isHidden = true
         }
@@ -930,13 +903,11 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func hideDetails(animate: Bool, hideStatus: Bool, status: Global.ViewerStatus) {
+    private func hideDetails(animate: Bool, status: Global.ViewerStatus) {
         
         delegate?.updateStatus(status: status)
         
-        if metadata.livePhoto {
-            statusContainerView.isHidden = hideStatus
-        } else if metadata.video && status == .title {
+        if metadata.video && status == .title {
             showControls()
         }
         

@@ -31,21 +31,58 @@
                                     <constraint firstAttribute="height" priority="250" constant="50" id="8sQ-TF-d1c"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cgD-fs-t0w">
+                                <rect key="frame" x="24" y="176" width="76.333333333333329" height="28"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Hhc-ac-kfS">
+                                        <rect key="frame" x="8.0000000000000036" y="4" width="58.333333333333343" height="20"/>
+                                        <subviews>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="livephoto" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ZgX-u5-E2L" userLabel="Status Image View">
+                                                <rect key="frame" x="0.0" y="-3.5527136788005009e-15" width="20" height="20.333333333333336"/>
+                                                <color key="tintColor" systemColor="labelColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="20" id="Gl9-ba-Ihi"/>
+                                                    <constraint firstAttribute="width" constant="20" id="xTp-C2-8nc"/>
+                                                </constraints>
+                                            </imageView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LIVE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vSe-Ge-hD8" userLabel="Status Label">
+                                                <rect key="frame" x="24.000000000000004" y="0.0" width="34.333333333333343" height="20"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </stackView>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" priority="250" constant="28" id="8Ox-9L-Wxc"/>
+                                    <constraint firstAttribute="bottom" secondItem="Hhc-ac-kfS" secondAttribute="bottom" constant="4" id="Dvm-1a-fx2"/>
+                                    <constraint firstAttribute="trailing" secondItem="Hhc-ac-kfS" secondAttribute="trailing" constant="10" id="QGd-Z6-xu9"/>
+                                    <constraint firstItem="Hhc-ac-kfS" firstAttribute="leading" secondItem="cgD-fs-t0w" secondAttribute="leading" constant="8" id="S72-eT-pR7"/>
+                                    <constraint firstItem="Hhc-ac-kfS" firstAttribute="top" secondItem="cgD-fs-t0w" secondAttribute="top" constant="4" id="ep8-2w-Ir5"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="TIa-9d-2uX"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="W1n-Dw-rA6" firstAttribute="top" secondItem="TIa-9d-2uX" secondAttribute="top" id="9aU-V0-Zai"/>
                             <constraint firstItem="TIa-9d-2uX" firstAttribute="trailing" secondItem="W1n-Dw-rA6" secondAttribute="trailing" id="In1-ax-uxC"/>
+                            <constraint firstItem="cgD-fs-t0w" firstAttribute="leading" secondItem="TIa-9d-2uX" secondAttribute="leading" constant="24" id="KIl-gq-gcA"/>
                             <constraint firstItem="P4k-Fh-Hxp" firstAttribute="top" secondItem="TIa-9d-2uX" secondAttribute="top" id="auS-gL-BAQ"/>
                             <constraint firstItem="TIa-9d-2uX" firstAttribute="bottom" secondItem="W1n-Dw-rA6" secondAttribute="bottom" id="hJO-ZY-DSR"/>
                             <constraint firstItem="W1n-Dw-rA6" firstAttribute="leading" secondItem="TIa-9d-2uX" secondAttribute="leading" id="hWt-eU-Bou"/>
+                            <constraint firstItem="cgD-fs-t0w" firstAttribute="top" secondItem="P4k-Fh-Hxp" secondAttribute="bottom" constant="8" id="lPX-b4-mff"/>
                             <constraint firstItem="P4k-Fh-Hxp" firstAttribute="leading" secondItem="TIa-9d-2uX" secondAttribute="leading" id="yWC-sM-7qw"/>
                             <constraint firstItem="TIa-9d-2uX" firstAttribute="trailing" secondItem="P4k-Fh-Hxp" secondAttribute="trailing" id="zEI-Jw-GNN"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="KHH-pV-Az5"/>
                     <connections>
+                        <outlet property="statusContainerView" destination="cgD-fs-t0w" id="k4A-dS-mg0"/>
+                        <outlet property="statusLabel" destination="vSe-Ge-hD8" id="jSM-ni-LJc"/>
                         <outlet property="titleView" destination="P4k-Fh-Hxp" id="5bf-fh-cRn"/>
                     </connections>
                 </viewController>
@@ -79,38 +116,6 @@
                                     <constraint firstAttribute="height" constant="300" id="u4l-oU-PNv"/>
                                 </constraints>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JHA-Xd-uSt">
-                                <rect key="frame" x="8" y="176" width="76.333333333333329" height="28"/>
-                                <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="uI2-yM-R6H">
-                                        <rect key="frame" x="8.0000000000000036" y="4" width="58.333333333333343" height="20"/>
-                                        <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="7NT-a3-48h" userLabel="Status Image View">
-                                                <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="20" id="DQL-FG-lKu"/>
-                                                    <constraint firstAttribute="height" constant="20" id="Ga9-MN-epY"/>
-                                                </constraints>
-                                            </imageView>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LIVE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DLS-kx-jTd" userLabel="Status Label">
-                                                <rect key="frame" x="24.000000000000004" y="0.0" width="34.333333333333343" height="20"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                        </subviews>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </stackView>
-                                </subviews>
-                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="uI2-yM-R6H" secondAttribute="bottom" constant="4" id="6if-n1-n1V"/>
-                                    <constraint firstItem="uI2-yM-R6H" firstAttribute="leading" secondItem="JHA-Xd-uSt" secondAttribute="leading" constant="8" id="IC3-4K-djV"/>
-                                    <constraint firstAttribute="trailing" secondItem="uI2-yM-R6H" secondAttribute="trailing" constant="10" id="VPy-aD-yPe"/>
-                                    <constraint firstItem="uI2-yM-R6H" firstAttribute="top" secondItem="JHA-Xd-uSt" secondAttribute="top" constant="4" id="paz-s5-3Lh"/>
-                                    <constraint firstAttribute="height" priority="250" constant="28" id="pea-4x-5PX"/>
-                                </constraints>
-                            </view>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="kG3-WY-mSO">
                                 <rect key="frame" x="186.66666666666666" y="257" width="20" height="22"/>
                                 <constraints>
@@ -122,13 +127,11 @@
                         <viewLayoutGuide key="safeArea" id="POo-Li-FDE"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="JHA-Xd-uSt" firstAttribute="top" secondItem="POo-Li-FDE" secondAttribute="top" constant="58" identifier="Status container top to safe area top" id="1Vf-rW-uGX"/>
                             <constraint firstItem="gnc-Wf-rti" firstAttribute="leading" secondItem="POo-Li-FDE" secondAttribute="leading" identifier="Image leading to safe area leading" id="2t2-uN-rfx"/>
                             <constraint firstItem="kG3-WY-mSO" firstAttribute="centerX" secondItem="gnc-Wf-rti" secondAttribute="centerX" id="6BZ-M6-hsp"/>
                             <constraint firstItem="kG3-WY-mSO" firstAttribute="centerY" secondItem="gnc-Wf-rti" secondAttribute="centerY" id="9fh-LU-CAa"/>
                             <constraint firstItem="POo-Li-FDE" firstAttribute="trailing" secondItem="gnc-Wf-rti" secondAttribute="trailing" identifier="Image trailing to safe area trailing" id="fni-Al-I0J"/>
                             <constraint firstItem="gnc-Wf-rti" firstAttribute="top" secondItem="POo-Li-FDE" secondAttribute="top" identifier="Image view top same as safe area top" id="qvw-9n-KQ1"/>
-                            <constraint firstItem="JHA-Xd-uSt" firstAttribute="leading" secondItem="POo-Li-FDE" secondAttribute="leading" constant="8" identifier="Status container leading to safe area leading" id="rDh-Ce-v7J"/>
                         </constraints>
                     </view>
                     <connections>
@@ -138,10 +141,6 @@
                         <outlet property="imageViewLeadingConstraint" destination="2t2-uN-rfx" id="81I-DN-W3U"/>
                         <outlet property="imageViewTopConstraint" destination="qvw-9n-KQ1" id="DLB-Km-L48"/>
                         <outlet property="imageViewTrailingConstraint" destination="fni-Al-I0J" id="3sR-Q9-UIm"/>
-                        <outlet property="statusContainerTopConstraint" destination="1Vf-rW-uGX" id="Ela-4G-725"/>
-                        <outlet property="statusContainerView" destination="JHA-Xd-uSt" id="jTu-eG-FGr"/>
-                        <outlet property="statusImageView" destination="7NT-a3-48h" id="73D-6C-PQe"/>
-                        <outlet property="statusLabel" destination="DLS-kx-jTd" id="qC1-Wp-OgV"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5UU-cJ-G65" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -235,6 +234,10 @@
         </scene>
     </scenes>
     <resources>
+        <image name="livephoto" catalog="system" width="128" height="124"/>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

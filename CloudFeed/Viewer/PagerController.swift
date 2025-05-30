@@ -27,6 +27,8 @@ import os.log
 class PagerController: UIViewController {
     
     @IBOutlet weak var titleView: TitleView!
+    @IBOutlet weak var statusLabel: UILabel!
+    @IBOutlet weak var statusContainerView: UIView!
     
     var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
@@ -62,11 +64,19 @@ class PagerController: UIViewController {
         titleView?.title.text = getFileName(metadata)
         titleView?.initNavigation(withMenu: true)
         
+        statusContainerView.isHidden = true
+        statusContainerView.alpha = 0
+        statusContainerView.layer.cornerRadius = 14
+        statusLabel.text = Strings.LiveTitle
+        statusLabel.accessibilityLabel = Strings.ViewerLabelLivePhoto
+        
         setMenu(isFavorite: metadata.favorite)
         
         navigationController?.setNavigationBarHidden(true, animated: false)
         
         initObservers()
+        
+        setTypeContainerView()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -225,6 +235,29 @@ class PagerController: UIViewController {
         })
     }
     
+    private func showType() {
+        statusContainerView?.isHidden = false
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            self?.statusContainerView?.alpha = 1
+        })
+    }
+    
+    private func hideType() {
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            self?.statusContainerView?.alpha = 0
+        }, completion: { [weak self] _ in
+            self?.statusContainerView?.isHidden = true
+        })
+    }
+    
+    private func setTypeContainerView() {
+        if let metadata = currentViewController?.metadata, metadata.livePhoto == true, status == .title {
+            showType()
+        } else {
+            hideType()
+        }
+    }
+    
     private func getFileName(_ metadata: Metadata) -> String {
         return (metadata.fileNameView as NSString).deletingPathExtension
     }
@@ -263,26 +296,43 @@ class PagerController: UIViewController {
         
         if swipeGesture.direction == .up {
             
-            updateStatus(status: .details)
+            let previousStatus = status
             
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                if presentedViewController == nil {
-                    presentDetailPopover()
-                }
-            } else {
+            updateStatus(status: .details)
+            hideType()
+            
+            if previousStatus == .title {
                 currentViewController?.handleSwipeUp()
             }
+
+            if UIDevice.current.userInterfaceIdiom == .pad && presentedViewController == nil {
+                presentDetailPopover()
+            }
+            
+            if previousStatus == .fullscreen {
+                currentViewController?.handleSwipeUp()
+            }
+            
         } else {
             
             if UIDevice.current.userInterfaceIdiom == .pad {
+                
+                let previousStatus = status
+                
                 updateStatus(status: .title)
                 presentedViewController?.dismiss(animated: true)
+                
+                if previousStatus != .fullscreen && previousStatus != .title {
+                    currentViewController?.handlePadSwipeDown()
+                }
             } else {
                 let scrolledOnly = currentViewController?.handleSwipeDown() ?? false
                 if !scrolledOnly {
                     updateStatus(status: .title)
                 }
             }
+            
+            setTypeContainerView()
         }
     }
     
@@ -335,6 +385,12 @@ class PagerController: UIViewController {
         
         return controller
     }
+    
+    private func setShowTitleMode() {
+        status = .title
+        showTitle()
+        setTypeContainerView()
+    }
 }
 
 extension PagerController: DetailsControllerDelegate {
@@ -380,16 +436,15 @@ extension PagerController: ViewerDelegate {
     func singleTapped() {
         
         if status == .details {
-            status = .title
-            showTitle()
+            setShowTitleMode()
         } else if status == .fullscreen {
-            status = .title
-            showTitle()
+            setShowTitleMode()
         } else {
             status = .fullscreen
             if isTitleVisible() {
                 hideTitle()
             }
+            hideType()
         }
     }
 }
@@ -400,6 +455,7 @@ extension PagerController: PagerViewModelDelegate {
         
         DispatchQueue.main.async { [weak self] in
             self?.titleView?.title.text = self?.getFileName(metadata)
+            self?.setTypeContainerView()
         }
         
         setMenu(isFavorite: metadata.favorite)
@@ -455,6 +511,8 @@ extension PagerController: UIGestureRecognizerDelegate {
         
         if gestureRecognizer.state == .began {
             
+            hideType()
+            
             currentViewController.updateViewConstraints()
             
             if let videoMetadata = viewModel.getMetadataLivePhoto(metadata: currentViewController.metadata) {
@@ -469,6 +527,9 @@ extension PagerController: UIGestureRecognizerDelegate {
                 }
             }
         } else if gestureRecognizer.state == .ended {
+            if status == .title {
+                showType()
+            }
             currentViewController.liveLongPressEnded()
         }
     }
@@ -477,6 +538,8 @@ extension PagerController: UIGestureRecognizerDelegate {
 extension PagerController: NavigationDelegate {
     
     func showInfo() {
+        
+        hideType()
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             if presentedViewController == nil {
