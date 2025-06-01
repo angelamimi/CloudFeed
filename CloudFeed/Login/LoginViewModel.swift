@@ -82,12 +82,10 @@ final class LoginViewModel: NSObject {
                 return
             }
             
-            if Environment.current.setCurrentUser(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId) {
-                self?.dataService?.setup(account: account)
-            }
+            Environment.current.setCurrentUser(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId)
              
             if let currentUser = Environment.current.currentUser {
-                self?.dataService?.appendSession(account: currentUser.account, user: currentUser.user, userId: currentUser.userId, urlBase: currentUser.urlBase)
+                await self?.dataService?.appendSession(account: currentUser.account, user: currentUser.user, userId: currentUser.userId, urlBase: currentUser.urlBase)
                 await self?.dataService?.updateAccount(account: currentUser.account)
             }
             

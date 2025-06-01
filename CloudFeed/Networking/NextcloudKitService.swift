@@ -34,7 +34,7 @@ protocol NextcloudKitServiceDelegate: AnyObject, Sendable {
 protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     
     func setup()
-    func getCapabilities(account: String) async -> (account: String?, data: Data?)
+    func getCapabilities(account: String) async -> Data?
     func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, nextcloudVersion: Int, groupIdentifier: String)
     func removeSession(account: String)
     func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)?
@@ -77,13 +77,13 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         NextcloudKit.shared.nkCommonInstance.levelLog = 0
     }
     
-    func getCapabilities(account: String) async -> (account: String?, data: Data?) {
+    func getCapabilities(account: String) async -> Data? {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.getCapabilities(account: account, options: options) { account, data, error in
-                continuation.resume(returning: (account, data?.data))
+                continuation.resume(returning: data?.data)
             }
         }
     }

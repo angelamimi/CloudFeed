@@ -28,13 +28,10 @@ public class Environment: NSObject {
     
     var currentUser: UserAccount? = nil
     
-    func setCurrentUser(account: String, urlBase: String, user: String, userId: String) -> Bool {
+    func setCurrentUser(account: String, urlBase: String, user: String, userId: String)  {
         
-        if isCurrentUser(account: account, userId: userId) {
-            return false
-        } else {
-            self.currentUser = UserAccount(account: account, urlBase: urlBase, user: user, userId: userId)
-            return true
+        if !isCurrentUser(account: account, userId: userId) {
+            currentUser = UserAccount(account: account, urlBase: urlBase, user: user, userId: userId)
         }
     }
     

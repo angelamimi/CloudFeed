@@ -38,7 +38,7 @@ final class DatabaseManager: Sendable {
     
     func setup(fileUrl: URL) -> Bool {
         
-        let config = Realm.Configuration(fileURL: fileUrl, schemaVersion: 2)
+        let config = Realm.Configuration(fileURL: fileUrl, schemaVersion: 3)
         
         Realm.Configuration.defaultConfiguration = config
         
@@ -96,7 +96,6 @@ final class DatabaseManager: Sendable {
     func clearDatabase(account: String?, removeAccount: Bool) {
         
         self.clearTable(tableAvatar.self)
-        self.clearTable(tableCapabilities.self, account: account)
         self.clearTable(tableMetadata.self, account: account)
         
         if removeAccount {

@@ -58,9 +58,7 @@ final class AppCoordinator: NSObject, Coordinator {
             dataService.setup()
         
             if let activeAccount = dataService.getActiveAccount() {
-                if Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId) {
-                    dataService.setup(account: activeAccount.account)
-                }
+                Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId) 
             }
             
             if Environment.current.currentUser != nil {
@@ -69,12 +67,16 @@ final class AppCoordinator: NSObject, Coordinator {
                     window.overrideUserInterfaceStyle = style
                 }
                 
-                for acc in dataService.getAccountsOrdered() {
-                    dataService.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
+                Task { [weak self] in
+                    for acc in dataService.getAccountsOrdered() {
+                        await dataService.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
+                    }
+                    
+                    if let window = self?.window {
+                        let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
+                        mainCoordinator.start()
+                    }
                 }
-
-                let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
-                mainCoordinator.start()
                 
             } else {
                 let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)

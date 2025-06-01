@@ -175,9 +175,7 @@ class MediaTests {
         let activeAccount = dataService?.getActiveAccount()
         #expect(activeAccount != nil)
         
-        if Environment.current.setCurrentUser(account: activeAccount!.account, urlBase: activeAccount!.urlBase, user: activeAccount!.user, userId: activeAccount!.userId) {
-            dataService?.setup(account: activeAccount!.account)
-        }
+        Environment.current.setCurrentUser(account: activeAccount!.account, urlBase: activeAccount!.urlBase, user: activeAccount!.user, userId: activeAccount!.userId)
     }
     
     private func cleanup() {

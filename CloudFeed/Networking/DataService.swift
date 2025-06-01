@@ -22,6 +22,7 @@
 import Alamofire
 import os.log
 @preconcurrency import NextcloudKit
+import SwiftyJSON
 import UIKit
 
 final class DataService: NSObject, Sendable {
@@ -46,17 +47,6 @@ final class DataService: NSObject, Sendable {
         nextcloudService.setup()
     }
     
-    func setup(account: String) {
-        
-        Task { [weak self] in
-            guard let self else { return }
-            
-            let (account, data) = await nextcloudService.getCapabilities(account: account)
-            guard account != nil && data != nil else { return }
-            databaseManager.addCapabilitiesJSon(account: account!, data: data!)
-        }
-    }
-    
     func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)? {
         return await nextcloudService.loginPoll(token: token, endpoint: endpoint)
     }
@@ -69,14 +59,24 @@ final class DataService: NSObject, Sendable {
         return await nextcloudService.checkServerStatus(url: url)
     }
     
-    func appendSession(account: String, user: String, userId: String, urlBase: String) {
+    func appendSession(account: String, user: String, userId: String, urlBase: String) async {
         
         let password = store.getPassword(account) ?? ""
-        let serverVersionMajor = databaseManager.getCapabilitiesServerInt(account: account, elements: Global.shared.capabilitiesVersionMajor)
+        let serverVersionMajor = await getCapabilitiesServerVersionMajor(account: account)
         
         nextcloudService.appendSession(account: account, urlBase: urlBase, user: user, userId: userId,
                                        password: password, userAgent: Global.shared.userAgent, nextcloudVersion: serverVersionMajor,
                                        groupIdentifier: Global.shared.groupIdentifier)
+    }
+    
+    func getCapabilitiesServerVersionMajor(account: String) async -> Int {
+        
+        if let data = await nextcloudService.getCapabilities(account: account) {
+            let json = JSON(data)
+            return json[Global.shared.capabilitiesVersionMajor].intValue
+        }
+        
+        return 0
     }
     
     func removeSession(account: String) {

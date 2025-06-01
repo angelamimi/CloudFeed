@@ -114,7 +114,6 @@
 		39E593792D25C3CF00BA3C9A /* LoginPollController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E593782D25C3CC00BA3C9A /* LoginPollController.swift */; };
 		39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */; };
 		39EED48A2B56F9C100475802 /* DatabaseManager+Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */; };
-		39EED48C2B56FF2B00475802 /* DatabaseManager+Capabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */; };
 		39FA11A62D2AEA270054DFF6 /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 39FA11A52D2AEA270054DFF6 /* OpenSSL */; };
 		39FE2FE92C8B85F000CE51AC /* ControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39FE2FE82C8B85F000CE51AC /* ControlsView.xib */; };
 /* End PBXBuildFile section */
@@ -261,7 +260,6 @@
 		39E593782D25C3CC00BA3C9A /* LoginPollController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPollController.swift; sourceTree = "<group>"; };
 		39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Avatar.swift"; sourceTree = "<group>"; };
-		39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Capabilities.swift"; sourceTree = "<group>"; };
 		39FE2FE82C8B85F000CE51AC /* ControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ControlsView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -429,7 +427,6 @@
 				3927359F29BD69EA0058796A /* DatabaseManager.swift */,
 				392735AA29BE2DAA0058796A /* DatabaseManager+Account.swift */,
 				39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */,
-				39EED48B2B56FF2B00475802 /* DatabaseManager+Capabilities.swift */,
 				39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */,
 			);
 			path = Data;
@@ -722,7 +719,6 @@
 				3903CE7D2AA78C72003E7E41 /* PagerCoordinator.swift in Sources */,
 				39030F7E2D89F96200F90E9B /* LoginServerModalCoordinator.swift in Sources */,
 				3903CE732AA78375003E7E41 /* MediaCoordinator.swift in Sources */,
-				39EED48C2B56FF2B00475802 /* DatabaseManager+Capabilities.swift in Sources */,
 				3927356D29BD1E820058796A /* SceneDelegate.swift in Sources */,
 				3966634129DCD4E8005727D4 /* ProfileCell.swift in Sources */,
 				39EED48A2B56F9C100475802 /* DatabaseManager+Avatar.swift in Sources */,
@@ -1092,7 +1088,7 @@
 			repositoryURL = "https://github.com/Nextcloud/NextcloudKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 6.0.5;
+				version = 6.0.9;
 			};
 		};
 		392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
