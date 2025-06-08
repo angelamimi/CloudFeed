@@ -336,30 +336,6 @@ extension DatabaseManager {
         return Metadata.init(obj: result)
     }
     
-    func getMetadata(predicate: NSPredicate) -> Metadata? {
-
-        let realm = try! Realm()
-        realm.refresh()
-
-        guard let result = realm.objects(tableMetadata.self).filter(predicate).first else {
-            return nil
-        }
-
-        return Metadata.init(obj: result)
-    }
-    
-    func getMetadata(predicate: NSPredicate, sorted: String, ascending: Bool) -> Metadata? {
-
-        let realm = try! Realm()
-        realm.refresh()
-
-        guard let result = realm.objects(tableMetadata.self).filter(predicate).sorted(byKeyPath: sorted, ascending: ascending).first else {
-            return nil
-        }
-
-        return Metadata.init(obj: result)
-    }
-    
     func getMetadataFromOcId(_ ocId: String?) -> Metadata? {
         let realm = try! Realm()
         realm.refresh()

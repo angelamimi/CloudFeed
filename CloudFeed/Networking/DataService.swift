@@ -151,20 +151,6 @@ final class DataService: NSObject, Sendable {
     
     // MARK: -
     // MARK: Metadata
-    func getMetadata(predicate: NSPredicate) -> Metadata? {
-        return databaseManager.getMetadata(predicate: predicate)
-    }
-    
-    func getMetadata(account: String, startServerUrl: String) -> Metadata? {
-        let predicate = NSPredicate(format: "account == %@ AND serverUrl BEGINSWITH %@ AND (classFile == %@ OR classFile == %@)", account, startServerUrl, NKCommon.TypeClassFile.image.rawValue, NKCommon.TypeClassFile.video.rawValue)
-        
-        return databaseManager.getMetadata(predicate: predicate, sorted: "date", ascending: true)
-    }
-    
-    func getMetadata(predicate: NSPredicate, sorted: String, ascending: Bool) -> Metadata? {
-        return databaseManager.getMetadata(predicate: predicate, sorted: sorted, ascending: ascending)
-    }
-    
     func getMetadataFromOcId(_ ocId: String?) -> Metadata? {
         return databaseManager.getMetadataFromOcId(ocId)
     }
