@@ -56,7 +56,10 @@ final class ProfileController: UIViewController {
     
     private func requestProfile() {
         startActivityIndicator()
-        viewModel?.requestProfile()
+        
+        Task { [weak self] in
+            await self?.viewModel?.requestProfile()
+        }
     }
     
     private func startActivityIndicator() {

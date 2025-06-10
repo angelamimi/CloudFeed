@@ -22,7 +22,7 @@ class MediaTests {
     var databaseManager: DatabaseManager?
     
     init() async throws {
-        try setup()
+        try await setup()
     }
     
     deinit {
@@ -149,17 +149,17 @@ class MediaTests {
         }
     }
     
-    private func setup() throws {
+    private func setup() async throws {
         
-        databaseManager = DatabaseManager()
+        databaseManager = DatabaseManager(modelContainer: DatabaseManager.test)
         #expect(databaseManager != nil)
         
         let store = StoreUtility()
         let fileUrl = store.databaseDirectory?.appending(path: "CloudFeedTest.realm")
         #expect(fileUrl != nil)
 
-        let setupResult = databaseManager!.setup(fileUrl: fileUrl!)
-        #expect(setupResult == false)
+        //let setupResult = databaseManager!.setup(fileUrl: fileUrl!)
+        //#expect(setupResult == false)
         
         nextCloudService = MockNextcloudKitService()
         #expect(nextCloudService != nil)
@@ -167,19 +167,19 @@ class MediaTests {
         dataService = DataService(store: store, nextcloudService: nextCloudService!, databaseManager: databaseManager!)
         #expect(dataService != nil)
 
-        dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
+        await dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
 
-        let tableAccount = dataService?.setActiveAccount(account)
+        let tableAccount = await dataService?.setActiveAccount(account)
         #expect(tableAccount != nil)
         
-        let activeAccount = dataService?.getActiveAccount()
+        let activeAccount = await dataService?.getActiveAccount()
         #expect(activeAccount != nil)
         
         Environment.current.setCurrentUser(account: activeAccount!.account, urlBase: activeAccount!.urlBase, user: activeAccount!.user, userId: activeAccount!.userId)
     }
     
     private func cleanup() {
-        databaseManager?.removeDatabase()
+        //databaseManager?.removeDatabase()
     }
 }
 

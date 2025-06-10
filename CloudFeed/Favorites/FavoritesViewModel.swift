@@ -206,7 +206,7 @@ final class FavoritesViewModel: ShareViewModel {
         
         handleFavoriteResult(error: error)
         
-        let resultMetadatas = dataService.paginateFavoriteMetadata(type: type, fromDate: Date.distantPast, toDate: Date.distantFuture, offsetDate: nil, offsetName: nil)
+        let resultMetadatas = await dataService.paginateFavoriteMetadata(type: type, fromDate: Date.distantPast, toDate: Date.distantFuture, offsetDate: nil, offsetName: nil)
         await applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
     }
     
@@ -223,7 +223,7 @@ final class FavoritesViewModel: ShareViewModel {
             
             handleFavoriteResult(error: error)
             
-            let resultMetadatas = dataService.paginateFavoriteMetadata(type: type, fromDate: from, toDate: to, offsetDate: nil, offsetName: nil)
+            let resultMetadatas = await dataService.paginateFavoriteMetadata(type: type, fromDate: from, toDate: to, offsetDate: nil, offsetName: nil)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: true)
         }
     }
@@ -241,7 +241,7 @@ final class FavoritesViewModel: ShareViewModel {
             
             handleFavoriteResult(error: error)
             
-            processFavorites(type: type, from: from, to: to)
+            await processFavorites(type: type, from: from, to: to)
         }
     }
     
@@ -336,7 +336,7 @@ final class FavoritesViewModel: ShareViewModel {
 
             _ = await self.dataService.getFavorites()
 
-            let resultMetadatas = self.dataService.paginateFavoriteMetadata(type: type, fromDate: filterFromDate ?? Date.distantPast, toDate: filterToDate ?? Date.distantFuture, offsetDate: offsetDate, offsetName: offsetName)
+            let resultMetadatas = await self.dataService.paginateFavoriteMetadata(type: type, fromDate: filterFromDate ?? Date.distantPast, toDate: filterToDate ?? Date.distantFuture, offsetDate: offsetDate, offsetName: offsetName)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
         }
     }
@@ -388,12 +388,12 @@ final class FavoritesViewModel: ShareViewModel {
         delegate.editCellUpdated(cell: cell, indexPath: indexPath)
     }
     
-    private func processFavorites(type: Global.FilterType, from: Date?, to: Date?) {
+    private func processFavorites(type: Global.FilterType, from: Date?, to: Date?) async {
         
         var snapshot = dataSource.snapshot()
         var displayed = snapshot.itemIdentifiers(inSection: 0)
         
-        guard let result = dataService.processFavorites(displayedMetadataIds: displayed, displayedMetadatas: metadatas,  type: type, from: from, to: to) else {
+        guard let result = await dataService.processFavorites(displayedMetadataIds: displayed, displayedMetadatas: metadatas,  type: type, from: from, to: to) else {
             delegate.dataSourceUpdated(refresh: false)
             return
         }

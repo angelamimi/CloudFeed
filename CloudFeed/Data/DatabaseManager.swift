@@ -2,12 +2,8 @@
 //  DatabaseManager.swift
 //  CloudFeed
 //
-//  Created by Marino Faggiana on 06/05/17.
-//  Copyright © 2017 Marino Faggiana. All rights reserved.
-//  Copyright © 2023 Angela Jarosz. All rights reserved.
-//
-//  Author Marino Faggiana <marino.faggiana@nextcloud.com>
-//  Author Henrik Storch <henrik.storch@nextcloud.com>
+//  Created by Angela Jarosz on 6/8/25.
+//  Copyright © 2025 Angela Jarosz. All rights reserved.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,17 +22,39 @@
 import NextcloudKit
 import os.log
 import RealmSwift
+import SwiftData
 import UIKit
 
-
-final class DatabaseManager: Sendable {
+@ModelActor
+actor DatabaseManager: Sendable {
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DatabaseManager.self)
     )
+
+    static var test: ModelContainer {
+        do {
+            let config = ModelConfiguration(isStoredInMemoryOnly: true)
+            let container = try ModelContainer(for: AccountModel.self, MetadataModel.self, AvatarModel.self, configurations: config)
+            return container
+        } catch {
+            fatalError("Failed to create container.")
+        }
+    }
     
-    func setup(fileUrl: URL) -> Bool {
+    static func modelConainerWithURL(_ url: URL) -> ModelContainer {
+        
+        do {
+            let config = ModelConfiguration(url: url)
+            let container = try ModelContainer(for: AccountModel.self, MetadataModel.self, AvatarModel.self, configurations: config)
+            return container
+        } catch {
+            fatalError("Failed to create container.")
+        }
+    }
+    
+    /*func setup(fileUrl: URL) -> Bool {
         
         let config = Realm.Configuration(fileURL: fileUrl, schemaVersion: 3)
         
@@ -59,9 +77,9 @@ final class DatabaseManager: Sendable {
         }
         
         return false
-    }
+    }*/
     
-    func setup(identifier: String) -> Bool {
+    /*func setup(identifier: String) -> Bool {
         
         let config = Realm.Configuration(inMemoryIdentifier: identifier, migrationBlock: nil)
         
@@ -69,54 +87,27 @@ final class DatabaseManager: Sendable {
         Logger.shared.level = .warn
         
         return true
-    }
-    
-    func clearTable(_ table: Object.Type, account: String? = nil) {
+    }*/
 
-        guard let realm = try? Realm() else { return }
-
-        do {
-            
-            try realm.write {
-                var results: Results<Object>
-
-                if let account = account {
-                    results = realm.objects(table).filter("account == %@", account)
-                } else {
-                    results = realm.objects(table)
-                }
-
-                realm.delete(results)
-            }
-        } catch let error {
-            NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
-        }
-    }
     
     func clearDatabase(account: String?, removeAccount: Bool) {
         
-        self.clearTable(tableAvatar.self)
-        self.clearTable(tableMetadata.self, account: account)
+        //try? modelContext.delete(model: AvatarModel.self)
+        //deleteMetadata(account)
         
-        if removeAccount {
-            self.clearTable(tableAccount.self, account: account)
+        if removeAccount && account != nil {
+            self.deleteAccount(account!)
         }
     }
     
-    func removeDatabase() {
-        let realmURL = Realm.Configuration.defaultConfiguration.fileURL!
-        let realmURLs = [
-            realmURL,
-            realmURL.appendingPathExtension("lock"),
-            realmURL.appendingPathExtension("note"),
-            realmURL.appendingPathExtension("management")
-        ]
-        for URL in realmURLs {
-            do {
-                try FileManager.default.removeItem(at: URL)
-            } catch let error {
-                NextcloudKit.shared.nkCommonInstance.writeLog("Could not write to database: \(error)")
-            }
+    func clearDatabase() {
+        
+        do {
+            try modelContext.delete(model: AccountModel.self)
+            //try modelContext.delete(MetadataModel.self)
+            //try modelContext.delete(AvatarModel.self)
+        } catch {
+            Self.logger.error("Failed to clear database")
         }
     }
 }

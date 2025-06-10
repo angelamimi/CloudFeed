@@ -116,15 +116,18 @@ class PreviewController: UIViewController {
     
     private func loadLiveVideo() {
         
-        if let videoMetadata = viewModel.getMetadataLivePhoto(metadata: metadata) {
+        Task { [weak self] in
+            guard let self = self else { return }
             
-            if viewModel.dataService.store.fileExists(videoMetadata) {
-                playLiveVideoFromMetadata(videoMetadata)
-            } else {
-                Task { [weak self] in
-                    await self?.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
-                    self?.playLiveVideoFromMetadata(videoMetadata)
-                    self?.activityIndicator.stopAnimating()
+            if let currentMetadata = self.metadata,
+               let videoMetadata = await self.viewModel.getMetadataLivePhoto(metadata: currentMetadata) {
+                
+                if self.viewModel.dataService.store.fileExists(videoMetadata) {
+                    playLiveVideoFromMetadata(videoMetadata)
+                } else {
+                    await self.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
+                    self.playLiveVideoFromMetadata(videoMetadata)
+                    self.activityIndicator.stopAnimating()
                 }
             }
         }

@@ -32,7 +32,6 @@ final class AppCoordinator: NSObject, Coordinator {
     
     func start() {
         
-        let dbManager = DatabaseManager()
         let store = StoreUtility()
         
         guard let certificatesDirectory = store.certificatesDirectory else {
@@ -44,31 +43,30 @@ final class AppCoordinator: NSObject, Coordinator {
             showInitFailedError()
             return
         }
-
-        if dbManager.setup(fileUrl: dbUrl) {
-            showInitFailedError()
-            return
-        }
         
+        let ModelContainer = DatabaseManager.modelConainerWithURL(dbUrl)
+        let dbManager = DatabaseManager(modelContainer: ModelContainer)
         let nextcloudService = NextcloudKitService(certificatesDirectory: certificatesDirectory, delegate: self)
+        
         dataService = DataService(store: store, nextcloudService: nextcloudService, databaseManager: dbManager)
         
         if let dataService = self.dataService {
             
             dataService.setup()
         
-            if let activeAccount = dataService.getActiveAccount() {
-                Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId) 
-            }
-            
-            if Environment.current.currentUser != nil {
+            Task { [weak self] in
                 
-                if let style = dataService.getDisplayStyle() {
-                    window.overrideUserInterfaceStyle = style
+                if let activeAccount = await dataService.getActiveAccount() {
+                    Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId)
                 }
                 
-                Task { [weak self] in
-                    for acc in dataService.getAccountsOrdered() {
+                if Environment.current.currentUser != nil {
+                    
+                    if let style = dataService.getDisplayStyle() {
+                        self?.window.overrideUserInterfaceStyle = style
+                    }
+                    
+                    for acc in await dataService.getAccountsOrdered() {
                         await dataService.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
                     }
                     
@@ -76,11 +74,10 @@ final class AppCoordinator: NSObject, Coordinator {
                         let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
                         mainCoordinator.start()
                     }
+                } else if self?.window != nil {
+                    let loginServerCoordinator = LoginServerCoordinator(window: self!.window, dataService: dataService)
+                    loginServerCoordinator.start()
                 }
-                
-            } else {
-                let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)
-                loginServerCoordinator.start()
             }
         }
     }

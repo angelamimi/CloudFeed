@@ -38,8 +38,8 @@ final class SettingsViewModel: ProfileViewModel {
         super.init(delegate: profileDelegate, accountDelegate: delegate, dataService: dataService, coordinator: coordinator)
     }
     
-    func getAccounts() -> [tableAccount] {
-        return dataService.getAccountsOrdered()
+    func getAccounts() async -> [Account] {
+        return await dataService.getAccountsOrdered()
     }
 
     func clearCache() {
@@ -47,7 +47,7 @@ final class SettingsViewModel: ProfileViewModel {
         Task { [weak self] in
             
             if let account = Environment.current.currentUser?.account {
-                self?.dataService.clearDatabase(account: account, removeAccount: false)
+                await self?.dataService.clearDatabase(account: account, removeAccount: false)
             }
             
             await self?.dataService.store.clearCache()
@@ -67,7 +67,7 @@ final class SettingsViewModel: ProfileViewModel {
             await store.removeDocumentsDirectory()
             store.deleteAllChainStore()
             
-            await self?.dataService.removeDatabase()
+            await self?.dataService.clearDatabase()
             
             Environment.current.currentUser = nil
             

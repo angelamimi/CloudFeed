@@ -2,11 +2,8 @@
 //  DatabaseManager+Avatar.swift
 //  CloudFeed
 //
-//  Created by Marino Faggiana on 20/01/23.
-//  Copyright © 2023 Marino Faggiana. All rights reserved.
-//  Copyright © 2023 Angela Jarosz. All rights reserved.
-//
-//  Author Marino Faggiana <marino.faggiana@nextcloud.com>
+//  Created by Angela Jarosz on 6/8/25.
+//  Copyright © 2025 Angela Jarosz. All rights reserved.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,57 +19,60 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import Foundation
 import os.log
-import RealmSwift
+import SwiftData
 import UIKit
 
-class tableAvatar: Object {
+@Model
+final class AvatarModel {
 
-    @objc dynamic var date = NSDate()
-    @objc dynamic var etag = ""
-    @objc dynamic var fileName = ""
-    @objc dynamic var loaded: Bool = false
+    var date = Date()
+    var etag = ""
+    var fileName = ""
+    
+    init(date: Date = Date(), etag: String = "", fileName: String = "") {
+        self.date = date
+        self.etag = etag
+        self.fileName = fileName
+    }
+}
 
-    override static func primaryKey() -> String {
-        return "fileName"
+struct Avatar {
+    var date: Date
+    var etag: String
+    var fileName: String
+    
+    init(model: AvatarModel) {
+        self.date = model.date
+        self.etag = model.etag
+        self.fileName = model.fileName
     }
 }
 
 extension DatabaseManager {
     
-    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: DatabaseManager.self) + "Avatar")
+    private static let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier!,
+        category: String(describing: DatabaseManager.self) + String(describing: Avatar.self)
+    )
     
     func addAvatar(fileName: String, etag: String) {
-        
-        let realm = try! Realm()
-        
-        do {
-            try realm.write {
-                
-                // Add new
-                let addObject = tableAvatar()
-                
-                addObject.date = NSDate()
-                addObject.etag = etag
-                addObject.fileName = fileName
-                addObject.loaded = true
-                
-                realm.add(addObject, update: .all)
-            }
-        } catch let error {
-            Self.logger.error("Could not write to database: \(error)")
-        }
+        modelContext.insert(AvatarModel(date: Date(), etag: etag, fileName: fileName))
+        try? modelContext.save()
     }
     
-    func getAvatar(fileName: String) -> tableAvatar? {
+    func getAvatar(fileName: String) -> Avatar? {
         
-        let realm = try! Realm()
-        
-        guard let result = realm.objects(tableAvatar.self).filter("fileName == %@", fileName).first else {
-            return nil
+        let predicate = #Predicate<AvatarModel> { avatarModel in
+            avatarModel.fileName == fileName
         }
         
-        return tableAvatar.init(value: result)
+        let fetchDescriptor = FetchDescriptor<AvatarModel>(predicate: predicate)
+        
+        if let results = try? modelContext.fetch(fetchDescriptor), let avatar = results.first {
+            return Avatar(model: avatar)
+        }
+        
+        return nil
     }
 }

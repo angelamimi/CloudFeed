@@ -123,4 +123,17 @@ final class Global: Sendable {
         case information
         case data
     }
+    
+    // MARK: - File Types
+    //
+    enum FileType: String {
+        case audio = "audio"
+        case compress = "compress"
+        case directory = "directory"
+        case document = "document"
+        case image = "image"
+        case unknow = "unknow"
+        case url = "url"
+        case video = "video"
+    }
 }

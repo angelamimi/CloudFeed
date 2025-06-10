@@ -405,9 +405,9 @@ class DetailView: UIView {
     }
     
     private func populateImageSizeInfo(pixelProperties: NSMutableDictionary, sizeProperties: NSMutableDictionary) {
-        
-        var width: Int? = pixelProperties[kCGImagePropertyPixelWidth] as? Int
-        var height: Int? = pixelProperties[kCGImagePropertyPixelHeight] as? Int
+
+        var width: Double? = pixelProperties[kCGImagePropertyPixelWidth] as? Double
+        var height: Double? = pixelProperties[kCGImagePropertyPixelHeight] as? Double
         var formattedPixels: String?
         var formattedMegaPixels: String?
         var formattedFileSize: String?

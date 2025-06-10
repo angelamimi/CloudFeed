@@ -132,7 +132,10 @@ class SettingsController: UIViewController {
             viewModel.addAccount()
         } else {
             startActivityIndicator()
-            viewModel.requestProfile()
+            
+            Task { [weak self] in
+                await self?.viewModel.requestProfile()
+            }
         }
     }
     
@@ -176,7 +179,7 @@ class SettingsController: UIViewController {
     
     private func buildAccountMenuItems() async -> [UIAction] {
         
-        let accounts = viewModel.getAccounts()
+        let accounts = await viewModel.getAccounts()
         var accountActions: [UIAction] = []
         
         for account in accounts {

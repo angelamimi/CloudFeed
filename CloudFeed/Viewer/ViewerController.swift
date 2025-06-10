@@ -57,7 +57,7 @@ class ViewerController: UIViewController {
     
     weak var delegate: ViewerDelegate?
     
-    var metadata: Metadata = Metadata(obj: tableMetadata())
+    var metadata: Metadata!
     var path: String?
     var videoURL: URL?
     var index: Int = 0

@@ -79,8 +79,8 @@ final class PagerViewModel: ShareViewModel {
         }
     }
 
-    func getMetadataLivePhoto(metadata: Metadata) -> Metadata? {
-        return dataService.getMetadataLivePhoto(metadata: metadata)
+    func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
+        return await dataService.getMetadataLivePhoto(metadata: metadata)
     }
     
     func downloadLivePhotoVideo(metadata: Metadata) async {

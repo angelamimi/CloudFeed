@@ -515,14 +515,16 @@ extension PagerController: UIGestureRecognizerDelegate {
             
             currentViewController.updateViewConstraints()
             
-            if let videoMetadata = viewModel.getMetadataLivePhoto(metadata: currentViewController.metadata) {
+            Task { [weak self] in
+                guard let self = self else { return }
                 
-                if viewModel.dataService.store.fileExists(videoMetadata) {
-                    playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
-                } else {
-                    Task { [weak self] in
-                        await self?.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
-                        self?.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
+                if let videoMetadata = await self.viewModel.getMetadataLivePhoto(metadata: currentViewController.metadata) {
+                    
+                    if self.viewModel.dataService.store.fileExists(videoMetadata) {
+                        self.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
+                    } else {
+                        await self.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
+                        self.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
                     }
                 }
             }

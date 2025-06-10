@@ -35,16 +35,16 @@ struct ViewerViewModel {
         self.dataService = dataService
     }
     
-    func isLivePhoto() -> Bool {
-        return getMetadataLivePhoto(metadata: metadata) != nil
+    func isLivePhoto() async -> Bool {
+        return await getMetadataLivePhoto(metadata: metadata) != nil
     }
     
-    func getMetadataLivePhoto(metadata: Metadata) -> Metadata? {
-        return dataService.getMetadataLivePhoto(metadata: metadata)
+    func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
+        return await dataService.getMetadataLivePhoto(metadata: metadata)
     }
     
-    func getMetadataFromOcId(_ ocId: String?) async -> Metadata? {
-        return dataService.getMetadataFromOcId(ocId)
+    func getMetadataFromOcId(_ ocId: String) async -> Metadata? {
+        return await dataService.getMetadataFromOcId(ocId)
     }
     
     func getVideoURL(metadata: Metadata) async -> URL? {
@@ -60,7 +60,7 @@ struct ViewerViewModel {
 
         if !dataService.store.fileExists(metadata) {
 
-            if metadata.livePhoto, let videoMetadata = getMetadataLivePhoto(metadata: metadata) {
+            if metadata.livePhoto, let videoMetadata = await getMetadataLivePhoto(metadata: metadata) {
                 await downloadLivePhotoVideo(metadata: videoMetadata)
             }
             

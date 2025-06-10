@@ -42,7 +42,7 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?)
     
     func download(metadata: Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (_ metadata: Metadata, _ progress: Progress) -> Void) async
-    func downloadPreview(account: String, fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String?
+    func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etagResource: String?) async -> String?
     func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int, avatarSizeRounded: Int) async -> String?
     func getDirectDownload(metadata: Metadata) async -> URL?
     
@@ -163,7 +163,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
-    func downloadPreview(account: String, fileId: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String? {
+    func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etagResource: String?) async -> String? {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
 

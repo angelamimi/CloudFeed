@@ -68,7 +68,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         
     }
     
-    func downloadPreview(account: String, fileId fileNamePath: String, previewPath: String, previewWidth: Int, previewHeight: Int, iconPath: String, etagResource: String?) async -> String? {
+    func downloadPreview(account: String, fileId fileNamePath: String, previewPath: String, iconPath: String, etagResource: String?) async -> String? {
         return etagResource
     }
     
@@ -113,7 +113,11 @@ extension MockNextcloudKitService {
         
         for fileJSON in filesJSON {
             
-            let file = tableMetadata.init()
+            let file = MetadataModel.init(favorite: fileJSON["favorite"] as! String == "true" ? true : false,
+                                          hasPreview: false,
+                                          size: 0,
+                                          height: 0,
+                                          width: 0)
             
             file.account = fileJSON["account"] as! String
             file.contentType = fileJSON["contentType"] as! String
@@ -129,10 +133,10 @@ extension MockNextcloudKitService {
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
                 let date = dateFormatter.date(from: fileJSON["date"] as! String)
-                file.date = date! as NSDate
+                file.date = date!
             }
             
-            resultFiles.append(CloudFeed.Metadata.init(obj: file))
+            resultFiles.append(CloudFeed.Metadata.init(model: file))
         }
 
         return resultFiles

@@ -53,11 +53,11 @@ final class LoginViewModel: NSObject {
     func loginPoll(token: String, endpoint: String) async {
         
         if let result = await dataService?.loginPoll(token: token, endpoint: endpoint) {
-            login(server: result.urlBase, username: result.user, password: result.appPassword)
+            await login(server: result.urlBase, username: result.user, password: result.appPassword)
         }
     }
     
-    func login(server: String, username: String, password: String) {
+    func login(server: String, username: String, password: String) async {
         
         var urlBase = server
 
@@ -67,17 +67,17 @@ final class LoginViewModel: NSObject {
 
         let account: String = "\(username) \(urlBase)"
 
-        if dataService?.getAccounts() == nil {
-            initSettings()
+        if let accountCount = await dataService?.getAccountCount(), accountCount == 0 {
+            await initSettings()
         }
 
         // Add new account
-        dataService?.deleteAccount(account)
-        dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
+        await dataService?.deleteAccount(account)
+        await dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
         
         Task { @MainActor [weak self] in
             
-            guard let tableAccount = self?.dataService?.setActiveAccount(account) else {
+            guard let tableAccount = await self?.dataService?.setActiveAccount(account) else {
                 self?.delegate?.loginError()
                 return
             }
@@ -93,11 +93,11 @@ final class LoginViewModel: NSObject {
         }
      }
     
-    private func initSettings() {
+    private func initSettings() async {
         
         URLCache.shared.memoryCapacity = 0
         URLCache.shared.diskCapacity = 0
 
-        dataService?.clearDatabase(account: nil, removeAccount: true)
+        await dataService?.clearDatabase(account: nil, removeAccount: true)
     }
 }

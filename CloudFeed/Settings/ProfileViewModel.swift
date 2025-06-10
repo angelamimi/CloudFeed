@@ -50,9 +50,9 @@ class ProfileViewModel {
         self.coordinator = coordinator
     }
     
-    func requestProfile() {
+    func requestProfile() async {
         
-        guard let account = dataService.getActiveAccount() else { return }
+        guard let account = await dataService.getActiveAccount() else { return }
         
         Task { [weak self] in
             guard let self else { return }
@@ -67,7 +67,7 @@ class ProfileViewModel {
         }
     }
     
-    func downloadAvatar(account: tableAccount, user: String) async {
+    func downloadAvatar(account: Account, user: String) async {
         
         let userBaseUrl = buildUserBaseUrl(account)
         let fileName = userBaseUrl + "-" + user + ".png"
@@ -75,11 +75,11 @@ class ProfileViewModel {
         await dataService.downloadAvatar(fileName: fileName, account: account)
     }
     
-    private func buildUserBaseUrl(_ account: tableAccount) -> String {
+    private func buildUserBaseUrl(_ account: Account) -> String {
         return account.user + "-" + (URL(string: account.urlBase)?.host ?? "")
     }
     
-    func loadAvatar(account: tableAccount) async -> UIImage? {
+    func loadAvatar(account: Account) async -> UIImage? {
 
         let userBaseUrl = buildUserBaseUrl(account)
         let image = loadUserImage(for: account.userId, userBaseUrl: userBaseUrl)
@@ -119,7 +119,7 @@ class ProfileViewModel {
         
         Task { [weak self] in
             
-            guard let tableAccount = self?.dataService.setActiveAccount(account) else {
+            guard let tableAccount = await self?.dataService.setActiveAccount(account) else {
                 self?.accountDelegate.userChangeError()
                 return
             }
@@ -150,7 +150,7 @@ class ProfileViewModel {
     
     private func activateNextAccount() async {
         
-        let accounts = dataService.getAccountsOrdered()
+        let accounts = await dataService.getAccountsOrdered()
         
         if accounts.isEmpty {
             Environment.current.currentUser = nil

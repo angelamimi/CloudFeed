@@ -89,6 +89,9 @@
 		398DA7252AC33F9E00F98E7F /* MockNextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */; };
 		398DA7262AC33F9E00F98E7F /* MockDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */; };
 		398DA7282AC6199500F98E7F /* mock-search.json in Resources */ = {isa = PBXBuildFile; fileRef = 398DA7272AC6199500F98E7F /* mock-search.json */; };
+		399095372DF77BB2002FBD25 /* DataLayerAccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399095362DF77BB2002FBD25 /* DataLayerAccountTests.swift */; };
+		399095392DF77C80002FBD25 /* DataLayerMetadataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399095382DF77C80002FBD25 /* DataLayerMetadataTests.swift */; };
+		3990953B2DF77D83002FBD25 /* DataLayerAvatarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3990953A2DF77D83002FBD25 /* DataLayerAvatarTests.swift */; };
 		399C88132D131D9700694EA2 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399C88122D131D9700694EA2 /* DetailViewModel.swift */; };
 		39A83B062D4D7D850059C403 /* CertificateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A83B052D4D7D850059C403 /* CertificateController.swift */; };
 		39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; };
@@ -236,6 +239,9 @@
 		398D14CB2B93B76700526E42 /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
 		398D14D12B9A4D2700526E42 /* ImageUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtility.swift; sourceTree = "<group>"; };
 		398DA7272AC6199500F98E7F /* mock-search.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-search.json"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.json; };
+		399095362DF77BB2002FBD25 /* DataLayerAccountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLayerAccountTests.swift; sourceTree = "<group>"; };
+		399095382DF77C80002FBD25 /* DataLayerMetadataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLayerMetadataTests.swift; sourceTree = "<group>"; };
+		3990953A2DF77D83002FBD25 /* DataLayerAvatarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLayerAvatarTests.swift; sourceTree = "<group>"; };
 		399C88122D131D9700694EA2 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
 		39A83B052D4D7D850059C403 /* CertificateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateController.swift; sourceTree = "<group>"; };
 		39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MobileVLCKit.xcframework; path = Carthage/Build/MobileVLCKit.xcframework; sourceTree = "<group>"; };
@@ -412,6 +418,9 @@
 		3927358029BD1E830058796A /* CloudFeedTests */ = {
 			isa = PBXGroup;
 			children = (
+				399095362DF77BB2002FBD25 /* DataLayerAccountTests.swift */,
+				3990953A2DF77D83002FBD25 /* DataLayerAvatarTests.swift */,
+				399095382DF77C80002FBD25 /* DataLayerMetadataTests.swift */,
 				39735A2E2CD14A2800EB4848 /* MediaTests.swift */,
 				391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */,
 				391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */,
@@ -748,7 +757,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3990953B2DF77D83002FBD25 /* DataLayerAvatarTests.swift in Sources */,
 				39735A2F2CD14A2800EB4848 /* MediaTests.swift in Sources */,
+				399095372DF77BB2002FBD25 /* DataLayerAccountTests.swift in Sources */,
+				399095392DF77C80002FBD25 /* DataLayerMetadataTests.swift in Sources */,
 				398DA7252AC33F9E00F98E7F /* MockNextcloudKitService.swift in Sources */,
 				398DA7262AC33F9E00F98E7F /* MockDatabaseManager.swift in Sources */,
 			);
@@ -838,7 +850,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -896,7 +908,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -927,7 +939,7 @@
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -967,7 +979,7 @@
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -994,7 +1006,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.angelamimi.CloudFeedTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1018,7 +1030,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.angelamimi.CloudFeedTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

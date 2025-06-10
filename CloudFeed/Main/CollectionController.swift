@@ -291,11 +291,11 @@ class CollectionController: UIViewController {
         return datDate
     }
     
-    func calculateItemSize(width: Int, height: Int) -> CGSize {
+    func calculateItemSize(width: Double, height: Double) -> CGSize {
         
         guard height > 0 && width > 0 else { return CGSize.zero }
         
-        let ratio = Double(width) / Double(height)
+        let ratio = width / height
         
         //prevent items from being too tall
         if ratio < 0.25 {

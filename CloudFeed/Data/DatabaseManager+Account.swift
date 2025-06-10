@@ -2,11 +2,8 @@
 //  DatabaseManager+Account.swift
 //  CloudFeed
 //
-//  Created by Marino Faggiana on 13/11/23.
-//  Copyright © 2021 Marino Faggiana. All rights reserved.
-//  Copyright © 2023 Angela Jarosz. All rights reserved.
-//
-//  Author Marino Faggiana <marino.faggiana@nextcloud.com>
+//  Created by Angela Jarosz on 6/8/25.
+//  Copyright © 2025 Angela Jarosz. All rights reserved.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,140 +21,160 @@
 
 import Foundation
 import os.log
-import RealmSwift
+import SwiftData
 
-class tableAccount: Object {
+@Model
+final class AccountModel {
+
+    var account = ""
+    var active: Bool = false
+    var displayName = ""
+    var urlBase = ""
+    var user = ""
+    var userId = ""
     
-    @objc dynamic var account = ""
-    @objc dynamic var active: Bool = false
-    @objc dynamic var alias = ""
-    @objc dynamic var displayName = ""
-    @objc dynamic var enabled: Bool = false
-    @objc dynamic var mediaPath = ""
-    @objc dynamic var urlBase = ""
-    @objc dynamic var user = ""
-    @objc dynamic var userId = ""
+    init(account: String = "",
+         active: Bool,
+         displayName: String = "",
+         urlBase: String = "",
+         user: String = "",
+         userId: String = "") {
+        
+        self.account = account
+        self.active = active
+        self.displayName = displayName
+        self.urlBase = urlBase
+        self.user = user
+        self.userId = userId
+    }
+}
+
+struct Account: Sendable {
     
-    override static func primaryKey() -> String {
-        return "account"
+    var account: String
+    var active: Bool
+    var displayName: String
+    var urlBase: String
+    var user: String
+    var userId: String
+    
+    init(_ account: AccountModel) {
+        self.account = account.account
+        self.active = account.active
+        self.displayName = account.displayName
+        self.urlBase = account.urlBase
+        self.user = account.user
+        self.userId = account.userId
     }
 }
 
 extension DatabaseManager {
     
-    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
-                                       category: String(describing: DatabaseManager.self) + "Account")
+    private static let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier!,
+        category: String(describing: DatabaseManager.self) + String(describing: Account.self)
+    )
     
-    func addAccount(_ account: String, urlBase: String, user: String, password: String) {
-
-        let realm = try! Realm()
-
-        do {
-            try realm.write {
-                
-                let addObject = tableAccount()
-
-                addObject.account = account
-                addObject.urlBase = urlBase
-                addObject.user = user
-                addObject.userId = user
-
-                realm.add(addObject, update: .all)
-            }
-        } catch let error {
-            Self.logger.error("Could not write to database: \(error)")
-        }
+    func addAccount(_ account: String, urlBase: String, user: String, userId: String) {
+        modelContext.insert(AccountModel(account: account, active: false, urlBase: urlBase, user: user, userId: userId))
     }
     
-    func deleteAccount(_ account: String) {
-
-        let realm = try! Realm()
-
+    func setActiveAccount(_ account: String) -> Account? {
+        
         do {
-            try realm.write {
-                let result = realm.objects(tableAccount.self).filter("account == %@", account)
-                realm.delete(result)
+            if let accountModel = getAccountModel(account) {
+                accountModel.active = true
+                try modelContext.save()
+                return Account.init(accountModel)
             }
-        } catch let error {
-            Self.logger.error("Could not write to database: \(error)")
+        } catch let error as NSError {
+            Self.logger.error("Failed to set active account: \(error.localizedDescription)")
+            return nil
         }
-    }
-    
-    func getAccounts() -> [String]? {
-
-        let realm = try! Realm()
-
-        let results = realm.objects(tableAccount.self).sorted(byKeyPath: "account", ascending: true)
-
-        if results.count > 0 {
-            return Array(results.map { $0.account })
-        }
-
+        
         return nil
     }
     
-    func getActiveAccount() -> tableAccount? {
-
-        let realm = try! Realm()
-
-        guard let result = realm.objects(tableAccount.self).filter("active == true").first else {
-            return nil
+    func getAccountCount() -> Int {
+        let fetchDescriptor = FetchDescriptor<AccountModel>()
+        if let count = try? modelContext.fetchCount(fetchDescriptor) {
+            return count
+        } else {
+            return 0
         }
-
-        return tableAccount.init(value: result)
     }
     
-    func getAccountsOrdered() -> [tableAccount] {
-        do {
-            let realm = try Realm()
-            let sorted = [SortDescriptor(keyPath: "active", ascending: false),
-                          SortDescriptor(keyPath: "displayName", ascending: true),
-                          SortDescriptor(keyPath: "user", ascending: true)]
-            let results = realm.objects(tableAccount.self).sorted(by: sorted)
-            return Array(results.map { tableAccount.init(value: $0) })
-        } catch let error as NSError {
-            Self.logger.error("Could not access database: \(error)")
+    func getActiveAccount() -> Account? {
+        
+        let predicate = #Predicate<AccountModel> { account in
+            account.active == true
         }
+        
+        let fetchDescriptor = FetchDescriptor<AccountModel>(predicate: predicate)
+        
+        if let result = try? modelContext.fetch(fetchDescriptor), let account = result.first {
+            return Account.init(account)
+        }
+        
+        return nil
+    }
+    
+    func getAccountsOrdered() -> [Account] {
+        
+        ///can't sort on a boolean field, so split the fetches on active value
+        
+        let sortBy = [SortDescriptor<AccountModel>(\.displayName, order: .forward),
+                      SortDescriptor<AccountModel>(\.user, order: .forward)]
+        
+        let activePredicate = #Predicate<AccountModel> { account in
+            account.active == true
+        }
+        
+        let inactivePredicate = #Predicate<AccountModel> { account in
+            account.active == false
+        }
+        
+        let activeFetchDescriptor = FetchDescriptor<AccountModel>(predicate: activePredicate, sortBy: sortBy)
+        let inactiveFetchDescriptor = FetchDescriptor<AccountModel>(predicate: inactivePredicate, sortBy: sortBy)
+        
+        do {
+            let activeResults = try modelContext.fetch(activeFetchDescriptor)
+            let inactiveResults = try modelContext.fetch(inactiveFetchDescriptor)
+            
+            return Array(activeResults.map { Account.init($0) }) + Array(inactiveResults.map { Account.init($0) })
+            
+        } catch let error as NSError {
+            Self.logger.error("Fetch failed: \(error.localizedDescription)")
+        }
+        
         return []
     }
     
-    @discardableResult
-    func setActiveAccount(_ account: String) -> tableAccount? {
-
-        let realm = try! Realm()
-        var accountReturn = tableAccount()
-
-        do {
-            try realm.write {
-
-                let results = realm.objects(tableAccount.self)
-                for result in results {
-                    if result.account == account {
-                        result.active = true
-                        accountReturn = result
-                    } else {
-                        result.active = false
-                    }
-                }
-            }
-        } catch let error {
-            Self.logger.error("Could not write to database: \(error)")
-            return nil
+    func deleteAccount(_ account: String) {
+        if let accountModel = getAccountModel(account) {
+            modelContext.delete(accountModel)
         }
-
-        return tableAccount.init(value: accountReturn)
     }
     
-    func setAccountUserProfile(account: String, displayName: String) {
+    func updateAccount(account: String, displayName: String) {
         do {
-            let realm = try Realm()
-            try realm.write {
-                if let result = realm.objects(tableAccount.self).filter("account == %@", account).first {
-                    result.displayName = displayName
-                }
+            if let accountModel = getAccountModel(account) {
+                accountModel.displayName = displayName
+                try modelContext.save()
             }
-        } catch let error {
-            Self.logger.error("Could not write to database: \(error)")
+        } catch let error as NSError {
+            Self.logger.error("Failed to update account: \(error.localizedDescription)")
         }
+    }
+    
+    private func getAccountModel(_ account: String) -> AccountModel? {
+        let predicate = #Predicate<AccountModel> { accountModel in
+            accountModel.account == account
+        }
+        
+        let fetchDescriptor = FetchDescriptor<AccountModel>(predicate: predicate)
+        let results = try? modelContext.fetch(fetchDescriptor)
+        
+        return results?.first
     }
 }
