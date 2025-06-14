@@ -56,6 +56,8 @@ class PickerController: UIViewController {
         
         selectButton.setTitle(Strings.SelectAction, for: .normal)
         selectButton.addTarget(self, action: #selector(selected), for: .touchUpInside)
+        
+        UIAccessibility.post(notification: .screenChanged, argument: navigationItem.rightBarButtonItem)
     }
     
     @objc func selected() {

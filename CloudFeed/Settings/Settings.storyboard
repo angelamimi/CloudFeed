@@ -46,11 +46,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="loS-VR-OFO">
-                                <rect key="frame" x="0.0" y="162" width="393" height="574"/>
+                                <rect key="frame" x="0.0" y="162" width="393" height="566"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAk-39-Ber">
-                                <rect key="frame" x="184.66666666666666" y="744" width="24" height="32"/>
+                                <rect key="frame" x="184.66666666666666" y="736" width="24" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="32" id="lIy-70-qeT"/>
                                 </constraints>
@@ -68,7 +68,7 @@
                             <constraint firstItem="tAk-39-Ber" firstAttribute="top" secondItem="loS-VR-OFO" secondAttribute="bottom" constant="8" id="571-Y6-uuY"/>
                             <constraint firstItem="YaM-Yw-H4z" firstAttribute="trailing" secondItem="loS-VR-OFO" secondAttribute="trailing" id="CC5-Te-mSJ"/>
                             <constraint firstItem="loS-VR-OFO" firstAttribute="top" secondItem="YaM-Yw-H4z" secondAttribute="top" id="LOJ-7r-Gvv"/>
-                            <constraint firstItem="YaM-Yw-H4z" firstAttribute="bottom" secondItem="tAk-39-Ber" secondAttribute="bottom" constant="8" id="Pwy-Rc-BxX"/>
+                            <constraint firstItem="YaM-Yw-H4z" firstAttribute="bottom" secondItem="tAk-39-Ber" secondAttribute="bottom" constant="16" id="Pwy-Rc-BxX"/>
                             <constraint firstItem="2zh-ZO-Ltf" firstAttribute="centerY" secondItem="pft-4E-TkY" secondAttribute="centerY" id="TMS-RY-FlD"/>
                             <constraint firstItem="tAk-39-Ber" firstAttribute="centerX" secondItem="pft-4E-TkY" secondAttribute="centerX" id="djO-by-AkB"/>
                             <constraint firstItem="loS-VR-OFO" firstAttribute="leading" secondItem="YaM-Yw-H4z" secondAttribute="leading" id="i96-Fu-XvP"/>
