@@ -24,7 +24,7 @@ import NextcloudKit
 import UIKit
 
 final class MockNextcloudKitService: NextcloudKitServiceProtocol {
-    
+
     func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)? {
         return nil
     }
@@ -90,6 +90,10 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
     
     func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String) {
         return (profileDisplayName: "", profileEmail: "")
+    }
+    
+    func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [CloudFeed.Metadata])? {
+        return nil
     }
 }
 

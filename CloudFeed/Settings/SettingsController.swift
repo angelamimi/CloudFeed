@@ -259,7 +259,6 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 viewModel.showProfile()
             } else if indexPath.section == 1 && indexPath.item == 0 {
                 viewModel.showDisplay()
-                //tableView.deselectRow(at: indexPath, animated: true)
             } else if indexPath.section == 2 && indexPath.item == 0 {
                 acknowledgements()
             } else if indexPath.section == 3 && indexPath.item == 0 {
@@ -267,7 +266,6 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 viewModel.clearCache()
             } else if indexPath.section == 3 && indexPath.item == 1 {
                 checkReset()
-                //tableView.deselectRow(at: indexPath, animated: true)
             }
         }
     }
@@ -305,7 +303,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         if mode == .all {
             return UITableView.automaticDimension
         } else {
-            return 8 //.leastNormalMagnitude
+            return 8 
         }
     }
     

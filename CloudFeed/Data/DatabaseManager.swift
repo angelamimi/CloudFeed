@@ -54,49 +54,20 @@ actor DatabaseManager: Sendable {
         }
     }
     
-    /*func setup(fileUrl: URL) -> Bool {
-        
-        let config = Realm.Configuration(fileURL: fileUrl, schemaVersion: 3)
-        
-        Realm.Configuration.defaultConfiguration = config
-        
-        if ProcessInfo.processInfo.environment["XCInjectBundleInto"] == nil {
-            let path = fileUrl.path
-            if FileManager.default.fileExists(atPath: path) {
-                NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE FOUND in " + path)
-            } else {
-                NextcloudKit.shared.nkCommonInstance.writeLog("DATABASE NOT FOUND in " + path)
-            }
-        }
-        
-        do {
-            _ = try Realm()
-        } catch let error as NSError {
-            NextcloudKit.shared.nkCommonInstance.writeLog("Could not open database: \(error)")
-            return true
-        }
-        
-        return false
-    }*/
-    
-    /*func setup(identifier: String) -> Bool {
-        
-        let config = Realm.Configuration(inMemoryIdentifier: identifier, migrationBlock: nil)
-        
-        Realm.Configuration.defaultConfiguration = config
-        Logger.shared.level = .warn
-        
-        return true
-    }*/
-
-    
     func clearDatabase(account: String?, removeAccount: Bool) {
         
-        //try? modelContext.delete(model: AvatarModel.self)
-        //deleteMetadata(account)
-        
-        if removeAccount && account != nil {
-            self.deleteAccount(account!)
+        do {
+            try modelContext.delete(model: AvatarModel.self)
+            
+            if account != nil {
+                deleteMetadata(account!)
+                
+                if removeAccount {
+                    self.deleteAccount(account!)
+                }
+            }
+        } catch {
+            Self.logger.error("Failed to clear database")
         }
     }
     
@@ -104,8 +75,8 @@ actor DatabaseManager: Sendable {
         
         do {
             try modelContext.delete(model: AccountModel.self)
-            //try modelContext.delete(MetadataModel.self)
-            //try modelContext.delete(AvatarModel.self)
+            try modelContext.delete(model: MetadataModel.self)
+            try modelContext.delete(model: AvatarModel.self)
         } catch {
             Self.logger.error("Failed to clear database")
         }
