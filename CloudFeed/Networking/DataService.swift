@@ -136,6 +136,10 @@ final class DataService: NSObject, Sendable {
         await databaseManager.updateAccount(account: account, displayName: profile.profileDisplayName)
     }
     
+    func updateAccountMediaPath(account: String, mediaPath: String) async {
+        await databaseManager.updateAccountMediaPath(account: account, mediaPath: mediaPath)
+    }
+    
     
     // MARK: -
     // MARK: Database Management
@@ -156,6 +160,14 @@ final class DataService: NSObject, Sendable {
     
     func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
         return await databaseManager.getMetadataLivePhoto(metadata: metadata)
+    }
+    
+    func readFolder(account: String, serverUrl: String, depth: String) async -> [Metadata]? {
+        if let results = await nextcloudService.readFolder(account: account, serverUrl: serverUrl, depth: depth) {
+            return results.metadatas
+        } else {
+            return nil
+        }
     }
     
     
@@ -213,7 +225,7 @@ final class DataService: NSObject, Sendable {
     
     private func buildFileNamePath(metadataFileName: String, serverUrl: String, urlBase: String, userId: String, account: String) -> String {
         
-        let homeServer = urlBase + Global.shared.davLocation + userId
+        let homeServer = buildHomeServer(urlBase: urlBase, userId: userId)
         
         var fileName = "\(serverUrl.replacingOccurrences(of: homeServer, with: ""))/\(metadataFileName)"
 
@@ -430,8 +442,8 @@ final class DataService: NSObject, Sendable {
     }
     
     private func getMediaPath() async -> String? {
-        //guard let activeAccount = await getActiveAccount() else { return nil }
-        return "" //activeAccount.mediaPath //TODO: This is always empty. Changing mediaPath locally is not implemented
+        guard let activeAccount = await getActiveAccount() else { return nil }
+        return activeAccount.mediaPath
     }
     
     @MainActor
@@ -465,5 +477,14 @@ final class DataService: NSObject, Sendable {
     
     func getDisplayStyle() -> UIUserInterfaceStyle? {
         return store.getDisplayStyle()
+    }
+    
+    func getHomeServer(urlBase: String, userId: String) -> String {
+        return buildHomeServer(urlBase: urlBase, userId: userId)
+    }
+    
+    private func buildHomeServer(urlBase: String, userId: String) -> String {
+        let homeServer = urlBase + Global.shared.davLocation + userId
+        return homeServer
     }
 }

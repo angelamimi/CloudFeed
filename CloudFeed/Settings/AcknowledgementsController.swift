@@ -22,10 +22,9 @@
 import UIKit
 import os.log
 
-final class AcknowledgementsController : UIViewController { //UITableViewController {
+final class AcknowledgementsController : UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
     
     private var acknowledgements: [NSDictionary] = []
     

@@ -29,6 +29,7 @@ extension Strings {
     public static let OkAction = NSLocalizedString("Ok.Action", comment: "")
     public static let CancelAction = NSLocalizedString("Cancel.Action", comment: "")
     public static let RetryAction = NSLocalizedString("Retry.Action", comment: "")
+    public static let SelectAction = NSLocalizedString("Select.Action", comment: "")
     public static let ErrorTitle = NSLocalizedString("Error.Title", comment: "")
     public static let YesAction = NSLocalizedString("Yes.Action", comment: "")
     public static let NoAction = NSLocalizedString("No.Action", comment: "")
@@ -60,6 +61,10 @@ extension Strings {
     public static let SettingsLabelCacheSize = NSLocalizedString("Settings.Label.CacheSize", comment: "")
     public static let SettingsLabelDark = NSLocalizedString("Settings.Label.Dark", comment: "")
     public static let SettingsLabelLight = NSLocalizedString("Settings.Label.Light", comment: "")
+    public static let SettingsLabelFolder = NSLocalizedString("Settings.Label.Folder", comment: "")
+    public static let SettingsLabelFolders = NSLocalizedString("Settings.Label.Folders", comment: "")
+    public static let SettingsLabelNextcloud = NSLocalizedString("Settings.Label.Nextcloud", comment: "")
+    public static let SettingsLabelMediaPath = NSLocalizedString("Settings.Label.MediaPath", comment: "")
     public static let SettingsMenuAddAccount = NSLocalizedString("Settings.Menu.AddAccount", comment: "")
     
     //Profile
@@ -128,6 +133,7 @@ extension Strings {
     public static let TitleVideosOnly = NSLocalizedString("Title.VideosOnly", comment: "")
     public static let TitleImagesOnly = NSLocalizedString("Title.ImagesOnly", comment: "")
     public static let TitleMenu = NSLocalizedString("Title.Menu", comment: "")
+    public static let TitleMediaFolder = NSLocalizedString("Title.MediaFolder", comment: "")
     
     //Sharing
     public static let ShareAction = NSLocalizedString("Share.Action", comment: "")

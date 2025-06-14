@@ -104,7 +104,7 @@ extension MenuController: UITableViewDataSource, UITableViewDelegate {
 
         config.textProperties.color = .label
         config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
-        config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 20.0, leading: 0, bottom: 20.0, trailing: 0)
+        config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: 0)
         config.imageProperties.tintColor = .label
         
         if indexPath.section == 0 && indexPath.item == 0 {

@@ -42,6 +42,11 @@ extension MediaCoordinator {
         return previewController
     }
     
+    func showPicker() {
+        let pickerCoordinator = PickerCoordinator(navigationController: navigationController, dataService: dataService)
+        pickerCoordinator.start()
+    }
+    
     func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
         let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService, delegate: self)
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)

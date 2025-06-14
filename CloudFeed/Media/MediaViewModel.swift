@@ -190,6 +190,10 @@ final class MediaViewModel: ShareViewModel {
         cacheManager.cancelAll()
     }
     
+    func showPicker() {
+        coordinator.showPicker()
+    }
+    
     func metadataSearch(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, refresh: Bool) {
         fetchTask = Task { [weak self] in
             await self?.metadataSearch(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, refresh: refresh)

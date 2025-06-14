@@ -47,6 +47,11 @@ extension FavoritesCoordinator {
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }
     
+    func showPicker() {
+        let pickerCoordinator = PickerCoordinator(navigationController: navigationController, dataService: dataService)
+        pickerCoordinator.start()
+    }
+    
     func showFilter(filterable: Filterable, from: Date?, to: Date?) {
         
         let filterController = UIStoryboard(name: "Favorites", bundle: nil).instantiateViewController(identifier: "FilterController") as FilterController

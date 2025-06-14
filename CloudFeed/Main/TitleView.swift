@@ -32,6 +32,7 @@ protocol MediaViewController: AnyObject {
     func select()
     func updateLayout(_ layout: String)
     func updateMediaType(_ type: Global.FilterType)
+    func setMediaDirectory()
 }
 
 @MainActor
@@ -138,6 +139,10 @@ class TitleView: UIView {
             }
         }
         
+        let path = UIAction(title: Strings.TitleMediaFolder, image: UIImage(systemName: "folder.badge.gear")) { [weak self] action in
+            self?.mediaView?.setMediaDirectory()
+        }
+        
         let allType = UIAction(title: Strings.TitleAllItems, image: UIImage(systemName: "photo.on.rectangle")) { [weak self] action in
             self?.mediaView?.updateMediaType(.all)
         }
@@ -180,13 +185,13 @@ class TitleView: UIView {
         }
 
         if editAction == nil && selectAction != nil {
-            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, selectAction!, typeMenu])
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, path, selectAction!, typeMenu])
         } else if editAction != nil && selectAction == nil {
-            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, editAction!, typeMenu])
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, path, editAction!, typeMenu])
         } else if editAction != nil && selectAction != nil {
-            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, editAction!, selectAction!, typeMenu])
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, path, editAction!, selectAction!, typeMenu])
         } else {
-            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, typeMenu])
+            menuButton.menu = UIMenu(children: [zoomMenu, filter, layout, path, typeMenu])
         }
         
         backButtonConstraint.constant = 0

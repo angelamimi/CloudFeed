@@ -45,6 +45,12 @@ class MediaController: CollectionController {
         initTitleView(mediaView: self, navigationDelegate: self, allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(mediaPathChanged), name: Notification.Name("MediaPathChanged"), object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -74,6 +80,15 @@ class MediaController: CollectionController {
         super.scrollViewDidEndScrollingAnimation(scrollView)
 
         refreshVisibleItems()
+    }
+    
+    @objc func mediaPathChanged() {
+        reload()
+    }
+    
+    public func reload() {
+        clear()
+        syncMedia()
     }
     
     public func clear() {
@@ -415,6 +430,10 @@ extension MediaController: MediaViewController {
     func endEdit() {
         showProgressView()
         bulkSelect()
+    }
+    
+    func setMediaDirectory() {
+        viewModel.showPicker()
     }
 }
 

@@ -55,6 +55,12 @@ class FavoritesController: CollectionController {
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initTitleView(mediaView: self, navigationDelegate: self, allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
         initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(mediaPathChanged), name: Notification.Name("MediaPathChanged"), object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -84,6 +90,15 @@ class FavoritesController: CollectionController {
         super.scrollViewDidEndScrollingAnimation(scrollView)
         
         refreshVisibleItems()
+    }
+    
+    @objc func mediaPathChanged() {
+        reload()
+    }
+    
+    public func reload() {
+        clear()
+        syncFavorites()
     }
     
     public func clear() {
@@ -422,6 +437,10 @@ extension FavoritesController: MediaViewController {
     
     func filter() {
         viewModel.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
+    }
+    
+    func setMediaDirectory() {
+        viewModel.showPicker()
     }
 }
 

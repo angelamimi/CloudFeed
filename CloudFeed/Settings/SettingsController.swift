@@ -208,11 +208,32 @@ class SettingsController: UIViewController {
     private func changeAccount(account: String) {
         viewModel.changeAccount(account: account)
     }
+    
+    private func handleProfileLoaded(profileName: String, profileEmail: String, profileImage: UIImage?) {
+        
+        self.profileImage = profileImage
+        self.profileName = profileName
+        self.profileEmail = profileEmail
+        
+        DispatchQueue.main.async { [weak self] in
+            
+            guard self?.tableView.window != nil else { return }
+            
+            self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .automatic)
+            self?.stopActivityIndicator()
+            
+            if profileName == "" && profileEmail == "" {
+                self?.showProfileLoadfailedError()
+            }
+        }
+    }
 }
 
 extension SettingsController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        tableView.deselectRow(at: indexPath, animated: true)
         
         switch mode {
         case .account:
@@ -238,7 +259,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 viewModel.showProfile()
             } else if indexPath.section == 1 && indexPath.item == 0 {
                 viewModel.showDisplay()
-                tableView.deselectRow(at: indexPath, animated: true)
+                //tableView.deselectRow(at: indexPath, animated: true)
             } else if indexPath.section == 2 && indexPath.item == 0 {
                 acknowledgements()
             } else if indexPath.section == 3 && indexPath.item == 0 {
@@ -246,7 +267,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 viewModel.clearCache()
             } else if indexPath.section == 3 && indexPath.item == 1 {
                 checkReset()
-                tableView.deselectRow(at: indexPath, animated: true)
+                //tableView.deselectRow(at: indexPath, animated: true)
             }
         }
     }
@@ -356,7 +377,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         content.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
         content.textProperties.lineBreakMode = .byWordWrapping
         
-        content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 20.0, leading: 0, bottom: 20.0, trailing: 0)
+        content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: 0)
 
         return (cell, content)
     }
@@ -462,27 +483,16 @@ extension SettingsController: ProfileDelegate {
     func beginSwitchingAccounts() {}
     func noAccountsFound() {}
     
-    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?) {
-        
-        self.profileImage = profileImage
-        self.profileName = profileName
-        self.profileEmail = profileEmail
-        
-        DispatchQueue.main.async { [weak self] in
-            
-            guard self?.tableView.window != nil else { return }
-            
-            self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .automatic)
-            self?.stopActivityIndicator()
-            
-            if profileName == "" && profileEmail == "" {
-                self?.showProfileLoadfailedError()
-            }
-        }
+    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?, mediaPath: String) {
+        handleProfileLoaded(profileName: profileName, profileEmail: profileEmail, profileImage: profileImage)
     }
 }
 
 extension SettingsController: SettingsDelegate {
+    
+    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?) {
+        handleProfileLoaded(profileName: profileName, profileEmail: profileEmail, profileImage: profileImage)
+    }
     
     func userChangeError() {
         DispatchQueue.main.async { [weak self] in

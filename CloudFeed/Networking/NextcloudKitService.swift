@@ -41,6 +41,7 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)?
     func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?)
     
+    func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [Metadata])?
     func download(metadata: Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (_ metadata: Metadata, _ progress: Progress) -> Void) async
     func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etagResource: String?) async -> String?
     func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int, avatarSizeRounded: Int) async -> String?
@@ -89,7 +90,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     }
     
     func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, nextcloudVersion: Int, groupIdentifier: String) {
-        
+
         NextcloudKit.shared.appendSession(account: account, urlBase: urlBase, user: user,
                                           userId: userId, password: password,
                                           userAgent: userAgent, nextcloudVersion: nextcloudVersion,
@@ -134,6 +135,25 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
             NextcloudKit.shared.getLoginFlowV2Poll(token: token, endpoint: endpoint) { server, loginName, appPassword, _, error in
                 if error == .success, let urlBase = server, let user = loginName, let appPassword {
                     continuation.resume(returning: (urlBase: urlBase, user: user, appPassword: appPassword))
+                    return
+                }
+                continuation.resume(returning: nil)
+            }
+        }
+    }
+    
+    
+    // MARK: -
+    // MARK: Directories
+    func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [Metadata])? {
+        
+        let options = NKRequestOptions(queue: .main)
+        
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.readFileOrFolder(serverUrlFileName: serverUrl, depth: depth, showHiddenFiles: false, account: account, options: options) { account, files, _, error in
+                if error == .success, let files {
+                    let metadatas = files.filter { $0.directory }.map({ Metadata.init(file: $0) })
+                    continuation.resume(returning: (account: account, metadatas: metadatas))
                     return
                 }
                 continuation.resume(returning: nil)

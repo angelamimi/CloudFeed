@@ -25,7 +25,7 @@ import UIKit
 protocol ProfileDelegate: AnyObject {
     func beginSwitchingAccounts()
     func noAccountsFound()
-    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?)
+    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?, mediaPath: String)
 }
 
 @MainActor
@@ -63,7 +63,7 @@ class ProfileViewModel {
             await downloadAvatar(account: account, user: currentUser.user)
             let image = await loadAvatar(account: account)
             
-            delegate?.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail, profileImage: image)
+            delegate?.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail, profileImage: image, mediaPath: account.mediaPath)
         }
     }
     
@@ -97,6 +97,10 @@ class ProfileViewModel {
         } else {
             return nil
         }
+    }
+    
+    func showPicker() {
+        coordinator.showPicker()
     }
     
     func checkRemoveAccount() {

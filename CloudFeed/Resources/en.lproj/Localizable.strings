@@ -10,6 +10,7 @@
 "Ok.Action" = "Ok";
 "Cancel.Action" = "Cancel";
 "Retry.Action" = "Retry";
+"Select.Action" = "Select";
 "Error.Title" = "Error";
 "Yes.Action" = "Yes";
 "No.Action" = "No";
@@ -41,6 +42,10 @@
 "Settings.Label.SystemStyle" = "Use system style";
 "Settings.Label.Dark" = "Dark";
 "Settings.Label.Light" = "Light";
+"Settings.Label.Folder" = "folder";
+"Settings.Label.Folders" = "folders";
+"Settings.Label.Nextcloud" = "Nextcloud";
+"Settings.Label.MediaPath" = "Media folder";
 "Settings.Menu.AddAccount" = "Add Account";
 
 /* Profile */
@@ -109,6 +114,7 @@
 "Title.VideosOnly" = "Videos Only";
 "Title.ImagesOnly" = "Images Only";
 "Title.Menu" = "Menu";
+"Title.MediaFolder" = "Set Media folder";
 
 /* Sharing */
 "Share.Action" = "Share";

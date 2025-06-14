@@ -109,6 +109,9 @@
 		39C31E902A79975B0045DF50 /* NextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */; };
 		39CC72D82DCA86BD007E22B7 /* DisplayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39CC72D72DCA86BD007E22B7 /* DisplayController.swift */; };
 		39CC72DA2DCA8783007E22B7 /* DisplayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39CC72D92DCA8783007E22B7 /* DisplayViewModel.swift */; };
+		39D269552DFA311E00EF5B0A /* PickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D269542DFA311E00EF5B0A /* PickerController.swift */; };
+		39D269572DFA38CA00EF5B0A /* PickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D269562DFA38CA00EF5B0A /* PickerViewModel.swift */; };
+		39D269592DFB342E00EF5B0A /* PickerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D269582DFB342E00EF5B0A /* PickerCoordinator.swift */; };
 		39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */; };
 		39E1701E2D271D0300790920 /* LoginServerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E1701D2D271CF900790920 /* LoginServerViewModel.swift */; };
 		39E570742B5DE80A00548E02 /* FilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E570732B5DE80A00548E02 /* FilterController.swift */; };
@@ -258,6 +261,9 @@
 		39C31E8F2A79975B0045DF50 /* NextcloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextcloudKitService.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		39CC72D72DCA86BD007E22B7 /* DisplayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayController.swift; sourceTree = "<group>"; };
 		39CC72D92DCA8783007E22B7 /* DisplayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayViewModel.swift; sourceTree = "<group>"; };
+		39D269542DFA311E00EF5B0A /* PickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerController.swift; sourceTree = "<group>"; };
+		39D269562DFA38CA00EF5B0A /* PickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerViewModel.swift; sourceTree = "<group>"; };
+		39D269582DFB342E00EF5B0A /* PickerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerCoordinator.swift; sourceTree = "<group>"; };
 		39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Metadata.swift"; sourceTree = "<group>"; };
 		39E1701D2D271CF900790920 /* LoginServerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerViewModel.swift; sourceTree = "<group>"; };
 		39E570732B5DE80A00548E02 /* FilterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterController.swift; sourceTree = "<group>"; };
@@ -313,6 +319,7 @@
 				3903CE7A2AA78557003E7E41 /* SettingsCoordinator.swift */,
 				3903CE7C2AA78C72003E7E41 /* PagerCoordinator.swift */,
 				3903CE7E2AA7ED6D003E7E41 /* ViewerCoordinator.swift */,
+				39D269582DFB342E00EF5B0A /* PickerCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -521,6 +528,8 @@
 				39CC72D92DCA8783007E22B7 /* DisplayViewModel.swift */,
 				3973A38E2DCA96400093F9A6 /* ModeCell.swift */,
 				39AC3F542DCE832D0053040F /* MenuController.swift */,
+				39D269542DFA311E00EF5B0A /* PickerController.swift */,
+				39D269562DFA38CA00EF5B0A /* PickerViewModel.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -688,6 +697,7 @@
 				39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */,
 				3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */,
 				3927356F29BD1E820058796A /* MediaController.swift in Sources */,
+				39D269552DFA311E00EF5B0A /* PickerController.swift in Sources */,
 				39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */,
 				392735B329BE402D0058796A /* StoreUtility.swift in Sources */,
 				39E570782B5DF7C700548E02 /* FilterView.swift in Sources */,
@@ -708,11 +718,13 @@
 				39E570742B5DE80A00548E02 /* FilterController.swift in Sources */,
 				392735AB29BE2DAA0058796A /* DatabaseManager+Account.swift in Sources */,
 				39B03F1429C6384300704670 /* FileSystemUtility.swift in Sources */,
+				39D269592DFB342E00EF5B0A /* PickerCoordinator.swift in Sources */,
 				395F3A1C2A96812E0004FF32 /* UserAccount.swift in Sources */,
 				391579A32AAF4C5000DFEAB1 /* ViewerViewModel.swift in Sources */,
 				394F70102DB9579B00A34FEC /* ProfileController.swift in Sources */,
 				39271D6C29DA26CF00522DFD /* ViewerController.swift in Sources */,
 				39C1BBB02CBC2F2A00206EB5 /* AsyncOperation.swift in Sources */,
+				39D269572DFA38CA00EF5B0A /* PickerViewModel.swift in Sources */,
 				39271D6E29DA274800522DFD /* PagerController.swift in Sources */,
 				39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */,
 				39271D5929D7A05100522DFD /* TitleView.swift in Sources */,

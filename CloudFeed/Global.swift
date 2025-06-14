@@ -28,6 +28,8 @@ final class Global: Sendable {
     let keyChain                      = "com.angelamimi.cloudfeed"
     let userAgent                     = "CloudFeed-iOS"
     
+    let tablePadding                  = 16.0
+    
     // MARK: - Login
     //
     let minimumServerVersion          = 12

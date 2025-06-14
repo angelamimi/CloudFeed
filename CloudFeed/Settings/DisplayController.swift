@@ -161,7 +161,7 @@ extension DisplayController : UITableViewDelegate, UITableViewDataSource {
             var config = cell.defaultContentConfiguration()
 
             config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
-            config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 20.0, leading: 0, bottom: 20.0, trailing: 0)
+            config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: 0)
             config.textProperties.color = .label
             
             if indexPath.section == 0 && indexPath.item == 1 {

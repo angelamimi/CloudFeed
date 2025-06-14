@@ -309,6 +309,10 @@ final class FavoritesViewModel: ShareViewModel {
         coordinator.showFavoriteUpdateFailedError()
     }
     
+    func showPicker() {
+        coordinator.showPicker()
+    }
+    
     func share(indexPaths: [IndexPath]) {
         var selectedMetadatas: [Metadata] = []
         for indexPath in indexPaths {

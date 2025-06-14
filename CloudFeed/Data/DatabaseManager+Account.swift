@@ -32,13 +32,15 @@ final class AccountModel {
     var urlBase = ""
     var user = ""
     var userId = ""
+    var mediaPath = ""
     
     init(account: String = "",
          active: Bool,
          displayName: String = "",
          urlBase: String = "",
          user: String = "",
-         userId: String = "") {
+         userId: String = "",
+         mediaPath: String = "") {
         
         self.account = account
         self.active = active
@@ -46,6 +48,7 @@ final class AccountModel {
         self.urlBase = urlBase
         self.user = user
         self.userId = userId
+        self.mediaPath = mediaPath
     }
 }
 
@@ -57,6 +60,7 @@ struct Account: Sendable {
     var urlBase: String
     var user: String
     var userId: String
+    var mediaPath: String
     
     init(_ account: AccountModel) {
         self.account = account.account
@@ -65,6 +69,7 @@ struct Account: Sendable {
         self.urlBase = account.urlBase
         self.user = account.user
         self.userId = account.userId
+        self.mediaPath = account.mediaPath
     }
 }
 
@@ -83,6 +88,12 @@ extension DatabaseManager {
         
         do {
             if let accountModel = getAccountModel(account) {
+                
+                //make current active account inactive
+                let activeAccount = getActiveAccountModel()
+                activeAccount?.active = false
+                
+                //make new account active
                 accountModel.active = true
                 try modelContext.save()
                 return Account.init(accountModel)
@@ -106,13 +117,7 @@ extension DatabaseManager {
     
     func getActiveAccount() -> Account? {
         
-        let predicate = #Predicate<AccountModel> { account in
-            account.active == true
-        }
-        
-        let fetchDescriptor = FetchDescriptor<AccountModel>(predicate: predicate)
-        
-        if let result = try? modelContext.fetch(fetchDescriptor), let account = result.first {
+        if let account = getActiveAccountModel() {
             return Account.init(account)
         }
         
@@ -167,6 +172,17 @@ extension DatabaseManager {
         }
     }
     
+    func updateAccountMediaPath(account: String, mediaPath: String) {
+        do {
+            if let accountModel = getAccountModel(account) {
+                accountModel.mediaPath = mediaPath
+                try modelContext.save()
+            }
+        } catch let error as NSError {
+            Self.logger.error("Failed to update account: \(error.localizedDescription)")
+        }
+    }
+    
     private func getAccountModel(_ account: String) -> AccountModel? {
         let predicate = #Predicate<AccountModel> { accountModel in
             accountModel.account == account
@@ -176,5 +192,19 @@ extension DatabaseManager {
         let results = try? modelContext.fetch(fetchDescriptor)
         
         return results?.first
+    }
+    
+    private func getActiveAccountModel() -> AccountModel? {
+        let predicate = #Predicate<AccountModel> { account in
+            account.active == true
+        }
+        
+        let fetchDescriptor = FetchDescriptor<AccountModel>(predicate: predicate)
+        
+        if let result = try? modelContext.fetch(fetchDescriptor) {
+            return result.first
+        }
+        
+        return nil
     }
 }

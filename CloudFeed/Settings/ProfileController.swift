@@ -19,6 +19,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+import os.log
 import UIKit
 
 final class ProfileController: UIViewController {
@@ -29,9 +30,15 @@ final class ProfileController: UIViewController {
     
     var viewModel: ProfileViewModel?
 
+    private var mediaPath: String = ""
     private var profileName: String = ""
     private var profileEmail: String = ""
     private var profileImage: UIImage?
+    
+    private static let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier!,
+        category: String(describing: ProfileController.self)
+    )
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,10 +47,17 @@ final class ProfileController: UIViewController {
         tableView.dataSource = self
         
         initTitle()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(mediaPathChanged), name: Notification.Name("MediaPathChanged"), object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         if Environment.current.currentUser == nil {
+            mediaPath = ""
             profileName = ""
             profileEmail = ""
             profileImage = nil
@@ -52,6 +66,14 @@ final class ProfileController: UIViewController {
         } else {
             requestProfile()
         }
+    }
+    
+    @objc func mediaPathChanged() {
+        reload()
+    }
+    
+    func reload() {
+        requestProfile()
     }
     
     private func requestProfile() {
@@ -86,9 +108,13 @@ final class ProfileController: UIViewController {
 extension ProfileController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.section == 2 && indexPath.item == 0 {
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        if indexPath.section == 1 && indexPath.item == 2 {
+            viewModel?.showPicker()
+        } else if indexPath.section == 2 && indexPath.item == 0 {
             viewModel?.checkRemoveAccount()
-            tableView.deselectRow(at: indexPath, animated: true)
         }
     }
     
@@ -105,7 +131,7 @@ extension ProfileController : UITableViewDelegate, UITableViewDataSource {
         if section == 0 {
             return 1
         } else if section == 1 {
-            return 2
+            return 3
         } else {
             return 1
         }
@@ -141,7 +167,7 @@ extension ProfileController : UITableViewDelegate, UITableViewDataSource {
             config.prefersSideBySideTextAndSecondaryText = true
             config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
             config.secondaryTextProperties.font = UIFont.preferredFont(forTextStyle: .body)
-            config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 20.0, leading: 0, bottom: 20.0, trailing: 0)
+            config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: Global.shared.tablePadding)
             
             if indexPath.section == 1 && indexPath.item == 0 {
                 config.text = Strings.ProfileItemName
@@ -149,12 +175,17 @@ extension ProfileController : UITableViewDelegate, UITableViewDataSource {
             } else if indexPath.section == 1 && indexPath.item == 1 {
                 config.text = Strings.ProfileItemEmail
                 config.secondaryText = profileEmail
-            } else {
+            } else if indexPath.section == 1 && indexPath.item == 2 {
+                config.text = Strings.SettingsLabelMediaPath
+                config.secondaryText = mediaPath.isEmpty ? "/" : mediaPath
+                cell.accessoryType = .disclosureIndicator
                 cell.selectionStyle = .gray
+            } else {
+                config.text = Strings.ProfileItemRemoveAccount
                 config.textProperties.color = .red
                 config.imageProperties.tintColor = .red
                 config.image = UIImage(systemName: "trash")
-                config.text = Strings.ProfileItemRemoveAccount
+                cell.selectionStyle = .gray
             }
             
             cell.contentConfiguration = config
@@ -193,11 +224,12 @@ extension ProfileController: ProfileDelegate {
         viewModel?.applicationReset()
     }
     
-    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?) {
+    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?, mediaPath: String) {
         
         self.profileName = profileName
         self.profileEmail = profileEmail
         self.profileImage = profileImage
+        self.mediaPath = mediaPath
         
         DispatchQueue.main.async { [weak self] in
             

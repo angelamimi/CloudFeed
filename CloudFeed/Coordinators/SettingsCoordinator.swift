@@ -63,6 +63,11 @@ final class SettingsCoordinator {
         navigationController.pushViewController(controller, animated: true)
     }
     
+    func showPicker() {
+        let pickerCoordinator = PickerCoordinator(navigationController: navigationController, dataService: dataService)
+        pickerCoordinator.start()
+    }
+    
     func showProfileLoadfailedError() {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.ProfileErrorMessage, preferredStyle: .alert)
