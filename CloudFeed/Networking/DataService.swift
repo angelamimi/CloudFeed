@@ -91,7 +91,7 @@ final class DataService: NSObject, Sendable {
             let certificateToPath = path + "/" + host + ".der"
             
             if !store.copyFile(atPath: certificateAtPath, toPath: certificateToPath) {
-                NextcloudKit.shared.nkCommonInstance.writeLog("[ERROR] Write certificare error")
+                nkLog(error: "[ERROR] Write certificare error")
             }
         }
     }

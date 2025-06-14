@@ -75,7 +75,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     
     func setup() {
         NextcloudKit.shared.setup(delegate: self)
-        NextcloudKit.shared.nkCommonInstance.levelLog = 0
+        NextcloudKit.configureLogger(logLevel: NKLogLevel.disabled)
     }
     
     func getCapabilities(account: String) async -> Data? {
@@ -385,7 +385,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         let x509cert = d2i_X509_bio(mem, nil)
 
         if x509cert == nil {
-            NextcloudKit.shared.nkCommonInstance.writeLog("[ERROR] OpenSSL couldn't parse X509 Certificate")
+            nkLog(error: "[ERROR] OpenSSL couldn't parse X509 Certificate")
         } else {
             // save details
             if FileManager.default.fileExists(atPath: certNamePathTXT) {
