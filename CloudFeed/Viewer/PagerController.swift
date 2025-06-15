@@ -296,22 +296,14 @@ class PagerController: UIViewController {
         
         if swipeGesture.direction == .up {
             
-            let previousStatus = status
-            
             updateStatus(status: .details)
             hideType()
-            
-            if previousStatus == .title {
-                currentViewController?.handleSwipeUp()
-            }
 
             if UIDevice.current.userInterfaceIdiom == .pad && presentedViewController == nil {
                 presentDetailPopover()
             }
             
-            if previousStatus == .fullscreen {
-                currentViewController?.handleSwipeUp()
-            }
+            currentViewController?.handleSwipeUp()
             
         } else {
             
