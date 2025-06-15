@@ -39,6 +39,15 @@ struct DataLayerAccountTests {
         #expect(activeAccount != nil)
         #expect(activeAccount?.account == accountId)
         #expect(activeAccount?.active ?? false)
+        
+        let ordered = await databaseManager.getAccountsOrdered()
+        
+        #expect(ordered.count == 4)
+        #expect(ordered[0].account == accountId)
+        #expect(ordered[0].active == true)
+        #expect(ordered[1].active == false)
+        #expect(ordered[2].active == false)
+        #expect(ordered[3].active == false)
     }
     
     @Test func getActiveAccount() async throws {
@@ -132,5 +141,4 @@ struct DataLayerAccountTests {
         #expect(accounts.count == 1)
         #expect(accounts[0].displayName == displayName)
     }
-
 }
