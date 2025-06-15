@@ -21,7 +21,6 @@
 
 import NextcloudKit
 import os.log
-import RealmSwift
 import SwiftData
 import UIKit
 

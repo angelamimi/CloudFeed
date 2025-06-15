@@ -26,7 +26,6 @@
 		391579AC2AB645B400DFEAB1 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579AB2AB645B400DFEAB1 /* LoginViewModel.swift */; };
 		391579B02AB7464000DFEAB1 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579AF2AB7464000DFEAB1 /* Strings.swift */; };
 		3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3916F3E02AAD1B370064002E /* PagerViewModel.swift */; };
-		392718642C359F95001C57C0 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 392718632C359F95001C57C0 /* RealmSwift */; };
 		392718662C35A181001C57C0 /* SVGKitSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 392718652C35A181001C57C0 /* SVGKitSwift */; };
 		39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39271D4729D7694E00522DFD /* CollectionLayout.swift */; };
 		39271D4A29D7922D00522DFD /* Media.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39271D4929D7922D00522DFD /* Media.storyboard */; };
@@ -56,9 +55,6 @@
 		392735B629BE4FE00058796A /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 392735B529BE4FE00058796A /* Login.storyboard */; };
 		392735B829BE50780058796A /* LoginWebController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735B729BE50780058796A /* LoginWebController.swift */; };
 		392735BA29BE52600058796A /* LoginServerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735B929BE52600058796A /* LoginServerController.swift */; };
-		3929A8872C35CEE6003B48CF /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 3929A8862C35CEE6003B48CF /* RealmSwift */; };
-		3929A8882C35CEE6003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 3929A8862C35CEE6003B48CF /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		3929A8892C35EB5A003B48CF /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 392718632C359F95001C57C0 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		393D18932C8C9B5100971014 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393D18922C8C9B5100971014 /* ControlsView.swift */; };
 		39411FBA2DD7AFC800DBFA18 /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39411FB92DD7AFC800DBFA18 /* ProgressView.swift */; };
 		39411FBC2DD7B1A000DBFA18 /* ProgressView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39411FBB2DD7B1A000DBFA18 /* ProgressView.xib */; };
@@ -87,7 +83,6 @@
 		398D14CC2B93B76700526E42 /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398D14CB2B93B76700526E42 /* CacheManager.swift */; };
 		398D14D22B9A4D2700526E42 /* ImageUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398D14D12B9A4D2700526E42 /* ImageUtility.swift */; };
 		398DA7252AC33F9E00F98E7F /* MockNextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */; };
-		398DA7262AC33F9E00F98E7F /* MockDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */; };
 		398DA7282AC6199500F98E7F /* mock-search.json in Resources */ = {isa = PBXBuildFile; fileRef = 398DA7272AC6199500F98E7F /* mock-search.json */; };
 		399095372DF77BB2002FBD25 /* DataLayerAccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399095362DF77BB2002FBD25 /* DataLayerAccountTests.swift */; };
 		399095392DF77C80002FBD25 /* DataLayerMetadataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399095382DF77C80002FBD25 /* DataLayerMetadataTests.swift */; };
@@ -141,7 +136,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				3929A8882C35CEE6003B48CF /* RealmSwift in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -153,7 +147,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				39A896402C7FED9C003827B8 /* MobileVLCKit.xcframework in Embed Frameworks */,
-				3929A8892C35EB5A003B48CF /* RealmSwift in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -179,7 +172,6 @@
 		391579A92AB3D8B800DFEAB1 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		391579AB2AB645B400DFEAB1 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		391579AF2AB7464000DFEAB1 /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
-		391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDatabaseManager.swift; sourceTree = "<group>"; };
 		391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNextcloudKitService.swift; sourceTree = "<group>"; };
 		391579C32AB8D18900DFEAB1 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		3916F3E02AAD1B370064002E /* PagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagerViewModel.swift; sourceTree = "<group>"; };
@@ -284,7 +276,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3929A8872C35CEE6003B48CF /* RealmSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,7 +284,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				392718662C35A181001C57C0 /* SVGKitSwift in Frameworks */,
-				392718642C359F95001C57C0 /* RealmSwift in Frameworks */,
 				392735B029BE3DED0058796A /* KeychainAccess in Frameworks */,
 				39FA11A62D2AEA270054DFF6 /* OpenSSL in Frameworks */,
 				39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */,
@@ -429,7 +419,6 @@
 				3990953A2DF77D83002FBD25 /* DataLayerAvatarTests.swift */,
 				399095382DF77C80002FBD25 /* DataLayerMetadataTests.swift */,
 				39735A2E2CD14A2800EB4848 /* MediaTests.swift */,
-				391579B12AB896AB00DFEAB1 /* MockDatabaseManager.swift */,
 				391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */,
 				39680C302ABB527800A16D5B /* mock-favorites.json */,
 				398DA7272AC6199500F98E7F /* mock-search.json */,
@@ -566,7 +555,6 @@
 			packageProductDependencies = (
 				3927359B29BD3D510058796A /* NextcloudKit */,
 				392735AF29BE3DED0058796A /* KeychainAccess */,
-				392718632C359F95001C57C0 /* RealmSwift */,
 				392718652C35A181001C57C0 /* SVGKitSwift */,
 				39FA11A52D2AEA270054DFF6 /* OpenSSL */,
 			);
@@ -590,7 +578,6 @@
 			);
 			name = CloudFeedTests;
 			packageProductDependencies = (
-				3929A8862C35CEE6003B48CF /* RealmSwift */,
 			);
 			productName = CloudFeedTests;
 			productReference = 3927357D29BD1E830058796A /* CloudFeedTests.xctest */;
@@ -628,7 +615,6 @@
 				3927359A29BD3D510058796A /* XCRemoteSwiftPackageReference "NextcloudKit" */,
 				392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */,
-				392718622C359F95001C57C0 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				39FA11A42D2AEA270054DFF6 /* XCRemoteSwiftPackageReference "OpenSSL" */,
 			);
 			productRefGroup = 3927356829BD1E820058796A /* Products */;
@@ -774,7 +760,6 @@
 				399095372DF77BB2002FBD25 /* DataLayerAccountTests.swift in Sources */,
 				399095392DF77C80002FBD25 /* DataLayerMetadataTests.swift in Sources */,
 				398DA7252AC33F9E00F98E7F /* MockNextcloudKitService.swift in Sources */,
-				398DA7262AC33F9E00F98E7F /* MockDatabaseManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1091,14 +1076,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		392718622C359F95001C57C0 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/realm/realm-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 20.0.1;
-			};
-		};
 		39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SVGKit/SVGKit";
@@ -1134,11 +1111,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		392718632C359F95001C57C0 /* RealmSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 392718622C359F95001C57C0 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = RealmSwift;
-		};
 		392718652C35A181001C57C0 /* SVGKitSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */;
@@ -1153,11 +1125,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
-		};
-		3929A8862C35CEE6003B48CF /* RealmSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 392718622C359F95001C57C0 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = RealmSwift;
 		};
 		39FA11A52D2AEA270054DFF6 /* OpenSSL */ = {
 			isa = XCSwiftPackageProductDependency;

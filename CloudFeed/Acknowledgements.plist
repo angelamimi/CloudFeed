@@ -4,15 +4,6 @@
 <array>
 	<dict>
 		<key>title</key>
-		<string>realm-swift</string>
-		<key>link</key>
-		<string>https://github.com/realm/realm-swift</string>
-		<key>license</key>
-		<string>Apache License 2.0
-http://www.apache.org/licenses/</string>
-	</dict>
-	<dict>
-		<key>title</key>
 		<string>KeychainAccess</string>
 		<key>link</key>
 		<string>https://github.com/kishikawakatsumi/KeychainAccess</string>

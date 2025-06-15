@@ -155,11 +155,6 @@ class MediaTests {
         #expect(databaseManager != nil)
         
         let store = StoreUtility()
-        let fileUrl = store.databaseDirectory?.appending(path: "CloudFeedTest.realm")
-        #expect(fileUrl != nil)
-
-        //let setupResult = databaseManager!.setup(fileUrl: fileUrl!)
-        //#expect(setupResult == false)
         
         nextCloudService = MockNextcloudKitService()
         #expect(nextCloudService != nil)

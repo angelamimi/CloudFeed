@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -27,19 +26,19 @@
             <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ABi-ln-iPL" userLabel="Done Button">
-                    <rect key="frame" x="366" y="102" width="24" height="14"/>
+                    <rect key="frame" x="366" y="415" width="24" height="14"/>
                     <color key="tintColor" systemColor="labelColor"/>
                     <state key="normal" title="Button"/>
                     <buttonConfiguration key="configuration" style="plain"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k2S-Un-QnP" userLabel="Cancel Button">
-                    <rect key="frame" x="0.0" y="102" width="24" height="14"/>
+                    <rect key="frame" x="0.0" y="102" width="24" height="640"/>
                     <color key="tintColor" systemColor="labelColor"/>
                     <state key="normal" title="Button"/>
                     <buttonConfiguration key="configuration" style="plain"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hCV-CC-q7z" userLabel="Back Button">
-                    <rect key="frame" x="8" y="94" width="24" height="656"/>
+                    <rect key="frame" x="8" y="405" width="24" height="34.333333333333314"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="24" id="j81-PV-qBl"/>
                     </constraints>
@@ -94,18 +93,18 @@
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstItem="hCV-CC-q7z" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="8" identifier="Back Button leading to Safe area leading" id="1Dh-qN-LN2"/>
+                <constraint firstItem="ABi-ln-iPL" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="2j0-kC-C9S"/>
                 <constraint firstItem="k2S-Un-QnP" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="3lp-22-xwr"/>
                 <constraint firstItem="jPn-bk-o2e" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="5iv-Cy-RZZ"/>
                 <constraint firstItem="hCV-CC-q7z" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="9nu-lb-92i"/>
                 <constraint firstItem="k2S-Un-QnP" firstAttribute="centerY" secondItem="ABi-ln-iPL" secondAttribute="centerY" id="CI6-V1-m1d"/>
-                <constraint firstItem="ABi-ln-iPL" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="HeG-QK-NmH"/>
                 <constraint firstItem="jPn-bk-o2e" firstAttribute="leading" secondItem="hCV-CC-q7z" secondAttribute="trailing" constant="4" id="IDJ-p7-0iZ"/>
                 <constraint firstItem="jPn-bk-o2e" firstAttribute="trailing" secondItem="mew-Ct-dkn" secondAttribute="leading" constant="-4" id="ODz-dY-rZu"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="ABi-ln-iPL" secondAttribute="trailing" id="WkI-pA-cpd"/>
-                <constraint firstItem="hCV-CC-q7z" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="YPI-FG-cXg"/>
                 <constraint firstItem="mew-Ct-dkn" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="aGe-qH-wgE"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="mew-Ct-dkn" secondAttribute="trailing" constant="8" id="fnD-cX-cBz"/>
                 <constraint firstItem="k2S-Un-QnP" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="j4h-NX-ExE"/>
+                <constraint firstItem="k2S-Un-QnP" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="oRg-pd-xQY"/>
             </constraints>
             <point key="canvasLocation" x="37" y="54"/>
         </view>

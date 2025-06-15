@@ -39,7 +39,7 @@ final class AppCoordinator: NSObject, Coordinator {
             return
         }
         
-        guard let dbUrl = store.databaseDirectory?.appending(path: "CloudFeed.realm") else {
+        guard let dbUrl = store.databaseDirectory?.appending(path: "CloudFeed.db") else {
             showInitFailedError()
             return
         }
