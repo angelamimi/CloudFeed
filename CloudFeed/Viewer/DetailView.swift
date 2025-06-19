@@ -179,6 +179,8 @@ class DetailView: UIView {
         
         cameraView.minimumContentSizeCategory = .small
         cameraView.maximumContentSizeCategory = .extraExtraLarge
+        
+        mapView.setCameraZoomRange(.init(maxCenterCoordinateDistance: 500), animated: false)
     }
     
     private func resetLabels() {
