@@ -132,7 +132,7 @@ extension ViewerViewModel {
             
         } else if metadata.svg {
             
-            return ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
+            return await ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
             
         } else {
 

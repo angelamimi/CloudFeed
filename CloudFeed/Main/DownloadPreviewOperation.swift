@@ -98,7 +98,7 @@ class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable {
             let iconPath = dataService!.store.getIconPath(metadata!.ocId, metadata!.etag)
             let imagePath = dataService!.store.getCachePath(metadata!.ocId, metadata!.fileNameView)!
             
-            ImageUtility.loadSVGPreview(metadata: metadata!, imagePath: imagePath, previewPath: iconPath)
+            await ImageUtility.loadSVGPreview(metadata: metadata!, imagePath: imagePath, previewPath: iconPath)
         }
     }
 }

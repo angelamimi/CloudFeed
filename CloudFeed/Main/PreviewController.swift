@@ -217,16 +217,22 @@ class PreviewController: UIViewController {
         let previewPath = viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
         
         if viewModel.dataService.store.fileExists(metadata) {
-            guard let image = ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath) else { return }
-            imageView.image = image
-            self.showImage()
+            Task { [weak self] in
+                
+                guard let image = await ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath) else { return }
+                
+                DispatchQueue.main.async { [weak self] in
+                    self?.imageView.image = image
+                    self?.showImage()
+                }
+            }
         } else {
             Task { [weak self] in
                 guard let self else { return }
                 
                 _ = await viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
                 
-                guard let image = ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath) else { return }
+                guard let image = await ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath) else { return }
                 
                 DispatchQueue.main.async { [weak self] in
                     self?.imageView.image = image

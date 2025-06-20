@@ -52,7 +52,7 @@ final class ImageUtility: NSObject {
     }
     
     @discardableResult
-    static func loadSVGPreview(metadata: Metadata, imagePath: String, previewPath: String) -> UIImage? {
+    static func loadSVGPreview(metadata: Metadata, imagePath: String, previewPath: String) async -> UIImage? {
         
         guard metadata.svg else { return nil }
         guard let svgImage = SVGKImage(contentsOfFile: imagePath) else { return nil }
