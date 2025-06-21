@@ -24,7 +24,6 @@ import UIKit
 final class DisplayController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
     
     private var style: UIUserInterfaceStyle?
     

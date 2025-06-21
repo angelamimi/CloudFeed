@@ -26,7 +26,6 @@ final class ProfileController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
     
     var viewModel: ProfileViewModel?
 

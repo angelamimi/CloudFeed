@@ -108,14 +108,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="giX-XS-qkr">
-                                <rect key="frame" x="0.0" y="168" width="393" height="616"/>
+                                <rect key="frame" x="0.0" y="178" width="393" height="606"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="wZx-23-NaP"/>
                         <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="giX-XS-qkr" firstAttribute="top" secondItem="wZx-23-NaP" secondAttribute="top" constant="6" id="MWv-3b-8SW"/>
+                            <constraint firstItem="giX-XS-qkr" firstAttribute="top" secondItem="wZx-23-NaP" secondAttribute="top" constant="16" id="MWv-3b-8SW"/>
                             <constraint firstItem="wZx-23-NaP" firstAttribute="bottom" secondItem="giX-XS-qkr" secondAttribute="bottom" id="ngI-4o-a9A"/>
                             <constraint firstItem="wZx-23-NaP" firstAttribute="trailing" secondItem="giX-XS-qkr" secondAttribute="trailing" id="v2O-XQ-Tnm"/>
                             <constraint firstItem="giX-XS-qkr" firstAttribute="leading" secondItem="wZx-23-NaP" secondAttribute="leading" id="wGU-cS-Dfj"/>
@@ -124,7 +124,6 @@
                     <navigationItem key="navigationItem" id="glE-se-4cg"/>
                     <connections>
                         <outlet property="tableView" destination="giX-XS-qkr" id="iie-r6-m4W"/>
-                        <outlet property="tableViewTopConstraint" destination="MWv-3b-8SW" id="ADB-mm-Mv2"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eqm-HF-3Am" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -191,7 +190,6 @@
                     <connections>
                         <outlet property="activityIndicator" destination="SIs-7a-gvV" id="dPc-E3-aGf"/>
                         <outlet property="tableView" destination="7aa-bY-IbB" id="vuf-D0-90j"/>
-                        <outlet property="tableViewTopConstraint" destination="IWx-nD-2z3" id="HNv-dX-Ifw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eq3-gm-X6W" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -304,7 +302,6 @@
                     </view>
                     <connections>
                         <outlet property="tableView" destination="z5m-SG-sGd" id="iMl-FS-svE"/>
-                        <outlet property="tableViewTopConstraint" destination="scD-Ok-GdQ" id="N3E-4O-oUB"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9fO-Cq-gfP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -320,7 +317,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="XZE-fJ-x6B">
-                                <rect key="frame" x="0.0" y="163" width="393" height="601"/>
+                                <rect key="frame" x="0.0" y="162" width="393" height="622"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="ProfileCell" rowHeight="200" id="ss6-9g-Eac" userLabel="profileCell" customClass="ProfileCell" customModule="CloudFeed" customModuleProvider="target">
@@ -331,14 +328,14 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="caQ-Jq-qnc" userLabel="Profile Image">
-                                                    <rect key="frame" x="101.66666666666669" y="24" width="150" height="141"/>
+                                                    <rect key="frame" x="101.66666666666669" y="8" width="150" height="150"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="150" id="11b-ud-jOT"/>
                                                         <constraint firstAttribute="width" constant="150" id="y43-GN-5Cg"/>
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gKx-sO-EbR" userLabel="Name Label">
-                                                    <rect key="frame" x="8" y="180" width="337" height="0.0"/>
+                                                    <rect key="frame" x="8" y="173" width="337" height="27"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="syz-iK-DWu"/>
                                                     </constraints>
@@ -347,7 +344,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0xh-Ae-GcS" userLabel="Email Label">
-                                                    <rect key="frame" x="8" y="180" width="337" height="0.0"/>
+                                                    <rect key="frame" x="8" y="200" width="337" height="0.0"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="neK-3h-oD9"/>
                                                     </constraints>
@@ -359,11 +356,11 @@
                                             <constraints>
                                                 <constraint firstItem="gKx-sO-EbR" firstAttribute="leading" secondItem="a8Z-ao-YNc" secondAttribute="leading" constant="8" id="3di-v8-dlF"/>
                                                 <constraint firstItem="0xh-Ae-GcS" firstAttribute="top" secondItem="gKx-sO-EbR" secondAttribute="bottom" id="5JR-Mc-Z1r"/>
-                                                <constraint firstAttribute="bottom" secondItem="0xh-Ae-GcS" secondAttribute="bottom" constant="20" id="Abs-fw-LeH"/>
+                                                <constraint firstAttribute="bottom" secondItem="0xh-Ae-GcS" secondAttribute="bottom" id="Abs-fw-LeH"/>
                                                 <constraint firstItem="gKx-sO-EbR" firstAttribute="top" secondItem="caQ-Jq-qnc" secondAttribute="bottom" constant="15" id="Ch5-wq-USr"/>
                                                 <constraint firstAttribute="trailing" secondItem="0xh-Ae-GcS" secondAttribute="trailing" constant="8" id="GR3-Wb-M1y"/>
                                                 <constraint firstItem="0xh-Ae-GcS" firstAttribute="leading" secondItem="a8Z-ao-YNc" secondAttribute="leading" constant="8" id="PhA-4X-Wfb"/>
-                                                <constraint firstItem="caQ-Jq-qnc" firstAttribute="top" secondItem="a8Z-ao-YNc" secondAttribute="top" constant="24" id="d9x-Eu-ch8"/>
+                                                <constraint firstItem="caQ-Jq-qnc" firstAttribute="top" secondItem="a8Z-ao-YNc" secondAttribute="top" constant="8" id="d9x-Eu-ch8"/>
                                                 <constraint firstAttribute="trailing" secondItem="gKx-sO-EbR" secondAttribute="trailing" constant="8" id="eFI-s2-DnE"/>
                                                 <constraint firstItem="caQ-Jq-qnc" firstAttribute="centerX" secondItem="a8Z-ao-YNc" secondAttribute="centerX" id="rVJ-cs-WqC"/>
                                             </constraints>
@@ -371,6 +368,7 @@
                                         <color key="backgroundColor" systemColor="systemGroupedBackgroundColor"/>
                                         <color key="tintColor" systemColor="labelColor"/>
                                         <connections>
+                                            <outlet property="emailLabelBottomContraint" destination="Abs-fw-LeH" id="j2Y-on-WD9"/>
                                             <outlet property="profileEmailLabel" destination="0xh-Ae-GcS" id="dw1-fn-xqi"/>
                                             <outlet property="profileImageView" destination="caQ-Jq-qnc" id="cUc-H2-Rgf"/>
                                             <outlet property="profileImageViewTopContraint" destination="d9x-Eu-ch8" id="06q-uJ-RRd"/>
@@ -401,16 +399,15 @@
                             <constraint firstItem="uKk-De-qmb" firstAttribute="centerY" secondItem="3s0-UW-uuw" secondAttribute="centerY" id="9MN-eB-xKs"/>
                             <constraint firstItem="XZE-fJ-x6B" firstAttribute="trailing" secondItem="W00-FN-fR1" secondAttribute="trailing" id="Mie-N0-sOt"/>
                             <constraint firstItem="W00-FN-fR1" firstAttribute="leading" secondItem="XZE-fJ-x6B" secondAttribute="leading" id="Vsq-T4-Ksy"/>
-                            <constraint firstItem="XZE-fJ-x6B" firstAttribute="top" secondItem="W00-FN-fR1" secondAttribute="top" constant="1" id="gh3-3z-1It"/>
+                            <constraint firstItem="XZE-fJ-x6B" firstAttribute="top" secondItem="W00-FN-fR1" secondAttribute="top" id="gh3-3z-1It"/>
                             <constraint firstItem="XZE-fJ-x6B" firstAttribute="centerX" secondItem="3s0-UW-uuw" secondAttribute="centerX" priority="999" id="j1Z-q9-5k9"/>
-                            <constraint firstItem="W00-FN-fR1" firstAttribute="bottom" secondItem="XZE-fJ-x6B" secondAttribute="bottom" constant="20" id="xNh-hk-Got"/>
+                            <constraint firstItem="W00-FN-fR1" firstAttribute="bottom" secondItem="XZE-fJ-x6B" secondAttribute="bottom" id="xNh-hk-Got"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Settings" id="Tkp-FB-ZVc"/>
                     <connections>
                         <outlet property="activityIndicator" destination="uKk-De-qmb" id="2tq-d9-Hf5"/>
                         <outlet property="tableView" destination="XZE-fJ-x6B" id="iqp-OC-9Wa"/>
-                        <outlet property="tableViewTopConstraint" destination="gh3-3z-1It" id="GAH-gr-zcS"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zX3-PX-o9U" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -456,7 +453,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="P4C-u9-KbP"/>
+        <segue reference="wRF-sW-M9w"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="checkmark.circle.fill" catalog="system" width="128" height="123"/>

@@ -25,6 +25,7 @@ class ProfileCell: UITableViewCell {
     
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var profileImageViewTopContraint: NSLayoutConstraint!
+    @IBOutlet weak var emailLabelBottomContraint: NSLayoutConstraint!
     @IBOutlet weak var profileEmailLabel: UILabel!
     @IBOutlet weak var profileNameLabel: UILabel!
 
@@ -38,6 +39,11 @@ class ProfileCell: UITableViewCell {
         
             profileNameLabel.font = UIFont.preferredFont(forTextStyle: .body)
             profileEmailLabel.font = UIFont.preferredFont(forTextStyle: .body)
+            
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                profileImageViewTopContraint.constant = 20
+                emailLabelBottomContraint.constant = 20
+            }
         }
     }
 

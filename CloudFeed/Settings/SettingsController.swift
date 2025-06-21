@@ -28,7 +28,6 @@ class SettingsController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
 
     private var profileName: String = ""
     private var profileEmail: String = ""

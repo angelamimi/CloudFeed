@@ -32,8 +32,6 @@ protocol MenuDelegate: AnyObject {
 class MenuController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint!
-    @IBOutlet weak var titleView: TitleView!
     
     var delegate: MenuDelegate?
     
@@ -41,8 +39,6 @@ class MenuController: UIViewController {
         
         tableView.dataSource = self
         tableView.delegate = self
-
-        tableViewTopConstraint.constant = 16 //58
         
         navigationItem.title = Strings.SettingsNavTitle
         
