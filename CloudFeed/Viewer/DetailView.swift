@@ -425,7 +425,10 @@ class DetailView: UIView {
             sizeLabel.accessibilityValue = Strings.DetailSizeNone
         } else {
             
-            formattedPixels = "\(width!) x \(height!)"
+            let formattedWidth = String(format: "%.0f", width!)
+            let formattedHeight = String(format: "%.0f", height!)
+            
+            formattedPixels = "\(formattedWidth) x \(formattedHeight)"
             
             let megaPixels: Double = Double(width! * height!) / 1000000
             formattedMegaPixels = megaPixels < 1 ? String(format: "%.1f MP", megaPixels) : "\(Int(megaPixels)) MP"
@@ -515,10 +518,11 @@ class DetailView: UIView {
         }
         
         if let apertureValue = exif[kCGImagePropertyExifFNumber] as? Double {
-            aperatureLabel.text = "ƒ\(apertureValue.description)"
+            let formattedApertureValue = String(format:"%.2f", apertureValue)
+            aperatureLabel.text = "ƒ\(formattedApertureValue)"
             aperatureLabel.isAccessibilityElement = true
             aperatureLabel.accessibilityLabel = Strings.DetailAperture
-            aperatureLabel.accessibilityValue = "f \(apertureValue.description)"
+            aperatureLabel.accessibilityValue = "f \(formattedApertureValue)"
         }
         
         if let exposureTimeValue = exif[kCGImagePropertyExifExposureTime] as? Double {
