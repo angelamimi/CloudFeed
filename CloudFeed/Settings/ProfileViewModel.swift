@@ -72,7 +72,7 @@ class ProfileViewModel {
         let userBaseUrl = buildUserBaseUrl(account)
         let fileName = userBaseUrl + "-" + user + ".png"
         
-        await dataService.downloadAvatar(fileName: fileName, account: account)
+        await dataService.downloadAvatar(fileName: fileName, account: account, screenScale: UIScreen.main.scale)
     }
     
     private func buildUserBaseUrl(_ account: Account) -> String {

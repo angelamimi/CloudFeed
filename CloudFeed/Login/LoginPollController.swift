@@ -80,19 +80,8 @@ final class LoginPollController: UIViewController {
     }
     
     private func poll(token: String, endpoint: String) {
-        Task(priority: .background) { [weak self] in
+        Task { [weak self] in
             await self?.viewModel.loginPoll(token: token, endpoint: endpoint)
         }
     }
 }
-
-/*extension LoginPollController: LoginDelegate {
-    
-    func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
-        coordinator.handleLoginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
-    }
-    
-    func loginError() {
-        coordinator.showInitFailedPrompt()
-    }
-}*/

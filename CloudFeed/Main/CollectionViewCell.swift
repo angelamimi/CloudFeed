@@ -96,9 +96,9 @@ class CollectionViewCell: UICollectionViewCell {
     
     func favorited(_ status: Bool) {
         if status {
-            imageFavorite.image = UIImage(systemName: "star")?.withTintColor(.yellow, renderingMode: .alwaysOriginal)
+            imageFavorite.image = UIImage(systemName: "star")?.withTintColor(.systemYellow, renderingMode: .alwaysOriginal)
         } else {
-            imageFavorite.image = UIImage(systemName: "star.fill")?.withTintColor(.yellow, renderingMode: .alwaysOriginal)
+            imageFavorite.image = UIImage(systemName: "star.fill")?.withTintColor(.systemYellow, renderingMode: .alwaysOriginal)
         }
     }
     

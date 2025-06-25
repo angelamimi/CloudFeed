@@ -2,7 +2,7 @@
 //  StoreUtility.swift
 //  CloudFeed
 //
-//  Created by Marino Faggiana on 3/7/24.
+//  Created by Angela Jarosz on 3/7/24.
 //  Copyright © 2024 Angela Jarosz. All rights reserved.
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 //
 
 import UIKit
-import ImageIO
 import KeychainAccess
 import os.log
 
@@ -100,10 +99,9 @@ struct StoreUtility: Sendable {
         Keychain(service: Global.shared.keyChain)["displayStyle"] = value
     }
     
-    @MainActor
-    func getMediaColumnCount() -> Int! {
+    func getMediaColumnCount(_ device: UIUserInterfaceIdiom) -> Int! {
 
-        let defaultCount = UIDevice.current.userInterfaceIdiom == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
+        let defaultCount = device == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
         
         guard try! Keychain(service: Global.shared.keyChain).contains("mediaColumnCount") else {
             setMediaColumnCount(defaultCount)
@@ -121,10 +119,9 @@ struct StoreUtility: Sendable {
         Keychain(service: Global.shared.keyChain)["mediaColumnCount"] = String(count)
     }
 
-    @MainActor
-    func getFavoriteColumnCount() -> Int! {
+    func getFavoriteColumnCount(_ device: UIUserInterfaceIdiom) -> Int! {
         
-        let defaultCount = UIDevice.current.userInterfaceIdiom == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
+        let defaultCount = device == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
         
         guard try! Keychain(service: Global.shared.keyChain).contains("favoriteColumnCount") else {
             setFavoriteColumnCount(defaultCount)
@@ -245,12 +242,34 @@ struct StoreUtility: Sendable {
         return false
     }
     
+    func getDirectorySize(directory: String) async -> Int64 {
+        
+        let url = URL(fileURLWithPath: directory)
+        let manager = FileManager.default
+        var totalSize: Int64 = 0
+
+        if let enumerator = manager.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles]) {
+            
+            let fileURLs = enumerator.compactMap { $0 as? URL }
+            
+            for fileURL in fileURLs {
+                if let attributes = try? manager.attributesOfItem(atPath: fileURL.path) {
+                    if let size = attributes[.size] as? Int64 {
+                        totalSize += size
+                    }
+                }
+            }
+        }
+
+        return totalSize
+    }
+    
     func cleanupFileCache() async {
         
         guard let cachePath = getFileCachePath(), let fileCacheDirectory = URL(string: cachePath) else { return }
-        let maxFileCache = 1024 * 1024 * Global.shared.fileCacheLimit
+        let maxFileCache = 1000 * 1000 * Global.shared.fileCacheLimit
         let deleteLimit = maxFileCache / 2 //delete half the cache
-        var totalSize = await FileSystemUtility.getDirectorySize(directory: cachePath)
+        var totalSize = await getDirectorySize(directory: cacheDirectory)
         
         guard totalSize > maxFileCache else {
             return

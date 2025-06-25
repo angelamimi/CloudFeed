@@ -164,7 +164,7 @@ final class MediaViewModel: ShareViewModel {
     }
     
     func getColumnCount() -> Int {
-        return dataService.store.getMediaColumnCount()
+        return dataService.store.getMediaColumnCount(UIDevice.current.userInterfaceIdiom)
     }
     
     func saveColumnCount(_ columnCount: Int) {
@@ -489,7 +489,7 @@ final class MediaViewModel: ShareViewModel {
         
         delegate.searching()
         
-        let result = await dataService.searchMedia(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: limit)
+        let result = await dataService.searchMedia(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: limit, currentUserAccount: Environment.current.currentUser)
         
         //Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
         

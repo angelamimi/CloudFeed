@@ -80,8 +80,9 @@ final class SettingsViewModel: ProfileViewModel {
         let dir = dataService.store.cacheDirectory
         
         Task { [weak self] in
-            let totalSize = await FileSystemUtility.getDirectorySize(directory: dir)
-            self?.settingsDelegate.cacheCalculated(cacheSize: totalSize)
+            if let totalSize = await self?.dataService.store.getDirectorySize(directory: dir) {
+                self?.settingsDelegate.cacheCalculated(cacheSize: totalSize)
+            }
         }
     }
     

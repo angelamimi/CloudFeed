@@ -116,7 +116,7 @@ final class FavoritesViewModel: ShareViewModel {
     }
     
     func getColumnCount() -> Int {
-        return dataService.store.getFavoriteColumnCount()
+        return dataService.store.getFavoriteColumnCount(UIDevice.current.userInterfaceIdiom)
     }
     
     func saveColumnCount(_ columnCount: Int) {
@@ -200,13 +200,13 @@ final class FavoritesViewModel: ShareViewModel {
     
     func fetch(type: Global.FilterType, refresh: Bool) async {
         
-        let error = await dataService.getFavorites()
+        let error = await dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
         
         if Task.isCancelled { return }
         
         handleFavoriteResult(error: error)
         
-        let resultMetadatas = await dataService.paginateFavoriteMetadata(type: type, fromDate: Date.distantPast, toDate: Date.distantFuture, offsetDate: nil, offsetName: nil)
+        let resultMetadatas = await dataService.paginateFavoriteMetadata(type: type, fromDate: Date.distantPast, toDate: Date.distantFuture, offsetDate: nil, offsetName: nil, currentUserAccount: Environment.current.currentUser)
         await applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
     }
     
@@ -217,13 +217,13 @@ final class FavoritesViewModel: ShareViewModel {
         fetchTask = Task { [weak self] in
             guard let self else { return }
             
-            let error = await dataService.getFavorites()
+            let error = await dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
             
             if Task.isCancelled { return }
             
             handleFavoriteResult(error: error)
             
-            let resultMetadatas = await dataService.paginateFavoriteMetadata(type: type, fromDate: from, toDate: to, offsetDate: nil, offsetName: nil)
+            let resultMetadatas = await dataService.paginateFavoriteMetadata(type: type, fromDate: from, toDate: to, offsetDate: nil, offsetName: nil, currentUserAccount: Environment.current.currentUser)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: true)
         }
     }
@@ -235,7 +235,7 @@ final class FavoritesViewModel: ShareViewModel {
         fetchTask = Task { [weak self] in
             guard let self else { return }
             
-            let error = await dataService.getFavorites()
+            let error = await dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
             
             if Task.isCancelled { return }
             
@@ -338,9 +338,13 @@ final class FavoritesViewModel: ShareViewModel {
         Task { [weak self] in
             guard let self else { return }
 
-            _ = await self.dataService.getFavorites()
+            _ = await self.dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
 
-            let resultMetadatas = await self.dataService.paginateFavoriteMetadata(type: type, fromDate: filterFromDate ?? Date.distantPast, toDate: filterToDate ?? Date.distantFuture, offsetDate: offsetDate, offsetName: offsetName)
+            let resultMetadatas = await self.dataService.paginateFavoriteMetadata(type: type,
+                                                                                  fromDate: filterFromDate ?? Date.distantPast,
+                                                                                  toDate: filterToDate ?? Date.distantFuture,
+                                                                                  offsetDate: offsetDate, offsetName: offsetName,
+                                                                                  currentUserAccount: Environment.current.currentUser)
             await applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
         }
     }
@@ -397,7 +401,7 @@ final class FavoritesViewModel: ShareViewModel {
         var snapshot = dataSource.snapshot()
         var displayed = snapshot.itemIdentifiers(inSection: 0)
         
-        guard let result = await dataService.processFavorites(displayedMetadataIds: displayed, displayedMetadatas: metadatas,  type: type, from: from, to: to) else {
+        guard let result = await dataService.processFavorites(displayedMetadataIds: displayed, displayedMetadatas: metadatas,  type: type, from: from, to: to, currentUserAccount: Environment.current.currentUser) else {
             delegate.dataSourceUpdated(refresh: false)
             return
         }

@@ -76,8 +76,6 @@ class TitleView: UIView {
 
         MainActor.assumeIsolated {
             
-            minimumContentSizeCategory = .large
-            
             title.minimumContentSizeCategory = .accessibilityMedium
 
             initText()

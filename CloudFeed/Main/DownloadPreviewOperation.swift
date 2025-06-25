@@ -47,7 +47,7 @@ class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable {
     
     override func main() {
 
-        task = Task(priority: .background) { [weak self] in
+        task = Task { [weak self] in
 
             if self?.isCancelled ?? true {
                 self?.finish()

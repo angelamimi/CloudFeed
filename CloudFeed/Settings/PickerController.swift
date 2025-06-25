@@ -166,10 +166,12 @@ extension PickerController: UITableViewDataSource {
         
         guard let metadata = metadatas?[indexPath.item] else { return cell }
         
-        var config = cell.defaultContentConfiguration()
+        var config = UIListContentConfiguration.cell()
 
         config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
         config.secondaryTextProperties.font = UIFont.preferredFont(forTextStyle: .footnote)
+        config.textProperties.adjustsFontForContentSizeCategory = true
+        config.secondaryTextProperties.adjustsFontForContentSizeCategory = true
         config.image = UIImage(systemName: "folder")
         config.text = metadata.fileNameView
         

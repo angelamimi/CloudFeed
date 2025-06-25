@@ -22,7 +22,6 @@
 import UIKit
 import os.log
 
-@MainActor
 final class CacheManager {
     
     private weak var dataService: DataService!

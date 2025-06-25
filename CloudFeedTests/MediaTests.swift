@@ -37,7 +37,7 @@ class MediaTests {
         let toDate = Date.distantFuture
         let fromDate = Date.distantPast
         
-        let result = await dataService?.searchMedia(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20)
+        let result = await dataService?.searchMedia(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20, currentUserAccount: Environment.current.currentUser)
         
         try #require(result != nil)
 

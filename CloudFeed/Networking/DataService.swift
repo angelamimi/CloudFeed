@@ -173,8 +173,7 @@ final class DataService: NSObject, Sendable {
     
     // MARK: -
     // MARK: Avatar
-    @MainActor
-    func downloadAvatar(fileName: String, account: Account) async {
+    func downloadAvatar(fileName: String, account: Account, screenScale: CGFloat) async {
         
         let fileNameLocalPath = store.getUserDirectory() + "/" + fileName
         
@@ -183,7 +182,7 @@ final class DataService: NSObject, Sendable {
             etag = await databaseManager.getAvatar(fileName: fileName)?.etag
         }
         
-        let avatarSize = Global.shared.avatarSizeBase * Int(UIScreen.main.scale)
+        let avatarSize = Global.shared.avatarSizeBase * Int(screenScale)
         let etagResult = await nextcloudService.downloadAvatar(account: account.account, userId: account.userId, fileName: fileName,
                                                                fileNameLocalPath: fileNameLocalPath, etag: etag, avatarSize: avatarSize, avatarSizeRounded: Global.shared.avatarSizeRounded)
 
@@ -236,12 +235,11 @@ final class DataService: NSObject, Sendable {
         return fileName
     }
     
-    @MainActor
-    func getFavorites() async -> Bool {
+    func getFavorites(currentUserAccount: UserAccount?) async -> Bool {
         
-        guard let account = Environment.current.currentUser?.account else { return false }
+        guard let account = currentUserAccount?.account else { return false }
         guard let mediaPath = await getMediaPath() else { return false }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return false }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount) else { return false }
         
         let listingResult = await nextcloudService.listingFavorites(account: account)
         
@@ -252,22 +250,20 @@ final class DataService: NSObject, Sendable {
         return false
     }
     
-    @MainActor
-    func paginateFavoriteMetadata(type: Global.FilterType, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) async -> [Metadata] {
+    func paginateFavoriteMetadata(type: Global.FilterType, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?, currentUserAccount: UserAccount?) async -> [Metadata] {
         
-        guard let account = Environment.current.currentUser?.account else { return [] }
+        guard let account = currentUserAccount?.account else { return [] }
         guard let mediaPath = await getMediaPath() else { return [] }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return [] }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount) else { return [] }
         
         return await databaseManager.paginateMetadata(favorite: true, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate, offsetDate: nil, offsetName: nil)
     }
     
-    @MainActor
-    func processFavorites(displayedMetadataIds: [Metadata.ID], displayedMetadatas: [Metadata.ID: Metadata], type: Global.FilterType, from: Date?, to: Date?) async -> (delete: [Metadata.ID], add: [Metadata], update: [Metadata])? {
+    func processFavorites(displayedMetadataIds: [Metadata.ID], displayedMetadatas: [Metadata.ID: Metadata], type: Global.FilterType, from: Date?, to: Date?, currentUserAccount: UserAccount?) async -> (delete: [Metadata.ID], add: [Metadata], update: [Metadata])? {
 
-        guard let account = Environment.current.currentUser?.account else { return nil }
+        guard let account = currentUserAccount?.account else { return nil }
         guard let mediaPath = await getMediaPath() else { return nil }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return nil }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount) else { return nil }
 
         var delete: [Metadata.ID] = []
         var add: [Metadata] = []
@@ -383,12 +379,11 @@ final class DataService: NSObject, Sendable {
     
     // MARK: -
     // MARK: Search
-    @MainActor
-    func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int) async -> (metadatas: [Metadata], added: [Metadata], updated: [Metadata], deleted: [Metadata], error: Bool) {
+    func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int, currentUserAccount: UserAccount?) async -> (metadatas: [Metadata], added: [Metadata], updated: [Metadata], deleted: [Metadata], error: Bool) {
         
-        guard let account = Environment.current.currentUser?.account else { return ([], [], [], [], true) }
+        guard let account = currentUserAccount?.account else { return ([], [], [], [], true) }
         guard let mediaPath = await getMediaPath() else { return ([], [], [], [], true) }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath) else { return ([], [], [], [], true) }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount) else { return ([], [], [], [], true) }
         
         let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath,
                                                               toDate: toDate, fromDate: fromDate, limit: limit)
@@ -446,13 +441,12 @@ final class DataService: NSObject, Sendable {
         return activeAccount.mediaPath
     }
     
-    @MainActor
-    private func getStartServerUrl(mediaPath: String?) -> String? {
+    private func getStartServerUrl(mediaPath: String?, currentUserAccount: UserAccount?) -> String? {
 
         guard mediaPath != nil else { return nil }
         
-        let urlBase = Environment.current.currentUser?.urlBase
-        let userId = Environment.current.currentUser?.userId
+        let urlBase = currentUserAccount?.urlBase
+        let userId = currentUserAccount?.userId
         
         guard urlBase != nil && userId != nil else { return nil }
         
