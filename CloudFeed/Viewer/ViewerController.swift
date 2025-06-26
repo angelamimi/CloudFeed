@@ -878,7 +878,7 @@ class ViewerController: UIViewController {
         
         detailViewTopConstraint = detailView.topAnchor.constraint(equalTo: imageView.bottomAnchor)
         detailViewWidthConstraint = detailView.widthAnchor.constraint(equalToConstant: imageView.frame.width)
-        detailViewHeightConstraint = detailView.heightAnchor.constraint(equalToConstant: 0)
+        detailViewHeightConstraint = detailView.heightAnchor.constraint(greaterThanOrEqualToConstant: 0)
         detailViewLeadingConstraint = detailView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 0)
         
         detailViewTopConstraint?.isActive = true
@@ -972,7 +972,7 @@ class ViewerController: UIViewController {
     private func calculateVerticalConstraintsShow(transformImage: Bool, height: CGFloat) {
 
         guard let originalSize = imageView.image?.size else {
-            updateVerticalConstraintsShow(heightOffset: height)
+            updateVerticalConstraintsShow(heightOffset: height, height: height)
             return
         }
         
@@ -1008,10 +1008,11 @@ class ViewerController: UIViewController {
         }
         
         if shiftOnly && transformImage {
-            imageViewTopConstraint.constant = -(resizeSize.height - renderSize.height)
-            updateVerticalConstraintsShow(heightOffset: resizeSize.height)
+            let top = -(resizeSize.height - renderSize.height) / 2
+            imageViewTopConstraint.constant = top
+            updateVerticalConstraintsShow(heightOffset: resizeSize.height, topOffset: top, height: height)
         } else {
-            updateVerticalConstraintsShow(heightOffset: height)
+            updateVerticalConstraintsShow(heightOffset: height, height: height)
         }
     }
     
@@ -1042,7 +1043,7 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func updateVerticalConstraintsShow(heightOffset: CGFloat) {
+    private func updateVerticalConstraintsShow(heightOffset: CGFloat, topOffset: CGFloat = 0, height: CGFloat) {
         
         imageViewLeadingConstraint?.constant = 0
 
@@ -1052,9 +1053,10 @@ class ViewerController: UIViewController {
         imageViewHeightConstraint?.constant = heightOffset
         videoViewHeightConstraint?.constant = heightOffset
         
-        detailViewTopConstraint?.constant = 0
+        detailViewTopConstraint?.constant = topOffset
         detailViewLeadingConstraint?.constant = 0
         detailViewWidthConstraint?.constant = view.frame.width
+        detailViewHeightConstraint?.constant = height
         
         view.layoutIfNeeded()
     }
