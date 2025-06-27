@@ -298,12 +298,12 @@ class PagerController: UIViewController {
             
             updateStatus(status: .details)
             hideType()
+            
+            currentViewController?.handleSwipeUp()
 
             if UIDevice.current.userInterfaceIdiom == .pad && presentedViewController == nil {
                 presentDetailPopover()
             }
-            
-            currentViewController?.handleSwipeUp()
             
         } else {
             
