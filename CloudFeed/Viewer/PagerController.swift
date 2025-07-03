@@ -131,11 +131,18 @@ class PagerController: UIViewController {
         navigationController?.navigationBar.tintColor = .label
         
         let appearance = UINavigationBarAppearance()
+        
         appearance.configureWithTransparentBackground()
         appearance.backgroundEffect = UIBlurEffect(style: .prominent)
+        
         navigationItem.standardAppearance = appearance
         navigationItem.scrollEdgeAppearance = appearance
+        
         navigationItem.title = getFileName(metadata)
+        
+        if let style = DateFormatter.Style(rawValue: 0) {
+            navigationItem.prompt = DateFormatter.localizedString(from: metadata.date, dateStyle: .medium, timeStyle: style)
+        }
     }
     
     private func initStatusView() {
@@ -219,7 +226,7 @@ class PagerController: UIViewController {
     private func showProgressView() {
         
         guard let progressView = Bundle.main.loadNibNamed("ProgressView", owner: self, options: nil)?.first as? ProgressView else { return }
-
+        
         progressView.delegate = self
 
         view.addSubview(progressView)
@@ -435,8 +442,8 @@ class PagerController: UIViewController {
     }
     
     private func enableNavigation(_ enable: Bool) {
-        //TODO: Doesn't work. Need a view to block and blur
-        view.isUserInteractionEnabled = enable
+        //TODO: Doesn't work. Need to move to controller
+        /*view.isUserInteractionEnabled = enable
         
         for item in navigationItem.leftBarButtonItems ?? [] {
             item.isEnabled = enable
@@ -446,7 +453,7 @@ class PagerController: UIViewController {
             item.isEnabled = enable
         }
         
-        navigationController?.navigationBar.isUserInteractionEnabled = enable
+        navigationController?.navigationBar.isUserInteractionEnabled = enable*/
     }
 }
 
@@ -514,6 +521,10 @@ extension PagerController: PagerViewModelDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.navigationItem.title = self?.getFileName(metadata)
             self?.setTypeContainerView()
+            
+            if let style = DateFormatter.Style(rawValue: 0) {
+                self?.navigationItem.prompt = DateFormatter.localizedString(from: metadata.date, dateStyle: .medium, timeStyle: style)
+            }
         }
         
         setMenu(isFavorite: metadata.favorite)
