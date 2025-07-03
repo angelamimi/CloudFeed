@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="r40-jb-ixQ">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -18,21 +17,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="W1n-Dw-rA6">
-                                <rect key="frame" x="0.0" y="118" width="393" height="666"/>
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <connections>
                                     <segue destination="KfW-kE-79u" kind="embed" id="jcx-X3-EqB"/>
                                 </connections>
                             </containerView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P4k-Fh-Hxp" customClass="TitleView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="118" width="393" height="50"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" priority="250" constant="50" id="8sQ-TF-d1c"/>
-                                </constraints>
-                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cgD-fs-t0w">
-                                <rect key="frame" x="24" y="176" width="76.333333333333329" height="28"/>
+                                <rect key="frame" x="16" y="126" width="76.333333333333329" height="28"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Hhc-ac-kfS">
                                         <rect key="frame" x="8.0000000000000036" y="4" width="58.333333333333343" height="20"/>
@@ -68,22 +60,18 @@
                         <viewLayoutGuide key="safeArea" id="TIa-9d-2uX"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="W1n-Dw-rA6" firstAttribute="top" secondItem="TIa-9d-2uX" secondAttribute="top" id="9aU-V0-Zai"/>
-                            <constraint firstItem="TIa-9d-2uX" firstAttribute="trailing" secondItem="W1n-Dw-rA6" secondAttribute="trailing" id="In1-ax-uxC"/>
-                            <constraint firstItem="cgD-fs-t0w" firstAttribute="leading" secondItem="TIa-9d-2uX" secondAttribute="leading" constant="24" id="KIl-gq-gcA"/>
-                            <constraint firstItem="P4k-Fh-Hxp" firstAttribute="top" secondItem="TIa-9d-2uX" secondAttribute="top" id="auS-gL-BAQ"/>
-                            <constraint firstItem="TIa-9d-2uX" firstAttribute="bottom" secondItem="W1n-Dw-rA6" secondAttribute="bottom" id="hJO-ZY-DSR"/>
-                            <constraint firstItem="W1n-Dw-rA6" firstAttribute="leading" secondItem="TIa-9d-2uX" secondAttribute="leading" id="hWt-eU-Bou"/>
-                            <constraint firstItem="cgD-fs-t0w" firstAttribute="top" secondItem="P4k-Fh-Hxp" secondAttribute="bottom" constant="8" id="lPX-b4-mff"/>
-                            <constraint firstItem="P4k-Fh-Hxp" firstAttribute="leading" secondItem="TIa-9d-2uX" secondAttribute="leading" id="yWC-sM-7qw"/>
-                            <constraint firstItem="TIa-9d-2uX" firstAttribute="trailing" secondItem="P4k-Fh-Hxp" secondAttribute="trailing" id="zEI-Jw-GNN"/>
+                            <constraint firstItem="W1n-Dw-rA6" firstAttribute="top" secondItem="TjY-XO-TRA" secondAttribute="top" id="9aU-V0-Zai"/>
+                            <constraint firstAttribute="trailing" secondItem="W1n-Dw-rA6" secondAttribute="trailing" id="In1-ax-uxC"/>
+                            <constraint firstItem="cgD-fs-t0w" firstAttribute="top" secondItem="TIa-9d-2uX" secondAttribute="top" constant="8" id="JRD-SH-Isq"/>
+                            <constraint firstItem="cgD-fs-t0w" firstAttribute="leading" secondItem="TIa-9d-2uX" secondAttribute="leading" constant="16" id="KIl-gq-gcA"/>
+                            <constraint firstAttribute="bottom" secondItem="W1n-Dw-rA6" secondAttribute="bottom" id="hJO-ZY-DSR"/>
+                            <constraint firstItem="W1n-Dw-rA6" firstAttribute="leading" secondItem="TjY-XO-TRA" secondAttribute="leading" id="hWt-eU-Bou"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="KHH-pV-Az5"/>
                     <connections>
                         <outlet property="statusContainerView" destination="cgD-fs-t0w" id="k4A-dS-mg0"/>
                         <outlet property="statusLabel" destination="vSe-Ge-hD8" id="jSM-ni-LJc"/>
-                        <outlet property="titleView" destination="P4k-Fh-Hxp" id="5bf-fh-cRn"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gzJ-F7-ztV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -101,13 +89,14 @@
         <!--Viewer Controller-->
         <scene sceneID="zes-6L-b59">
             <objects>
-                <viewController storyboardIdentifier="ViewerController" modalTransitionStyle="flipHorizontal" id="Q4I-Mx-Pce" customClass="ViewerController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ViewerController" automaticallyAdjustsScrollViewInsets="NO" modalTransitionStyle="flipHorizontal" id="Q4I-Mx-Pce" customClass="ViewerController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" id="ReG-96-Weq">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView opaque="NO" clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gnc-Wf-rti">
-                                <rect key="frame" x="0.0" y="118" width="393" height="300"/>
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="300"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <bool key="isElement" value="YES"/>
@@ -117,7 +106,7 @@
                                 </constraints>
                             </imageView>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="kG3-WY-mSO">
-                                <rect key="frame" x="186.66666666666666" y="257" width="20" height="22"/>
+                                <rect key="frame" x="186.66666666666666" y="139" width="20" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="20" id="h3D-xJ-7pm"/>
                                     <constraint firstAttribute="height" constant="22" id="zmt-FF-tSn"/>
@@ -127,11 +116,11 @@
                         <viewLayoutGuide key="safeArea" id="POo-Li-FDE"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="gnc-Wf-rti" firstAttribute="leading" secondItem="POo-Li-FDE" secondAttribute="leading" identifier="Image leading to safe area leading" id="2t2-uN-rfx"/>
+                            <constraint firstItem="gnc-Wf-rti" firstAttribute="leading" secondItem="ReG-96-Weq" secondAttribute="leading" identifier="Image leading to safe area leading" id="2t2-uN-rfx"/>
                             <constraint firstItem="kG3-WY-mSO" firstAttribute="centerX" secondItem="gnc-Wf-rti" secondAttribute="centerX" id="6BZ-M6-hsp"/>
                             <constraint firstItem="kG3-WY-mSO" firstAttribute="centerY" secondItem="gnc-Wf-rti" secondAttribute="centerY" id="9fh-LU-CAa"/>
-                            <constraint firstItem="POo-Li-FDE" firstAttribute="trailing" secondItem="gnc-Wf-rti" secondAttribute="trailing" identifier="Image trailing to safe area trailing" id="fni-Al-I0J"/>
-                            <constraint firstItem="gnc-Wf-rti" firstAttribute="top" secondItem="POo-Li-FDE" secondAttribute="top" identifier="Image view top same as safe area top" id="qvw-9n-KQ1"/>
+                            <constraint firstAttribute="trailing" secondItem="gnc-Wf-rti" secondAttribute="trailing" identifier="Image trailing to safe area trailing" id="fni-Al-I0J"/>
+                            <constraint firstItem="gnc-Wf-rti" firstAttribute="top" secondItem="ReG-96-Weq" secondAttribute="top" identifier="Image view top same as superview top" id="qvw-9n-KQ1"/>
                         </constraints>
                     </view>
                     <connections>

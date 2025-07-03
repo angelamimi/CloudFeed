@@ -45,15 +45,15 @@ class FavoritesController: CollectionController {
         
         registerCell("CollectionViewCell")
         
-        title = Strings.FavNavTitle
-        
         collectionView.delegate = self
         collectionView.allowsMultipleSelection = false
         
         viewModel.initDataSource(collectionView: collectionView)
         
+        navigationItem.title = nil
+        
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
-        initTitleView(mediaView: self, navigationDelegate: self, allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
+        initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
         initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
         
         NotificationCenter.default.addObserver(self, selector: #selector(mediaPathChanged), name: Notification.Name("MediaPathChanged"), object: nil)
@@ -117,6 +117,97 @@ class FavoritesController: CollectionController {
                 collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
             }
         }
+    }
+    
+    override func updateMediaType(_ type: Global.FilterType) {
+        filterType = type
+        clear()
+        syncFavorites()
+    }
+    
+    override func updateLayout(_ layout: String) {
+        viewModel.updateLayoutType(layout)
+        initTitle(allowEdit: true, allowSelect: true, layoutType: layout)
+        updateLayoutType(layout)
+    }
+    
+    override func zoomInGrid() {
+        if viewModel.currentItemCount() > 0 {
+            zoomIn()
+            refreshVisibleItems()
+        }
+    }
+    
+    override func zoomOutGrid() {
+        if viewModel.currentItemCount() > 0 {
+            zoomOut()
+            refreshVisibleItems()
+        }
+    }
+    
+    override func edit() {
+        if viewModel.currentItemCount() > 0 {
+            selectionMode = .favorite
+            titleBeginEdit()
+            isEditing = true
+            collectionView.allowsMultipleSelection = true
+            reloadSection()
+        }
+    }
+    
+    override func select() {
+        if viewModel.currentItemCount() > 0 {
+            selectionMode = .share
+            titleBeginSelect()
+            isEditing = true
+            collectionView.allowsMultipleSelection = true
+            reloadSection()
+        }
+    }
+    
+    override func endEdit() {
+        
+        initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
+
+        if selectionMode == .favorite {
+            Task { [weak self] in
+                await self?.bulkEdit()
+            }
+        } else {
+            showProgressView()
+            bulkSelect()
+        }
+    }
+    
+    override func filter() {
+        viewModel.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
+    }
+    
+    override func setMediaDirectory() {
+        viewModel.showPicker()
+    }
+    
+    override func titleTouched() {
+        scrollToTop()
+    }
+    
+    override func resetEdit() {
+        initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
+        setTitle()
+    }
+    
+    override func cancel() {
+
+        collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
+            self?.collectionView.deselectItem(at: $0, animated: false)
+        }
+
+        isEditing = false
+        collectionView.allowsMultipleSelection = false
+        reloadSection()
+        
+        initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
+        setTitle()
     }
     
     private func refreshVisibleItems() {
@@ -198,7 +289,7 @@ class FavoritesController: CollectionController {
     }
     
     private func favoriteMenuAction(indexPath: IndexPath) -> UIAction {
-        return UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.fill")) { [weak self] _ in
+        return UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.slash")) { [weak self] _ in
             self?.removeFavorite(indexPath: indexPath)
         }
     }
@@ -271,15 +362,17 @@ extension FavoritesController: CollectionDelegate {
     
     func setTitle() {
         
-        setTitle("")
-        
         let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-        guard let indexPath = visibleIndexes?.first else { return }
+        guard let indexPath = visibleIndexes?.first else {
+            setTitle("")
+            return
+        }
         
-        let metadata = viewModel.getItemAtIndexPath(indexPath)
-        guard metadata != nil else { return }
-
-        setTitle(getFormattedDate(metadata!.date as Date))
+        if let metadata = viewModel.getItemAtIndexPath(indexPath) {
+            setTitle(getFormattedDate(metadata.date as Date))
+        } else {
+            setTitle("")
+        }
     }
     
     func sizeAtIndexPath(indexPath: IndexPath) -> CGSize {
@@ -298,7 +391,6 @@ extension FavoritesController: FavoritesDelegate {
         if view.subviews.last is ProgressView {
             view.subviews.last?.removeFromSuperview()
             collectionView.isUserInteractionEnabled = true
-            titleView.isUserInteractionEnabled = true
         }
         reset()
     }
@@ -318,10 +410,6 @@ extension FavoritesController: FavoritesDelegate {
 
         displayResults(refresh: false)
         reloadSection()
-        
-        if hasFilter() {
-            showEditFilter()
-        }
         
         if error {
             collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
@@ -376,94 +464,6 @@ extension FavoritesController: FavoritesDelegate {
     }
 }
 
-extension FavoritesController: MediaViewController {
-    
-    func updateMediaType(_ type: Global.FilterType) {
-        filterType = type
-        clear()
-        syncFavorites()
-    }
-    
-    func updateLayout(_ layout: String) {
-        viewModel.updateLayoutType(layout)
-        reloadMenu(allowEdit: true, allowSelect: true, layoutType: layout)
-        updateLayoutType(layout)
-    }
-    
-    func zoomInGrid() {
-        if viewModel.currentItemCount() > 0 {
-            zoomIn()
-            refreshVisibleItems()
-        }
-    }
-    
-    func zoomOutGrid() {
-        if viewModel.currentItemCount() > 0 {
-            zoomOut()
-            refreshVisibleItems()
-        }
-    }
-    
-    func edit() {
-        if viewModel.currentItemCount() > 0 {
-            selectionMode = .favorite
-            titleBeginEdit()
-            isEditing = true
-            collectionView.allowsMultipleSelection = true
-            reloadSection()
-        }
-    }
-    
-    func select() {
-        if viewModel.currentItemCount() > 0 {
-            selectionMode = .share
-            titleBeginSelect()
-            isEditing = true
-            collectionView.allowsMultipleSelection = true
-            reloadSection()
-        }
-    }
-    
-    func endEdit() {
-        if selectionMode == .favorite {
-            Task { [weak self] in
-                await self?.bulkEdit()
-            }
-        } else {
-            showProgressView()
-            bulkSelect()
-        }
-    }
-    
-    func filter() {
-        viewModel.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
-    }
-    
-    func setMediaDirectory() {
-        viewModel.showPicker()
-    }
-}
-
-extension FavoritesController: NavigationDelegate {
-    
-    func showInfo() {}
-    
-    func titleTouched() {
-        scrollToTop()
-    }
-    
-    func cancel() {
-
-        collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
-            self?.collectionView.deselectItem(at: $0, animated: false)
-        }
-
-        isEditing = false
-        collectionView.allowsMultipleSelection = false
-        reloadSection()
-    }
-}
-
 extension FavoritesController: Filterable {
     
     func filter(from: Date, to: Date) {
@@ -477,11 +477,11 @@ extension FavoritesController: Filterable {
         if to < from {
             viewModel.showInvalidFilterError()
         } else {
-
-            showEditFilter()
             
             filterToDate = to
             filterFromDate = from
+            
+            initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
             
             viewModel.filter(type: filterType, from: from, to: to)
         }
@@ -491,11 +491,12 @@ extension FavoritesController: Filterable {
         
         viewModel.dismissFilter()
         
-        hideEditFilter()
         hideEmptyView()
         
         filterToDate = nil
         filterFromDate = nil
+        
+        initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
         
         refresh()
         

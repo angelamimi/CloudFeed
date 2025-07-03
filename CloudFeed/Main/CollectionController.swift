@@ -41,11 +41,8 @@ class CollectionController: UIViewController {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
     @IBOutlet weak var emptyView: EmptyView!
-    @IBOutlet weak var collectionViewTopConstraint: NSLayoutConstraint!
-    @IBOutlet weak var titleView: TitleView!
     
     private var refreshControl = UIRefreshControl()
-    private var titleViewHeightAnchor: NSLayoutConstraint?
     
     var filterFromDate: Date?
     var filterToDate: Date?
@@ -64,9 +61,24 @@ class CollectionController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.isNavigationBarHidden = true
+        navigationController?.isNavigationBarHidden = false
+        navigationItem.largeTitleDisplayMode = .automatic
+        
+        collectionView.contentInsetAdjustmentBehavior = .automatic
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundEffect = UIBlurEffect(style: .prominent)
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
         
         initObservers()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        navigationController?.isNavigationBarHidden = false
     }
     
     deinit {
@@ -87,21 +99,29 @@ class CollectionController: UIViewController {
         }
     }
     
+    func zoomInGrid() {}
+    func zoomOutGrid() {}
+    @objc func filter() {}
+    func edit() {}
+    func resetEdit() {}
+    @objc func endEdit() {}
+    func select() {}
+    func updateLayout(_ layout: String) {}
+    func updateMediaType(_ type: Global.FilterType) {}
+    func setMediaDirectory() {}
+    @objc func cancel() {}
+    func titleTouched() {}
+    func showInfo() {}
+    
     func registerCell(_ cellIdentifier: String) {
         let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
         collectionView.register(nib, forCellWithReuseIdentifier: cellIdentifier)
     }
     
     func setTitle(_ title: String) {
-        titleView?.title.text = title
-    }
-    
-    func showEditFilter() {
-        titleView?.showFilterButton()
-    }
-    
-    func hideEditFilter() {
-        titleView?.hideFilterButton()
+        navigationItem.title = title
+        navigationItem.largeTitleDisplayMode = title.isEmpty ? .automatic : .always
+        navigationController?.navigationBar.prefersLargeTitles = title.isEmpty ? false : true
     }
     
     func hideEmptyView() {
@@ -122,10 +142,6 @@ class CollectionController: UIViewController {
     
     func stopActivityIndicator() {
         activityIndicator.stopAnimating()
-    }
-    
-    func resetEdit() {
-        titleView?.resetEdit()
     }
     
     func hasFilter() -> Bool {
@@ -167,10 +183,26 @@ class CollectionController: UIViewController {
         collectionView.isPrefetchingEnabled = false
     }
     
-    func initTitleView(mediaView: MediaViewController, navigationDelegate: NavigationDelegate, allowEdit: Bool, allowSelect: Bool, layoutType: String) {
-        titleView?.mediaView = mediaView
-        titleView?.navigationDelegate = navigationDelegate
-        titleView?.initMenu(allowEdit: allowEdit, allowSelect: allowSelect, layoutType: layoutType, filterType: filterType)
+    func initTitle(allowEdit: Bool, allowSelect: Bool, layoutType: String) {
+        
+        let filterButtonImage: UIImage?
+      
+        if hasFilter() {
+            filterButtonImage = UIImage(systemName: "calendar.badge.checkmark")?.applyingSymbolConfiguration(.init(paletteColors: [.systemGreen, .label]))
+        } else {
+            filterButtonImage = UIImage(systemName: "calendar")
+        }
+        
+        let menu = initMenu(allowEdit: allowEdit, allowSelect: allowSelect, layoutType: layoutType, filterType: filterType)
+        let menuButton = UIBarButtonItem.init(title: nil, image: UIImage(systemName: "ellipsis"), target: self, action: nil, menu: menu)
+        let filterButton = UIBarButtonItem.init(title: nil, image: filterButtonImage, target: self, action: #selector(filter))
+        
+        menuButton.tintColor = .label
+        filterButton.tintColor = .label
+        
+        navigationItem.leftBarButtonItems = []
+        navigationItem.rightBarButtonItems = [menuButton, filterButton]
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: Strings.BackAction, style: .plain, target: nil, action: nil)
     }
     
     func initEmptyView(imageSystemName: String, title: String, description: String) {
@@ -186,16 +218,25 @@ class CollectionController: UIViewController {
         layout.layoutType = layoutType
     }
     
-    func reloadMenu(allowEdit: Bool, allowSelect: Bool, layoutType: String) {
-        titleView?.initMenu(allowEdit: allowEdit, allowSelect: allowSelect, layoutType: layoutType, filterType: filterType)
-    }
-    
     func titleBeginEdit() {
-        titleView?.beginEdit()
+        titleBeginEditMode(editTitle: Strings.TitleApply)
     }
     
     func titleBeginSelect() {
-        titleView?.beginSelect()
+        titleBeginEditMode(editTitle: Strings.ShareAction)
+    }
+    
+    private func titleBeginEditMode(editTitle: String) {
+        
+        let cancelButton = UIBarButtonItem.init(title: Strings.TitleCancel, image: nil, target: self, action: #selector(cancel))
+        let actionButton = UIBarButtonItem.init(title: editTitle, image: nil, target: self, action: #selector(endEdit))
+        
+        navigationItem.rightBarButtonItems = []
+        navigationItem.rightBarButtonItem = actionButton
+        navigationItem.leftBarButtonItem = cancelButton
+        
+        navigationItem.title = nil
+        navigationItem.largeTitleDisplayMode = .never
     }
     
     func displayResults(refresh: Bool, emptyViewTitle: String, emptyViewDescription: String) {
@@ -212,6 +253,7 @@ class CollectionController: UIViewController {
                 //was in the middle of editing, but all favorites were removed outside of favorites screen. end edit mode
                 isEditing = false
                 collectionView.allowsMultipleSelection = false
+                //TODO: Test removing all favorites remotely
                 resetEdit()
             }
             
@@ -266,7 +308,7 @@ class CollectionController: UIViewController {
             title = ""
         } else {
             if let style = DateFormatter.Style(rawValue: 0) {
-                title = DateFormatter.localizedString(from: date, dateStyle: .long, timeStyle: style)
+                title = DateFormatter.localizedString(from: date, dateStyle: .medium, timeStyle: style)
             }
         }
         
@@ -312,7 +354,7 @@ class CollectionController: UIViewController {
         progressView.delegate = self
 
         view.addSubview(progressView)
-        titleView.isUserInteractionEnabled = false
+
         collectionView.isUserInteractionEnabled = false
         
         progressView.translatesAutoresizingMaskIntoConstraints = false
@@ -326,17 +368,97 @@ class CollectionController: UIViewController {
         progressView.accessibilityViewIsModal = true
         UIAccessibility.post(notification: .screenChanged, argument: progressView.downloadingLabel)
     }
+    
+    private func initMenu(allowEdit: Bool, allowSelect: Bool, layoutType: String, filterType: Global.FilterType) -> UIMenu {
+        
+        let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { [weak self] action in
+            self?.zoomInGrid()
+        }
+        
+        let zoomOut = UIAction(title: Strings.TitleZoomOut, image: UIImage(systemName: "minus.magnifyingglass")) { [weak self] action in
+            self?.zoomOutGrid()
+        }
+        
+        let zoomMenu = UIMenu(title: "", options: .displayInline, children: [zoomIn, zoomOut])
+        
+        
+        let filter = UIAction(title: Strings.TitleFilter, image: UIImage(systemName: "line.3.horizontal.decrease.circle")) { [weak self] action in
+            self?.filter()
+        }
+        
+        let layout: UIAction
+        
+        if layoutType == Global.shared.layoutTypeSquare {
+            layout = UIAction(title: Strings.TitleAspectRatioGrid, image: UIImage(systemName: "rectangle.grid.3x2")) { [weak self] action in
+                self?.updateLayout(Global.shared.layoutTypeAspectRatio)
+            }
+        } else {
+            layout = UIAction(title: Strings.TitleSquareGrid, image: UIImage(systemName: "square.grid.3x3")) { [weak self] action in
+                self?.updateLayout(Global.shared.layoutTypeSquare)
+            }
+        }
+        
+        let path = UIAction(title: Strings.TitleMediaFolder, image: UIImage(systemName: "folder.badge.gear")) { [weak self] action in
+            self?.setMediaDirectory()
+        }
+        
+        let allType = UIAction(title: Strings.TitleAllItems, image: UIImage(systemName: "photo.on.rectangle")) { [weak self] action in
+            self?.updateMediaType(.all)
+        }
+        
+        let imageType = UIAction(title: Strings.TitleImagesOnly, image: UIImage(systemName: "photo")) { [weak self] action in
+            self?.updateMediaType(.image)
+        }
+        
+        let videoType = UIAction(title: Strings.TitleVideosOnly, image: UIImage(systemName: "play.circle")) { [weak self] action in
+            self?.updateMediaType(.video)
+        }
+        
+        switch filterType {
+        case .all:
+            allType.state = .on
+            break
+        case .image:
+            imageType.state = .on
+            break
+        case .video:
+            videoType.state = .on
+            break
+        }
+        
+        let typeMenu = UIMenu(title: "", options: [.displayInline, .singleSelection], children: [allType, imageType, videoType])
+        
+        var editAction: UIAction?
+        var selectAction: UIAction?
+        
+        if allowEdit {
+            editAction = UIAction(title: Strings.TitleEdit, image: UIImage(systemName: "pencil")) { [weak self] action in
+                self?.edit()
+            }
+        }
+        
+        if allowSelect {
+            selectAction = UIAction(title: Strings.ShareAction, image: UIImage(systemName: "square.and.arrow.up")) { [weak self] action in
+                self?.select()
+            }
+        }
+
+        if editAction == nil && selectAction != nil {
+            return UIMenu(children: [zoomMenu, filter, layout, path, selectAction!, typeMenu])
+        } else if editAction != nil && selectAction == nil {
+            return UIMenu(children: [zoomMenu, filter, layout, path, editAction!, typeMenu])
+        } else if editAction != nil && selectAction != nil {
+            return UIMenu(children: [zoomMenu, filter, layout, path, editAction!, selectAction!, typeMenu])
+        } else {
+            return UIMenu(children: [zoomMenu, filter, layout, path, typeMenu])
+        }
+    }
 }
 
 extension CollectionController: ProgressDelegate {
 
     func progressCancelled() {
-        
-        titleView.isUserInteractionEnabled = true
         collectionView.isUserInteractionEnabled = true
-
-        resetEdit()
-        
         delegate?.cancelDownloads()
     }
 }
@@ -345,19 +467,27 @@ extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
-            delegate?.setTitle()
+            if !isEditing {
+                delegate?.setTitle()
+            }
             delegate?.scrollSpeedChanged(scrolling: false)
         }
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        delegate?.setTitle()
+        if !isEditing {
+            delegate?.setTitle()
+        }
+        
         delegate?.scrollSpeedChanged(scrolling: false)
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
-        delegate?.setTitle()
+        if !isEditing {
+            delegate?.setTitle()
+        }
+        
         delegate?.scrollSpeedChanged(scrolling: false)
         
         guard isEditing == false else { return }

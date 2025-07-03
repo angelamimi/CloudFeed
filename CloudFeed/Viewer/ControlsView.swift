@@ -71,10 +71,6 @@ class ControlsView: UIView {
         commonInit()
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
-    }
-    
     private func commonInit() {
         
         guard let view = loadViewFromNib() else { return }
@@ -83,10 +79,6 @@ class ControlsView: UIView {
         
         addSubview(view)
         
-        initObservers()
-        
-        setVolumePosition()
-        
         setPlaying(playing: false)
         initControls()
     }
@@ -94,27 +86,6 @@ class ControlsView: UIView {
     private func loadViewFromNib() -> UIView? {
         let nib = UINib(nibName: "ControlsView", bundle: nil)
         return nib.instantiate(withOwner: self, options: nil).first as? UIView
-    }
-    
-    private func initObservers() {
-        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            DispatchQueue.main.async { [weak self] in
-                self?.willEnterForegroundNotification()
-            }
-        }
-    }
-    
-    private func willEnterForegroundNotification() {
-        setVolumePosition()
-    }
-    
-    private func setVolumePosition() {
-        let contentSize = UIApplication.shared.preferredContentSizeCategory
-        if contentSize > .accessibilityLarge {
-            volumeTopConstraint.constant = 88
-        } else {
-            volumeTopConstraint.constant = 58
-        }
     }
     
     func reset() {

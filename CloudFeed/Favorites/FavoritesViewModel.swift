@@ -268,8 +268,10 @@ final class FavoritesViewModel: ShareViewModel {
         
         snapshot.reloadSections([0])
         
-        await dataSource.apply(snapshot, animatingDifferences: true)
-        delegate.bulkEditFinished(error: error)
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSource.apply(snapshot, animatingDifferences: true)
+            self?.delegate.bulkEditFinished(error: error)
+        }
     }
     
     func refreshItems(_ refreshItems: [IndexPath]) {

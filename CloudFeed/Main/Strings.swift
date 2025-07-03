@@ -33,6 +33,7 @@ extension Strings {
     public static let ErrorTitle = NSLocalizedString("Error.Title", comment: "")
     public static let YesAction = NSLocalizedString("Yes.Action", comment: "")
     public static let NoAction = NSLocalizedString("No.Action", comment: "")
+    public static let BackAction = NSLocalizedString("Back.Action", comment: "")
     public static let LiveTitle = NSLocalizedString("Live.Title", comment: "")
     public static let SwitchValueOn = NSLocalizedString("Switch.Value.On", comment: "")
     public static let SwitchValueOff = NSLocalizedString("Switch.Value.Off", comment: "")

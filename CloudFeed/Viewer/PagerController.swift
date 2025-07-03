@@ -26,7 +26,6 @@ import os.log
 
 class PagerController: UIViewController {
     
-    @IBOutlet weak var titleView: TitleView!
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var statusContainerView: UIView!
     
@@ -34,12 +33,26 @@ class PagerController: UIViewController {
     var viewModel: PagerViewModel!
     var status: Global.ViewerStatus = .title
     
+    override var prefersStatusBarHidden: Bool {
+        return hideStatusBar
+    }
+    
+    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        return .slide
+    }
+    
     weak var pageViewController: UIPageViewController? {
         return children[0] as? UIPageViewController
     }
     
     weak var currentViewController: ViewerController? {
         return pageViewController?.viewControllers?[0] as? ViewerController
+    }
+    
+    private var hideStatusBar: Bool = false {
+        didSet {
+            setNeedsStatusBarAppearanceUpdate()
+        }
     }
     
     private static let logger = Logger(
@@ -60,49 +73,48 @@ class PagerController: UIViewController {
         
         pageViewController?.setViewControllers([viewerMedia], direction: .forward, animated: true, completion: nil)
         
-        titleView?.navigationDelegate = self
-        titleView?.title.text = getFileName(metadata)
-        titleView?.initNavigation(withMenu: true)
-        
-        statusContainerView.isHidden = true
-        statusContainerView.alpha = 0
-        statusContainerView.layer.cornerRadius = 14
-        statusLabel.text = Strings.LiveTitle
-        statusLabel.accessibilityLabel = Strings.ViewerLabelLivePhoto
-        
+        initNavigation(metadata: metadata)
+        initStatusView()
         setMenu(isFavorite: metadata.favorite)
-        
-        navigationController?.setNavigationBarHidden(true, animated: false)
         
         initObservers()
         
         setTypeContainerView()
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        titleView?.menuButton.menu = nil
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
         if status == .title {
-            titleView?.isHidden = false
+            if navigationController?.isNavigationBarHidden ?? true {
+                navigationController?.setNavigationBarHidden(false, animated: true)
+            } else {
+                //large title doesn't come back on its own after rotation
+                coordinator.animate { [weak self] _ in
+                    self?.navigationController?.navigationBar.sizeToFit()
+                }
+            }
         } else {
             hideTitle()
         }
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+    override func didMove(toParent parent: UIViewController?) {
+        super.didMove(toParent: parent)
+
+        if parent == nil {
+            if let metadata = self.currentViewController?.metadata {
+                coordinator.pagingEndedWith(metadata: metadata)
+            }
+        }
     }
     
     func isTitleVisible() -> Bool {
-        if titleView == nil {
-            return false
-        } else {
-            return !titleView!.isHidden
-        }
+        return !(navigationController?.isNavigationBarHidden ?? true)
     }
     
     private func initObservers() {
@@ -111,6 +123,27 @@ class PagerController: UIViewController {
                 self?.willEnterForegroundNotification()
             }
         }
+    }
+    
+    private func initNavigation(metadata: Metadata) {
+        
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.tintColor = .label
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundEffect = UIBlurEffect(style: .prominent)
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.title = getFileName(metadata)
+    }
+    
+    private func initStatusView() {
+        statusContainerView.isHidden = true
+        statusContainerView.alpha = 0
+        statusContainerView.layer.cornerRadius = 14
+        statusLabel.text = Strings.LiveTitle
+        statusLabel.accessibilityLabel = Strings.ViewerLabelLivePhoto
     }
     
     private func initGestureRecognizers() {
@@ -148,12 +181,12 @@ class PagerController: UIViewController {
         var action: UIAction
         
         if (isFavorite) {
-            action = UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.fill")) { action in
-                self.toggleFavoriteNetwork(isFavorite: false)
+            action = UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.slash")) { [weak self] action in
+                self?.toggleFavoriteNetwork(isFavorite: false)
             }
         } else {
-            action = UIAction(title: Strings.FavAdd, image: UIImage(systemName: "star")) { action in
-                self.toggleFavoriteNetwork(isFavorite: true)
+            action = UIAction(title: Strings.FavAdd, image: UIImage(systemName: "star")) { [weak self] action in
+                self?.toggleFavoriteNetwork(isFavorite: true)
             }
         }
 
@@ -162,9 +195,15 @@ class PagerController: UIViewController {
         }
         
         let menu = UIMenu(children: [action, shareAction])
+        let menuButton = UIBarButtonItem.init(title: nil, image: UIImage(systemName: "ellipsis"), target: self, action: nil, menu: menu)
+        let detailsButton = UIBarButtonItem.init(title: nil, image: UIImage(systemName: "info.circle"), target: self, action: #selector(showInfo))
+        
+        menuButton.tintColor = .label
+        detailsButton.tintColor = .label
         
         DispatchQueue.main.async { [weak self] in
-            self?.titleView?.menuButton.menu = menu
+            self?.navigationItem.leftBarButtonItems = []
+            self?.navigationItem.rightBarButtonItems = [menuButton, detailsButton]
         }
     }
     
@@ -184,7 +223,8 @@ class PagerController: UIViewController {
         progressView.delegate = self
 
         view.addSubview(progressView)
-        titleView.isUserInteractionEnabled = false
+        //titleView.isUserInteractionEnabled = false //TODO: Need to freeze nav bar?
+
         currentViewController?.view.isUserInteractionEnabled = false
         
         progressView.translatesAutoresizingMaskIntoConstraints = false
@@ -221,18 +261,13 @@ class PagerController: UIViewController {
     }
     
     private func showTitle() {
-        titleView?.isHidden = false
-        UIView.animate(withDuration: 0.2, animations: { [weak self] in
-            self?.titleView?.alpha = 1
-        })
+        hideStatusBar = false
+        navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
     private func hideTitle() {
-        UIView.animate(withDuration: 0.2, animations: { [weak self] in
-            self?.titleView?.alpha = 0
-        }, completion: { [weak self] _ in
-            self?.titleView?.isHidden = true
-        })
+        hideStatusBar = true
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     private func showType() {
@@ -379,9 +414,39 @@ class PagerController: UIViewController {
     }
     
     private func setShowTitleMode() {
+        hideStatusBar = false
         status = .title
         showTitle()
         setTypeContainerView()
+    }
+    
+    @objc private func showInfo() {
+        
+        hideType()
+        hideStatusBar = true
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if presentedViewController == nil {
+                presentDetailPopover()
+            }
+        }
+        
+        currentViewController?.showDetails(animate: true, reset: true)
+    }
+    
+    private func enableNavigation(_ enable: Bool) {
+        //TODO: Doesn't work. Need a view to block and blur
+        view.isUserInteractionEnabled = enable
+        
+        for item in navigationItem.leftBarButtonItems ?? [] {
+            item.isEnabled = enable
+        }
+        
+        for item in navigationItem.rightBarButtonItems ?? [] {
+            item.isEnabled = enable
+        }
+        
+        navigationController?.navigationBar.isUserInteractionEnabled = enable
     }
 }
 
@@ -436,6 +501,7 @@ extension PagerController: ViewerDelegate {
             if isTitleVisible() {
                 hideTitle()
             }
+            hideStatusBar = true
             hideType()
         }
     }
@@ -446,7 +512,7 @@ extension PagerController: PagerViewModelDelegate {
     func finishedPaging(metadata: Metadata) {
         
         DispatchQueue.main.async { [weak self] in
-            self?.titleView?.title.text = self?.getFileName(metadata)
+            self?.navigationItem.title = self?.getFileName(metadata)
             self?.setTypeContainerView()
         }
         
@@ -478,7 +544,7 @@ extension PagerController: PagerViewModelDelegate {
     func shareComplete() {
         if view.subviews.last is ProgressView {
             view.subviews.last?.removeFromSuperview()
-            titleView.isUserInteractionEnabled = true
+            //titleView.isUserInteractionEnabled = true //TODO: Need to freeze nav bar?
             currentViewController?.view.isUserInteractionEnabled = true
         }
     }
@@ -529,36 +595,10 @@ extension PagerController: UIGestureRecognizerDelegate {
     }
 }
 
-extension PagerController: NavigationDelegate {
-    
-    func showInfo() {
-        
-        hideType()
-        
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            if presentedViewController == nil {
-                presentDetailPopover()
-            }
-        }
-        
-        currentViewController?.showDetails(animate: true, reset: true)
-    }
-    
-    func cancel() {
-        navigationController?.popViewController(animated: true)
-        
-        if let metadata = self.currentViewController?.metadata {
-            coordinator.pagingEndedWith(metadata: metadata)
-        }
-    }
-    
-    func titleTouched() {}
-}
-
 extension PagerController: ProgressDelegate {
 
     func progressCancelled() {
-        titleView.isUserInteractionEnabled = true
+        //titleView.isUserInteractionEnabled = true //TODO: Need to freeze nav bar?
         currentViewController?.view.isUserInteractionEnabled = true
         
         viewModel?.cancelDownloads()

@@ -42,7 +42,7 @@ class MediaController: CollectionController {
         collectionView.delegate = self
         
         viewModel.initDataSource(collectionView: collectionView)
-        initTitleView(mediaView: self, navigationDelegate: self, allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
+        initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
         
@@ -109,6 +109,79 @@ class MediaController: CollectionController {
         }
     }
     
+    override func select() {
+        if viewModel.currentItemCount() > 0 {
+            titleBeginSelect()
+            isEditing = true
+            collectionView.allowsMultipleSelection = true
+            reloadSection()
+        }
+    }
+    
+    override func updateMediaType(_ type: Global.FilterType) {
+        filterType = type
+        clear()
+        syncMedia()
+    }
+    
+    override func updateLayout(_ layout: String) {
+        viewModel.updateLayoutType(layout)
+        initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
+        updateLayoutType(layout)
+    }
+    
+    override func zoomInGrid() {
+        if viewModel.currentItemCount() > 0 {
+            zoomIn()
+        }
+    }
+    
+    override func zoomOutGrid() {
+        if viewModel.currentItemCount() > 0 {
+            zoomOut()
+        }
+    }
+    
+    override func filter() {
+        viewModel.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
+    }
+    
+    override func edit() {
+        if viewModel.currentItemCount() > 0 {
+            titleBeginEdit()
+            isEditing = true
+            collectionView.allowsMultipleSelection = true
+            reloadSection()
+        }
+    }
+    
+    override func endEdit() {
+        initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
+        setTitle()
+        
+        showProgressView()
+        bulkSelect()
+    }
+    
+    override func setMediaDirectory() {
+        viewModel.showPicker()
+    }
+    
+    override func titleTouched() {
+        scrollToTop(animated: true)
+    }
+    
+    override func cancel() {
+        reset()
+        initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
+        setTitle()
+    }
+    
+    override func resetEdit() {
+        initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
+        setTitle()
+    }
+    
     private func refreshVisibleItems() {
         let visibleIndexPaths = collectionView.indexPathsForVisibleItems
         if visibleIndexPaths.count > 0 {
@@ -165,7 +238,7 @@ class MediaController: CollectionController {
     private func favoriteMenuAction(metadata: Metadata) -> UIAction {
         
         if metadata.favorite {
-            return UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.fill")) { [weak self] _ in
+            return UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.slash")) { [weak self] _ in
                 self?.toggleFavorite(metadata: metadata)
             }
         } else {
@@ -252,16 +325,18 @@ extension MediaController: CollectionDelegate {
     }
     
     func setTitle() {
-
-        setTitle("")
         
         let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-        guard let indexPath = visibleIndexes?.first else { return }
+        guard let indexPath = visibleIndexes?.first else {
+            setTitle("")
+            return
+        }
 
-        let metadata = viewModel.getItemAtIndexPath(indexPath)
-        guard metadata != nil else { return }
-        
-        setTitle(getFormattedDate(metadata!.date as Date))
+        if let metadata = viewModel.getItemAtIndexPath(indexPath) {
+            setTitle(getFormattedDate(metadata.date as Date))
+        } else {
+            setTitle("")
+        }
     }
     
     func sizeAtIndexPath(indexPath: IndexPath) -> CGSize {
@@ -302,7 +377,6 @@ extension MediaController: MediaDelegate {
         if view.subviews.last is ProgressView {
             view.subviews.last?.removeFromSuperview()
             collectionView.isUserInteractionEnabled = true
-            titleView.isUserInteractionEnabled = true
         }
         reset()
     }
@@ -379,77 +453,6 @@ extension MediaController: UICollectionViewDelegate {
     }
 }
 
-extension MediaController: MediaViewController {
-    
-    func select() {
-        if viewModel.currentItemCount() > 0 {
-            titleBeginSelect()
-            isEditing = true
-            collectionView.allowsMultipleSelection = true
-            reloadSection()
-        }
-    }
-    
-    func updateMediaType(_ type: Global.FilterType) {
-        filterType = type
-        clear()
-        syncMedia()
-    }
-    
-    func updateLayout(_ layout: String) {
-        viewModel.updateLayoutType(layout)
-        reloadMenu(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
-        updateLayoutType(layout)
-    }
-    
-    func zoomInGrid() {
-        if viewModel.currentItemCount() > 0 {
-            zoomIn()
-        }
-    }
-    
-    func zoomOutGrid() {
-        if viewModel.currentItemCount() > 0 {
-            zoomOut()
-        }
-    }
-    
-    func filter() {
-        viewModel.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
-    }
-    
-    func edit() {
-        if viewModel.currentItemCount() > 0 {
-            titleBeginEdit()
-            isEditing = true
-            collectionView.allowsMultipleSelection = true
-            reloadSection()
-        }
-    }
-    
-    func endEdit() {
-        showProgressView()
-        bulkSelect()
-    }
-    
-    func setMediaDirectory() {
-        viewModel.showPicker()
-    }
-}
-
-extension MediaController: NavigationDelegate {
-    
-    func showInfo() {}
-    
-    func titleTouched() {
-        scrollToTop(animated: true)
-    }
-    
-    func cancel() {
-        reset()
-    }
-}
-
 extension MediaController: Filterable {
     
     func filter(from: Date, to: Date) {
@@ -463,13 +466,13 @@ extension MediaController: Filterable {
         if to < from {
             viewModel.showInvalidFilterError()
         } else {
-
-            showEditFilter()
             
             filterToDate = to
             filterFromDate = from
             
             viewModel.filter(type: filterType, toDate: to, fromDate: from)
+            
+            initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
         }
     }
     
@@ -477,11 +480,12 @@ extension MediaController: Filterable {
         
         viewModel.dismissFilter()
         
-        hideEditFilter()
         hideEmptyView()
         
         filterToDate = nil
         filterFromDate = nil
+        
+        initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
         
         refresh()
         

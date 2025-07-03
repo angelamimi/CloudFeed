@@ -82,7 +82,7 @@ class ViewerController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         if metadata.video {
             imageView.accessibilityLabel = Strings.ViewerLabelVideo + " " + metadata.fileNameView 
         } else if metadata.livePhoto {
