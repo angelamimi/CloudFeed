@@ -366,7 +366,7 @@ class CollectionController: UIViewController {
         let zoomMenu = UIMenu(title: "", options: .displayInline, children: [zoomIn, zoomOut])
         
         
-        let filter = UIAction(title: Strings.TitleFilter, image: UIImage(systemName: "line.3.horizontal.decrease.circle")) { [weak self] action in
+        let filter = UIAction(title: Strings.TitleFilter, image: UIImage(systemName: "calendar")) { [weak self] action in
             self?.filter()
         }
         

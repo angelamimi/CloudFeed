@@ -48,6 +48,7 @@ final class ShareCoordinator: NSObject {
         controller.viewModel = ShareViewModel(dataService: dataService, delegate: controller, coordinator: self)
         controller.metadatas = metadatas
         
+        controller.view.accessibilityViewIsModal = true
         controller.isModalInPresentation = true
         controller.modalPresentationStyle = .overFullScreen
         

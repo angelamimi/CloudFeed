@@ -102,10 +102,6 @@ class ShareViewModel: NSObject {
         delegate?.progressUpdated(progress)
     }
     
-    private func share(urls: [URL]) {
-        coordinator.share(urls)
-    }
-    
     private func downloadsComplete() {
 
         var urls: [URL] = []
@@ -122,8 +118,7 @@ class ShareViewModel: NSObject {
         shares.removeAll()
 
         coordinator.shareComplete()
-        
-        share(urls: urls)
+        coordinator.share(urls)
     }
 }
 
