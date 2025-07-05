@@ -353,28 +353,6 @@ class CollectionController: UIViewController {
         return CGSize(width: width, height: height)
     }
     
-    /*func showProgressView() {
-        
-        guard let progressView = Bundle.main.loadNibNamed("ProgressView", owner: self, options: nil)?.first as? ProgressView else { return }
-
-        progressView.delegate = self
-
-        view.addSubview(progressView)
-
-        collectionView.isUserInteractionEnabled = false
-        
-        progressView.translatesAutoresizingMaskIntoConstraints = false
-
-        progressView.widthAnchor.constraint(equalToConstant: 250).isActive = true
-        progressView.heightAnchor.constraint(equalToConstant: view.frame.height).isActive = true
-
-        progressView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        progressView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        
-        progressView.accessibilityViewIsModal = true
-        UIAccessibility.post(notification: .screenChanged, argument: progressView.downloadingLabel)
-    }*/
-    
     private func initMenu(allowEdit: Bool, allowSelect: Bool, layoutType: String, filterType: Global.FilterType) -> UIMenu {
         
         let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { [weak self] action in
@@ -460,14 +438,6 @@ class CollectionController: UIViewController {
         }
     }
 }
-
-/*extension CollectionController: ProgressDelegate {
-
-    func progressCancelled() {
-        collectionView.isUserInteractionEnabled = true
-        delegate?.cancelDownloads()
-    }
-}*/
 
 extension CollectionController : UIScrollViewDelegate {
     
