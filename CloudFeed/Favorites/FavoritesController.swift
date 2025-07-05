@@ -92,6 +92,11 @@ class FavoritesController: CollectionController {
         refreshVisibleItems()
     }
     
+    func shareComplete() {
+        reset()
+        setTitle()
+    }
+    
     @objc func mediaPathChanged() {
         reload()
     }
@@ -174,7 +179,6 @@ class FavoritesController: CollectionController {
                 await self?.bulkEdit()
             }
         } else {
-            showProgressView()
             bulkSelect()
         }
     }
@@ -185,10 +189,6 @@ class FavoritesController: CollectionController {
     
     override func setMediaDirectory() {
         viewModel.showPicker()
-    }
-    
-    override func titleTouched() {
-        scrollToTop()
     }
     
     override func resetEdit() {
@@ -208,6 +208,10 @@ class FavoritesController: CollectionController {
         
         initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
         setTitle()
+    }
+    
+    private func share(_ metadatas: [Metadata]) {
+        viewModel.share(metadatas: metadatas)
     }
     
     private func refreshVisibleItems() {
@@ -308,11 +312,6 @@ class FavoritesController: CollectionController {
         }
     }
     
-    private func share(_ metadatas: [Metadata]) {
-        showProgressView()
-        viewModel.share(metadatas: metadatas)
-    }
-    
     private func reset() {
         
         collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
@@ -326,11 +325,6 @@ class FavoritesController: CollectionController {
 }
 
 extension FavoritesController: CollectionDelegate {
-
-    func cancelDownloads() {
-        viewModel.cancelDownloads()
-        reset()
-    }
     
     func enteringForeground() {
         syncFavorites()
@@ -386,22 +380,6 @@ extension FavoritesController: CollectionDelegate {
 }
 
 extension FavoritesController: FavoritesDelegate {
-    
-    func shareComplete() {
-        if view.subviews.last is ProgressView {
-            view.subviews.last?.removeFromSuperview()
-            collectionView.isUserInteractionEnabled = true
-        }
-        reset()
-    }
-    
-    func progressUpdated(_ progress: Double) {
-        if view.subviews.last is ProgressView,
-           let progressView = view.subviews.last as? ProgressView {
-            let currentProgress = progressView.progressView.progress
-            progressView.progressView.setProgress(currentProgress + Float(progress), animated: true)
-        }
-    }
 
     func bulkEditFinished(error: Bool) {
         

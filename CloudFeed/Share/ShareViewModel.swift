@@ -22,36 +22,49 @@
 import UIKit
 
 @MainActor
-protocol ShareDelegate: AnyObject {
+protocol DownloadDelegate: AnyObject {
     func progressUpdated(_ progress: Double)
-    func shareComplete()
+}
+
+final class Download {
+    var completed: Int64
+    var total: Int64
+    
+    init(completed: Int64, total: Int64) {
+        self.completed = completed
+        self.total = total
+    }
 }
 
 @MainActor
 class ShareViewModel: NSObject {
     
-    private let downloadManager: DownloadManager
-    let dataService: DataService
+    private let dataService: DataService
+    private let coordinator: ShareCoordinator
     
+    private let downloadManager: DownloadManager
+
     private var shares: [Metadata] = []
-    private let queue = DispatchQueue(label: "fullDownloadQueue")
+    private let queue = DispatchQueue(label: "shareDownloadQueue")
     private var downloadCount: Int = 0
     private var downloads = [String: Download]()
     
-    weak var shareDelegate: ShareDelegate?
+    weak var delegate: DownloadDelegate?
     
-    init(dataService: DataService, shareDelegate: ShareDelegate) {
+    init(dataService: DataService, delegate: DownloadDelegate, coordinator: ShareCoordinator) {
         self.dataService = dataService
-        self.shareDelegate = shareDelegate
+        self.delegate = delegate
+        self.coordinator = coordinator
         
         downloadManager = DownloadManager(dataService: dataService)
     }
     
     func cancelDownloads() {
         downloadManager.cancelAll()
+        coordinator.shareComplete()
     }
     
-    func share(metadatas: [Metadata]) {
+    func share(_ metadatas: [Metadata]) {
         
         shares.removeAll()
         shares.append(contentsOf: metadatas)
@@ -86,10 +99,12 @@ class ShareViewModel: NSObject {
     
     private func downloadComplete() {
         let progress = 1.0 / Double(shares.count)
-        shareDelegate?.progressUpdated(progress)
+        delegate?.progressUpdated(progress)
     }
     
-    func share(urls: [URL]) {}
+    private func share(urls: [URL]) {
+        coordinator.share(urls)
+    }
     
     private func downloadsComplete() {
 
@@ -106,8 +121,9 @@ class ShareViewModel: NSObject {
         
         shares.removeAll()
 
+        coordinator.shareComplete()
+        
         share(urls: urls)
-        shareDelegate?.shareComplete()
     }
 }
 
@@ -127,7 +143,7 @@ extension ShareViewModel: DownloadOperationDelegate {
                 download.completed = progress.completedUnitCount
             }
             
-            shareDelegate?.progressUpdated(progressToAdd)
+            delegate?.progressUpdated(progressToAdd)
         }
     }
 

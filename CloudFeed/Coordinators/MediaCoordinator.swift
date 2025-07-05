@@ -52,18 +52,9 @@ extension MediaCoordinator {
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }
     
-    func share(_ urls: [URL]) {
-        let activity = UIActivityViewController(activityItems: urls, applicationActivities: nil)
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            if let window = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows }).first(where: { $0.isKeyWindow }),
-               let view = window.rootViewController?.view,
-               let popover = activity.popoverPresentationController {
-                popover.permittedArrowDirections = []
-                popover.sourceView = view
-                popover.sourceRect = CGRect(x: view.frame.midX, y: view.frame.midY, width: 0, height: 0)
-            }
-        }
-        navigationController.present(activity, animated: true)
+    func share(_ metadatas: [Metadata]) {
+        let coordinator = ShareCoordinator(navigationController: navigationController, dataService: dataService, delegate: self, metadatas: metadatas)
+        coordinator.start()
     }
     
     func showFilter(filterable: Filterable, from: Date?, to: Date?) {
@@ -123,6 +114,16 @@ extension MediaCoordinator {
         }))
         
         navigationController.present(alertController, animated: true)
+    }
+}
+
+extension MediaCoordinator: ShareDelegate {
+    
+    func shareComplete() {
+        if navigationController.children[0] is MediaController {
+            let mediaController = navigationController.children[0] as! MediaController
+            mediaController.shareComplete()
+        }
     }
 }
 

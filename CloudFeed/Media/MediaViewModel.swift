@@ -25,7 +25,7 @@ import SVGKit
 import UIKit
 
 @MainActor
-protocol MediaDelegate: ShareDelegate {
+protocol MediaDelegate: AnyObject {
     func dataSourceUpdated(refresh: Bool)
     func favoriteUpdated(error: Bool)
     func searching()
@@ -33,23 +33,14 @@ protocol MediaDelegate: ShareDelegate {
     func selectCellUpdated(cell: CollectionViewCell, indexPath: IndexPath)
 }
 
-final class Download {
-    var completed: Int64
-    var total: Int64
-    
-    init(completed: Int64, total: Int64) {
-        self.completed = completed
-        self.total = total
-    }
-}
-
 @MainActor
-final class MediaViewModel: ShareViewModel {
+final class MediaViewModel {
     
     var pauseLoading: Bool = false
     
     private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata.ID>!
     
+    private let dataService: DataService
     private let coordinator: MediaCoordinator
     private weak var delegate: MediaDelegate!
     
@@ -72,8 +63,7 @@ final class MediaViewModel: ShareViewModel {
         self.delegate = delegate
         self.cacheManager = cacheManager
         self.coordinator = coordinator
-        
-        super.init(dataService: dataService, shareDelegate: delegate)
+        self.dataService = dataService
     }
     
     func initDataSource(collectionView: UICollectionView) {
@@ -89,8 +79,8 @@ final class MediaViewModel: ShareViewModel {
         dataSource.applySnapshotUsingReloadData(snapshot)
     }
     
-    override func share(urls: [URL]) {
-        coordinator.share(urls)
+    func share(metadatas: [Metadata]) {
+        coordinator.share(metadatas)
     }
     
     func clearCache() {
@@ -176,7 +166,7 @@ final class MediaViewModel: ShareViewModel {
         var snapshot = dataSource.snapshot()
         
         guard snapshot.numberOfSections > 0 else { return }
-        snapshot.reloadSections([0])
+        snapshot.reconfigureItems(snapshot.itemIdentifiers(inSection: 0))
         
         dataSource.apply(snapshot, animatingDifferences: true)
     }
@@ -313,7 +303,7 @@ final class MediaViewModel: ShareViewModel {
             selectedMetadatas.append(metadata)
         }
         
-        share(metadatas: selectedMetadatas)
+        coordinator.share(selectedMetadatas)
     }
     
     func toggleFavorite(metadata: Metadata) {

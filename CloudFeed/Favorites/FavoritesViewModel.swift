@@ -24,7 +24,7 @@ import os.log
 import UIKit
 
 @MainActor
-protocol FavoritesDelegate: ShareDelegate {
+protocol FavoritesDelegate: AnyObject {
     func fetching()
     func dataSourceUpdated(refresh: Bool)
     func bulkEditFinished(error: Bool)
@@ -33,12 +33,13 @@ protocol FavoritesDelegate: ShareDelegate {
 }
 
 @MainActor
-final class FavoritesViewModel: ShareViewModel {
+final class FavoritesViewModel {
     
     var pauseLoading: Bool = false
 
     private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata.ID>!
     
+    private let dataService: DataService
     private let coordinator: FavoritesCoordinator
     private weak var delegate: FavoritesDelegate!
     
@@ -59,10 +60,9 @@ final class FavoritesViewModel: ShareViewModel {
     
     init(delegate: FavoritesDelegate, dataService: DataService, cacheManager: CacheManager, coordinator: FavoritesCoordinator) {
         self.delegate = delegate
+        self.dataService = dataService
         self.cacheManager = cacheManager
         self.coordinator = coordinator
-        
-        super.init(dataService: dataService, shareDelegate: delegate)
     }
     
     func initDataSource(collectionView: UICollectionView) {
@@ -78,8 +78,8 @@ final class FavoritesViewModel: ShareViewModel {
         dataSource.applySnapshotUsingReloadData(snapshot)
     }
     
-    override func share(urls: [URL]) {
-        coordinator.share(urls)
+    func share(metadatas: [Metadata]) {
+        coordinator.share(metadatas)
     }
     
     func getItemAtIndexPath(_ indexPath: IndexPath) -> Metadata? {
@@ -181,10 +181,10 @@ final class FavoritesViewModel: ShareViewModel {
     
     func reload() {
 
-        var snapshot = dataSource.snapshot()
-        
+        var snapshot = dataSource.snapshot()        
         guard snapshot.numberOfSections > 0 else { return }
-        snapshot.reloadSections([0])
+
+        snapshot.reconfigureItems(snapshot.itemIdentifiers(inSection: 0))
         
         dataSource.apply(snapshot, animatingDifferences: true)
     }
@@ -324,7 +324,7 @@ final class FavoritesViewModel: ShareViewModel {
             selectedMetadatas.append(metadata)
         }
         
-        share(metadatas: selectedMetadatas)
+        coordinator.share(selectedMetadatas)
     }
     
     private func handleFavoriteResult(error: Bool) {

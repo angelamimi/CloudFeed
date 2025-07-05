@@ -22,17 +22,18 @@
 import UIKit
 
 @MainActor
-protocol PagerViewModelDelegate: ShareDelegate {
+protocol PagerViewModelDelegate: AnyObject {
     func finishedPaging(metadata: Metadata)
     func finishedUpdatingFavorite(isFavorite: Bool)
     func saveFavoriteError()
 }
 
 @MainActor
-final class PagerViewModel: ShareViewModel {
+final class PagerViewModel: NSObject {
 
     private weak var pagerCoordinator: PagerCoordinator?
     private let coordinator: ViewerCoordinator
+    let dataService: DataService
     
     private var currentIndex: Int
     private var metadatas: [Metadata]
@@ -48,8 +49,7 @@ final class PagerViewModel: ShareViewModel {
         self.pagerCoordinator = pagerCoordinator
         self.viewerDelegate = viewerDelegate
         self.delegate = delegate
-        
-        super.init(dataService: dataService, shareDelegate: delegate)
+        self.dataService = dataService
     }
     
     func currentMetadata() -> Metadata {
@@ -92,8 +92,8 @@ final class PagerViewModel: ShareViewModel {
         return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
     }
     
-    override func share(urls: [URL]) {
-        pagerCoordinator?.share(urls)
+    func share(metadatas: [Metadata]) {
+        pagerCoordinator?.share(metadatas)
     }
 }
 

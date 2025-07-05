@@ -190,10 +190,27 @@ class PreviewController: UIViewController {
         }
         
         if viewModel.dataService.store.previewExists(metadata.ocId, metadata.etag) {
-
             if let image = UIImage(contentsOfFile: viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)) {
                 imageView.image = image
                 showImage()
+            }
+        } else {
+            loadImage(metadata: metadata)
+        }
+    }
+    
+    private func loadImage(metadata: Metadata) {
+
+        Task { [weak self] in
+            guard let self else { return }
+            
+            await self.viewModel.dataService.downloadPreview(metadata: metadata, reload: true)
+            
+            if let image = UIImage(contentsOfFile: self.viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)) {
+                self.imageView.image = image
+                self.showImage()
+            } else {
+                self.activityIndicator.stopAnimating() //load failed. stop the spinner
             }
         }
     }
@@ -202,6 +219,7 @@ class PreviewController: UIViewController {
         
         Task { [weak self] in
             guard let self else { return }
+            
             guard let image = await viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height) else { return }
             
             DispatchQueue.main.async { [weak self] in

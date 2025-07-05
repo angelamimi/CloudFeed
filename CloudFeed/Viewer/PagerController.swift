@@ -140,9 +140,10 @@ class PagerController: UIViewController {
         
         navigationItem.title = getFileName(metadata)
         
-        if let style = DateFormatter.Style(rawValue: 0) {
+        /*if let style = DateFormatter.Style(rawValue: 0) {
             navigationItem.prompt = DateFormatter.localizedString(from: metadata.date, dateStyle: .medium, timeStyle: style)
-        }
+        }*/
+        navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
     }
     
     private func initStatusView() {
@@ -219,31 +220,7 @@ class PagerController: UIViewController {
     }
     
     private func share(_ metadatas: [Metadata]) {
-        showProgressView()
         viewModel.share(metadatas: metadatas)
-    }
-    
-    private func showProgressView() {
-        
-        guard let progressView = Bundle.main.loadNibNamed("ProgressView", owner: self, options: nil)?.first as? ProgressView else { return }
-        
-        progressView.delegate = self
-
-        view.addSubview(progressView)
-        //titleView.isUserInteractionEnabled = false //TODO: Need to freeze nav bar?
-
-        currentViewController?.view.isUserInteractionEnabled = false
-        
-        progressView.translatesAutoresizingMaskIntoConstraints = false
-
-        progressView.widthAnchor.constraint(equalToConstant: 250).isActive = true
-        progressView.heightAnchor.constraint(equalToConstant: view.frame.height).isActive = true
-
-        progressView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        progressView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        
-        progressView.accessibilityViewIsModal = true
-        UIAccessibility.post(notification: .screenChanged, argument: progressView.downloadingLabel)
     }
     
     private func getVideoURL(metadata: Metadata) -> URL? {
@@ -440,21 +417,6 @@ class PagerController: UIViewController {
         
         currentViewController?.showDetails(animate: true, reset: true)
     }
-    
-    private func enableNavigation(_ enable: Bool) {
-        //TODO: Doesn't work. Need to move to controller
-        /*view.isUserInteractionEnabled = enable
-        
-        for item in navigationItem.leftBarButtonItems ?? [] {
-            item.isEnabled = enable
-        }
-        
-        for item in navigationItem.rightBarButtonItems ?? [] {
-            item.isEnabled = enable
-        }
-        
-        navigationController?.navigationBar.isUserInteractionEnabled = enable*/
-    }
 }
 
 extension PagerController: DetailsControllerDelegate {
@@ -522,9 +484,10 @@ extension PagerController: PagerViewModelDelegate {
             self?.navigationItem.title = self?.getFileName(metadata)
             self?.setTypeContainerView()
             
-            if let style = DateFormatter.Style(rawValue: 0) {
+            /*if let style = DateFormatter.Style(rawValue: 0) {
                 self?.navigationItem.prompt = DateFormatter.localizedString(from: metadata.date, dateStyle: .medium, timeStyle: style)
-            }
+            }*/
+            self?.navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
         }
         
         setMenu(isFavorite: metadata.favorite)
@@ -549,22 +512,6 @@ extension PagerController: PagerViewModelDelegate {
     func saveFavoriteError() {
         DispatchQueue.main.async { [weak self] in
             self?.coordinator.showFavoriteUpdateFailedError()
-        }
-    }
-    
-    func shareComplete() {
-        if view.subviews.last is ProgressView {
-            view.subviews.last?.removeFromSuperview()
-            //titleView.isUserInteractionEnabled = true //TODO: Need to freeze nav bar?
-            currentViewController?.view.isUserInteractionEnabled = true
-        }
-    }
-    
-    func progressUpdated(_ progress: Double) {
-        if view.subviews.last is ProgressView,
-           let progressView = view.subviews.last as? ProgressView {
-            let currentProgress = progressView.progressView.progress
-            progressView.progressView.setProgress(currentProgress + Float(progress), animated: true)
         }
     }
 }
@@ -603,15 +550,5 @@ extension PagerController: UIGestureRecognizerDelegate {
             }
             currentViewController.liveLongPressEnded()
         }
-    }
-}
-
-extension PagerController: ProgressDelegate {
-
-    func progressCancelled() {
-        //titleView.isUserInteractionEnabled = true //TODO: Need to freeze nav bar?
-        currentViewController?.view.isUserInteractionEnabled = true
-        
-        viewModel?.cancelDownloads()
     }
 }

@@ -32,7 +32,7 @@ protocol CollectionDelegate: AnyObject {
     func columnCountChanged(columnCount: Int)
     func scrollSpeedChanged(scrolling: Bool)
     func sizeAtIndexPath(indexPath: IndexPath) -> CGSize
-    func cancelDownloads()
+    //func cancelDownloads()
 }
 
 class CollectionController: UIViewController {
@@ -110,7 +110,7 @@ class CollectionController: UIViewController {
     func updateMediaType(_ type: Global.FilterType) {}
     func setMediaDirectory() {}
     @objc func cancel() {}
-    func titleTouched() {}
+    
     func showInfo() {}
     
     func registerCell(_ cellIdentifier: String) {
@@ -186,7 +186,7 @@ class CollectionController: UIViewController {
     func initTitle(allowEdit: Bool, allowSelect: Bool, layoutType: String) {
         
         let filterButtonImage: UIImage?
-      
+        
         if hasFilter() {
             filterButtonImage = UIImage(systemName: "calendar.badge.checkmark")?.applyingSymbolConfiguration(.init(paletteColors: [.systemGreen, .label]))
         } else {
@@ -203,6 +203,11 @@ class CollectionController: UIViewController {
         navigationItem.leftBarButtonItems = []
         navigationItem.rightBarButtonItems = [menuButton, filterButton]
         navigationItem.backBarButtonItem = UIBarButtonItem(title: Strings.BackAction, style: .plain, target: nil, action: nil)
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(scrollToTop))
+        tap.numberOfTapsRequired = 1
+        navigationController?.navigationBar.isUserInteractionEnabled = true
+        navigationController?.navigationBar.addGestureRecognizer(tap)
     }
     
     func initEmptyView(imageSystemName: String, title: String, description: String) {
@@ -279,12 +284,13 @@ class CollectionController: UIViewController {
                 //When scrolled far in a long list, then filtered, the user ends up at a scroll position that
                 //doesn't display the newly filtered list. Screen appears blank. Enabling scroll to top may need
                 //more conditions around it or will scroll to top when the user is interacting with the list.
-                self.scrollToTop(animated: true)
+                self.scrollToTop(true)
             }
         }
     }
     
-    func scrollToTop(animated: Bool = false) {
+    @objc
+    func scrollToTop(_ animated: Bool = false) {
 
         guard collectionView != nil else { return }
         
@@ -347,7 +353,7 @@ class CollectionController: UIViewController {
         return CGSize(width: width, height: height)
     }
     
-    func showProgressView() {
+    /*func showProgressView() {
         
         guard let progressView = Bundle.main.loadNibNamed("ProgressView", owner: self, options: nil)?.first as? ProgressView else { return }
 
@@ -367,7 +373,7 @@ class CollectionController: UIViewController {
         
         progressView.accessibilityViewIsModal = true
         UIAccessibility.post(notification: .screenChanged, argument: progressView.downloadingLabel)
-    }
+    }*/
     
     private func initMenu(allowEdit: Bool, allowSelect: Bool, layoutType: String, filterType: Global.FilterType) -> UIMenu {
         
@@ -455,13 +461,13 @@ class CollectionController: UIViewController {
     }
 }
 
-extension CollectionController: ProgressDelegate {
+/*extension CollectionController: ProgressDelegate {
 
     func progressCancelled() {
         collectionView.isUserInteractionEnabled = true
         delegate?.cancelDownloads()
     }
-}
+}*/
 
 extension CollectionController : UIScrollViewDelegate {
     

@@ -309,7 +309,7 @@ final class DataService: NSObject, Sendable {
         await nextcloudService.download(metadata: metadata, serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, progressHandler: progressHandler)
     }
     
-    func downloadPreview(metadata: Metadata?) async {
+    func downloadPreview(metadata: Metadata?, reload: Bool = false) async {
         
         guard let metadata = metadata else { return }
         
@@ -320,7 +320,7 @@ final class DataService: NSObject, Sendable {
         iconPath = store.getIconPath(metadata.ocId, metadata.etag)
         
         var etagResource: String?
-        if FileManager.default.fileExists(atPath: iconPath) {
+        if !reload && FileManager.default.fileExists(atPath: iconPath) {
             etagResource = metadata.etagResource
         }
         

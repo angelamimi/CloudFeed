@@ -109,6 +109,11 @@ class MediaController: CollectionController {
         }
     }
     
+    func shareComplete() {
+        reset()
+        setTitle()
+    }
+    
     override func select() {
         if viewModel.currentItemCount() > 0 {
             titleBeginSelect()
@@ -159,16 +164,11 @@ class MediaController: CollectionController {
         initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
         setTitle()
         
-        showProgressView()
         bulkSelect()
     }
     
     override func setMediaDirectory() {
         viewModel.showPicker()
-    }
-    
-    override func titleTouched() {
-        scrollToTop(animated: true)
     }
     
     override func cancel() {
@@ -262,7 +262,6 @@ class MediaController: CollectionController {
     }
     
     private func share(_ metadatas: [Metadata]) {
-        showProgressView()
         viewModel.share(metadatas: metadatas)
     }
     
@@ -288,11 +287,6 @@ class MediaController: CollectionController {
 }
 
 extension MediaController: CollectionDelegate {
-    
-    func cancelDownloads() {
-        viewModel.cancelDownloads()
-        reset()
-    }
     
     func enteringForeground() {
         syncMedia()
@@ -370,22 +364,6 @@ extension MediaController: MediaDelegate {
         if resultItemCount == nil {
             syncMedia()
             displayResults(refresh: false)
-        }
-    }
-    
-    func shareComplete() {
-        if view.subviews.last is ProgressView {
-            view.subviews.last?.removeFromSuperview()
-            collectionView.isUserInteractionEnabled = true
-        }
-        reset()
-    }
-    
-    func progressUpdated(_ progress: Double) { 
-        if view.subviews.last is ProgressView,
-           let progressView = view.subviews.last as? ProgressView {
-            let currentProgress = progressView.progressView.progress
-            progressView.progressView.setProgress(currentProgress + Float(progress), animated: true)
         }
     }
     

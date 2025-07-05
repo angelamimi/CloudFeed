@@ -106,6 +106,9 @@
 		39D269572DFA38CA00EF5B0A /* PickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D269562DFA38CA00EF5B0A /* PickerViewModel.swift */; };
 		39D269592DFB342E00EF5B0A /* PickerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D269582DFB342E00EF5B0A /* PickerCoordinator.swift */; };
 		39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */; };
+		39D810F62E17067700A3F6ED /* ShareController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D810F52E17067700A3F6ED /* ShareController.swift */; };
+		39D810F82E170FE600A3F6ED /* ShareCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D810F72E170FE600A3F6ED /* ShareCoordinator.swift */; };
+		39D810FB2E173E8D00A3F6ED /* Share.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39D810FA2E173E8D00A3F6ED /* Share.storyboard */; };
 		39E1701E2D271D0300790920 /* LoginServerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E1701D2D271CF900790920 /* LoginServerViewModel.swift */; };
 		39E570742B5DE80A00548E02 /* FilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E570732B5DE80A00548E02 /* FilterController.swift */; };
 		39E570762B5DE98100548E02 /* FilterView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39E570752B5DE98100548E02 /* FilterView.xib */; };
@@ -253,6 +256,9 @@
 		39D269562DFA38CA00EF5B0A /* PickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerViewModel.swift; sourceTree = "<group>"; };
 		39D269582DFB342E00EF5B0A /* PickerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerCoordinator.swift; sourceTree = "<group>"; };
 		39D73C1B29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Metadata.swift"; sourceTree = "<group>"; };
+		39D810F52E17067700A3F6ED /* ShareController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareController.swift; sourceTree = "<group>"; };
+		39D810F72E170FE600A3F6ED /* ShareCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCoordinator.swift; sourceTree = "<group>"; };
+		39D810FA2E173E8D00A3F6ED /* Share.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Share.storyboard; sourceTree = "<group>"; };
 		39E1701D2D271CF900790920 /* LoginServerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginServerViewModel.swift; sourceTree = "<group>"; };
 		39E570732B5DE80A00548E02 /* FilterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterController.swift; sourceTree = "<group>"; };
 		39E570752B5DE98100548E02 /* FilterView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FilterView.xib; sourceTree = "<group>"; };
@@ -302,6 +308,7 @@
 				3903CE702AA75132003E7E41 /* MainCoordinator.swift */,
 				3903CE722AA78375003E7E41 /* MediaCoordinator.swift */,
 				3903CE742AA7840B003E7E41 /* FavoritesCoordinator.swift */,
+				39D810F72E170FE600A3F6ED /* ShareCoordinator.swift */,
 				3903CE7A2AA78557003E7E41 /* SettingsCoordinator.swift */,
 				3903CE7C2AA78C72003E7E41 /* PagerCoordinator.swift */,
 				3903CE7E2AA7ED6D003E7E41 /* ViewerCoordinator.swift */,
@@ -392,6 +399,7 @@
 				391579A42AB0BED400DFEAB1 /* Media */,
 				39D73C1829BF5F900096ECD3 /* Networking */,
 				39B03F1029C6369200704670 /* Settings */,
+				39D810F92E173E4200A3F6ED /* Share */,
 				392735B129BE3FB90058796A /* Utility */,
 				39271D5E29D905BF00522DFD /* Viewer */,
 				392735A129BD6A4F0058796A /* Global.swift */,
@@ -440,7 +448,6 @@
 				3966634429DF321F005727D4 /* EmptyView.xib */,
 				39E570752B5DE98100548E02 /* FilterView.xib */,
 				39271D5629D79E7900522DFD /* TitleView.xib */,
-				39411FBB2DD7B1A000DBFA18 /* ProgressView.xib */,
 				39B03F0D29C53FD300704670 /* CollectionViewCell.xib */,
 				39B03F0C29C53FD300704670 /* CollectionViewCell.swift */,
 				3972EE9D2ADEC27F0020EEC7 /* CollectionController.swift */,
@@ -450,13 +457,11 @@
 				39C1BBAD2CBC2EC800206EB5 /* DownloadOperation.swift */,
 				39411FBF2DD8CAE900DBFA18 /* DownloadPreviewOperation.swift */,
 				39411FBD2DD8CA0D00DBFA18 /* DownloadManager.swift */,
-				396A0DB22DE270C700B0EF87 /* ShareViewModel.swift */,
 				39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */,
 				39E570732B5DE80A00548E02 /* FilterController.swift */,
 				39B449A82AEAA790003DA6BA /* PreviewController.swift */,
 				3966634629DF34AD005727D4 /* EmptyView.swift */,
 				39E570772B5DF7C700548E02 /* FilterView.swift */,
-				39411FB92DD7AFC800DBFA18 /* ProgressView.swift */,
 				391579AF2AB7464000DFEAB1 /* Strings.swift */,
 			);
 			path = Main;
@@ -524,6 +529,18 @@
 				39C31E8D2A7994880045DF50 /* DataService.swift */,
 			);
 			path = Networking;
+			sourceTree = "<group>";
+		};
+		39D810F92E173E4200A3F6ED /* Share */ = {
+			isa = PBXGroup;
+			children = (
+				39D810FA2E173E8D00A3F6ED /* Share.storyboard */,
+				39411FBB2DD7B1A000DBFA18 /* ProgressView.xib */,
+				39411FB92DD7AFC800DBFA18 /* ProgressView.swift */,
+				396A0DB22DE270C700B0EF87 /* ShareViewModel.swift */,
+				39D810F52E17067700A3F6ED /* ShareController.swift */,
+			);
+			path = Share;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -626,6 +643,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39D810FB2E173E8D00A3F6ED /* Share.storyboard in Resources */,
 				392735B629BE4FE00058796A /* Login.storyboard in Resources */,
 				3927357729BD1E830058796A /* LaunchScreen.storyboard in Resources */,
 				39271D5D29D8D7DF00522DFD /* Favorites.storyboard in Resources */,
@@ -677,6 +695,7 @@
 				39271D4829D7694E00522DFD /* CollectionLayout.swift in Sources */,
 				3916F3E12AAD1B370064002E /* PagerViewModel.swift in Sources */,
 				3927356F29BD1E820058796A /* MediaController.swift in Sources */,
+				39D810F62E17067700A3F6ED /* ShareController.swift in Sources */,
 				39D269552DFA311E00EF5B0A /* PickerController.swift in Sources */,
 				39D73C1C29BFA8BB0096ECD3 /* DatabaseManager+Metadata.swift in Sources */,
 				392735B329BE402D0058796A /* StoreUtility.swift in Sources */,
@@ -717,6 +736,7 @@
 				395F3A1A2A9678340004FF32 /* Environment.swift in Sources */,
 				3903CE7D2AA78C72003E7E41 /* PagerCoordinator.swift in Sources */,
 				39030F7E2D89F96200F90E9B /* LoginServerModalCoordinator.swift in Sources */,
+				39D810F82E170FE600A3F6ED /* ShareCoordinator.swift in Sources */,
 				3903CE732AA78375003E7E41 /* MediaCoordinator.swift in Sources */,
 				3927356D29BD1E820058796A /* SceneDelegate.swift in Sources */,
 				3966634129DCD4E8005727D4 /* ProfileCell.swift in Sources */,

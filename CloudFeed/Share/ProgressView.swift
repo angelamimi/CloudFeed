@@ -35,15 +35,24 @@ class ProgressView: UIView {
     
     weak var delegate: ProgressDelegate?
     
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        initSubviews()
+    }
+    
     override func awakeFromNib() {
         super.awakeFromNib()
 
         MainActor.assumeIsolated {
-            commonInit()
+            awake()
         }
     }
     
-    private func commonInit() {
+    private func awake() {
         downloadingLabel.text = Strings.ShareMessageDownloading
         cancelLabel.text = Strings.ShareMessageCancel
         
@@ -51,10 +60,26 @@ class ProgressView: UIView {
         stackView.layer.cornerRadius = 8
     }
     
+    private func initSubviews() {
+        
+        let nib = UINib(nibName: "ProgressView", bundle: Bundle(for: type(of: self)))
+        let container = nib.instantiate(withOwner: self, options: nil).first as! UIView
+        
+        addSubview(container)
+        
+        container.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            container.topAnchor.constraint(equalTo: topAnchor),
+            container.leftAnchor.constraint(equalTo: leftAnchor),
+            container.rightAnchor.constraint(equalTo: rightAnchor),
+            container.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+    }
+    
     @objc
     func tapped() {
         delegate?.progressCancelled()
-        removeFromSuperview()
     }
     
     func setProgress(_ progress: Float) {
