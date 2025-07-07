@@ -258,7 +258,6 @@ class CollectionController: UIViewController {
                 //was in the middle of editing, but all favorites were removed outside of favorites screen. end edit mode
                 isEditing = false
                 collectionView.allowsMultipleSelection = false
-                //TODO: Test removing all favorites remotely
                 resetEdit()
             }
             

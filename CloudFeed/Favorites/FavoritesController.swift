@@ -394,6 +394,8 @@ extension FavoritesController: FavoritesDelegate {
                 self?.collectionView.deselectItem(at: $0, animated: false)
             }
             viewModel.showFavoriteUpdateFailedError()
+        } else {
+            syncFavorites()
         }
     }
     
