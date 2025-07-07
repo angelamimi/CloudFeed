@@ -518,7 +518,7 @@ class DetailView: UIView {
         }
         
         if let apertureValue = exif[kCGImagePropertyExifFNumber] as? Double {
-            let formattedApertureValue = String(format:"%.2f", apertureValue)
+            let formattedApertureValue = apertureValue.formatted(FloatingPointFormatStyle().precision(.fractionLength(0...2)))
             aperatureLabel.text = "ƒ\(formattedApertureValue)"
             aperatureLabel.isAccessibilityElement = true
             aperatureLabel.accessibilityLabel = Strings.DetailAperture
