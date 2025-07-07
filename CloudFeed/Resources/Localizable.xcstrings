@@ -1961,6 +1961,28 @@
         }
       }
     },
+    "Filter.Label.DateFrom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From"
+          }
+        }
+      }
+    },
+    "Filter.Label.DateTo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To"
+          }
+        }
+      }
+    },
     "Init.Error.Message" : {
       "comment" : "Login",
       "localizations" : {
@@ -2158,7 +2180,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apply Filter"
+            "value" : "Filter"
           }
         }
       }
@@ -2208,7 +2230,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remove Filter"
+            "value" : "Clear"
           }
         }
       }

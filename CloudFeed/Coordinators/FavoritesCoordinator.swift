@@ -57,6 +57,7 @@ extension FavoritesCoordinator {
         let filterController = UIStoryboard(name: "Favorites", bundle: nil).instantiateViewController(identifier: "FilterController") as FilterController
         
         filterController.modalPresentationStyle = .formSheet
+        filterController.preferredContentSize = CGSize(width: 400, height: 500)
         
         if let sheet = filterController.sheetPresentationController {
             sheet.detents = [.medium(), .large()]

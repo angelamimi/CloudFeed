@@ -146,6 +146,10 @@ extension Strings {
     public static let ViewerLabelVideo = NSLocalizedString("Viewer.Label.Video", comment: "")
     public static let ViewerLabelLivePhoto = NSLocalizedString("Viewer.Label.LivePhoto", comment: "")
     
+    //Filter
+    public static let FilterLabelDateFrom = NSLocalizedString("Filter.Label.DateFrom", comment: "")
+    public static let FilterLabelDateTo = NSLocalizedString("Filter.Label.DateTo", comment: "")
+    
     //Image Detail and EXIF
     public static let DetailTitle = NSLocalizedString("Detail.Title", comment: "")
     public static let DetailSectionGeneral = NSLocalizedString("Detail.Section.General", comment: "")

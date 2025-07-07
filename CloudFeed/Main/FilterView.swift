@@ -65,6 +65,9 @@ class FilterView: UIView {
     
     private func initFilters() {
         
+        toLabel.text = Strings.FilterLabelDateTo
+        fromLabel.text = Strings.FilterLabelDateFrom
+        
         toLabel.font = UIFont.preferredFont(forTextStyle: .title2)
         fromLabel.font = UIFont.preferredFont(forTextStyle: .title2)
         
