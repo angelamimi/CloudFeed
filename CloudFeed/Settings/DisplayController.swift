@@ -33,6 +33,7 @@ final class DisplayController: UIViewController {
         
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.sectionHeaderHeight = UITableView.automaticDimension
         
         initObservers()
         initTitle()
@@ -128,10 +129,6 @@ extension DisplayController : UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
-    }
-    
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return UITableView.automaticDimension
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {

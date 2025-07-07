@@ -39,8 +39,9 @@ class DetailController: UIViewController {
         
         tableView.dataSource = self
         
-        tableView.rowHeight = UITableView.automaticDimension;
-        tableView.estimatedRowHeight = 70;
+        tableView.sectionHeaderHeight = UITableView.automaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 70
         
         tableView.showsHorizontalScrollIndicator = false
         tableView.showsVerticalScrollIndicator = false
