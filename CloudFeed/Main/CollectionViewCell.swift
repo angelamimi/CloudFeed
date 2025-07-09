@@ -27,6 +27,7 @@ class CollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var imageStatus: UIImageView!
     @IBOutlet weak var imageFavorite: UIImageView!
+    @IBOutlet weak var imageFavoriteBackground: UIVisualEffectView!
     @IBOutlet weak var selectStatus: UIImageView!
     
     private static let logger = Logger(
@@ -63,6 +64,7 @@ class CollectionViewCell: UICollectionViewCell {
     
     func showFavorite() {
         imageFavorite.isHidden = false
+        imageFavoriteBackground.isHidden = false
     }
     
     func selectMode(_ status: Bool) {
@@ -89,12 +91,15 @@ class CollectionViewCell: UICollectionViewCell {
     func favoriteMode(_ status: Bool) {
         if status {
             imageFavorite.isHidden = false
+            imageFavoriteBackground.isHidden = false
         } else {
             imageFavorite.isHidden = true
+            imageFavoriteBackground.isHidden = true
         }
     }
     
     func favorited(_ status: Bool) {
+        
         if status {
             imageFavorite.image = UIImage(systemName: "star")?.withTintColor(.systemYellow, renderingMode: .alwaysOriginal)
         } else {
@@ -134,5 +139,9 @@ class CollectionViewCell: UICollectionViewCell {
 
         imageFavorite.isHidden = true
         imageStatus.isHidden = true
+        
+        imageFavoriteBackground.isHidden = true
+        imageFavoriteBackground.layer.cornerRadius = 8
+        imageFavoriteBackground.clipsToBounds = true
     }
 }
