@@ -50,7 +50,7 @@ class DetailView: UIView {
     
     @IBOutlet weak var fileDateLabel: UILabel!
     @IBOutlet weak var fileNameLabel: UILabel!
-    @IBOutlet weak var cameraView: UIView!
+    @IBOutlet weak var cameraStackView: UIStackView!
     @IBOutlet weak var cameraLabel: UILabel!
     
     @IBOutlet weak var typeView: UIView!
@@ -126,7 +126,7 @@ class DetailView: UIView {
     }
     
     private func commonInit() {
-
+        
         initElements()
  
         if metadata != nil {
@@ -149,8 +149,8 @@ class DetailView: UIView {
         metadataButton.setTitle(Strings.DetailAll, for: .normal)
         metadataButton.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
 
-        cameraView.clipsToBounds = true
-        cameraView.layer.cornerRadius = 8
+        cameraStackView.clipsToBounds = true
+        cameraStackView.layer.cornerRadius = 8
         
         typeView.clipsToBounds = true
         typeView.layer.cornerRadius = 3
@@ -177,8 +177,7 @@ class DetailView: UIView {
         mapView.delegate = self
         mapView.alpha = 0
         
-        cameraView.minimumContentSizeCategory = .small
-        cameraView.maximumContentSizeCategory = .extraExtraLarge
+        metadataStackView.maximumContentSizeCategory = .accessibilityMedium
         
         mapView.setCameraZoomRange(.init(maxCenterCoordinateDistance: 500), animated: false)
     }
@@ -526,7 +525,15 @@ class DetailView: UIView {
         }
         
         if let exposureTimeValue = exif[kCGImagePropertyExifExposureTime] as? Double {
-            let formattedExposureTime = "1/" + String(format:"%.0f", 1/exposureTimeValue) + " s"
+            
+            let formattedExposureTime: String
+            
+            if exposureTimeValue >= 1 {
+                formattedExposureTime = String(format:"%.0f", exposureTimeValue) + " s"
+            } else {
+                formattedExposureTime = "1/" + String(format:"%.0f", 1/exposureTimeValue) + " s"
+            }
+            
             exposureTimeLabel.text = formattedExposureTime
             exposureTimeLabel.isAccessibilityElement = true
             exposureTimeLabel.accessibilityLabel = Strings.DetailExposureTime

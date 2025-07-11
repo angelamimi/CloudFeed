@@ -146,6 +146,8 @@ class ViewerController: UIViewController {
         if presentedViewController != nil {
             presentedViewController?.dismiss(animated: false)
             delegate?.updateStatus(status: .title)
+        } else if UIDevice.current.userInterfaceIdiom != .pad && currentStatus() == .details {
+            showDetails(animate: false, reset: true)
         }
     }
     

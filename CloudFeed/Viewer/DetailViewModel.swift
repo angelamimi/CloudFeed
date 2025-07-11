@@ -528,8 +528,18 @@ final class DetailViewModel: NSObject {
         }
         
         if let shutterSpeed = data[kCGImagePropertyExifShutterSpeedValue] as? Double {
-            let result = pow(2.0, shutterSpeed)
-            details[.exif]?.addDetail(title: Strings.DetailShutterSpeed, detail: "1/\(String(format: "%.0f", result))")
+    
+            var result = pow(2.0, shutterSpeed)
+            let formatted: String
+            
+            if result >= 1 {
+                formatted = "1/\(String(format: "%.0f", result)) s"
+            } else {
+                result = round(pow(2.0, -shutterSpeed) * 10000) / 10000
+                formatted = "\(String(format: "%.0f", result)) s"
+            }
+            
+            details[.exif]?.addDetail(title: Strings.DetailShutterSpeed, detail: formatted)
         }
         
         if let whiteBalance = data[kCGImagePropertyExifWhiteBalance] as? Int32 {
