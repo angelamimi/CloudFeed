@@ -528,18 +528,7 @@ final class DetailViewModel: NSObject {
         }
         
         if let shutterSpeed = data[kCGImagePropertyExifShutterSpeedValue] as? Double {
-    
-            var result = pow(2.0, shutterSpeed)
-            let formatted: String
-            
-            if result >= 1 {
-                formatted = "1/\(String(format: "%.0f", result)) s"
-            } else {
-                result = round(pow(2.0, -shutterSpeed) * 10000) / 10000
-                formatted = "\(String(format: "%.0f", result)) s"
-            }
-            
-            details[.exif]?.addDetail(title: Strings.DetailShutterSpeed, detail: formatted)
+            appendShutterSpeed(shutterSpeed)
         }
         
         if let whiteBalance = data[kCGImagePropertyExifWhiteBalance] as? Int32 {
@@ -817,6 +806,21 @@ final class DetailViewModel: NSObject {
         if !sharpnessDescription.isEmpty {
             details[.exif]?.addDetail(title: Strings.DetailSharpness, detail: sharpnessDescription)
         }
+    }
+    
+    private func appendShutterSpeed(_ shutterSpeed: Double) {
+        
+        var result = pow(2.0, shutterSpeed)
+        var formatted: String
+        
+        if result >= 1 {
+            formatted = "1/\(String(format: "%.0f", result)) s"
+        } else {
+            result = round(pow(2.0, -shutterSpeed) * 10000) / 10000
+            formatted = "\(String(format: "%.0f", result)) s"
+        }
+        
+        details[.exif]?.addDetail(title: Strings.DetailShutterSpeed, detail: formatted)
     }
     
     private func appendSensitivityType(_ sensitivityType: Int32) {
