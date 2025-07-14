@@ -343,9 +343,22 @@ class ViewerController: UIViewController {
             controlsView?.isHidden = false
         }
         
-        UIView.animate(withDuration: 0.5, animations: { [weak self] in
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
             self?.controlsView?.alpha = 1
         })
+    }
+    
+    private func hideControls() {
+        
+        //Don't animate until can animate navigation bar
+        /*UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            self?.controlsView?.alpha = 0
+        }, completion: { [weak self] _ in
+            self?.controlsView?.isHidden = true
+        })*/
+        
+        controlsView?.alpha = 0
+        controlsView?.isHidden = true
     }
     
     private func addControls() {
@@ -557,7 +570,7 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handleSingleTap(tapGesture: UITapGestureRecognizer) {
-        
+
         if UIDevice.current.userInterfaceIdiom == .pad {
             
             if presentedViewController == nil {
@@ -570,8 +583,12 @@ class ViewerController: UIViewController {
 
             if detailsVisible() {
                 hideDetails(animate: true, status: .title)
-            } else {
-                toggleControlsVisibility()
+            } else if metadata.video {
+                if currentStatus() == .fullscreen {
+                    hideControls()
+                } else {
+                    showControls()
+                }
             }
         }
     }
@@ -584,23 +601,19 @@ class ViewerController: UIViewController {
             initControls()
             addControls()
         } else {
+            
             if controlsView!.isHidden {
                 controlsView!.isHidden = false
                 UIView.animate(withDuration: 0.2, animations: { [weak self] in
                     self?.controlsView!.alpha = 1
                 })
             } else {
-                UIView.animate(withDuration: 0.2, animations: { [weak self] in
-                    self?.controlsView!.alpha = 0
-                }, completion: { [weak self] _ in
-                    self?.controlsView!.isHidden = true
-                })
+                hideControls()
             }
         }
     }
     
     @objc private func handleSingleVideoTap(tapGesture: UITapGestureRecognizer) {
-        
         if detailsVisible() {
             hideDetails(animate: true, status: .title)
         } else {
