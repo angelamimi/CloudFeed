@@ -150,6 +150,17 @@ extension Strings {
     public static let FilterLabelDateFrom = NSLocalizedString("Filter.Label.DateFrom", comment: "")
     public static let FilterLabelDateTo = NSLocalizedString("Filter.Label.DateTo", comment: "")
     
+    //Controls Speed
+    public static let ControlsSpeedRate025 = NSLocalizedString("Controls.SpeedRate.0.25", comment: "")
+    public static let ControlsSpeedRate05 = NSLocalizedString("Controls.SpeedRate.0.5", comment: "")
+    public static let ControlsSpeedRate075 = NSLocalizedString("Controls.SpeedRate.0.75", comment: "")
+    public static let ControlsSpeedRate1 = NSLocalizedString("Controls.SpeedRate.1", comment: "")
+    public static let ControlsSpeedRate125 = NSLocalizedString("Controls.SpeedRate.1.25", comment: "")
+    public static let ControlsSpeedRate15 = NSLocalizedString("Controls.SpeedRate.1.5", comment: "")
+    public static let ControlsSpeedRate175 = NSLocalizedString("Controls.SpeedRate.1.75", comment: "")
+    public static let ControlsSpeedRate2 = NSLocalizedString("Controls.SpeedRate.2", comment: "")
+    public static let ControlsSpeedRateTitle = NSLocalizedString("Controls.SpeedRate.Title", comment: "")
+    
     //Image Detail and EXIF
     public static let DetailTitle = NSLocalizedString("Detail.Title", comment: "")
     public static let DetailSectionGeneral = NSLocalizedString("Detail.Section.General", comment: "")

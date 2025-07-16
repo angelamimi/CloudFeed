@@ -19,7 +19,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import AVFoundation
 import AVKit
 import UIKit
 @preconcurrency import MobileVLCKit
@@ -256,7 +255,6 @@ class ViewerController: UIViewController {
                 
                 return
             }
-            
             self.detailView?.url = videoURL
             self.path = videoURL?.absoluteString
             self.videoURL = videoURL
@@ -310,7 +308,7 @@ class ViewerController: UIViewController {
             
             let media = VLCMedia(url: url)
             //let logger = VLCConsoleLogger()
-            
+
             //logger.level = .error
             //logger.formatter.contextFlags = .levelContextModule
             
@@ -1306,6 +1304,10 @@ extension ViewerController: ControlsDelegate {
     
     func volumeChanged(volume: Float) {
         mediaPlayer?.audio?.volume = Int32(volume)
+    }
+    
+    func speedRateChanged(rate: Float) {
+        mediaPlayer?.rate = rate
     }
     
     func volumeButtonTapped() {

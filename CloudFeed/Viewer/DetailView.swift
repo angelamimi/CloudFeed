@@ -559,10 +559,7 @@ class DetailView: UIView {
                 }
                 
                 await self?.populateVideoSize(metadata: metadata, videoTrack: videoTrack)
-
             }
-            
-            await self?.setMapHidden(true)
         }
     }
     
@@ -573,13 +570,18 @@ class DetailView: UIView {
             guard let avMetadataItems: [AVMetadataItem]? = try? await asset.load(.metadata) else { return }
             var make: String?
             var model: String?
+            //var software: String?
+            var location: CLLocation?
             
             for item in avMetadataItems! {
                 
                 guard let keyName = item.commonKey else { continue }
-
+                
                 switch keyName {
-                //case .commonKeyLocation:
+                case .commonKeyLocation:
+                    location = await self?.parseLocation(item: item)
+                //case .commonKeySoftware:
+                    //software = try? await item.load(.stringValue)
                 //case .commonKeyCreationDate:
                 case .commonKeyMake:
                     make = try? await item.load(.stringValue)
@@ -588,10 +590,28 @@ class DetailView: UIView {
                 default: ()
                 }
             }
-            
+
             self?.populateVideoCameraMakeModel(make: make, model: model)
-            await self?.setMapHidden(true)
+            await self?.populateVideoLocation(location: location)
         }
+    }
+    
+    private func parseLocation(item: AVMetadataItem) async -> CLLocation? {
+        
+        if let locationString = try? await item.load(.stringValue) {
+            
+            let indexLat = locationString.index(locationString.startIndex, offsetBy: 8)
+            let indexLong = locationString.index(indexLat, offsetBy: 9)
+            
+            let lat = String(locationString[locationString.startIndex..<indexLat])
+            let long = String(locationString[indexLat..<indexLong])
+            
+            if let lattitude = Double(lat), let longitude = Double(long) {
+                return CLLocation(latitude: lattitude, longitude: longitude)
+            }
+        }
+        
+        return nil
     }
     
     private func populateVideoSize(metadata: Metadata, videoTrack: AVAssetTrack) async {
@@ -628,6 +648,15 @@ class DetailView: UIView {
             setMakeModelText(model!)
         } else {
             setMakeModelText(Strings.DetailCameraNone)
+        }
+    }
+    
+    private func populateVideoLocation(location: CLLocation?) async {
+        
+        if let videoLocation = location {
+            await showLocation(latitudeValue: videoLocation.coordinate.latitude, longitudeValue: videoLocation.coordinate.longitude)
+        } else {
+            await setMapHidden(true)
         }
     }
      

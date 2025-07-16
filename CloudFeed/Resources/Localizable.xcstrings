@@ -22,6 +22,105 @@
         }
       }
     },
+    "Controls.SpeedRate.0.5" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0.5x"
+          }
+        }
+      }
+    },
+    "Controls.SpeedRate.0.25" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0.25x"
+          }
+        }
+      }
+    },
+    "Controls.SpeedRate.0.75" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0.75x"
+          }
+        }
+      }
+    },
+    "Controls.SpeedRate.1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1.0x (normal)"
+          }
+        }
+      }
+    },
+    "Controls.SpeedRate.1.5" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1.5x"
+          }
+        }
+      }
+    },
+    "Controls.SpeedRate.1.25" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1.25x"
+          }
+        }
+      }
+    },
+    "Controls.SpeedRate.1.75" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1.75x"
+          }
+        }
+      }
+    },
+    "Controls.SpeedRate.2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2.0x"
+          }
+        }
+      }
+    },
+    "Controls.SpeedRate.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speed"
+          }
+        }
+      }
+    },
     "Detail.All" : {
       "localizations" : {
         "en" : {

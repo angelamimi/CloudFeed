@@ -27,6 +27,7 @@ protocol ControlsDelegate: AnyObject {
     func beganTracking()
     func timeChanged(time: Float)
     func volumeChanged(volume: Float)
+    func speedRateChanged(rate: Float)
     
     func volumeButtonTapped()
     func playButtonTapped()
@@ -52,7 +53,7 @@ class ControlsView: UIView {
     @IBOutlet weak var skipBackButton: UIButton!
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var skipForwardButton: UIButton!
-    @IBOutlet weak var fullScreenButton: UIButton!
+    @IBOutlet weak var speedButton: UIButton!
     
     weak var delegate: ControlsDelegate?
     
@@ -267,10 +268,6 @@ class ControlsView: UIView {
         highlightButton(button: volumeButton)
     }
     
-    @objc private func fullScreenButtonDown() {
-        highlightButton(button: fullScreenButton)
-    }
-    
     @objc private func skipBackButtonDown() {
         highlightButton(button: skipBackButton)
     }
@@ -428,7 +425,7 @@ class ControlsView: UIView {
         timeSlider.isEnabled = enabled
         captionsButton.isEnabled = enabled
         playButton.isEnabled = enabled
-        fullScreenButton.isEnabled = enabled
+        speedButton.isEnabled = enabled
         timeLabel.isEnabled = enabled
         totalTimeLabel.isEnabled = enabled
         skipBackButton.isEnabled = enabled
@@ -439,6 +436,7 @@ class ControlsView: UIView {
         timeSlider.isEnabled = enabled
         skipBackButton.isEnabled = enabled
         skipForwardButton.isEnabled = enabled
+        speedButton.isEnabled = enabled
     }
     
     private func highlightButton(button: UIButton) {
@@ -446,6 +444,52 @@ class ControlsView: UIView {
         UIView.animate(withDuration: 0.4, animations: {
             button.tintColor = .label
         })
+    }
+    
+    private func speedRateChanged(rate: Float) {
+        delegate?.speedRateChanged(rate: rate)
+    }
+    
+    private func buildSpeedRateMenu(currentRate: Float) -> UIMenu {
+        
+        let action025 = UIAction(title: Strings.ControlsSpeedRate025, state: currentRate == 0.25 ? .on : .off) { [weak self] action in
+            self?.speedRateChanged(rate: 0.25)
+        }
+    
+        let action050 = UIAction(title: Strings.ControlsSpeedRate05, state: currentRate == 0.5 ? .on : .off) { [weak self] action in
+            self?.speedRateChanged(rate: 0.5)
+        }
+        
+        let action075 = UIAction(title: Strings.ControlsSpeedRate075, state: currentRate == 0.75 ? .on : .off) { [weak self] action in
+            self?.speedRateChanged(rate: 0.75)
+        }
+        
+        let action1 = UIAction(title: Strings.ControlsSpeedRate1, state: currentRate == 1.0 ? .on : .off) { [weak self] action in
+            self?.speedRateChanged(rate: 1.0)
+        }
+        
+        let action125 = UIAction(title: Strings.ControlsSpeedRate125, state: currentRate == 1.25 ? .on : .off) { [weak self] action in
+            self?.speedRateChanged(rate: 1.25)
+        }
+        
+        let action150 = UIAction(title: Strings.ControlsSpeedRate15, state: currentRate == 1.5 ? .on : .off) { [weak self] action in
+            self?.speedRateChanged(rate: 1.50)
+        }
+        
+        let action175 = UIAction(title: Strings.ControlsSpeedRate175, state: currentRate == 1.75 ? .on : .off) { [weak self] action in
+            self?.speedRateChanged(rate: 1.75)
+        }
+        
+        let action2 = UIAction(title: Strings.ControlsSpeedRate2, state: currentRate == 2.0 ? .on : .off) { [weak self] action in
+            self?.speedRateChanged(rate: 2.0)
+        }
+
+        let speedMenu = UIMenu(title: Strings.ControlsSpeedRateTitle,
+                               image: nil,
+                               options: [.singleSelection],
+                               children: [action025, action050, action075, action1, action125, action150, action175, action2])
+        
+        return speedMenu
     }
     
     private func initControls() {
@@ -466,13 +510,14 @@ class ControlsView: UIView {
         skipBackButton.addTarget(self, action: #selector(skipBackButtonTapped), for: .touchUpInside)
         playButton.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
         skipForwardButton.addTarget(self, action: #selector(skipForwardButtonTapped), for: .touchUpInside)
-        fullScreenButton.addTarget(self, action: #selector(fullScreenButtonTapped), for: .touchUpInside)
         
         volumeButton.addTarget(self, action: #selector(volumeButtonDown), for: .touchDown)
-        fullScreenButton.addTarget(self, action: #selector(fullScreenButtonDown), for: .touchDown)
         skipBackButton.addTarget(self, action: #selector(skipBackButtonDown), for: .touchDown)
         skipForwardButton.addTarget(self, action: #selector(skipForwardButtonDown), for: .touchDown)
         playButton.addTarget(self, action: #selector(playButtonDown), for: .touchDown)
+        
+        speedButton.showsMenuAsPrimaryAction = true
+        speedButton.menu = buildSpeedRateMenu(currentRate: 1.0)
         
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(timeSliderPan(panGesture:)))
         timeSlider.addGestureRecognizer(panGesture)

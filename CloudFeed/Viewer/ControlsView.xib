@@ -13,10 +13,10 @@
             <connections>
                 <outlet property="captionsButton" destination="JAq-bM-gDn" id="36X-Jy-Gxk"/>
                 <outlet property="controlsView" destination="AXL-dv-8Qn" id="mtk-N9-R2J"/>
-                <outlet property="fullScreenButton" destination="Wyc-o3-XBg" id="7E0-9F-afM"/>
                 <outlet property="playButton" destination="Kl1-HT-Qt7" id="TZU-zB-wih"/>
                 <outlet property="skipBackButton" destination="SxX-p9-6Sb" id="fie-mN-Fbg"/>
                 <outlet property="skipForwardButton" destination="obn-Lo-YLJ" id="Z8V-ba-NAy"/>
+                <outlet property="speedButton" destination="Wyc-o3-XBg" id="7Tw-rW-tyh"/>
                 <outlet property="timeLabel" destination="TRG-FX-qcn" id="Tok-zW-6Nk"/>
                 <outlet property="timeSlider" destination="TQa-8z-Wo6" id="LR3-Y8-tz4"/>
                 <outlet property="totalTimeLabel" destination="heG-hn-bNN" id="tod-um-FaR"/>
@@ -126,7 +126,7 @@
                                         <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
                                     </buttonConfiguration>
                                 </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wyc-o3-XBg" userLabel="Full Screen Button">
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wyc-o3-XBg" userLabel="Speed Button">
                                     <rect key="frame" x="392" y="0.0" width="100" height="60"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
@@ -135,7 +135,7 @@
                                     </constraints>
                                     <color key="tintColor" systemColor="labelColor"/>
                                     <state key="normal" title="Button"/>
-                                    <buttonConfiguration key="configuration" style="plain" image="viewfinder" catalog="system">
+                                    <buttonConfiguration key="configuration" style="plain" image="gauge.with.dots.needle.100percent" catalog="system">
                                         <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
                                         <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
                                     </buttonConfiguration>
@@ -221,9 +221,9 @@
         <image name="backward" catalog="system" width="128" height="76"/>
         <image name="captions.bubble" catalog="system" width="128" height="110"/>
         <image name="forward" catalog="system" width="128" height="76"/>
+        <image name="gauge.with.dots.needle.100percent" catalog="system" width="128" height="123"/>
         <image name="play.circle.fill" catalog="system" width="128" height="123"/>
         <image name="speaker.wave.2" catalog="system" width="128" height="88"/>
-        <image name="viewfinder" catalog="system" width="128" height="115"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
