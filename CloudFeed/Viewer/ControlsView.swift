@@ -19,6 +19,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+import AVKit
 import UIKit
 
 @MainActor
@@ -35,12 +36,16 @@ protocol ControlsDelegate: AnyObject {
     func tapped()
     
     func captionsSelected(subtitleIndex: Int32)
+    func audioTrackSelected(audioTrackIndex: Int32)
 }
 
 class ControlsView: UIView {
     
+    @IBOutlet weak var audioTrackView: UIVisualEffectView!
     @IBOutlet weak var volumeView: UIVisualEffectView!
     @IBOutlet weak var controlsView: UIVisualEffectView!
+    
+    @IBOutlet weak var audioTrackButton: UIButton!
     
     @IBOutlet weak var volumeSlider: UISlider!
     @IBOutlet weak var volumeButton: UIButton!
@@ -97,6 +102,7 @@ class ControlsView: UIView {
         
         disableSeek()
         disableCaptions()
+        disableAudioTracks()
     }
     
     func getVolume() -> Float {
@@ -121,6 +127,10 @@ class ControlsView: UIView {
     
     func disableCaptions() {
         captionsButton.isEnabled = false
+    }
+    
+    func disableAudioTracks() {
+        audioTrackButton.isEnabled = false
     }
     
     func setMediaLength(length: Double) {
@@ -175,9 +185,25 @@ class ControlsView: UIView {
         }
     }
     
+    func selectAudioTrack(currentAudioTrackIndex: Int32) {
+        
+        guard let menu = audioTrackButton.menu else { return }
+
+        for case let option as UIAction in menu.children {
+            if option.identifier == UIAction.Identifier(String(currentAudioTrackIndex)) {
+                option.state = .on
+            } else {
+                option.state = .off
+            }
+        }
+    }
+    
     func initCaptionsMenu(currentSubtitleIndex: Int32?, subtitleIndexes: [Any], subtitleNames: [Any]) {
         
-        guard captionsButton.menu == nil else { return }
+        guard captionsButton.menu == nil else {
+            captionsButton.isEnabled = true
+            return
+        }
         
         if subtitleNames.count == 0 {
             captionsButton.isEnabled = false
@@ -190,7 +216,7 @@ class ControlsView: UIView {
             
             guard let captionTitle = subtitleNames[index] as? String, let captionIndex = subtitleIndexes[index] as? Int32 else {
                 captionsButton.isEnabled = false
-                return
+                continue
             }
             
             let action = UIAction(title: captionTitle, identifier: UIAction.Identifier(rawValue: String(captionIndex))) { [weak self] _ in
@@ -209,6 +235,47 @@ class ControlsView: UIView {
         captionsButton.showsMenuAsPrimaryAction = true
         captionsButton.changesSelectionAsPrimaryAction = false
         captionsButton.isEnabled = true
+    }
+    
+    func initAudioTrackMenu(currentAudioTrackIndex: Int32?, audioTrackIndexes: [Any], audioTrackNames: [Any]) {
+        
+        guard audioTrackButton.menu == nil else {
+            audioTrackButton.isEnabled = true
+            setAudioTrackButtonVisibility(visible: true)
+            return
+        }
+        
+        if audioTrackNames.count == 0 {
+            setAudioTrackButtonVisibility(visible: false)
+            return
+        }
+        
+        var menuChildren: [UIMenuElement] = []
+        
+        for index in 0...audioTrackNames.count - 1 {
+            
+            guard let audioTrackTitle = audioTrackNames[index] as? String, let audioTrackIndex = audioTrackIndexes[index] as? Int32 else {
+                audioTrackButton.isEnabled = false
+                continue
+            }
+            
+            let action = UIAction(title: audioTrackTitle, identifier: UIAction.Identifier(rawValue: String(audioTrackIndex))) { [weak self] _ in
+                self?.delegate?.audioTrackSelected(audioTrackIndex: audioTrackIndex)
+            }
+            
+            if currentAudioTrackIndex != nil && audioTrackIndex == currentAudioTrackIndex {
+                action.state = .on
+            }
+            
+            menuChildren.append(action)
+        }
+        
+        audioTrackButton.menu = UIMenu(options: .displayInline, children: menuChildren)
+        
+        audioTrackButton.showsMenuAsPrimaryAction = true
+        audioTrackButton.changesSelectionAsPrimaryAction = false
+        audioTrackButton.isEnabled = true
+        setAudioTrackButtonVisibility(visible: true)
     }
     
     @objc private func volumeChanged() {
@@ -368,6 +435,10 @@ class ControlsView: UIView {
         }
     }
     
+    private func setAudioTrackButtonVisibility(visible: Bool) {
+        audioTrackView.isHidden = !visible
+    }
+    
     private func skip(forward: Bool) {
         
         guard length > 0 else { return }
@@ -420,6 +491,7 @@ class ControlsView: UIView {
     }
     
     private func setIsEnabled(enabled: Bool) {
+        audioTrackButton.isEnabled = enabled
         volumeButton.isEnabled = enabled
         volumeSlider.isEnabled = enabled
         timeSlider.isEnabled = enabled
@@ -497,6 +569,9 @@ class ControlsView: UIView {
         timeLabel.maximumContentSizeCategory = .accessibilityExtraLarge
         totalTimeLabel.maximumContentSizeCategory = .accessibilityExtraLarge
         
+        audioTrackView.clipsToBounds = true
+        audioTrackView.layer.cornerRadius = 8
+        
         volumeView.clipsToBounds = true
         volumeView.layer.cornerRadius = 8
         
@@ -536,5 +611,6 @@ class ControlsView: UIView {
         
         disableSeek()
         disableCaptions()
+        disableAudioTracks()
     }
 }

@@ -81,7 +81,7 @@ class ViewerController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         if metadata.video {
             imageView.accessibilityLabel = Strings.ViewerLabelVideo + " " + metadata.fileNameView 
         } else if metadata.livePhoto {
@@ -714,6 +714,10 @@ class ViewerController: UIViewController {
         controlsView?.initCaptionsMenu(currentSubtitleIndex: mediaPlayer!.currentVideoSubTitleIndex,
                                        subtitleIndexes: mediaPlayer!.videoSubTitlesIndexes,
                                        subtitleNames: mediaPlayer!.videoSubTitlesNames)
+    
+        controlsView?.initAudioTrackMenu(currentAudioTrackIndex: mediaPlayer!.currentAudioTrackIndex,
+                                         audioTrackIndexes: mediaPlayer!.audioTrackIndexes,
+                                         audioTrackNames: mediaPlayer!.audioTrackNames)
     }
     
     private func restartMediaPlayer() {
@@ -1320,6 +1324,14 @@ extension ViewerController: ControlsDelegate {
         
         mediaPlayer!.currentVideoSubTitleIndex = subtitleIndex
         controlsView?.selectCaption(currentSubtitleIndex: mediaPlayer!.currentVideoSubTitleIndex)
+    }
+    
+    func audioTrackSelected(audioTrackIndex: Int32) {
+        
+        guard mediaPlayer != nil else { return }
+        
+        mediaPlayer!.currentAudioTrackIndex = audioTrackIndex
+        controlsView?.selectAudioTrack(currentAudioTrackIndex: mediaPlayer!.currentAudioTrackIndex)
     }
     
     func playButtonTapped() {

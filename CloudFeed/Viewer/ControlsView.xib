@@ -11,6 +11,8 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ControlsView" customModule="CloudFeed" customModuleProvider="target">
             <connections>
+                <outlet property="audioTrackButton" destination="OYM-Gd-I7P" id="2G3-dv-RJM"/>
+                <outlet property="audioTrackView" destination="q2D-Dm-4a7" id="saO-EW-mVh"/>
                 <outlet property="captionsButton" destination="JAq-bM-gDn" id="36X-Jy-Gxk"/>
                 <outlet property="controlsView" destination="AXL-dv-8Qn" id="mtk-N9-R2J"/>
                 <outlet property="playButton" destination="Kl1-HT-Qt7" id="TZU-zB-wih"/>
@@ -197,6 +199,27 @@
                     </constraints>
                     <blurEffect style="prominent"/>
                 </visualEffectView>
+                <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q2D-Dm-4a7">
+                    <rect key="frame" x="75" y="75" width="56" height="56"/>
+                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="TeL-Uj-fXd">
+                        <rect key="frame" x="0.0" y="0.0" width="56" height="56"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OYM-Gd-I7P">
+                                <rect key="frame" x="4" y="11" width="49" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="tintColor" systemColor="labelColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="waveform" catalog="system"/>
+                            </button>
+                        </subviews>
+                    </view>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="56" id="Bot-u2-ksD"/>
+                        <constraint firstAttribute="height" constant="56" id="dsn-YR-NU8"/>
+                    </constraints>
+                    <blurEffect style="prominent"/>
+                </visualEffectView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -205,8 +228,10 @@
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="4wa-M8-UL0"/>
                 <constraint firstItem="NBR-iP-9gV" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="8z1-X0-k3d"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="AXL-dv-8Qn" secondAttribute="bottom" constant="16" id="Agk-Fg-nkc"/>
+                <constraint firstItem="q2D-Dm-4a7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Hsb-11-IK8"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="Wmb-p0-zvf" secondAttribute="bottom" constant="8" id="QIM-qh-DvE"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="height" secondItem="Wmb-p0-zvf" secondAttribute="height" id="Wg8-pd-IOO"/>
+                <constraint firstItem="q2D-Dm-4a7" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="Zvh-3y-G73"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" priority="750" id="a5f-HK-ZzW"/>
                 <constraint firstItem="Wmb-p0-zvf" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" priority="750" id="lff-Nz-0Gu"/>
                 <constraint firstItem="Wmb-p0-zvf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="nkM-hq-2BP"/>
@@ -224,6 +249,7 @@
         <image name="gauge.with.dots.needle.100percent" catalog="system" width="128" height="123"/>
         <image name="play.circle.fill" catalog="system" width="128" height="123"/>
         <image name="speaker.wave.2" catalog="system" width="128" height="88"/>
+        <image name="waveform" catalog="system" width="125" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
