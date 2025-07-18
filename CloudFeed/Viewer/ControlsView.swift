@@ -216,7 +216,7 @@ class ControlsView: UIView {
             
             guard let captionTitle = subtitleNames[index] as? String, let captionIndex = subtitleIndexes[index] as? Int32 else {
                 captionsButton.isEnabled = false
-                continue
+                return
             }
             
             let action = UIAction(title: captionTitle, identifier: UIAction.Identifier(rawValue: String(captionIndex))) { [weak self] _ in
@@ -256,7 +256,7 @@ class ControlsView: UIView {
             
             guard let audioTrackTitle = audioTrackNames[index] as? String, let audioTrackIndex = audioTrackIndexes[index] as? Int32 else {
                 audioTrackButton.isEnabled = false
-                continue
+                return
             }
             
             let action = UIAction(title: audioTrackTitle, identifier: UIAction.Identifier(rawValue: String(audioTrackIndex))) { [weak self] _ in
