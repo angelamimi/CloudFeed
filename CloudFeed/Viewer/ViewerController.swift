@@ -46,9 +46,6 @@ class ViewerController: UIViewController {
     @IBOutlet weak var imageViewTrailingConstraint: NSLayoutConstraint!
     
     private weak var detailView: DetailView?
-    private weak var videoView: UIView?
-    private weak var videoViewHeightConstraint: NSLayoutConstraint?
-    private weak var videoViewRightConstraint: NSLayoutConstraint?
     private weak var detailViewTopConstraint: NSLayoutConstraint?
     private weak var detailViewWidthConstraint: NSLayoutConstraint?
     private weak var detailViewHeightConstraint: NSLayoutConstraint?
@@ -60,8 +57,10 @@ class ViewerController: UIViewController {
     var path: String?
     var videoURL: URL?
     var index: Int = 0
+    var center: CGPoint?
     
-    private weak var playerViewController: AVPlayerViewController?
+    private var avpLayer: AVPlayerLayer?
+    private var pinchRecognizer: UIPinchGestureRecognizer?
     private var panRecognizer: UIPanGestureRecognizer?
     private var doubleTapRecognizer: UITapGestureRecognizer?
     private var singleTapRecognizer: UITapGestureRecognizer?
@@ -89,7 +88,7 @@ class ViewerController: UIViewController {
         } else {
             imageView.accessibilityLabel = Strings.ViewerLabelImage + " " + metadata.fileNameView
         }
-        
+
         initGestureRecognizers()
     }
     
@@ -108,8 +107,9 @@ class ViewerController: UIViewController {
             controlsView?.isHidden = true
         }
         
+        setImageViewBackgroundColor()
+        
         if metadata.video {
-            imageView.backgroundColor = .black
             loadVideo()
         } else {
             reloadImage()
@@ -122,20 +122,33 @@ class ViewerController: UIViewController {
         disappearing = true
         cleanupPlayer()
     }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+
+        if imageViewTrailingConstraint?.constant != 0 && size.height > size.width && UIDevice.current.userInterfaceIdiom != .pad {
+            imageViewTrailingConstraint?.constant = 0  //prevent contraints from conflicting on orientation change
+        }
+        
+        super.viewWillTransition(to: size, with: coordinator)
+
+        handleTransition(to: size, with: coordinator)
+    }
     
-    open override func viewDidLayoutSubviews() {
+    override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
+        if center != nil {
+            imageView.center = center!
+        }
+        
         if !view.frame.size.equalTo(size) {
-            
+
             size = view.frame.size
             
             if currentStatus() == .details {
-                showDetails(animate: false, reset: true)
+                showDetails(animate: false, reset: true, recenter: false)
             } else {
                 imageViewHeightConstraint?.constant = view.frame.height
-                videoViewHeightConstraint?.constant = view.frame.height
-                
                 controlsView?.frame = view.frame
             }
         }
@@ -146,67 +159,78 @@ class ViewerController: UIViewController {
             presentedViewController?.dismiss(animated: false)
             delegate?.updateStatus(status: .title)
         } else if UIDevice.current.userInterfaceIdiom != .pad && currentStatus() == .details {
-            showDetails(animate: false, reset: true)
+            showDetails(animate: false, reset: true, recenter: false)
         }
     }
     
     func playLivePhoto(_ url: URL) {
-        
         hideAll()
-        
-        if playerViewController == nil {
-            setupLiveVideoController(url: url, autoPlay: true)
-        } else {
-            playerViewController!.player?.play()
-        }
+        setupLiveVideo(url: url, autoPlay: true)
     }
     
     func liveLongPressEnded() {
-
-        playerViewController?.removeFromParent()
-        videoView?.removeFromSuperview()
-
-        playerViewController = nil
-        videoView = nil
-
-        imageView.isHidden = false
+        avpLayer?.removeFromSuperlayer()
     }
     
-    func handleSwipeUp() {
+    func handleSwipeUp() -> Bool {
+        
+       let details = detailsVisible()
+        
+        if !details && imageView.transform.a != 1.0 {
+            //sometimes swipe hijacks child view controller pan when zoomed
+            return false
+        }
         
         if UIDevice.current.userInterfaceIdiom == .pad {
-            if !detailsVisible() {
+            if !details {
                 toggleControlsVisibility()
             }
         } else {
-            if !detailsVisible() {
+            
+            if !details {
                 if metadata.video {
                     videoSetupForDetails()
                 }
             }
             
-            showDetails(animate: true, reset: false)
+            showDetails(animate: true, reset: false, recenter: false)
         }
+        
+        return true
     }
     
     func handleSwipeDown() -> Bool {
+        
+        guard detailsVisible() else { return false }
         
         if detailsScrolled() {
             scrollDownDetails()
             return true
         } else {
-            hideDetails(animate: true, status: .title)
+            DispatchQueue.main.async { [weak self] in
+                self?.pinchRecognizer?.isEnabled = true
+                self?.hideDetails(animate: true, status: .title)
+            }
             return false
         }
     }
     
     func handlePadSwipeDown() {
+        
+        pinchRecognizer?.isEnabled = true
+        
+        if imageView.transform.a != 1.0 {
+            panRecognizer?.isEnabled = true
+        }
+        
         toggleControlsVisibility()
     }
     
     func handlePresentationControllerDidDismiss() {
-
+        
         guard disappearing == false else { return }
+        
+        center = imageView.center
         
         if metadata.video {
             //usability. making sure video controls are not covered by the title bar after dismissing details popover
@@ -226,9 +250,88 @@ class ViewerController: UIViewController {
         return nil
     }
     
+    private func handleTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        
+        if controlsView != nil && controlsView?.isHidden == false {
+            coordinator.animate(alongsideTransition: { [weak self] _ in
+                self?.controlsView?.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+            }, completion: nil)
+        }
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            
+            if imageView.transform.a != 1.0 {
+                center = nil
+            } else {
+                center = CGPoint(x: size.width / 2, y: size.height / 2)
+            }
+            
+            coordinator.animate(alongsideTransition: { [weak self] _ in
+                self?.imageViewHeightConstraint.constant = size.height
+            }, completion: { [weak self] _ in
+                DispatchQueue.main.async { [weak self] in
+                    self?.handlePopover()
+                    self?.layout(rotated: true)
+                }
+            })
+        } else {
+
+            if currentStatus() == .details {
+                imageViewTrailingConstraint?.constant = 0 //prevent contraints from conflicting on orientation change
+            } else {
+                if imageView.transform.a == 1.0 {
+                    
+                    center = nil
+
+                    coordinator.animate(alongsideTransition: { [weak self] _ in
+                        self?.imageViewHeightConstraint.constant = size.height
+                        self?.imageView.center = CGPoint(x: size.width / 2, y: size.height / 2)
+                    }, completion: nil)
+                }
+            }
+        }
+    }
+    
+    private func handlePopover() {
+        if currentStatus() == .details && UIDevice.current.userInterfaceIdiom == .pad && presentedViewController == nil {
+            showDetails(animate: true, reset: true, recenter: false)
+        }
+    }
+    
+    private func layout(rotated: Bool) {
+        
+        if center != nil {
+            imageView.center = center!
+            center = nil
+        }
+        
+        if currentStatus() == .details {
+            showDetails(animate: false, reset: true, recenter: !rotated)
+        } else {
+            imageViewHeightConstraint?.constant = view.frame.height
+            controlsView?.frame = view.frame
+            
+            if imageView.transform.a != 1.0 {
+                adjustImageView()
+            }
+        }
+    }
+    
     private func hideAll() {
         delegate?.updateStatus(status: .fullscreen)
         controlsView?.isHidden = true
+        setImageViewBackgroundColor()
+    }
+    
+    private func setImageViewBackgroundColor() {
+        if metadata.video {
+            imageView.backgroundColor = .black
+        } else {
+            let status = currentStatus()
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: { [weak self] in
+                self?.imageView.backgroundColor = status == .fullscreen ? .black : .systemBackground
+            })
+        }
     }
     
     private func loadVideo(autoPlay: Bool = false) {
@@ -329,6 +432,7 @@ class ViewerController: UIViewController {
     private func initControls() {
         controlsView = ControlsView.init(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
         controlsView?.alpha = 0
+        controlsView?.isOpaque = false
     }
     
     private func showControls() {
@@ -402,7 +506,7 @@ class ViewerController: UIViewController {
             updateDetailsForPath(path!)
         }
 
-        if image != nil && metadata.ocId == metadata.ocId && imageView.layer.sublayers?.count == nil {
+        if image != nil && metadata.ocId == self.metadata.ocId && imageView.layer.sublayers?.count == nil {
             await setImage(image: image!)
             handleImageLoaded(metadata: metadata)
         }
@@ -435,65 +539,19 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func setupLiveVideoController(url: URL, autoPlay: Bool) {
+    private func setupLiveVideo(url: URL, autoPlay: Bool) {
         
         let player = AVPlayer(url: url)
-        let avpController = AVPlayerViewController()
         
-        avpController.player = player
-        avpController.showsPlaybackControls = false
-
-        videoView = avpController.view
+        avpLayer = AVPlayerLayer(player: player)
         
-        if self.children.count == 0 {
-            addChild(avpController)
-        }
-        
-        if videoView != nil && !videoView!.isDescendant(of: view) {
-            
-            let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleSingleVideoTap(tapGesture:)))
-                
-            tapRecognizer.cancelsTouchesInView = false
-            tapRecognizer.delegate = self
-            tapRecognizer.numberOfTapsRequired = 1
-                
-            avpController.view.addGestureRecognizer(tapRecognizer)
-            
-            avpController.view.backgroundColor = .clear
+        avpLayer?.frame = imageView.bounds
 
-            avpController.view.frame.size.height = imageView.frame.height
-            avpController.view.frame.size.width = imageView.frame.width
-            
-            avpController.videoGravity = .resizeAspect
-            avpController.allowsPictureInPicturePlayback = false
-            
-            view.addSubview(videoView!)
-            
-            if metadata.livePhoto {
-                //make sure can't see both the imageview and videoview at the same time. looks bad when showing/hiding details
-                imageView.isHidden = true
-            }
-
-            videoView?.translatesAutoresizingMaskIntoConstraints = false
-
-            let heightConstraint = NSLayoutConstraint(item: videoView!, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .height, multiplier: 1, constant: imageView.frame.height)
-            let topConstraint = NSLayoutConstraint(item: videoView!, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 0)
-            let leftConstraint = NSLayoutConstraint(item: videoView!, attribute: .left, relatedBy: .equal, toItem: self.view, attribute: .left, multiplier: 1, constant: 0)
-            let rightConstraint = NSLayoutConstraint(item: videoView!, attribute: .right, relatedBy: .equal, toItem: self.view, attribute: .right, multiplier: 1, constant: 0)
-
-            NSLayoutConstraint.activate([heightConstraint, topConstraint, leftConstraint, rightConstraint])
-
-            videoViewHeightConstraint = heightConstraint
-            videoViewRightConstraint = rightConstraint
-        }
-        
-        avpController.didMove(toParent: self)
+        imageView.layer.addSublayer(avpLayer!)
         
         if autoPlay {
-            avpController.player?.play()
+            player.play()
         }
-        
-        playerViewController = avpController
     }
     
     private func currentStatus() -> Global.ViewerStatus {
@@ -512,22 +570,33 @@ class ViewerController: UIViewController {
     
     private func initGestureRecognizers() {
         
-        let pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(pinchGesture:)))
+        pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(pinchGesture:)))
+        
+        pinchRecognizer?.delaysTouchesBegan = false
+        pinchRecognizer?.delaysTouchesEnded = false
         
         panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(panGesture:)))
 
-        doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(tapGesture:)))
-        doubleTapRecognizer!.numberOfTapsRequired = 2
+        panRecognizer?.delaysTouchesBegan = false
+        panRecognizer?.delaysTouchesEnded = false
+        
+        doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap))
+        doubleTapRecognizer?.numberOfTapsRequired = 2
         
         singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap(tapGesture:)))
-        singleTapRecognizer!.numberOfTapsRequired = 1
+        singleTapRecognizer?.numberOfTapsRequired = 1
+        singleTapRecognizer?.require(toFail: doubleTapRecognizer!)
         
-        imageView.addGestureRecognizer(pinchRecognizer)
+        doubleTapRecognizer?.cancelsTouchesInView = false
+        singleTapRecognizer?.cancelsTouchesInView = false
+        
+        imageView.addGestureRecognizer(pinchRecognizer!)
         imageView.addGestureRecognizer(panRecognizer!)
         imageView.addGestureRecognizer(doubleTapRecognizer!)
         imageView.addGestureRecognizer(singleTapRecognizer!)
         
         panRecognizer?.isEnabled = false
+        panRecognizer?.delegate = self
     }
     
     private func videoSetupForDetails() {
@@ -568,24 +637,33 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handleSingleTap(tapGesture: UITapGestureRecognizer) {
+        
+        center = imageView.center
 
         if UIDevice.current.userInterfaceIdiom == .pad {
-            
+
             if presentedViewController == nil {
+                
                 delegate?.singleTapped()
                 toggleControlsVisibility()
             }
         } else {
             
             delegate?.singleTapped()
-
+            
             if detailsVisible() {
+                center = nil
                 hideDetails(animate: true, status: .title)
-            } else if metadata.video {
-                if currentStatus() == .fullscreen {
-                    hideControls()
-                } else {
-                    showControls()
+            } else {
+
+                setImageViewBackgroundColor()
+                
+                if metadata.video {
+                    if currentStatus() == .fullscreen {
+                        hideControls()
+                    } else {
+                        showControls()
+                    }
                 }
             }
         }
@@ -611,61 +689,88 @@ class ViewerController: UIViewController {
         }
     }
     
-    @objc private func handleSingleVideoTap(tapGesture: UITapGestureRecognizer) {
-        if detailsVisible() {
-            hideDetails(animate: true, status: .title)
-        } else {
-            delegate?.singleTapped()
-        }
-    }
-    
-    @objc private func handleDoubleTap(tapGesture: UITapGestureRecognizer) {
+    @objc private func handleDoubleTap() {
         
-        guard detailsVisible() == false else { return }
+        guard detailsVisible() == false || UIDevice.current.userInterfaceIdiom == .pad else { return }
         
-        let currentScale : CGFloat = tapGesture.view?.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
-        
-        if currentScale == 1.0 {
+        if imageView.transform.a == 1.0 {
+            
             panRecognizer?.isEnabled = true
-            UIView.animate(withDuration: 0.3, delay: 0.0, animations: {
-                self.imageView.transform = CGAffineTransformMakeScale(2, 2)
+            
+            UIView.animate(withDuration: 0.3, delay: 0.0, animations: { [weak self] in
+                self?.imageView.transform = CGAffineTransformMakeScale(2, 2)
+                self?.imageView.center = self?.view.center ?? .zero
             })
         } else {
+            
             panRecognizer?.isEnabled = false
-            UIView.animate(withDuration: 0.3, delay: 0.0, animations: {
-                self.imageView.transform = CGAffineTransformMakeScale(1, 1)
+            
+            center = nil
+            
+            UIView.animate(withDuration: 0.3, delay: 0.0, animations: { [weak self] in
+                self?.imageView.transform = CGAffineTransformMakeScale(1, 1)
+                self?.imageView.center = self?.view.center ?? .zero
             })
         }
     }
     
     @objc private func handlePan(panGesture: UIPanGestureRecognizer) {
-        
-        switch panGesture.state {
-        case .began:
-            initialCenter = imageView.center
-        case .changed:
-            let translation = panGesture.translation(in: view)
-            imageView.center = CGPoint(x: initialCenter.x + translation.x, y: initialCenter.y + translation.y)
-        case .ended,
-             .cancelled:
-            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.7, options: [.curveEaseInOut]) {
-                self.imageView.center = self.view.center
+
+        if let view = panGesture.view {
+            
+            switch panGesture.state {
+            case .began:
+                break
+            case .changed:
+                
+                let translation = panGesture.translation(in: view)
+                
+                // Get the current scale of the image view
+                let currentScale = imageView.transform.a // Since the transform is a CGAffineTransform, the 'a' value represents the x scale.
+
+                // Move the image view, adjusting for the current scale
+                imageView.center = CGPoint(
+                    x: imageView.center.x + (translation.x * currentScale),
+                    y: imageView.center.y + (translation.y * currentScale)
+                )
+                
+                // Reset the translation to zero
+                panGesture.setTranslation(.zero, in: self.view)
+
+            case .ended, .cancelled:
+                adjustImageView()
+            default:
+                break
             }
-        default:
-            break
         }
     }
     
     @objc private func handlePinch(pinchGesture: UIPinchGestureRecognizer) {
         
-        // Use the x or y scale, they should be the same for typical zooming (non-skewing)
         let currentScale : CGFloat = pinchGesture.view?.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
         
-        if pinchGesture.state == .began || pinchGesture.state == .changed {
+        if pinchGesture.state == .began {
+            hideControls()
+            delegate?.updateStatus(status: .fullscreen)
+            setImageViewBackgroundColor()
+        }
+        
+        if pinchGesture.state == .changed {
+            
+            var center: CGPoint = .zero
+            for i in 0 ..< pinchGesture.numberOfTouches {
+                let p = pinchGesture.location(ofTouch: i, in: imageView)
+                center.x += p.x
+                center.y += p.y
+            }
+            center.x /= CGFloat(pinchGesture.numberOfTouches)
+            center.y /= CGFloat(pinchGesture.numberOfTouches)
+            
+            setAnchorPoint(CGPoint(x: center.x/imageView.bounds.size.width,y: center.y / imageView.bounds.size.height), forView: imageView)
 
             // Variables to adjust the max/min values of zoom
             let minScale: CGFloat = 1.0
-            let maxScale: CGFloat = 3.0
+            let maxScale: CGFloat = 8.0
             let zoomSpeed: CGFloat = 0.5
             
             //  Converted to Swift 5.7.1 by Swiftify v5.7.24161 - https://swiftify.com/
@@ -682,24 +787,155 @@ class ViewerController: UIViewController {
             deltaScale = max(deltaScale, minScale / currentScale)
 
             let transform = (pinchGesture.view?.transform.scaledBy(x: deltaScale, y: deltaScale))!
-      
             pinchGesture.view?.transform = transform
+            
             pinchGesture.scale = 1.0
             
         } else if pinchGesture.state == .ended {
             
             if currentScale == 1.0 {
-                panRecognizer?.isEnabled = false
+                panRecognizer?.isEnabled = false //panning doesn't work with paging
             } else {
                 panRecognizer?.isEnabled = true
             }
+
+            adjustImageView()
         }
     }
     
-    private func handleControlsSingleTap() {
+    private func adjustImageView() {
+        
+        guard let image = imageView.image else { return }
+        
+        let bounds = imageView.bounds
+        let scale: CGFloat = min(bounds.width / image.size.width, bounds.height / image.size.height)
+        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        let x = (bounds.width - size.width) / 2.0
+        let y = (bounds.height - size.height) / 2.0
+        let rect = CGRect(x: x, y: y, width: size.width, height: size.height)
+        let diff = bounds.width - rect.width
+
+        if diff < 1 { //can't rely on equals. using diff instead
+            adjustImageViewHorizontal(imageBounds: rect)
+        } else {
+            adjustImageViewVertical(imageBounds: rect)
+        }
+    }
+    
+    private func adjustImageViewVertical(imageBounds: CGRect) {
+        
+        let imageViewWidth = imageView.bounds.width
+        let imageViewHeight = imageView.bounds.height
+        let transform = imageView.transform.a
+        let imageHeight = imageBounds.height * transform
+        let imageWidth = imageBounds.width * transform
+        
+        let newBounds = imageBounds.applying(imageView.transform)
+        
+        let imageRight = newBounds.width + newBounds.minX + imageView.frame.minX
+        let imageBottom = (newBounds.height + newBounds.minY) + imageView.frame.minY
+        
+        var centerX: CGFloat = imageView.frame.midX
+        var centerY: CGFloat = imageView.frame.midY
+        
+        if imageView.frame.origin.y > 0 {
+            //panned to the up beyond limit.
+            centerY = imageHeight / 2.0
+        } else if imageBottom < imageViewHeight {
+            //panned to the down beyond the limit
+            centerY = centerY + (imageViewHeight - imageBottom)
+        }
+        
+        if imageWidth > imageViewWidth {
+            //zoomed in wider than viewable area
+            if imageView.frame.minX + newBounds.minX > 0 {
+                //panned to the right past the limit. snap back to left edge.
+                centerX = imageWidth / 2.0
+            } else if imageRight < imageViewWidth {
+                //panned up past bottom limit. align bottom to image within image view
+                centerX = centerX + (imageViewWidth - imageRight)
+            }
+        } else {
+            //zoomed in, but not wider than viewable area. back to center
+            centerX = view.center.x
+        }
+        
+        setImageViewCenter(CGPoint(x: centerX, y: centerY))
+    }
+    
+    private func adjustImageViewHorizontal(imageBounds: CGRect) {
+        
+        let imageViewWidth = imageView.bounds.width
+        let imageViewHeight = imageView.bounds.height
+        let transform = imageView.transform.a
+        let imageHeight = imageBounds.height * transform
+        let imageWidth = imageBounds.width * transform
+        
+        let newBounds = imageBounds.applying(imageView.transform)
+        
+        let imageTop = -newBounds.minY
+        let imageRight = newBounds.width + newBounds.minX + imageView.frame.minX
+        let imageBottom = (newBounds.height + newBounds.minY) + imageView.frame.minY
+        
+        var centerX: CGFloat = imageView.frame.midX
+        var centerY: CGFloat = imageView.frame.midY
+        
+        if imageView.frame.origin.x > 0 {
+            //panned to the right beyond limit.
+            centerX = imageWidth / 2.0
+        } else if imageRight < imageViewWidth {
+            //panned to the left beyond the limit
+            centerX = centerX + (imageViewWidth - imageRight)
+        }
+        
+        if imageHeight > imageViewHeight {
+            //zoomed in taller than viewable area
+            if imageView.frame.minY > imageTop {
+                //panned down past top limit. align to top of image within image view
+                centerY = imageHeight / 2.0
+            } else if imageBottom < imageViewHeight {
+                //panned up past bottom limit. align bottom to image within image view
+                centerY = centerY + (imageViewHeight - imageBottom)
+            }
+        } else {
+            //zoomed in, but not taller than viewable area. back to center
+            centerY = imageView.bounds.midY
+        }
+        
+        setImageViewCenter(CGPoint(x: centerX, y: centerY))
+    }
+    
+    private func setImageViewCenter(_ center: CGPoint) {
+        UIView.animate(withDuration: 0.5, animations: { [weak self] in
+            self?.imageView.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+            self?.imageView.center = center
+        })
+    }
+    
+    //https://www.hackingwithswift.com/example-code/calayer/how-to-change-a-views-anchor-point-without-moving-it
+    private func setAnchorPoint(_ anchorPoint: CGPoint, forView view: UIView) {
+        
+        var newPoint = CGPoint(x: view.bounds.size.width * anchorPoint.x, y: view.bounds.size.height * anchorPoint.y)
+        var oldPoint = CGPoint(x: view.bounds.size.width * view.layer.anchorPoint.x, y: view.bounds.size.height * view.layer.anchorPoint.y)
+        
+        newPoint = newPoint.applying(view.transform)
+        oldPoint = oldPoint.applying(view.transform)
+        
+        var position = view.layer.position
+        position.x -= oldPoint.x
+        position.x += newPoint.x
+        
+        position.y -= oldPoint.y
+        position.y += newPoint.y
+        
+        view.center = position
+        view.layer.anchorPoint = anchorPoint
+    }
+    
+    /*private func handleControlsSingleTap() {
         delegate?.singleTapped()
         toggleControlsVisibility()
-    }
+    }*/
     
     private func handleVideoPlaying() {
         
@@ -746,6 +982,9 @@ class ViewerController: UIViewController {
     }
     
     private func playPause() {
+        
+        pinchRecognizer?.isEnabled = false
+        panRecognizer?.isEnabled = false
 
         if mediaPlayer == nil || mediaPlayer!.media == nil {
             setupVideoController(autoPlay: true)
@@ -834,7 +1073,7 @@ class ViewerController: UIViewController {
         present(controller, animated: true)
     }
     
-    func showDetails(animate: Bool, reset: Bool) {
+    func showDetails(animate: Bool, reset: Bool, recenter: Bool) {
 
         delegate?.updateStatus(status: .details)
         
@@ -844,11 +1083,27 @@ class ViewerController: UIViewController {
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             
+            if imageView.transform.a == 1.0 {
+                panRecognizer?.isEnabled = false
+            } else {
+                if recenter {
+                    center = imageView.center
+                }
+            }
+
             imageViewHeightConstraint?.constant = view.frame.height
-            videoViewHeightConstraint?.constant = view.frame.height
             
         } else if UIDevice.current.userInterfaceIdiom == .phone {
 
+            pinchRecognizer?.isEnabled = false
+            panRecognizer?.isEnabled = false
+            
+            if !detailsVisible() {
+                imageView.transform = .identity
+                imageView.center = view.center
+                center = nil
+            }
+            
             if detailView == nil {
                 initDetailView()
             }
@@ -922,6 +1177,8 @@ class ViewerController: UIViewController {
     
     private func hideDetails(animate: Bool, status: Global.ViewerStatus) {
         
+        pinchRecognizer?.isEnabled = true
+
         delegate?.updateStatus(status: status)
         
         if metadata.video && status == .title {
@@ -972,28 +1229,29 @@ class ViewerController: UIViewController {
         
         if imageView.contentMode != .scaleAspectFit {
             imageView.contentMode = .scaleAspectFit
-            videoView?.contentMode = .scaleAspectFit
         }
+        
+        view.layoutIfNeeded()
 
         if animate && !UIAccessibility.isReduceMotionEnabled {
 
-            UIView.animate(withDuration: 0.2, delay: 0, options: .curveLinear, animations: {
-                self.calculateVerticalConstraintsShow(transformImage: allowTransform, height: heightOffset)
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveLinear, animations: { [weak self] in
+                self?.calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: self?.view.frame.width ?? 0, height: heightOffset))
             })
             
         } else {
-            calculateVerticalConstraintsShow(transformImage: allowTransform, height: heightOffset)
+            calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: view.frame.width, height: heightOffset))
         }
     }
     
-    private func calculateVerticalConstraintsShow(transformImage: Bool, height: CGFloat) {
+    private func calculateVerticalConstraintsShow(transformImage: Bool, size: CGSize) {
 
         guard let originalSize = imageView.image?.size else {
-            updateVerticalConstraintsShow(heightOffset: height, height: height)
+            updateVerticalConstraintsShow(heightOffset: size.height, size: size)
             return
         }
-        
-        let renderSize = CGSize(width: view.frame.size.width, height: height)
+
+        let renderSize = CGSize(width: size.width, height: size.height)
         
         let scaleW: CGFloat = renderSize.width / originalSize.width
         let scaleH: CGFloat = renderSize.height / originalSize.height
@@ -1021,15 +1279,14 @@ class ViewerController: UIViewController {
 
         if transformImage {
             imageView.transform = CGAffineTransform(scaleX: newScale, y: newScale)
-            videoView?.transform = CGAffineTransform(scaleX: newScale, y: newScale)
         }
         
         if shiftOnly && transformImage {
             let top = -(resizeSize.height - renderSize.height) / 2
             imageViewTopConstraint.constant = top
-            updateVerticalConstraintsShow(heightOffset: resizeSize.height, topOffset: top, height: height)
+            updateVerticalConstraintsShow(heightOffset: resizeSize.height, topOffset: top, size: size)
         } else {
-            updateVerticalConstraintsShow(heightOffset: height, height: height)
+            updateVerticalConstraintsShow(heightOffset: size.height, size: size)
         }
     }
     
@@ -1039,20 +1296,22 @@ class ViewerController: UIViewController {
         let allowTransform = imageViewRatioWithinThreshold()
         
         if UIAccessibility.isReduceMotionEnabled {
-            self.calculateVerticalConstraintsShow(transformImage: allowTransform, height: heightOffset)
+            self.calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: view.frame.width, height: heightOffset))
         } else {
-            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
-                self.calculateVerticalConstraintsShow(transformImage: allowTransform, height: heightOffset)
+            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: { [weak self] in
+                self?.calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: self?.view.frame.width ?? 0, height: heightOffset))
             })
         }
     }
     
     private func hideVerticalDetails(animate: Bool) {
         
+        view.layoutIfNeeded()
+        
         if animate && !UIAccessibility.isReduceMotionEnabled {
             
-            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
-                self.updateVerticalConstraintsHide()
+            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: { [weak self] in
+                self?.updateVerticalConstraintsHide()
             })
             
         } else {
@@ -1060,20 +1319,17 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func updateVerticalConstraintsShow(heightOffset: CGFloat, topOffset: CGFloat = 0, height: CGFloat) {
+    private func updateVerticalConstraintsShow(heightOffset: CGFloat, topOffset: CGFloat = 0, size: CGSize) {
         
         imageViewLeadingConstraint?.constant = 0
-
         imageViewTrailingConstraint?.constant = 0
-        videoViewRightConstraint?.constant = 0
-
+        
         imageViewHeightConstraint?.constant = heightOffset
-        videoViewHeightConstraint?.constant = heightOffset
         
         detailViewTopConstraint?.constant = topOffset
         detailViewLeadingConstraint?.constant = 0
-        detailViewWidthConstraint?.constant = view.frame.width
-        detailViewHeightConstraint?.constant = height
+        detailViewWidthConstraint?.constant = size.width
+        detailViewHeightConstraint?.constant = size.height
         
         view.layoutIfNeeded()
     }
@@ -1083,10 +1339,12 @@ class ViewerController: UIViewController {
         detailViewTopConstraint?.constant = 0
         
         imageViewHeightConstraint?.constant = view.frame.height
-        videoViewHeightConstraint?.constant = view.frame.height
-        
         imageViewTopConstraint.constant = 0
+        
         imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
+        
+        detailView?.removeFromSuperview()
+        detailView = nil
         
         view.layoutIfNeeded()
     }
@@ -1112,10 +1370,12 @@ class ViewerController: UIViewController {
             topOffset = height
         }
         
+        view.layoutIfNeeded()
+        
         if animate && !UIAccessibility.isReduceMotionEnabled {
 
-            UIView.animate(withDuration: 0.2, delay: 0, options: .curveLinear, animations: {
-                self.calculateHorizontalConstraintsShow(transformImage: allowTransform, height: height, topOffset: topOffset, trailingOffset: trailingOffset)
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveLinear, animations: { [weak self] in
+                self?.calculateHorizontalConstraintsShow(transformImage: allowTransform, height: height, topOffset: topOffset, trailingOffset: trailingOffset)
             })
             
         } else {
@@ -1156,13 +1416,10 @@ class ViewerController: UIViewController {
         
         if transformImage && newScale != 1.0 {
             imageView.transform = CGAffineTransform(scaleX: newScale, y: newScale)
-            videoView?.transform = CGAffineTransform(scaleX: newScale, y: newScale)
         }
         
         if shiftOnly && transformImage {
-            
             imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
-            videoView?.transform = CGAffineTransform(scaleX: 1, y: 1)
 
             updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset, shift: true)
         } else {
@@ -1177,13 +1434,15 @@ class ViewerController: UIViewController {
         if UIAccessibility.isReduceMotionEnabled {
             self.view.layoutIfNeeded()
         } else {
-            UIView.animate(withDuration: 0.3, delay: 0.0, options: .curveLinear, animations: {
-                self.view.layoutIfNeeded()
+            UIView.animate(withDuration: 0.3, delay: 0.0, options: .curveLinear, animations: { [weak self] in
+                self?.view.layoutIfNeeded()
             })
         }
     }
     
     private func hideHorizontalDetails(animate: Bool) {
+        
+        view.layoutIfNeeded()
         
         if animate && !UIAccessibility.isReduceMotionEnabled {
             
@@ -1193,8 +1452,8 @@ class ViewerController: UIViewController {
                 })
             }
             
-            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
-                self.updateHorizontalConstraintsHide()
+            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: { [weak self] in
+                self?.updateHorizontalConstraintsHide()
             })
             
         } else {
@@ -1210,26 +1469,22 @@ class ViewerController: UIViewController {
     private func updateHorizontalConstraintsShow(height: CGFloat, topOffset: CGFloat, trailingOffset: CGFloat, shift: Bool) {
 
         detailViewTopConstraint?.constant = -topOffset
-        
         imageViewHeightConstraint?.constant = height
-        videoViewHeightConstraint?.constant = height
                          
         if shift {
             imageViewLeadingConstraint?.constant = -trailingOffset
             imageViewTrailingConstraint?.constant = 0
             detailViewLeadingConstraint?.constant = trailingOffset * 2
-            videoViewRightConstraint?.constant = -(trailingOffset * 2)
         } else {
-            imageViewTrailingConstraint?.constant = trailingOffset
+            imageViewTrailingConstraint?.constant = -trailingOffset
             detailViewLeadingConstraint?.constant = trailingOffset
-            videoViewRightConstraint?.constant = -trailingOffset
         }
 
         detailViewWidthConstraint?.constant = trailingOffset
         detailViewHeightConstraint?.constant = height
 
         imageViewTopConstraint.constant = 0
-        
+
         view.layoutIfNeeded()
     }
     
@@ -1238,9 +1493,7 @@ class ViewerController: UIViewController {
         detailViewTopConstraint?.constant = 0
         
         imageViewLeadingConstraint?.constant = 0
-        
         imageViewTrailingConstraint?.constant = 0
-        videoViewRightConstraint?.constant = 0
         
         imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
         
@@ -1249,7 +1502,6 @@ class ViewerController: UIViewController {
     
     private func updateContentMode(contentMode: UIView.ContentMode) {
         imageView.contentMode = contentMode
-        videoView?.contentMode = contentMode
     }
     
     private func imageViewRatioWithinThreshold() -> Bool {
@@ -1288,10 +1540,6 @@ extension ViewerController: UIGestureRecognizerDelegate {
 }
 
 extension ViewerController: ControlsDelegate {
-    
-    func tapped() {
-        handleControlsSingleTap()
-    }
     
     func beganTracking() {
         if mediaPlayer?.isPlaying ?? false {

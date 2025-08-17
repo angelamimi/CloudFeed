@@ -33,7 +33,6 @@ protocol ControlsDelegate: AnyObject {
     func volumeButtonTapped()
     func playButtonTapped()
     func fullScreenButtonTapped()
-    func tapped()
     
     func captionsSelected(subtitleIndex: Int32)
     func audioTrackSelected(audioTrackIndex: Int32)
@@ -92,6 +91,14 @@ class ControlsView: UIView {
     private func loadViewFromNib() -> UIView? {
         let nib = UINib(nibName: "ControlsView", bundle: nil)
         return nib.instantiate(withOwner: self, options: nil).first as? UIView
+    }
+    
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        if volumeView.frame.contains(point) || controlsView.frame.contains(point) || audioTrackView.frame.contains(point) {
+            return super.hitTest(point, with: event)
+        }
+        
+        return nil
     }
     
     func reset() {
@@ -426,15 +433,6 @@ class ControlsView: UIView {
         }
     }
     
-    @objc private func tapped(tapGesture: UITapGestureRecognizer) {
-        
-        let location = tapGesture.location(in: tapGesture.view)
-        
-        if controlsView.frame.contains(location) == false {
-            delegate?.tapped()
-        }
-    }
-    
     private func setAudioTrackButtonVisibility(visible: Bool) {
         audioTrackView.isHidden = !visible
     }
@@ -605,9 +603,6 @@ class ControlsView: UIView {
         
         let tapVolume = UITapGestureRecognizer(target: self, action: #selector(volumeSliderTapped(tapGesture:)))
         volumeView.addGestureRecognizer(tapVolume)
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(tapped(tapGesture:)))
-        self.addGestureRecognizer(tap)
         
         disableSeek()
         disableCaptions()

@@ -58,7 +58,7 @@
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="TIa-9d-2uX"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="W1n-Dw-rA6" firstAttribute="top" secondItem="TjY-XO-TRA" secondAttribute="top" id="9aU-V0-Zai"/>
                             <constraint firstAttribute="trailing" secondItem="W1n-Dw-rA6" secondAttribute="trailing" id="In1-ax-uxC"/>
@@ -96,7 +96,7 @@
                         <subviews>
                             <imageView opaque="NO" clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gnc-Wf-rti">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="300"/>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <bool key="isElement" value="YES"/>
@@ -119,7 +119,7 @@
                             <constraint firstItem="gnc-Wf-rti" firstAttribute="leading" secondItem="ReG-96-Weq" secondAttribute="leading" identifier="Image leading to safe area leading" id="2t2-uN-rfx"/>
                             <constraint firstItem="kG3-WY-mSO" firstAttribute="centerX" secondItem="gnc-Wf-rti" secondAttribute="centerX" id="6BZ-M6-hsp"/>
                             <constraint firstItem="kG3-WY-mSO" firstAttribute="centerY" secondItem="gnc-Wf-rti" secondAttribute="centerY" id="9fh-LU-CAa"/>
-                            <constraint firstAttribute="trailing" secondItem="gnc-Wf-rti" secondAttribute="trailing" identifier="Image trailing to safe area trailing" id="fni-Al-I0J"/>
+                            <constraint firstItem="gnc-Wf-rti" firstAttribute="trailing" secondItem="ReG-96-Weq" secondAttribute="trailing" identifier="Image trailing to safe area trailing" id="fni-Al-I0J"/>
                             <constraint firstItem="gnc-Wf-rti" firstAttribute="top" secondItem="ReG-96-Weq" secondAttribute="top" identifier="Image view top same as superview top" id="qvw-9n-KQ1"/>
                         </constraints>
                     </view>

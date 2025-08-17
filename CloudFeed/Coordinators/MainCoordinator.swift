@@ -46,7 +46,7 @@ final class MainCoordinator : NSObject, Coordinator {
         
         super.init()
         
-        tabBarController!.delegate = self
+        tabBarController?.delegate = self
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             initSplitTabCoordinators(dataService: dataService)

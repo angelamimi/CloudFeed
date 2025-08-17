@@ -247,11 +247,13 @@ class PagerController: UIViewController {
     private func showTitle() {
         hideStatusBar = false
         navigationController?.setNavigationBarHidden(false, animated: false)
+        setTypeContainerView()
     }
     
     private func hideTitle() {
         hideStatusBar = true
         navigationController?.setNavigationBarHidden(true, animated: false)
+        hideType()
     }
     
     private func showType() {
@@ -291,6 +293,7 @@ class PagerController: UIViewController {
         controller.url = current.getUrl()
         controller.metadata = current.metadata
         controller.modalPresentationStyle = .popover
+        //controller.modalTransitionStyle = .flipHorizontal
         controller.preferredContentSize = CGSize(width: 400, height: 200)
         
         if let popover = controller.popoverPresentationController {
@@ -315,13 +318,14 @@ class PagerController: UIViewController {
         
         if swipeGesture.direction == .up {
             
-            updateStatus(status: .details)
-            hideType()
-            
-            currentViewController?.handleSwipeUp()
+            if currentViewController?.handleSwipeUp() ?? false {
+                
+                updateStatus(status: .details)
+                hideType()
 
-            if UIDevice.current.userInterfaceIdiom == .pad && presentedViewController == nil {
-                presentDetailPopover()
+                if UIDevice.current.userInterfaceIdiom == .pad && presentedViewController == nil {
+                    presentDetailPopover()
+                }
             }
             
         } else {
@@ -415,7 +419,7 @@ class PagerController: UIViewController {
             }
         }
         
-        currentViewController?.showDetails(animate: true, reset: true)
+        currentViewController?.showDetails(animate: true, reset: true, recenter: true)
     }
 }
 
@@ -424,10 +428,14 @@ extension PagerController: DetailsControllerDelegate {
     func showAllMetadataDetails(metadata: Metadata) {
         switchToAllDetails(metadata: metadata)
     }
+    
+    func dismissingDetails() {
+        currentViewController?.handlePresentationControllerDidDismiss()
+    }
 }
 
 extension PagerController: UIPopoverPresentationControllerDelegate {
-
+    
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         currentViewController?.handlePresentationControllerDidDismiss()
     }

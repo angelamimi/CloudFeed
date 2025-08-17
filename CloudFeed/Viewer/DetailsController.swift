@@ -25,6 +25,7 @@ import os.log
 @MainActor
 protocol DetailsControllerDelegate: AnyObject {
     func showAllMetadataDetails(metadata: Metadata)
+    func dismissingDetails()
 }
 
 //DetailsView container used for pad only
@@ -72,6 +73,7 @@ class DetailsController: UIViewController {
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
+        delegate?.dismissingDetails()
         dismiss(animated: true)
     }
     
@@ -126,11 +128,22 @@ class DetailsController: UIViewController {
         let targetSize = CGSize(width: 400, height: detailView.height())
         preferredContentSize = detailView.systemLayoutSizeFitting(targetSize)
     }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        if view.frame.width == 0 || view.frame.height == 0 {
+            //Bug? Sometimes the view's frame is rendered invalid upon rotation. User sees nothing but system reports a visible presentedViewController
+            delegate?.dismissingDetails()
+            dismiss(animated: false)
+        }
+    }
 }
 
 extension DetailsController : DetailViewDelegate {
     
     func close() {
+        delegate?.dismissingDetails()
         dismiss(animated: true)
     }
     
