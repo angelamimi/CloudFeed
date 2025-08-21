@@ -247,6 +247,7 @@ class PagerController: UIViewController {
     private func showTitle() {
         hideStatusBar = false
         navigationController?.setNavigationBarHidden(false, animated: false)
+        navigationController?.navigationBar.sizeToFit() //ensure large title is visible
         setTypeContainerView()
     }
     

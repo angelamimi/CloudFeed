@@ -103,8 +103,8 @@ class ViewerController: UIViewController {
             hideDetails(animate: false, status: currentStatus)
         }
         
-        if currentStatus != .title && controlsView != nil && controlsView!.isHidden == false {
-            controlsView?.isHidden = true
+        if currentStatus != .title && controlsView != nil {
+            hideControls()
         }
         
         setImageViewBackgroundColor()
@@ -157,7 +157,7 @@ class ViewerController: UIViewController {
     func willEnterForeground() {
         if presentedViewController != nil {
             presentedViewController?.dismiss(animated: false)
-            delegate?.updateStatus(status: .title)
+            updateStatus(.title)
         } else if UIDevice.current.userInterfaceIdiom != .pad && currentStatus() == .details {
             showDetails(animate: false, reset: true, recenter: false)
         }
@@ -234,9 +234,9 @@ class ViewerController: UIViewController {
         
         if metadata.video {
             //usability. making sure video controls are not covered by the title bar after dismissing details popover
-            delegate?.updateStatus(status: .fullscreen)
+            updateStatus(.fullscreen)
         } else {
-            delegate?.updateStatus(status: .title)
+            updateStatus(.title)
         }
     }
     
@@ -252,7 +252,7 @@ class ViewerController: UIViewController {
     
     private func handleTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         
-        if controlsView != nil && controlsView?.isHidden == false {
+        if controlsView != nil {
             coordinator.animate(alongsideTransition: { [weak self] _ in
                 self?.controlsView?.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
             }, completion: nil)
@@ -275,14 +275,11 @@ class ViewerController: UIViewController {
                 }
             })
         } else {
-
-            if currentStatus() == .details {
-                imageViewTrailingConstraint?.constant = 0 //prevent contraints from conflicting on orientation change
-            } else {
+            
+            if currentStatus() != .details {
+                center = nil
+                
                 if imageView.transform.a == 1.0 {
-                    
-                    center = nil
-
                     coordinator.animate(alongsideTransition: { [weak self] _ in
                         self?.imageViewHeightConstraint.constant = size.height
                         self?.imageView.center = CGPoint(x: size.width / 2, y: size.height / 2)
@@ -315,12 +312,6 @@ class ViewerController: UIViewController {
                 adjustImageView()
             }
         }
-    }
-    
-    private func hideAll() {
-        delegate?.updateStatus(status: .fullscreen)
-        controlsView?.isHidden = true
-        setImageViewBackgroundColor()
     }
     
     private func setImageViewBackgroundColor() {
@@ -442,7 +433,6 @@ class ViewerController: UIViewController {
             addControls()
         } else {
             controlsView?.frame = view.frame
-            controlsView?.isHidden = false
         }
         
         UIView.animate(withDuration: 0.2, animations: { [weak self] in
@@ -451,16 +441,9 @@ class ViewerController: UIViewController {
     }
     
     private func hideControls() {
-        
-        //Don't animate until can animate navigation bar
-        /*UIView.animate(withDuration: 0.2, animations: { [weak self] in
-            self?.controlsView?.alpha = 0
-        }, completion: { [weak self] _ in
-            self?.controlsView?.isHidden = true
-        })*/
-        
-        controlsView?.alpha = 0
-        controlsView?.isHidden = true
+        //controls view interferes with pinch gesture if just hidden. remove entirely.
+        controlsView?.removeFromSuperview()
+        controlsView = nil
     }
     
     private func addControls() {
@@ -478,6 +461,17 @@ class ViewerController: UIViewController {
         
         view.addSubview(controls)
         view.bringSubviewToFront(controls)
+    }
+    
+    private func toggleControlsVisibility() {
+        
+        guard metadata.video else { return }
+        
+        if controlsView == nil {
+            showControls()
+        } else {
+            hideControls()
+        }
     }
     
     private func reloadImage() {
@@ -637,14 +631,15 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handleSingleTap(tapGesture: UITapGestureRecognizer) {
-        
-        center = imageView.center
 
         if UIDevice.current.userInterfaceIdiom == .pad {
-
+            
             if presentedViewController == nil {
                 
+                center = imageView.center
+                
                 delegate?.singleTapped()
+                setImageViewBackgroundColor()
                 toggleControlsVisibility()
             }
         } else {
@@ -655,7 +650,11 @@ class ViewerController: UIViewController {
                 center = nil
                 hideDetails(animate: true, status: .title)
             } else {
-
+                
+                if imageView.transform.a == 1.0 {
+                    center = imageView.center
+                }
+                
                 setImageViewBackgroundColor()
                 
                 if metadata.video {
@@ -669,26 +668,6 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func toggleControlsVisibility() {
-        
-        guard metadata.video else { return }
-        
-        if controlsView == nil {
-            initControls()
-            addControls()
-        } else {
-            
-            if controlsView!.isHidden {
-                controlsView!.isHidden = false
-                UIView.animate(withDuration: 0.2, animations: { [weak self] in
-                    self?.controlsView!.alpha = 1
-                })
-            } else {
-                hideControls()
-            }
-        }
-    }
-    
     @objc private func handleDoubleTap() {
         
         guard detailsVisible() == false || UIDevice.current.userInterfaceIdiom == .pad else { return }
@@ -696,6 +675,8 @@ class ViewerController: UIViewController {
         if imageView.transform.a == 1.0 {
             
             panRecognizer?.isEnabled = true
+            center = nil
+            hideAll()
             
             UIView.animate(withDuration: 0.3, delay: 0.0, animations: { [weak self] in
                 self?.imageView.transform = CGAffineTransformMakeScale(2, 2)
@@ -704,13 +685,16 @@ class ViewerController: UIViewController {
         } else {
             
             panRecognizer?.isEnabled = false
-            
             center = nil
+            updateStatus(.title)
             
-            UIView.animate(withDuration: 0.3, delay: 0.0, animations: { [weak self] in
-                self?.imageView.transform = CGAffineTransformMakeScale(1, 1)
-                self?.imageView.center = self?.view.center ?? .zero
-            })
+            if presentedViewController == nil {
+                setImageViewIdentity()
+            } else {
+                presentedViewController?.dismiss(animated: true, completion: { [weak self] in
+                    self?.setImageViewIdentity()
+                })
+            }
         }
     }
     
@@ -747,37 +731,37 @@ class ViewerController: UIViewController {
     
     @objc private func handlePinch(pinchGesture: UIPinchGestureRecognizer) {
         
-        let currentScale : CGFloat = pinchGesture.view?.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
+        guard let view = pinchGesture.view else { return }
+
+        let currentScale : CGFloat = view.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
         
         if pinchGesture.state == .began {
-            hideControls()
-            delegate?.updateStatus(status: .fullscreen)
-            setImageViewBackgroundColor()
+            hideAll()
         }
         
         if pinchGesture.state == .changed {
             
             var center: CGPoint = .zero
-            for i in 0 ..< pinchGesture.numberOfTouches {
-                let p = pinchGesture.location(ofTouch: i, in: imageView)
-                center.x += p.x
-                center.y += p.y
-            }
-            center.x /= CGFloat(pinchGesture.numberOfTouches)
-            center.y /= CGFloat(pinchGesture.numberOfTouches)
+            let touches = pinchGesture.numberOfTouches
             
-            setAnchorPoint(CGPoint(x: center.x/imageView.bounds.size.width,y: center.y / imageView.bounds.size.height), forView: imageView)
+            for i in 0 ..< touches {
+                let pinch = pinchGesture.location(ofTouch: i, in: view)
+                center.x += pinch.x
+                center.y += pinch.y
+            }
+            center.x /= CGFloat(touches)
+            center.y /= CGFloat(touches)
+            
+            let anchorPoint = CGPoint(x: center.x / view.bounds.size.width, y: center.y / view.bounds.size.height)
+            setAnchorPoint(anchorPoint, forView: view)
 
-            // Variables to adjust the max/min values of zoom
             let minScale: CGFloat = 1.0
             let maxScale: CGFloat = 8.0
             let zoomSpeed: CGFloat = 0.5
-            
-            //  Converted to Swift 5.7.1 by Swiftify v5.7.24161 - https://swiftify.com/
+
             var deltaScale = pinchGesture.scale
 
-            // You need to translate the zoom to 0 (origin) so that you
-            // can multiply a speed factor and then translate back to "zoomSpace" around 1
+            // translate the zoom to 0 (origin) so can multiply a speed factor and then translate back to "zoomSpace" around 1
             deltaScale = ((deltaScale - 1) * zoomSpeed) + 1
             
             // Limit to min/max size (i.e maxScale = 2, current scale = 2, 2/2 = 1.0)
@@ -785,22 +769,32 @@ class ViewerController: UIViewController {
             //  A deltaScale of 1.0 will maintain the zoom size
             deltaScale = min(deltaScale, maxScale / currentScale)
             deltaScale = max(deltaScale, minScale / currentScale)
-
-            let transform = (pinchGesture.view?.transform.scaledBy(x: deltaScale, y: deltaScale))!
-            pinchGesture.view?.transform = transform
+            
+            let transform = view.transform.scaledBy(x: deltaScale, y: deltaScale)
+            view.transform = transform
             
             pinchGesture.scale = 1.0
-            
-        } else if pinchGesture.state == .ended {
-            
-            if currentScale == 1.0 {
+
+        } else if pinchGesture.state == .ended || pinchGesture.state == .cancelled || pinchGesture.state == .failed {
+
+            if view.transform.isIdentity {
                 panRecognizer?.isEnabled = false //panning doesn't work with paging
+                center = nil
+                updateStatus(.title)
             } else {
                 panRecognizer?.isEnabled = true
             }
 
             adjustImageView()
         }
+    }
+    
+    private func setImageViewIdentity() {
+        UIView.animate(withDuration: 0.2, delay: 0.0, animations: { [weak self] in
+            self?.imageView.transform = .identity
+            self?.imageView.center = self?.view.center ?? .zero
+            self?.imageView.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        })
     }
     
     private func adjustImageView() {
@@ -906,10 +900,13 @@ class ViewerController: UIViewController {
     }
     
     private func setImageViewCenter(_ center: CGPoint) {
+        
+        self.center = center
+        
         UIView.animate(withDuration: 0.5, animations: { [weak self] in
             self?.imageView.anchorPoint = CGPoint(x: 0.5, y: 0.5)
             self?.imageView.center = center
-        })
+        }, completion: nil)
     }
     
     //https://www.hackingwithswift.com/example-code/calayer/how-to-change-a-views-anchor-point-without-moving-it
@@ -932,12 +929,9 @@ class ViewerController: UIViewController {
         view.layer.anchorPoint = anchorPoint
     }
     
-    /*private func handleControlsSingleTap() {
-        delegate?.singleTapped()
-        toggleControlsVisibility()
-    }*/
-    
     private func handleVideoPlaying() {
+        
+        controlsView?.setPlaying(playing: true)
         
         if mediaPlayer?.isSeekable ?? false {
             controlsView?.enableSeek()
@@ -983,9 +977,6 @@ class ViewerController: UIViewController {
     
     private func playPause() {
         
-        pinchRecognizer?.isEnabled = false
-        panRecognizer?.isEnabled = false
-
         if mediaPlayer == nil || mediaPlayer!.media == nil {
             setupVideoController(autoPlay: true)
         } else {
@@ -997,20 +988,18 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func fullScreen() {
-        hideAll()
+    private func hideAll() {
+        hideControls()
+        updateStatus(.fullscreen)
+    }
+    
+    private func updateStatus(_ status: Global.ViewerStatus) {
+        delegate?.updateStatus(status: status)
+        setImageViewBackgroundColor()
     }
     
     private func isPortrait() -> Bool {
-        
-        if UIDevice.current.orientation == .faceUp
-            || UIDevice.current.orientation == .faceDown
-            || UIDevice.current.orientation == .unknown
-            || UIDevice.current.orientation == .portraitUpsideDown {
-            return view.frame.size.height >= view.frame.size.width
-        } else {
-            return UIDevice.current.orientation.isPortrait
-        }
+        return view.frame.size.height >= view.frame.size.width
     }
     
     private func detailsVisible() -> Bool {
@@ -1075,11 +1064,8 @@ class ViewerController: UIViewController {
     
     func showDetails(animate: Bool, reset: Bool, recenter: Bool) {
 
-        delegate?.updateStatus(status: .details)
-        
-        if controlsView != nil {
-            controlsView!.isHidden = true
-        }
+        updateStatus(.details)
+        hideControls()
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             
@@ -1179,7 +1165,7 @@ class ViewerController: UIViewController {
         
         pinchRecognizer?.isEnabled = true
 
-        delegate?.updateStatus(status: status)
+        updateStatus(status)
         
         if metadata.video && status == .title {
             showControls()
@@ -1587,7 +1573,7 @@ extension ViewerController: ControlsDelegate {
     }
     
     func fullScreenButtonTapped() {
-        fullScreen()
+        hideAll()
     }
 }
 
