@@ -160,7 +160,7 @@
                     <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
                 </stackView>
                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NBR-iP-9gV" userLabel="Volume Visual Effect View">
-                    <rect key="frame" x="297" y="75" width="270" height="56"/>
+                    <rect key="frame" x="313" y="75" width="270" height="56"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="se5-JG-BBz">
                         <rect key="frame" x="0.0" y="0.0" width="270" height="56"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -200,7 +200,7 @@
                     <blurEffect style="prominent"/>
                 </visualEffectView>
                 <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q2D-Dm-4a7">
-                    <rect key="frame" x="75" y="75" width="56" height="56"/>
+                    <rect key="frame" x="59" y="75" width="56" height="56"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="TeL-Uj-fXd">
                         <rect key="frame" x="0.0" y="0.0" width="56" height="56"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -224,11 +224,11 @@
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NBR-iP-9gV" secondAttribute="trailing" constant="16" id="2qC-ai-TtE"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NBR-iP-9gV" secondAttribute="trailing" id="2qC-ai-TtE"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="4wa-M8-UL0"/>
                 <constraint firstItem="NBR-iP-9gV" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="8z1-X0-k3d"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="AXL-dv-8Qn" secondAttribute="bottom" constant="16" id="Agk-Fg-nkc"/>
-                <constraint firstItem="q2D-Dm-4a7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Hsb-11-IK8"/>
+                <constraint firstItem="q2D-Dm-4a7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Hsb-11-IK8"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="Wmb-p0-zvf" secondAttribute="bottom" constant="8" id="QIM-qh-DvE"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="height" secondItem="Wmb-p0-zvf" secondAttribute="height" id="Wg8-pd-IOO"/>
                 <constraint firstItem="q2D-Dm-4a7" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="Zvh-3y-G73"/>
