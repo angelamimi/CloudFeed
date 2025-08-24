@@ -113,7 +113,7 @@ extension ViewerViewModel {
         
         var image: UIImage?
         
-        guard dataService.store.fileExists(metadata) && metadata.classFile == NKCommon.TypeClassFile.image.rawValue else { return nil }
+        guard dataService.store.fileExists(metadata) && metadata.classFile == NKTypeClassFile.image.rawValue else { return nil }
             
         let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
         let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
@@ -167,7 +167,7 @@ extension ViewerViewModel {
     
     private func createImageFrom(fileNameView: String, ocId: String, etag: String, classFile: String) async {
         
-        guard classFile == NKCommon.TypeClassFile.image.rawValue else { return }
+        guard classFile == NKTypeClassFile.image.rawValue else { return }
         
         var originalImage, scaleImagePreview: UIImage?
 

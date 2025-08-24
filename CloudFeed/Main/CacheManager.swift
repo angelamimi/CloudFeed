@@ -45,6 +45,7 @@ final class CacheManager {
     }
     
     func clear() {
+        cancelAll()
         cache.removeAllObjects()
     }
     

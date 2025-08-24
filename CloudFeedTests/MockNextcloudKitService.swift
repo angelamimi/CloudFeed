@@ -24,6 +24,10 @@ import NextcloudKit
 import UIKit
 
 final class MockNextcloudKitService: NextcloudKitServiceProtocol {
+    
+    func removeSession(account: String) {
+        
+    }
 
     func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)? {
         return nil
@@ -37,11 +41,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         
     }
     
-    func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, nextcloudVersion: Int, groupIdentifier: String) {
-        
-    }
-    
-    func removeSession(account: String) {
+    func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, groupIdentifier: String) {
         
     }
     
@@ -60,19 +60,15 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return nil
     }
     
-    func getCapabilities(account: String) async -> Data? {
-        return nil
-    }
-    
     func download(metadata: CloudFeed.Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (CloudFeed.Metadata, Progress) -> Void) async {
         
     }
     
-    func downloadPreview(account: String, fileId fileNamePath: String, previewPath: String, iconPath: String, etagResource: String?) async -> String? {
-        return etagResource
+    func downloadPreview(account: String, fileId fileNamePath: String, previewPath: String, iconPath: String, etag: String) async {
+
     }
     
-    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int, avatarSizeRounded: Int) async -> String? {
+    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String? {
         return nil
     }
     

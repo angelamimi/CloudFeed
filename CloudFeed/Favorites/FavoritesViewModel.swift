@@ -46,6 +46,7 @@ final class FavoritesViewModel {
     private let cacheManager: CacheManager
     
     private var metadatas: [Metadata.ID: Metadata] = [:]
+    private var systemIconIds: [Metadata.ID] = []
     
     private var fetchTask: Task<Void, Never>? {
         willSet {
@@ -128,6 +129,7 @@ final class FavoritesViewModel {
     }
     
     func clearCache() {
+        systemIconIds = []
         cacheManager.clear()
     }
     
@@ -361,7 +363,7 @@ final class FavoritesViewModel {
         cell.isAccessibilityElement = true
         cell.accessibilityTraits = [.image]
         
-        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
+        if metadata.classFile == NKTypeClassFile.video.rawValue {
             cell.showVideoIcon()
             cell.accessibilityLabel = Strings.MediaVideo
         } else if metadata.livePhoto {
@@ -374,6 +376,12 @@ final class FavoritesViewModel {
         
         if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {
             cell.setImage(cachedImage)
+        } else if systemIconIds.contains(metadata.id) {
+            cell.imageStatus.tintColor = .systemGray2
+            if !metadata.video && !metadata.livePhoto {
+                cell.imageStatus.isHidden = false
+                cell.imageStatus.image = UIImage(systemName: "photo")
+            }
         } else {
             
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
@@ -538,6 +546,10 @@ extension FavoritesViewModel: DownloadPreviewOperationDelegate {
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             
             if FileManager().fileExists(atPath: path) {
+                snapshot.reconfigureItems([metadata.id])
+                dataSource.apply(snapshot)
+            } else {
+                systemIconIds.append(metadata.id)
                 snapshot.reconfigureItems([metadata.id])
                 dataSource.apply(snapshot)
             }

@@ -48,6 +48,7 @@ class CollectionViewCell: UICollectionViewCell {
     }
     
     func resetStatusIcon() {
+        imageStatus.tintColor = .white
         imageStatus.isHidden = true
         imageStatus.image = nil
     }
@@ -139,6 +140,7 @@ class CollectionViewCell: UICollectionViewCell {
 
         imageFavorite.isHidden = true
         imageStatus.isHidden = true
+        imageStatus.tintColor = .white
         
         imageFavoriteBackground.isHidden = true
         imageFavoriteBackground.layer.cornerRadius = 8

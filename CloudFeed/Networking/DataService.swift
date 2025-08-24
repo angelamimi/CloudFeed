@@ -62,21 +62,10 @@ final class DataService: NSObject, Sendable {
     func appendSession(account: String, user: String, userId: String, urlBase: String) async {
         
         let password = store.getPassword(account) ?? ""
-        let serverVersionMajor = await getCapabilitiesServerVersionMajor(account: account)
         
         nextcloudService.appendSession(account: account, urlBase: urlBase, user: user, userId: userId,
-                                       password: password, userAgent: Global.shared.userAgent, nextcloudVersion: serverVersionMajor,
+                                       password: password, userAgent: Global.shared.userAgent,
                                        groupIdentifier: Global.shared.groupIdentifier)
-    }
-    
-    func getCapabilitiesServerVersionMajor(account: String) async -> Int {
-        
-        if let data = await nextcloudService.getCapabilities(account: account) {
-            let json = JSON(data)
-            return json[Global.shared.capabilitiesVersionMajor].intValue
-        }
-        
-        return 0
     }
     
     func removeSession(account: String) {
@@ -184,7 +173,7 @@ final class DataService: NSObject, Sendable {
         
         let avatarSize = Global.shared.avatarSizeBase * Int(screenScale)
         let etagResult = await nextcloudService.downloadAvatar(account: account.account, userId: account.userId, fileName: fileName,
-                                                               fileNameLocalPath: fileNameLocalPath, etag: etag, avatarSize: avatarSize, avatarSizeRounded: Global.shared.avatarSizeRounded)
+                                                               fileNameLocalPath: fileNameLocalPath, etag: etag, avatarSize: avatarSize)
 
         guard etagResult != nil else { return }
         await databaseManager.addAvatar(fileName: fileName, etag: etagResult!)
@@ -309,7 +298,7 @@ final class DataService: NSObject, Sendable {
         await nextcloudService.download(metadata: metadata, serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, progressHandler: progressHandler)
     }
     
-    func downloadPreview(metadata: Metadata?, reload: Bool = false) async {
+    func downloadPreview(metadata: Metadata?) async {
         
         guard let metadata = metadata else { return }
         
@@ -319,15 +308,8 @@ final class DataService: NSObject, Sendable {
         previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
         iconPath = store.getIconPath(metadata.ocId, metadata.etag)
         
-        var etagResource: String?
-        if !reload && FileManager.default.fileExists(atPath: iconPath) {
-            etagResource = metadata.etagResource
-        }
-        
-        if let etag = await nextcloudService.downloadPreview(account: metadata.account, fileId: metadata.fileId, previewPath: previewPath,
-                                                             iconPath: iconPath, etagResource: etagResource) {
-            await databaseManager.setMetadataEtagResource(ocId: metadata.ocId, etagResource: etag)
-        }
+        await nextcloudService.downloadPreview(account: metadata.account, fileId: metadata.fileId,
+                                                          previewPath: previewPath, iconPath: iconPath, etag: metadata.etag)
     }
     
     func getVideoFrame(metadata: Metadata) -> UIImage? {

@@ -72,13 +72,11 @@ class MediaController: CollectionController {
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         super.scrollViewDidEndDecelerating(scrollView)
-
         refreshVisibleItems()
     }
     
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         super.scrollViewDidEndScrollingAnimation(scrollView)
-
         refreshVisibleItems()
     }
     
@@ -101,10 +99,12 @@ class MediaController: CollectionController {
     }
     
     public func scrollToMetadata(metadata: Metadata) {
+
         if let indexPath = viewModel.getIndexPathForMetadata(metadata: metadata) {
             //only scroll to item if not visible already
             if collectionView.indexPathsForVisibleItems.contains(indexPath) == false {
-                collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+                collectionView.scrollToItem(at: indexPath, at: .top, animated: false)
+                viewModel.pauseLoading = false
             }
         }
     }
@@ -210,9 +210,9 @@ class MediaController: CollectionController {
         
         let metadata = viewModel.getItemAtIndexPath(indexPath)
         
-        guard metadata != nil && (metadata!.classFile == NKCommon.TypeClassFile.image.rawValue
-                || metadata!.classFile == NKCommon.TypeClassFile.audio.rawValue
-                || metadata!.classFile == NKCommon.TypeClassFile.video.rawValue) else { return }
+        guard metadata != nil && (metadata!.classFile == NKTypeClassFile.image.rawValue
+                || metadata!.classFile == NKTypeClassFile.audio.rawValue
+                || metadata!.classFile == NKTypeClassFile.video.rawValue) else { return }
         
         let metadatas = viewModel.getItems()
         viewModel.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)

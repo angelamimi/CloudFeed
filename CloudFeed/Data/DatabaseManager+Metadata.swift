@@ -38,7 +38,6 @@ final class MetadataModel {
     var creationDate = Date()
     var date = Date()
     var etag = ""
-    var etagResource = ""
     var favorite: Bool = false
     var fileId = ""
     var fileName = ""
@@ -57,7 +56,7 @@ final class MetadataModel {
     var width: Double = 0
     
     init(ocId: String = "", account: String = "", classFile: String = "", contentType: String = "", creationDate: Date = Date(),
-         date: Date = Date(), etag: String = "", etagResource: String = "", favorite: Bool, fileId: String = "",
+         date: Date = Date(), etag: String = "", favorite: Bool, fileId: String = "",
          fileName: String = "", fileNameView: String = "", hasPreview: Bool, livePhotoFile: String = "", name: String = "",
          path: String = "", serverUrl: String = "", size: Int64, uploadDate: Date = Date(), urlBase: String = "",
          user: String = "", userId: String = "", height: Double, width: Double) {
@@ -67,7 +66,6 @@ final class MetadataModel {
         self.creationDate = creationDate
         self.date = date
         self.etag = etag
-        self.etagResource = etagResource
         self.favorite = favorite
         self.fileId = fileId
         self.fileName = fileName
@@ -94,7 +92,6 @@ final class MetadataModel {
         self.creationDate = dto.creationDate
         self.date = dto.date
         self.etag = dto.etag
-        self.etagResource = dto.etagResource
         self.favorite = dto.favorite
         self.fileId = dto.fileId
         self.fileName = dto.fileName
@@ -128,7 +125,6 @@ struct Metadata: Sendable, Identifiable {
     var creationDate: Date
     var date: Date
     var etag: String
-    var etagResource: String
     var favorite: Bool
     var fileId: String
     var fileName: String
@@ -154,7 +150,6 @@ struct Metadata: Sendable, Identifiable {
         self.creationDate = Date()
         self.date = date
         self.etag = ""
-        self.etagResource = ""
         self.favorite = favorite
         self.fileId = fileId
         self.fileName = fileName
@@ -180,7 +175,6 @@ struct Metadata: Sendable, Identifiable {
         creationDate = model.creationDate
         date = model.date
         etag = model.etag
-        etagResource = model.etagResource
         favorite = model.favorite
         fileId = model.fileId
         fileName = model.fileName
@@ -211,7 +205,6 @@ struct Metadata: Sendable, Identifiable {
         }
         date = file.date
         etag = file.etag
-        etagResource = ""
         favorite = file.favorite
         fileId = file.fileId
         fileName = file.fileName
@@ -513,15 +506,6 @@ extension DatabaseManager {
             }
         }
 
-        try? modelContext.save()
-    }
-    
-    func setMetadataEtagResource(ocId: String, etagResource: String) {
-        
-        let metadata = try? getMetadataModel(ocId)
-        
-        metadata?.etagResource = etagResource
-        
         try? modelContext.save()
     }
     

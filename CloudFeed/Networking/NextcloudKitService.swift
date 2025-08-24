@@ -34,8 +34,7 @@ protocol NextcloudKitServiceDelegate: AnyObject, Sendable {
 protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     
     func setup()
-    func getCapabilities(account: String) async -> Data?
-    func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, nextcloudVersion: Int, groupIdentifier: String)
+    func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, groupIdentifier: String)
     func removeSession(account: String)
     func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)?
     func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)?
@@ -43,8 +42,8 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     
     func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [Metadata])?
     func download(metadata: Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (_ metadata: Metadata, _ progress: Progress) -> Void) async
-    func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etagResource: String?) async -> String?
-    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int, avatarSizeRounded: Int) async -> String?
+    func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etag: String) async
+    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String?
     func getDirectDownload(metadata: Metadata) async -> URL?
     
     func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool)
@@ -78,27 +77,15 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         NextcloudKit.configureLogger(logLevel: NKLogLevel.disabled)
     }
     
-    func getCapabilities(account: String) async -> Data? {
-        
-        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
-        
-        return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.getCapabilities(account: account, options: options) { account, data, error in
-                continuation.resume(returning: data?.data)
-            }
-        }
-    }
-    
-    func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, nextcloudVersion: Int, groupIdentifier: String) {
+    func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, groupIdentifier: String) {
 
         NextcloudKit.shared.appendSession(account: account, urlBase: urlBase, user: user,
                                           userId: userId, password: password,
-                                          userAgent: userAgent, nextcloudVersion: nextcloudVersion,
-                                          groupIdentifier: groupIdentifier)
+                                          userAgent: userAgent, groupIdentifier: groupIdentifier)
     }
     
     func removeSession(account: String) {
-        NextcloudKit.shared.removeSession(account: account)
+        NextcloudKit.shared.nkCommonInstance.nksessions.remove(account: account)
     }
     
     func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)? {
@@ -183,47 +170,29 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
-    func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etagResource: String?) async -> String? {
+    func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etag: String) async {
         
-        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
-
-        return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.downloadPreview(fileId: fileId,
-                                                etag: etagResource,
-                                                account: account,
-                                                options: options) { _, _, _, etag, responseData, error in
-                if error == .success, let data = responseData?.data {
-                    ImageUtility.saveImageAtPaths(data: data, previewPath: previewPath, iconPath: iconPath)
-                    continuation.resume(returning: etag)
-                    return
-                }
-                continuation.resume(returning: nil)
-            }
+        let results = await NextcloudKit.shared.downloadPreviewAsync(fileId: fileId, etag: etag, account: account,
+                                                                     options: NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue))
+        
+        if results.error == .success, let data = results.responseData?.data {
+            ImageUtility.saveImageAtPaths(data: data, previewPath: previewPath, iconPath: iconPath)
         }
     }
     
-    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int, avatarSizeRounded: Int) async -> String? {
-
-        let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
-        
-        return await withCheckedContinuation { continuation in
-            
-            NextcloudKit.shared.downloadAvatar(
-                user: userId,
-                fileNameLocalPath: fileNameLocalPath,
-                sizeImage: avatarSize,
-                avatarSizeRounded: avatarSizeRounded,
-                etag: etag, 
-                account: account,
-                options: options) { _, image, _, newEtag, _, error in
-                    
-                    if let newEtag, etag != newEtag, error == .success {
-                        continuation.resume(returning: newEtag)
-                        return
-                    }
-                    
-                    continuation.resume(returning: nil)
-                }
+    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String? {
+       
+        let results = await NextcloudKit.shared.downloadAvatarAsync(user: userId,
+                                                                    fileNameLocalPath: fileNameLocalPath,
+                                                                    sizeImage: avatarSize,
+                                                                    etagResource: etag,
+                                                                    account: account)
+        if  results.error == .success,
+            let etagResult = results.etag,
+            etagResult != etag {
+            return etagResult
+        } else {
+            return nil
         }
     }
     
@@ -423,7 +392,7 @@ extension NextcloudKitService: NextcloudKitDelegate {
         
     }
     
-    func networkReachabilityObserver(_ typeReachability: NKCommon.TypeReachability) {
+    func networkReachabilityObserver(_ typeReachability: NKTypeReachability) {
         delegate.serverStatusChanged(reachable: typeReachability == .reachableCellular || typeReachability == .reachableEthernetOrWiFi)
     }
     

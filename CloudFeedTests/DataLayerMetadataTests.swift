@@ -303,21 +303,6 @@ struct DataLayerMetadataTests {
         }
     }
     
-    @Test func setMetadataEtagResource() async throws {
-        
-        let etagResource = "112233"
-        let metadata1 = Metadata.init(ocId: "ocid1", account: "", fileName: "file1")
-        
-        let results = await databaseManager.processMetadatas([metadata1], metadatasResult: [])
-        #expect(results.added.count == 1)
-        
-        await databaseManager.setMetadataEtagResource(ocId: metadata1.ocId, etagResource: etagResource)
-        
-        let result = await databaseManager.getMetadataFromOcId(metadata1.ocId)
-        
-        #expect(result?.etagResource == etagResource)
-    }
-    
     @Test func deleteMetadata() async throws {
         
         let account = "account1"

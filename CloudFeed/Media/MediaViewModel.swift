@@ -47,6 +47,7 @@ final class MediaViewModel {
     private let cacheManager: CacheManager
     
     private var metadatas: [Metadata.ID: Metadata] = [:]
+    private var systemIconIds: [Metadata.ID] = []
     
     private var fetchTask: Task<Void, Never>? {
         willSet {
@@ -84,6 +85,7 @@ final class MediaViewModel {
     }
     
     func clearCache() {
+        systemIconIds = []
         cacheManager.clear()
     }
     
@@ -554,8 +556,13 @@ final class MediaViewModel {
         
         if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {
             cell.setImage(cachedImage)
+        } else if systemIconIds.contains(metadata.id) {
+            cell.imageStatus.tintColor = .systemGray2
+            if !metadata.video && !metadata.livePhoto {
+                cell.imageStatus.isHidden = false
+                cell.imageStatus.image = UIImage(systemName: "photo")
+            }
         } else {
-            
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             
             if FileManager.default.fileExists(atPath: path) {
@@ -591,6 +598,10 @@ extension MediaViewModel: DownloadPreviewOperationDelegate {
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             
             if FileManager.default.fileExists(atPath: path) {
+                snapshot.reconfigureItems([metadata.id])
+                dataSource.apply(snapshot)
+            } else {
+                systemIconIds.append(metadata.id)
                 snapshot.reconfigureItems([metadata.id])
                 dataSource.apply(snapshot)
             }

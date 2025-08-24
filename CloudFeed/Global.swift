@@ -75,7 +75,6 @@ final class Global: Sendable {
     let sizePreview: Int        = 1024
     let sizeIcon: Int           = 512
     let avatarSizeBase: Int     = 128
-    let avatarSizeRounded: Int  = 128
     
     
     // MARK: - Metadata download status

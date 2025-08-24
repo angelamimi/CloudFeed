@@ -71,11 +71,11 @@ class PreviewController: UIViewController {
         
         activityIndicator.startAnimating()
         
-        if metadata.classFile == NKCommon.TypeClassFile.video.rawValue {
+        if metadata.classFile == NKTypeClassFile.video.rawValue {
             loadVideo()
         } else if metadata.livePhoto {
             loadLiveVideo()
-        } else if metadata.classFile == NKCommon.TypeClassFile.image.rawValue {
+        } else if metadata.classFile == NKTypeClassFile.image.rawValue {
             viewImage(metadata: metadata)
         }
     }
@@ -204,7 +204,7 @@ class PreviewController: UIViewController {
         Task { [weak self] in
             guard let self else { return }
             
-            await self.viewModel.dataService.downloadPreview(metadata: metadata, reload: true)
+            await self.viewModel.dataService.downloadPreview(metadata: metadata)
             
             if let image = UIImage(contentsOfFile: self.viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)) {
                 self.imageView.image = image
