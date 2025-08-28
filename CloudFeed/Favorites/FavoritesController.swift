@@ -125,6 +125,11 @@ class FavoritesController: CollectionController {
         }
     }
     
+    override func resetFilter() {
+        super.resetFilter()
+        initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
+    }
+    
     override func updateMediaType(_ type: Global.FilterType) {
         filterType = type
         clear()

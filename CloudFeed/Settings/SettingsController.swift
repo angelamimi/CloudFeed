@@ -502,6 +502,7 @@ extension SettingsController: SettingsDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.stopActivityIndicator()
             self?.clear()
+            self?.viewModel.userAccountChanged()
         }
     }
     

@@ -41,6 +41,10 @@ final class SettingsViewModel: ProfileViewModel {
     func getAccounts() async -> [Account] {
         return await dataService.getAccountsOrdered()
     }
+    
+    func userAccountChanged() {
+        coordinator.clearUser()
+    }
 
     func clearCache() {
         

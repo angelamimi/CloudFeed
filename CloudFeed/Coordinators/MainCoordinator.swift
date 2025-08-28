@@ -80,6 +80,8 @@ extension MainCoordinator: CacheDelegate {
     
     func clearUser() {
         clearSettingsController()
+        resetMediaFilter()
+        resetFavoritesFilter()
     }
     
     func cacheCleared() {
@@ -90,16 +92,36 @@ extension MainCoordinator: CacheDelegate {
 
 extension MainCoordinator {
     
+    private func getMediaController() -> MediaController? {
+        return (tabBarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] as? MediaController
+    }
+    
+    private func getFavoritesController() -> FavoritesController? {
+        return (tabBarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] as? FavoritesController
+    }
+    
+    private func resetMediaFilter() {
+        if let media = getMediaController() {
+            media.resetFilter()
+        }
+    }
+    
+    private func resetFavoritesFilter() {
+        if let favs = getFavoritesController() {
+            favs.resetFilter()
+        }
+    }
+    
     private func clearMediaController() {
-        let mediaNavController = tabBarController?.viewControllers?[0] as! UINavigationController
-        let mediaViewController = mediaNavController.viewControllers[0] as! MediaController
-        mediaViewController.clear()
+        if let media = getMediaController() {
+            media.clear()
+        }
     }
     
     private func clearFavoritesController() {
-        let favoritesNavController = tabBarController?.viewControllers?[1] as! UINavigationController
-        let favoritesViewController = favoritesNavController.viewControllers[0] as! FavoritesController
-        favoritesViewController.clear()
+        if let favs = getFavoritesController() {
+            favs.clear()
+        }
     }
     
     private func clearSettingsController() {

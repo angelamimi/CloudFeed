@@ -112,6 +112,10 @@ final class SettingsCoordinator {
     func applicationReset() {
         cacheDelegate.reset()
     }
+    
+    func clearUser() {
+        cacheDelegate.clearUser()
+    }
 }
 
 extension SettingsCoordinator: UserDelegate {

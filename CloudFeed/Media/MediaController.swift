@@ -114,6 +114,11 @@ class MediaController: CollectionController {
         setTitle()
     }
     
+    override func resetFilter() {
+        super.resetFilter()
+        initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
+    }
+    
     override func select() {
         if viewModel.currentItemCount() > 0 {
             titleBeginSelect()

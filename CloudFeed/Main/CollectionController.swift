@@ -32,7 +32,6 @@ protocol CollectionDelegate: AnyObject {
     func columnCountChanged(columnCount: Int)
     func scrollSpeedChanged(scrolling: Bool)
     func sizeAtIndexPath(indexPath: IndexPath) -> CGSize
-    //func cancelDownloads()
 }
 
 class CollectionController: UIViewController {
@@ -122,6 +121,12 @@ class CollectionController: UIViewController {
         navigationItem.title = title
         navigationItem.largeTitleDisplayMode = title.isEmpty ? .automatic : .always
         navigationController?.navigationBar.prefersLargeTitles = title.isEmpty ? false : true
+    }
+    
+    func resetFilter() {
+        filterFromDate = nil
+        filterToDate = nil
+        filterType = .all
     }
     
     func hideEmptyView() {
@@ -301,7 +306,8 @@ class CollectionController: UIViewController {
         }
     }
     
-    @objc private func refresh(_ sender: Any) {
+    @objc
+    private func refresh(_ sender: Any) {
         delegate?.refresh()
     }
     
