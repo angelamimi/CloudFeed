@@ -683,17 +683,12 @@ class ViewerController: UIViewController {
                 self?.imageView.center = self?.view.center ?? .zero
             })
         } else {
-            
             panRecognizer?.isEnabled = false
-            center = nil
-            updateStatus(.title)
+            setImageViewIdentity()
             
-            if presentedViewController == nil {
-                setImageViewIdentity()
-            } else {
-                presentedViewController?.dismiss(animated: true, completion: { [weak self] in
-                    self?.setImageViewIdentity()
-                })
+            if UIDevice.current.userInterfaceIdiom != .pad {
+                center = nil
+                updateStatus(.title)
             }
         }
     }
