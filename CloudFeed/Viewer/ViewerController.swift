@@ -822,11 +822,22 @@ class ViewerController: UIViewController {
     
     private func adjustImageView() {
         
-        guard let image = imageView.image else { return }
+        //guard let image = imageView.image else { return }
+        let imageSize: CGSize
+        
+        if imageView.image == nil {
+            if mediaPlayer?.videoSize == nil {
+                return
+            } else {
+                imageSize = mediaPlayer!.videoSize
+            }
+        } else {
+            imageSize = imageView.image!.size
+        }
         
         let bounds = imageView.bounds
-        let scale: CGFloat = min(bounds.width / image.size.width, bounds.height / image.size.height)
-        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        let scale: CGFloat = min(bounds.width / imageSize.width, bounds.height / imageSize.height)
+        let size = CGSize(width: imageSize.width * scale, height: imageSize.height * scale)
         let x = (bounds.width - size.width) / 2.0
         let y = (bounds.height - size.height) / 2.0
         let rect = CGRect(x: x, y: y, width: size.width, height: size.height)
