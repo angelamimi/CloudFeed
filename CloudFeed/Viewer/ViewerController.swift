@@ -182,6 +182,7 @@ class ViewerController: UIViewController {
         }
         
         if UIDevice.current.userInterfaceIdiom == .pad {
+            setImageViewBackgroundColor()
             if !details {
                 toggleControlsVisibility()
             }
@@ -319,8 +320,17 @@ class ViewerController: UIViewController {
             imageView.backgroundColor = .black
         } else {
             let status = currentStatus()
+            let color: UIColor
+            let pad = UIDevice.current.userInterfaceIdiom == .pad
+            
+            if !imageView.transform.isIdentity && ((pad && (status == .details || status == .title)) || (!pad && status == .title)) {
+                color = .black
+            } else {
+                color = status == .fullscreen ? .black : .systemBackground
+            }
+            
             UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: { [weak self] in
-                self?.imageView.backgroundColor = status == .fullscreen ? .black : .systemBackground
+                self?.imageView.backgroundColor = color
             })
         }
     }
@@ -670,23 +680,41 @@ class ViewerController: UIViewController {
     
     @objc private func handleDoubleTap() {
         
-        guard detailsVisible() == false || UIDevice.current.userInterfaceIdiom == .pad else { return }
+        let details = detailsVisible()
+        guard !details || UIDevice.current.userInterfaceIdiom == .pad else { return }
         
-        if imageView.transform.a == 1.0 {
+        if imageView.transform.isIdentity {
             
             panRecognizer?.isEnabled = true
             center = nil
-            hideAll()
+            
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                hideControls()
+            } else {
+                hideAll()
+            }
             
             UIView.animate(withDuration: 0.3, delay: 0.0, animations: { [weak self] in
                 self?.imageView.transform = CGAffineTransformMakeScale(2, 2)
                 self?.imageView.center = self?.view.center ?? .zero
+            }, completion: { [weak self] _ in
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    self?.setImageViewBackgroundColor()
+                }
             })
         } else {
             panRecognizer?.isEnabled = false
             setImageViewIdentity()
             
-            if UIDevice.current.userInterfaceIdiom != .pad {
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                
+                if details {
+                    setImageViewBackgroundColor()
+                } else {
+                    center = nil
+                    updateStatus(.title)
+                }
+            } else {
                 center = nil
                 updateStatus(.title)
             }
@@ -771,7 +799,7 @@ class ViewerController: UIViewController {
             pinchGesture.scale = 1.0
 
         } else if pinchGesture.state == .ended || pinchGesture.state == .cancelled || pinchGesture.state == .failed {
-
+            
             if view.transform.isIdentity {
                 panRecognizer?.isEnabled = false //panning doesn't work with paging
                 center = nil
