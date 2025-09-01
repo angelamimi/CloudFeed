@@ -378,6 +378,15 @@ class ViewerController: UIViewController {
 
         if let image = await viewModel.downloadVideoFrame(metadata: metadata, url: url, size: imageView.frame.size) {
             await setImage(image: image)
+        } else {
+            setupVideoController(autoPlay: false)
+            if let media = mediaPlayer?.media {
+                let thumbnailer = VLCMediaThumbnailer(media: media, andDelegate: self)
+                thumbnailer.snapshotPosition = 0.05
+                thumbnailer.thumbnailWidth = imageView.frame.width
+                thumbnailer.thumbnailHeight = imageView.frame.height
+                thumbnailer.fetchThumbnail()
+            }
         }
     }
     
@@ -438,6 +447,8 @@ class ViewerController: UIViewController {
     
     private func showControls() {
         
+        guard metadata.video else { return }
+        
         if controlsView == nil {
             initControls()
             addControls()
@@ -445,7 +456,7 @@ class ViewerController: UIViewController {
             controlsView?.frame = view.frame
         }
         
-        UIView.animate(withDuration: 0.2, animations: { [weak self] in
+        UIView.animate(withDuration: 0.1, animations: { [weak self] in
             self?.controlsView?.alpha = 1
         })
     }
@@ -659,6 +670,7 @@ class ViewerController: UIViewController {
             if detailsVisible() {
                 center = nil
                 hideDetails(animate: true, status: .title)
+                setImageViewBackgroundColor()
             } else {
                 
                 if imageView.transform.a == 1.0 {
@@ -689,7 +701,9 @@ class ViewerController: UIViewController {
             center = nil
             
             if UIDevice.current.userInterfaceIdiom == .pad {
-                hideControls()
+                if !details {
+                    hideAll()
+                }
             } else {
                 hideAll()
             }
@@ -713,10 +727,12 @@ class ViewerController: UIViewController {
                 } else {
                     center = nil
                     updateStatus(.title)
+                    showControls()
                 }
             } else {
                 center = nil
                 updateStatus(.title)
+                showControls()
             }
         }
     }
@@ -1332,10 +1348,13 @@ class ViewerController: UIViewController {
             
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: { [weak self] in
                 self?.updateVerticalConstraintsHide()
+            }, completion: { [weak self] _ in
+                self?.setImageViewBackgroundColor()
             })
             
         } else {
             updateVerticalConstraintsHide()
+            setImageViewBackgroundColor()
         }
     }
     
@@ -1361,7 +1380,7 @@ class ViewerController: UIViewController {
         imageViewHeightConstraint?.constant = view.frame.height
         imageViewTopConstraint.constant = 0
         
-        imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
+        imageView.transform = .identity
         
         detailView?.removeFromSuperview()
         detailView = nil
@@ -1439,8 +1458,7 @@ class ViewerController: UIViewController {
         }
         
         if shiftOnly && transformImage {
-            imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
-
+            imageView.transform = .identity
             updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset, shift: true)
         } else {
             updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset, shift: false)
@@ -1474,6 +1492,8 @@ class ViewerController: UIViewController {
             
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: { [weak self] in
                 self?.updateHorizontalConstraintsHide()
+            }, completion: { [weak self] _ in
+                self?.setImageViewBackgroundColor()
             })
             
         } else {
@@ -1483,6 +1503,7 @@ class ViewerController: UIViewController {
             }
             
             updateHorizontalConstraintsHide()
+            setImageViewBackgroundColor()
         }
     }
     
@@ -1697,5 +1718,24 @@ extension ViewerController: DetailViewDelegate {
     
     func showAllDetails(metadata: Metadata) {
         presentAllDetailsSheet()
+    }
+}
+
+extension ViewerController: VLCMediaThumbnailerDelegate {
+    
+    nonisolated func mediaThumbnailerDidTimeOut(_ mediaThumbnailer: VLCMediaThumbnailer) {}
+    
+    nonisolated func mediaThumbnailer(_ mediaThumbnailer: VLCMediaThumbnailer, didFinishThumbnail thumbnail: CGImage) {
+
+        DispatchQueue.main.async { [weak self] in
+            
+            if let metadata = self?.metadata {
+                autoreleasepool {
+                    let image = UIImage(cgImage: thumbnail)
+                    self?.imageView.image = image
+                    self?.viewModel.saveVideoPreview(metadata: metadata, image: image)
+                }
+            }
+        }
     }
 }

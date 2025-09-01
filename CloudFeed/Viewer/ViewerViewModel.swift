@@ -71,6 +71,10 @@ struct ViewerViewModel {
         return await getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
     }
     
+    func saveVideoPreview(metadata: Metadata, image: UIImage) {
+        return dataService.saveVideoPreview(metadata: metadata, image: image)
+    }
+    
     func getVideoFrame(metadata: Metadata) -> UIImage? {
         return dataService.getVideoFrame(metadata: metadata)
     }

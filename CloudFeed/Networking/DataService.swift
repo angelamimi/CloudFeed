@@ -337,6 +337,11 @@ final class DataService: NSObject, Sendable {
         }
     }
     
+    func saveVideoPreview(metadata: Metadata, image: UIImage) {
+        let path = store.getImagePath(metadata.ocId, metadata.etag)
+        try? image.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
+    }
+    
     func downloadVideoPreview(metadata: Metadata?) async {
         
         guard metadata != nil else { return }
@@ -358,6 +363,7 @@ final class DataService: NSObject, Sendable {
     func getDirectDownload(metadata: Metadata) async -> URL? {
         return await nextcloudService.getDirectDownload(metadata: metadata)
     }
+
     
     // MARK: -
     // MARK: Search

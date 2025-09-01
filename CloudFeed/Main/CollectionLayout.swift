@@ -43,7 +43,7 @@ class CollectionLayout: UICollectionViewFlowLayout {
         }
     }
     
-    private var cellPadding: CGFloat = 2
+    private var cellPadding: CGFloat = 1
     private var cache = [UICollectionViewLayoutAttributes]()
     private var columnHeights: [[CGFloat]] = []
     private var contentHeight: CGFloat = 0

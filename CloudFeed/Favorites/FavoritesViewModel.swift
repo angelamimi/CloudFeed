@@ -388,11 +388,14 @@ final class FavoritesViewModel {
             
             if FileManager().fileExists(atPath: path) {
                 
-                let image = UIImage(contentsOfFile: path)
-                cell.setImage(image)
-                
-                if image != nil {
-                    cacheManager.cache(metadata: metadata, image: image!)
+                autoreleasepool {
+                    
+                    let image = UIImage(contentsOfFile: path)
+                    cell.setImage(image)
+                    
+                    if image != nil {
+                        cacheManager.cache(metadata: metadata, image: image!)
+                    }
                 }
                 
             }  else {
