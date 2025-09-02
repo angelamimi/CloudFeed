@@ -1339,7 +1339,7 @@ class ViewerController: UIViewController {
             })
         }
     }
-    
+
     private func hideVerticalDetails(animate: Bool) {
         
         view.layoutIfNeeded()
@@ -1349,12 +1349,14 @@ class ViewerController: UIViewController {
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: { [weak self] in
                 self?.updateVerticalConstraintsHide()
             }, completion: { [weak self] _ in
-                self?.setImageViewBackgroundColor()
+                self?.detailView?.removeFromSuperview()
+                self?.detailView = nil
             })
             
         } else {
             updateVerticalConstraintsHide()
-            setImageViewBackgroundColor()
+            detailView?.removeFromSuperview()
+            detailView = nil
         }
     }
     
@@ -1382,8 +1384,9 @@ class ViewerController: UIViewController {
         
         imageView.transform = .identity
         
-        detailView?.removeFromSuperview()
-        detailView = nil
+        if !metadata.video {
+            imageView.backgroundColor = .systemBackground
+        }
         
         view.layoutIfNeeded()
     }
@@ -1493,9 +1496,9 @@ class ViewerController: UIViewController {
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: { [weak self] in
                 self?.updateHorizontalConstraintsHide()
             }, completion: { [weak self] _ in
-                self?.setImageViewBackgroundColor()
+                self?.detailView?.removeFromSuperview()
+                self?.detailView = nil
             })
-            
         } else {
             
             if imageView.contentMode != .scaleAspectFit {
@@ -1503,7 +1506,8 @@ class ViewerController: UIViewController {
             }
             
             updateHorizontalConstraintsHide()
-            setImageViewBackgroundColor()
+            detailView?.removeFromSuperview()
+            detailView = nil
         }
     }
     
@@ -1536,7 +1540,11 @@ class ViewerController: UIViewController {
         imageViewLeadingConstraint?.constant = 0
         imageViewTrailingConstraint?.constant = 0
         
-        imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
+        imageView.transform = .identity
+        
+        if !metadata.video {
+            imageView.backgroundColor = .systemBackground
+        }
         
         view.layoutIfNeeded()
     }
