@@ -54,7 +54,7 @@ extension FavoritesCoordinator {
     
     func showFilter(filterable: Filterable, from: Date?, to: Date?) {
         
-        let filterController = UIStoryboard(name: "Favorites", bundle: nil).instantiateViewController(identifier: "FilterController") as FilterController
+        let filterController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "FilterController") as FilterController
         
         filterController.modalPresentationStyle = .formSheet
         filterController.preferredContentSize = CGSize(width: 400, height: 500)

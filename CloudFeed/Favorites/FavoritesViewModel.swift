@@ -70,7 +70,7 @@ final class FavoritesViewModel {
 
         dataSource = UICollectionViewDiffableDataSource<Int, Metadata.ID>(collectionView: collectionView) { [weak self] (collectionView: UICollectionView, indexPath: IndexPath, metadataId: Metadata.ID) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            self?.populateCell(metadataId: metadataId, cell: cell, indexPath: indexPath, collectionView: collectionView)
+            self?.populateCell(metadataId: metadataId, cell: cell, indexPath: indexPath)
             return cell
         }
 
@@ -353,7 +353,7 @@ final class FavoritesViewModel {
         }
     }
     
-    private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath, collectionView: UICollectionView) {
+    private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath) {
         
         guard let metadata = metadatas[metadataId] else {
             cell.isAccessibilityElement = false

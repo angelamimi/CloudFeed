@@ -2,9 +2,10 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -58,6 +59,230 @@
             </objects>
             <point key="canvasLocation" x="-1614" y="39"/>
         </scene>
+        <!--Filter Controller-->
+        <scene sceneID="hvK-8m-4kE">
+            <objects>
+                <viewController storyboardIdentifier="FilterController" id="GmZ-BN-T7n" customClass="FilterController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="cs3-fx-qKP">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MSS-92-kvS">
+                                <rect key="frame" x="0.0" y="16" width="393" height="768"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="yFg-ri-g0x" userLabel="Date Filter Stack View">
+                                        <rect key="frame" x="16" y="16.000000000000028" width="361" height="504.66666666666674"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="IVc-Oa-g33" userLabel="Filter Header Stack View">
+                                                <rect key="frame" x="0.0" y="0.0" width="361" height="20.333333333333332"/>
+                                                <subviews>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="calendar" catalog="system" adjustsImageSizeForAccessibilityContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FoN-dO-LFa">
+                                                        <rect key="frame" x="0.0" y="2" width="20" height="17.000000000000004"/>
+                                                        <color key="tintColor" systemColor="labelColor"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="20" id="2Eg-on-bqe"/>
+                                                            <constraint firstAttribute="height" constant="20" id="IIC-fs-loq"/>
+                                                        </constraints>
+                                                    </imageView>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Date Filter" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bvO-7D-DwT">
+                                                        <rect key="frame" x="28" y="0.0" width="333" height="20.333333333333332"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                            </stackView>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OAL-cw-zh7">
+                                                <rect key="frame" x="0.0" y="36.333333333333329" width="361" height="1"/>
+                                                <color key="backgroundColor" systemColor="systemGrayColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="1" id="fRD-ec-Ofu"/>
+                                                </constraints>
+                                            </view>
+                                            <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SnS-3T-w1m" userLabel="Filter From Stack View">
+                                                <rect key="frame" x="0.0" y="53.333333333333329" width="361" height="50"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="From" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J8N-Aj-Rus">
+                                                        <rect key="frame" x="0.0" y="0.0" width="39.333333333333336" height="50"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" translatesAutoresizingMaskIntoConstraints="NO" id="o01-YG-mKw">
+                                                        <rect key="frame" x="39.333333333333343" y="0.0" width="321.66666666666663" height="50"/>
+                                                    </datePicker>
+                                                </subviews>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gn5-cs-9g9" userLabel="Filter To Stack View">
+                                                <rect key="frame" x="0.0" y="119.33333333333334" width="361" height="100"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="To" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7Rf-U8-NeP">
+                                                        <rect key="frame" x="0.0" y="0.0" width="18.333333333333332" height="100"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" translatesAutoresizingMaskIntoConstraints="NO" id="alP-et-WGr">
+                                                        <rect key="frame" x="18.333333333333343" y="0.0" width="342.66666666666663" height="100"/>
+                                                    </datePicker>
+                                                </subviews>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="vp6-eF-Zhg" userLabel="Preset Header Stack View">
+                                                <rect key="frame" x="0.0" y="235.33333333333331" width="361" height="36.333333333333314"/>
+                                                <subviews>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="slider.horizontal.3" catalog="system" adjustsImageSizeForAccessibilityContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8Dg-fe-jnL">
+                                                        <rect key="frame" x="0.0" y="18.333333333333371" width="20" height="16"/>
+                                                        <color key="tintColor" systemColor="labelColor"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="20" id="0V7-Lv-9UE"/>
+                                                            <constraint firstAttribute="height" constant="20" id="Q7X-9R-ltg"/>
+                                                        </constraints>
+                                                    </imageView>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Date Presets" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sfv-Z6-WqX">
+                                                        <rect key="frame" x="28" y="15.999999999999998" width="333" height="20.333333333333329"/>
+                                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                                <edgeInsets key="layoutMargins" top="16" left="0.0" bottom="0.0" right="0.0"/>
+                                            </stackView>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lYZ-52-xaW">
+                                                <rect key="frame" x="0.0" y="287.66666666666669" width="361" height="1"/>
+                                                <color key="backgroundColor" systemColor="systemGrayColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="1" id="fap-dc-kXN"/>
+                                                </constraints>
+                                            </view>
+                                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="1000" pagingEnabled="YES" dataMode="prototypes" prefetchingEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2Yb-Dy-NfP">
+                                                <rect key="frame" x="0.0" y="304.66666666666669" width="361" height="200"/>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" priority="750" constant="200" id="anM-v2-vB0"/>
+                                                </constraints>
+                                                <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="8" minimumInteritemSpacing="8" id="rb4-7a-1Qf">
+                                                    <size key="itemSize" width="128" height="50"/>
+                                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                </collectionViewFlowLayout>
+                                                <cells>
+                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FilterMonthCell" id="cu8-l7-rP3" customClass="FilterMonthCell" customModule="CloudFeed" customModuleProvider="target">
+                                                        <rect key="frame" x="0.0" y="0.0" width="128" height="50"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="BLx-1k-3hF">
+                                                            <rect key="frame" x="0.0" y="0.0" width="128" height="50"/>
+                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                            <subviews>
+                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9ey-xP-O0l">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="128" height="50"/>
+                                                                    <color key="tintColor" systemColor="labelColor"/>
+                                                                    <state key="normal" title="Button"/>
+                                                                    <buttonConfiguration key="configuration" style="gray" title="Button"/>
+                                                                </button>
+                                                            </subviews>
+                                                            <constraints>
+                                                                <constraint firstAttribute="bottom" secondItem="9ey-xP-O0l" secondAttribute="bottom" id="2wt-o6-maO"/>
+                                                                <constraint firstItem="9ey-xP-O0l" firstAttribute="leading" secondItem="BLx-1k-3hF" secondAttribute="leading" id="GAw-1N-qLI"/>
+                                                                <constraint firstAttribute="trailing" secondItem="9ey-xP-O0l" secondAttribute="trailing" id="t1P-Xz-vd1"/>
+                                                                <constraint firstItem="9ey-xP-O0l" firstAttribute="top" secondItem="BLx-1k-3hF" secondAttribute="top" id="vCa-1k-8Qt"/>
+                                                            </constraints>
+                                                        </collectionViewCellContentView>
+                                                        <connections>
+                                                            <outlet property="monthButton" destination="9ey-xP-O0l" id="p5r-T7-zKd"/>
+                                                        </connections>
+                                                    </collectionViewCell>
+                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FilterYearCell" id="F6g-Lz-GoD" customClass="FilterYearCell" customModule="CloudFeed" customModuleProvider="target">
+                                                        <rect key="frame" x="0.0" y="75" width="128" height="50"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8VX-Oq-cpr">
+                                                            <rect key="frame" x="0.0" y="0.0" width="128" height="50"/>
+                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                            <subviews>
+                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RY2-bY-Dd6">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="128" height="50"/>
+                                                                    <color key="tintColor" systemColor="labelColor"/>
+                                                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                    <state key="normal" title="Button"/>
+                                                                    <buttonConfiguration key="configuration" style="gray" title="Button"/>
+                                                                </button>
+                                                            </subviews>
+                                                            <constraints>
+                                                                <constraint firstItem="RY2-bY-Dd6" firstAttribute="bottom" secondItem="8VX-Oq-cpr" secondAttribute="bottom" id="TTt-eI-8gy"/>
+                                                                <constraint firstAttribute="trailing" secondItem="RY2-bY-Dd6" secondAttribute="trailing" id="ius-qz-cH3"/>
+                                                                <constraint firstItem="RY2-bY-Dd6" firstAttribute="leading" secondItem="8VX-Oq-cpr" secondAttribute="leading" id="rW6-5W-eat"/>
+                                                                <constraint firstItem="RY2-bY-Dd6" firstAttribute="top" secondItem="8VX-Oq-cpr" secondAttribute="top" id="vrR-6r-xJ7"/>
+                                                            </constraints>
+                                                        </collectionViewCellContentView>
+                                                        <connections>
+                                                            <outlet property="yearButton" destination="RY2-bY-Dd6" id="nTd-EH-24e"/>
+                                                        </connections>
+                                                    </collectionViewCell>
+                                                </cells>
+                                            </collectionView>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="2Yb-Dy-NfP" firstAttribute="leading" secondItem="yFg-ri-g0x" secondAttribute="leading" id="Hkd-Vf-13c"/>
+                                            <constraint firstAttribute="trailing" secondItem="2Yb-Dy-NfP" secondAttribute="trailing" id="HzC-th-ZRy"/>
+                                        </constraints>
+                                    </stackView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="yFg-ri-g0x" firstAttribute="trailing" secondItem="N4s-bq-0y2" secondAttribute="trailing" constant="-16" id="NiH-Mb-hws"/>
+                                    <constraint firstItem="yFg-ri-g0x" firstAttribute="leading" secondItem="N4s-bq-0y2" secondAttribute="leading" constant="16" id="XAo-Oa-DZ5"/>
+                                    <constraint firstItem="yFg-ri-g0x" firstAttribute="width" secondItem="MEE-jb-awT" secondAttribute="width" constant="-32" id="cIn-Wh-b87"/>
+                                    <constraint firstItem="yFg-ri-g0x" firstAttribute="top" secondItem="N4s-bq-0y2" secondAttribute="top" constant="16" id="oZl-91-YSb"/>
+                                    <constraint firstItem="yFg-ri-g0x" firstAttribute="bottom" secondItem="N4s-bq-0y2" secondAttribute="bottom" id="vbd-cD-mx7"/>
+                                </constraints>
+                                <viewLayoutGuide key="contentLayoutGuide" id="N4s-bq-0y2"/>
+                                <viewLayoutGuide key="frameLayoutGuide" id="MEE-jb-awT"/>
+                            </scrollView>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="XHY-nv-up9">
+                                <rect key="frame" x="0.0" y="717.66666666666663" width="393" height="66.333333333333329"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xKY-uO-FxY">
+                                        <rect key="frame" x="16" y="16.000000000000004" width="172.66666666666666" height="34.333333333333343"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="gray" title="Button"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3mF-yh-pxL">
+                                        <rect key="frame" x="204.66666666666663" y="16.000000000000004" width="172.33333333333337" height="34.333333333333343"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Button"/>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <edgeInsets key="layoutMargins" top="16" left="16" bottom="16" right="16"/>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="rLJ-87-MGa"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="MSS-92-kvS" firstAttribute="top" secondItem="cs3-fx-qKP" secondAttribute="top" constant="16" id="0ZR-br-wnf"/>
+                            <constraint firstItem="rLJ-87-MGa" firstAttribute="bottom" secondItem="XHY-nv-up9" secondAttribute="bottom" id="Bhj-uI-cxw"/>
+                            <constraint firstItem="rLJ-87-MGa" firstAttribute="bottom" secondItem="MSS-92-kvS" secondAttribute="bottom" id="PLj-q0-GGg"/>
+                            <constraint firstItem="MSS-92-kvS" firstAttribute="leading" secondItem="rLJ-87-MGa" secondAttribute="leading" id="WeO-FV-5ak"/>
+                            <constraint firstItem="rLJ-87-MGa" firstAttribute="trailing" secondItem="XHY-nv-up9" secondAttribute="trailing" id="had-n1-YPR"/>
+                            <constraint firstItem="XHY-nv-up9" firstAttribute="leading" secondItem="rLJ-87-MGa" secondAttribute="leading" id="mF5-iq-jfb"/>
+                            <constraint firstItem="MSS-92-kvS" firstAttribute="trailing" secondItem="rLJ-87-MGa" secondAttribute="trailing" id="u5y-gM-xYR"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="actionStackView" destination="XHY-nv-up9" id="dPM-M1-ceC"/>
+                        <outlet property="collectionView" destination="2Yb-Dy-NfP" id="Mdm-5E-XWH"/>
+                        <outlet property="filterButton" destination="3mF-yh-pxL" id="mOR-qf-6Vg"/>
+                        <outlet property="fromDatePicker" destination="o01-YG-mKw" id="eoR-3D-lic"/>
+                        <outlet property="fromLabel" destination="J8N-Aj-Rus" id="hfD-30-Yz7"/>
+                        <outlet property="removeFilterButton" destination="xKY-uO-FxY" id="xuD-hf-ewq"/>
+                        <outlet property="scrollView" destination="MSS-92-kvS" id="3nB-Mb-s7I"/>
+                        <outlet property="toDatePicker" destination="alP-et-WGr" id="10c-av-gpX"/>
+                        <outlet property="toLabel" destination="7Rf-U8-NeP" id="h9b-Kt-7Ds"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="l2R-if-dhc" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-402" y="-385"/>
+        </scene>
         <!--Settings-->
         <scene sceneID="PoH-aX-Nxn">
             <objects>
@@ -94,8 +319,16 @@
         <segue reference="c8I-tM-W6e"/>
     </inferredMetricsTieBreakers>
     <resources>
+        <image name="calendar" catalog="system" width="128" height="107"/>
+        <image name="slider.horizontal.3" catalog="system" width="128" height="99"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemGrayColor">
+            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
