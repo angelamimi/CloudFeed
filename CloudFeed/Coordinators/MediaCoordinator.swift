@@ -60,9 +60,17 @@ extension MediaCoordinator {
     func showFilter(filterable: Filterable, from: Date?, to: Date?) {
         
         let filterController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "FilterController") as FilterController
+        let pad = UIDevice.current.userInterfaceIdiom == .pad
         
-        filterController.modalPresentationStyle = .formSheet
+        filterController.modalPresentationStyle = pad ? .popover : .formSheet
         filterController.preferredContentSize = CGSize(width: 400, height: 500)
+        
+        if pad {
+            //for some reason formSheet is not presented in the center. added this to force centering along with popover modalPresentationStyle
+            filterController.popoverPresentationController?.permittedArrowDirections = []
+            filterController.popoverPresentationController?.sourceView = navigationController.view
+            filterController.popoverPresentationController?.sourceRect = CGRect(origin: CGPoint( x: navigationController.view.bounds.midX, y: navigationController.view.bounds.midY), size: .zero)
+        }
         
         if let sheet = filterController.sheetPresentationController {
             sheet.detents = [.medium(), .large()]

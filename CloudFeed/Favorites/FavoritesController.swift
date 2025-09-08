@@ -74,6 +74,13 @@ class FavoritesController: CollectionController {
         viewModel.cleanupFileCache()
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        //make sure filter controller sheet is centered
+        if presentedViewController != nil && presentedViewController is FilterController {
+            presentedViewController?.popoverPresentationController?.sourceRect = CGRect(origin: .zero, size: size)
+        }
+    }
+    
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
             refreshVisibleItems()
