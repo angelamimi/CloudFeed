@@ -106,8 +106,8 @@ class FilterController: UIViewController {
 
     private func initDataSource() {
 
-        let layout = UICollectionViewCompositionalLayout { (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
-            return self.buildHorizontalSection()
+        let layout = UICollectionViewCompositionalLayout { [weak self] (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+            return self?.buildHorizontalSection()
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()

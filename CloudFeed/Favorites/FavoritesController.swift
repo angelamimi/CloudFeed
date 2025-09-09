@@ -55,12 +55,6 @@ class FavoritesController: CollectionController {
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
         initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(mediaPathChanged), name: Notification.Name("MediaPathChanged"), object: nil)
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -104,7 +98,7 @@ class FavoritesController: CollectionController {
         setTitle()
     }
     
-    @objc func mediaPathChanged() {
+    func mediaPathChanged() {
         reload()
     }
     

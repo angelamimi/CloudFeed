@@ -44,6 +44,7 @@ extension MediaCoordinator {
     
     func showPicker() {
         let pickerCoordinator = PickerCoordinator(navigationController: navigationController, dataService: dataService)
+        pickerCoordinator.delegate = self
         pickerCoordinator.start()
     }
     
@@ -139,10 +140,19 @@ extension MediaCoordinator: ShareDelegate {
 extension MediaCoordinator: PagerDelegate {
     
     func pagingEndedWith(metadata: Metadata) {
-        
         if navigationController.children[0] is MediaController {
             let mediaController = navigationController.children[0] as! MediaController
             mediaController.scrollToMetadata(metadata: metadata)
+        }
+    }
+}
+
+extension MediaCoordinator: PickerCoordinatorDelegate {
+    
+    func mediaPathChanged() {
+        if navigationController.children[0] is MediaController {
+            let mediaController = navigationController.children[0] as! MediaController
+            mediaController.mediaPathChanged()
         }
     }
 }

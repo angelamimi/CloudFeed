@@ -45,12 +45,6 @@ class MediaController: CollectionController {
         initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(mediaPathChanged), name: Notification.Name("MediaPathChanged"), object: nil)
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -87,7 +81,7 @@ class MediaController: CollectionController {
         refreshVisibleItems()
     }
     
-    @objc func mediaPathChanged() {
+    func mediaPathChanged() {
         reload()
     }
     

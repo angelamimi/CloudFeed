@@ -49,6 +49,7 @@ extension FavoritesCoordinator {
     
     func showPicker() {
         let pickerCoordinator = PickerCoordinator(navigationController: navigationController, dataService: dataService)
+        pickerCoordinator.delegate = self
         pickerCoordinator.start()
     }
     
@@ -136,10 +137,19 @@ extension FavoritesCoordinator: ShareDelegate {
 extension FavoritesCoordinator: PagerDelegate {
     
     func pagingEndedWith(metadata: Metadata) {
-        
         if navigationController.children[0] is FavoritesController {
             let favoritesController = navigationController.children[0] as! FavoritesController
             favoritesController.scrollToMetadata(metadata: metadata)
+        }
+    }
+}
+
+extension FavoritesCoordinator: PickerCoordinatorDelegate {
+    
+    func mediaPathChanged() {
+        if navigationController.children[0] is FavoritesController {
+            let favoritesController = navigationController.children[0] as! FavoritesController
+            favoritesController.mediaPathChanged()
         }
     }
 }

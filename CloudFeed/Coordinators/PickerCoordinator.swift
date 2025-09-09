@@ -22,12 +22,19 @@
 import UIKit
 
 @MainActor
+protocol PickerCoordinatorDelegate: AnyObject {
+    func mediaPathChanged()
+}
+
+@MainActor
 final class PickerCoordinator {
     
     private let navigationController: UINavigationController
     private let dataService: DataService
     
     private var pickerNavigationController: UINavigationController!
+    
+    weak var delegate: PickerCoordinatorDelegate?
     
     init(navigationController: UINavigationController, dataService: DataService) {
         self.navigationController = navigationController
@@ -60,8 +67,8 @@ extension PickerCoordinator: PickerDelegate {
     }
     
     func select() {
-        navigationController.dismiss(animated: true, completion: {
-            NotificationCenter.default.post(name: Notification.Name("MediaPathChanged"), object: nil, userInfo: nil)
+        navigationController.dismiss(animated: true, completion: { [weak self] in
+            self?.delegate?.mediaPathChanged()
         })
     }
 }
