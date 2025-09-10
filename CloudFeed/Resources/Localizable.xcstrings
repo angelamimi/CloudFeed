@@ -2284,6 +2284,28 @@
         }
       }
     },
+    "Media.Filter.Section.Dates" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date Range"
+          }
+        }
+      }
+    },
+    "Media.Filter.Section.Presets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date Presets"
+          }
+        }
+      }
+    },
     "Media.InvalidFilter" : {
       "localizations" : {
         "en" : {

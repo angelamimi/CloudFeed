@@ -104,6 +104,8 @@ extension Strings {
     public static let MediaNavTitle = NSLocalizedString("Media.Nav.Title", comment: "")
     public static let MediaFilter = NSLocalizedString("Media.Filter", comment: "")
     public static let MediaRemoveFilter = NSLocalizedString("Media.RemoveFilter", comment: "")
+    public static let MediaFilterSectionDates = NSLocalizedString("Media.Filter.Section.Dates", comment: "")
+    public static let MediaFilterSectionPresets = NSLocalizedString("Media.Filter.Section.Presets", comment: "")
     public static let MediaInvalidFilter = NSLocalizedString("Media.InvalidFilter", comment: "")
     public static let MediaVideoErrorMessage = NSLocalizedString("Media.Video.Error.Message", comment: "")
     public static let MediaPhoto = NSLocalizedString("Media.Photo", comment: "")

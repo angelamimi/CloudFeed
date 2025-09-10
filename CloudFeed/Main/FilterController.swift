@@ -32,6 +32,8 @@ class FilterController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var actionStackView: UIStackView!
+    @IBOutlet weak var dateSectionLabel: UILabel!
+    @IBOutlet weak var presetsSectionLabel: UILabel!
     @IBOutlet weak var toLabel: UILabel!
     @IBOutlet weak var fromLabel: UILabel!
     @IBOutlet weak var fromDatePicker: UIDatePicker!
@@ -53,6 +55,9 @@ class FilterController: UIViewController {
         
         filterButton.setTitle(Strings.MediaFilter, for: .normal)
         removeFilterButton.setTitle(Strings.MediaRemoveFilter, for: .normal)
+        
+        dateSectionLabel.text = Strings.MediaFilterSectionDates
+        presetsSectionLabel.text = Strings.MediaFilterSectionPresets
         
         toLabel.text = Strings.FilterLabelDateTo
         fromLabel.text = Strings.FilterLabelDateFrom

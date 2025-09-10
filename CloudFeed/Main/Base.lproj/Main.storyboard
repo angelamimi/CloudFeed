@@ -270,9 +270,11 @@
                     <connections>
                         <outlet property="actionStackView" destination="XHY-nv-up9" id="dPM-M1-ceC"/>
                         <outlet property="collectionView" destination="2Yb-Dy-NfP" id="Mdm-5E-XWH"/>
+                        <outlet property="dateSectionLabel" destination="bvO-7D-DwT" id="aas-BA-fC7"/>
                         <outlet property="filterButton" destination="3mF-yh-pxL" id="mOR-qf-6Vg"/>
                         <outlet property="fromDatePicker" destination="o01-YG-mKw" id="eoR-3D-lic"/>
                         <outlet property="fromLabel" destination="J8N-Aj-Rus" id="hfD-30-Yz7"/>
+                        <outlet property="presetsSectionLabel" destination="Sfv-Z6-WqX" id="Db3-PP-zYI"/>
                         <outlet property="removeFilterButton" destination="xKY-uO-FxY" id="xuD-hf-ewq"/>
                         <outlet property="scrollView" destination="MSS-92-kvS" id="3nB-Mb-s7I"/>
                         <outlet property="toDatePicker" destination="alP-et-WGr" id="10c-av-gpX"/>
