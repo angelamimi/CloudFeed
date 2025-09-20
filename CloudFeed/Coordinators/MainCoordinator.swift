@@ -48,6 +48,15 @@ final class MainCoordinator : NSObject, Coordinator {
         
         tabBarController?.delegate = self
         tabBarController?.view.backgroundColor = .black
+        tabBarController?.tabBar.tintColor = .label
+        
+        if #unavailable(iOS 26) {
+            let appearance = UITabBarAppearance()
+            appearance.configureWithTransparentBackground()
+            appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             initSplitTabCoordinators(dataService: dataService)
@@ -153,7 +162,7 @@ extension MainCoordinator {
         
         let mediaCoordinator = MediaCoordinator(navigationController: mediaNavController, dataService: dataService)
         let favoriteCoordinator = FavoritesCoordinator(navigationController: favoritesNavController, dataService: dataService)
-        let settingCoordinator = SettingsCoordinator(navigationController: settingsNavController, dataService: dataService, cacheDelegate: self)
+        let settingCoordinator = SettingsCoordinator(settingsController: settingsViewController, dataService: dataService, cacheDelegate: self)
         
         mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService, cacheManager: cacheManager, coordinator: mediaCoordinator)
         favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager, coordinator: favoriteCoordinator)
@@ -188,7 +197,7 @@ extension MainCoordinator {
         
         let mediaCoordinator = MediaCoordinator(navigationController: mediaNavController, dataService: dataService)
         let favoriteCoordinator = FavoritesCoordinator(navigationController: favoritesNavController, dataService: dataService)
-        let settingCoordinator = SettingsCoordinator(navigationController: settingsController.navigationController!, dataService: dataService, cacheDelegate: self)
+        let settingCoordinator = SettingsCoordinator(settingsController: settingsController, dataService: dataService, cacheDelegate: self)
         
         mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService, cacheManager: cacheManager, coordinator: mediaCoordinator)
         favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager, coordinator: favoriteCoordinator)

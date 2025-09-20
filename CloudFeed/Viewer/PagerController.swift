@@ -128,21 +128,23 @@ class PagerController: UIViewController {
     private func initNavigation(metadata: Metadata) {
         
         navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.preservesSuperviewLayoutMargins = true
         navigationController?.navigationBar.tintColor = .label
         
-        let appearance = UINavigationBarAppearance()
-        
-        appearance.configureWithTransparentBackground()
-        appearance.backgroundEffect = UIBlurEffect(style: .prominent)
-        
-        navigationItem.standardAppearance = appearance
-        navigationItem.scrollEdgeAppearance = appearance
+        if #unavailable(iOS 26) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithTransparentBackground()
+            appearance.backgroundEffect = UIBlurEffect(style: .prominent)
+            navigationItem.standardAppearance = appearance
+            navigationItem.scrollEdgeAppearance = appearance
+            navigationController?.navigationBar.preservesSuperviewLayoutMargins = true
+        } else {
+            //navigationController?.navigationBar.backgroundColor = .systemBackground
+            //navigationController?.navigationBar.isTranslucent = false
+            //navigationController?.navigationBar.
+        }
         
         navigationItem.title = getFileName(metadata)
-        
-        /*if let style = DateFormatter.Style(rawValue: 0) {
-            navigationItem.prompt = DateFormatter.localizedString(from: metadata.date, dateStyle: .medium, timeStyle: style)
-        }*/
         navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
     }
     
@@ -210,7 +212,7 @@ class PagerController: UIViewController {
         detailsButton.tintColor = .label
         
         DispatchQueue.main.async { [weak self] in
-            self?.navigationItem.leftBarButtonItems = []
+            //self?.navigationItem.leftBarButtonItems = [] //TODO: Need this for <26?
             self?.navigationItem.rightBarButtonItems = [menuButton, detailsButton]
         }
     }
@@ -294,7 +296,6 @@ class PagerController: UIViewController {
         controller.url = current.getUrl()
         controller.metadata = current.metadata
         controller.modalPresentationStyle = .popover
-        //controller.modalTransitionStyle = .flipHorizontal
         controller.preferredContentSize = CGSize(width: 400, height: 200)
         
         if let popover = controller.popoverPresentationController {
@@ -497,6 +498,7 @@ extension PagerController: PagerViewModelDelegate {
                 self?.navigationItem.prompt = DateFormatter.localizedString(from: metadata.date, dateStyle: .medium, timeStyle: style)
             }*/
             self?.navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
+            self?.navigationController?.navigationBar.sizeToFit()
         }
         
         setMenu(isFavorite: metadata.favorite)

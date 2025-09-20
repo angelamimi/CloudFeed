@@ -29,12 +29,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         URLCache.shared = URLCache(memoryCapacity: 0, diskCapacity: 0, diskPath: nil)
         
-        initNavigationBar()
+        if #unavailable(iOS 26) {
+            initNavigationBar()
+        }
         
         return true
     }
     
     private func initNavigationBar() {
+        
         let coloredAppearance = UINavigationBarAppearance()
         
         coloredAppearance.configureWithOpaqueBackground()

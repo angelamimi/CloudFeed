@@ -60,16 +60,19 @@ class CollectionController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationController?.navigationBar.preservesSuperviewLayoutMargins = true
         navigationController?.isNavigationBarHidden = false
         navigationItem.largeTitleDisplayMode = .automatic
         
         collectionView.contentInsetAdjustmentBehavior = .automatic
-        
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        appearance.backgroundEffect = UIBlurEffect(style: .prominent)
-        navigationItem.standardAppearance = appearance
-        navigationItem.scrollEdgeAppearance = appearance
+           
+        if #unavailable(iOS 26) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithTransparentBackground()
+            appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
+            navigationItem.standardAppearance = appearance
+            navigationItem.scrollEdgeAppearance = appearance
+        }
         
         initObservers()
     }
@@ -189,7 +192,7 @@ class CollectionController: UIViewController {
     }
     
     func initTitle(allowEdit: Bool, allowSelect: Bool, layoutType: String) {
-        
+
         let filterButtonImage: UIImage?
         
         if hasFilter() {
@@ -207,7 +210,7 @@ class CollectionController: UIViewController {
         
         navigationItem.leftBarButtonItems = []
         navigationItem.rightBarButtonItems = [menuButton, filterButton]
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: Strings.BackAction, style: .plain, target: nil, action: nil)
+        //navigationItem.backBarButtonItem = UIBarButtonItem(title: Strings.BackAction, style: .plain, target: nil, action: nil) //TODO: Need this for <26?
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(scrollToTop))
         tap.numberOfTapsRequired = 1

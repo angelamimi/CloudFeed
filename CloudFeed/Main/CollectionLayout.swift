@@ -129,12 +129,20 @@ class CollectionLayout: UICollectionViewFlowLayout {
             var edgeInsets: UIEdgeInsets
             
             if column == 0 {
-               edgeInsets = UIEdgeInsets(top: 0, left: cellPadding, bottom: cellPadding, right: cellPadding)
+               edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: cellPadding, right: cellPadding)
             } else {
-                if item == 0 {
-                    edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: cellPadding)
+                if column == numberOfColumns - 1 {
+                    if item == 0 {
+                        edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+                    } else {
+                        edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: cellPadding, right: 0)
+                    }
                 } else {
-                    edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: cellPadding, right: cellPadding)
+                    if item == 0 {
+                        edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: cellPadding)
+                    } else {
+                        edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: cellPadding, right: cellPadding)
+                    }
                 }
             }
             

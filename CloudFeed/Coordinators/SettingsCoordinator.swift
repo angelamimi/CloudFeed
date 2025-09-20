@@ -31,13 +31,13 @@ protocol CacheDelegate: AnyObject {
 @MainActor
 final class SettingsCoordinator {
     
-    weak var navigationController: UINavigationController!
+    weak var settingsController: SettingsController?
     
     let dataService: DataService
     let cacheDelegate: CacheDelegate
     
-    init(navigationController: UINavigationController, dataService: DataService, cacheDelegate: CacheDelegate) {
-        self.navigationController = navigationController
+    init(settingsController: SettingsController, dataService: DataService, cacheDelegate: CacheDelegate) {
+        self.settingsController = settingsController
         self.dataService = dataService
         self.cacheDelegate = cacheDelegate
     }
@@ -48,24 +48,26 @@ final class SettingsCoordinator {
     
     func showAcknowledgements() {
         let controller = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: "Acknowledgements")
-        navigationController.pushViewController(controller, animated: true)
+        settingsController?.navigationController?.pushViewController(controller, animated: true)
     }
     
     func showProfile() {
         let controller = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: "Profile") as! ProfileController
         controller.viewModel = ProfileViewModel(delegate: controller, accountDelegate: controller, dataService: dataService, coordinator: self)
-        navigationController.pushViewController(controller, animated: true)
+        settingsController?.navigationController?.pushViewController(controller, animated: true)
     }
     
     func showDisplay() {
         let controller = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(withIdentifier: "Display") as! DisplayController
         controller.viewModel = DisplayViewModel(dataService: dataService)
-        navigationController.pushViewController(controller, animated: true)
+        settingsController?.navigationController?.pushViewController(controller, animated: true)
     }
     
     func showPicker() {
-        let pickerCoordinator = PickerCoordinator(navigationController: navigationController, dataService: dataService)
-        pickerCoordinator.start()
+        if let nav = settingsController?.navigationController {
+            let pickerCoordinator = PickerCoordinator(navigationController: nav, dataService: dataService)
+            pickerCoordinator.start()
+        }
     }
     
     func showProfileLoadfailedError() {
@@ -73,10 +75,10 @@ final class SettingsCoordinator {
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.ProfileErrorMessage, preferredStyle: .alert)
         
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.navigationController.popViewController(animated: true)
+            self.settingsController?.navigationController?.popViewController(animated: true)
         }))
         
-        navigationController.present(alertController, animated: true)
+        settingsController?.navigationController?.present(alertController, animated: true)
     }
     
     func checkReset(reset: @escaping () -> Void) {
@@ -88,7 +90,7 @@ final class SettingsCoordinator {
             reset()
         }))
         
-        navigationController.present(alert, animated: true)
+        settingsController?.navigationController?.present(alert, animated: true)
     }
     
     func checkRemoveAccount(remove: @escaping () -> Void) {
@@ -100,13 +102,15 @@ final class SettingsCoordinator {
             remove()
         }))
         
-        navigationController.present(alert, animated: true)
+        settingsController?.navigationController?.present(alert, animated: true)
     }
     
     func launchAddAccount() {
-        let coordinator = LoginServerModalCoordinator(navigationController: navigationController, dataService: dataService)
-        coordinator.delegate = self
-        coordinator.start()
+        if let nav = settingsController?.navigationController {
+            let coordinator = LoginServerModalCoordinator(navigationController: nav, dataService: dataService)
+            coordinator.delegate = self
+            coordinator.start()
+        }
     }
     
     func applicationReset() {

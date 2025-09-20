@@ -98,6 +98,7 @@ class SettingsController: UIViewController {
     }
     
     private func initTitle() {
+        
         navigationItem.title = Strings.SettingsNavTitle
         
         let appearance = UINavigationBarAppearance()
@@ -110,6 +111,8 @@ class SettingsController: UIViewController {
         if mode == .all {
             navigationController?.navigationBar.prefersLargeTitles = true
         }
+        
+        navigationController?.navigationBar.preservesSuperviewLayoutMargins = true
         
         let item = UIBarButtonItem(image: .init(systemName: "ellipsis.circle"), menu: buildAccountsMenu())
         item.tintColor = .label

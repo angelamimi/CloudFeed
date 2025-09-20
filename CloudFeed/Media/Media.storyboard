@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="IDo-ia-P4t">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="IDo-ia-P4t">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -18,12 +18,12 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5ls-AF-slB" userLabel="Empty View" customClass="EmptyView" customModule="CloudFeed" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="162" width="393" height="622"/>
+                                <rect key="frame" x="0.0" y="172" width="393" height="612"/>
                                 <viewLayoutGuide key="safeArea" id="e0R-in-U75"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="J2a-Pd-Ybs">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="784"/>
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="G4H-dx-leu">
                                     <size key="itemSize" width="128" height="128"/>
@@ -59,7 +59,7 @@
                         <constraints>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="bottom" secondItem="yeB-rd-53C" secondAttribute="bottom" id="7L8-ZO-fBv"/>
                             <constraint firstItem="5ls-AF-slB" firstAttribute="top" secondItem="lJf-TF-9FZ" secondAttribute="top" id="BJE-Jg-cBh"/>
-                            <constraint firstItem="J2a-Pd-Ybs" firstAttribute="bottom" secondItem="lJf-TF-9FZ" secondAttribute="bottom" id="FLe-zc-NsL"/>
+                            <constraint firstItem="J2a-Pd-Ybs" firstAttribute="bottom" secondItem="uE1-0J-IbB" secondAttribute="bottom" id="FLe-zc-NsL"/>
                             <constraint firstItem="5ls-AF-slB" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="HXq-B9-Qbp"/>
                             <constraint firstItem="J2a-Pd-Ybs" firstAttribute="top" secondItem="uE1-0J-IbB" secondAttribute="top" id="HzS-B3-Lnz"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="bottom" secondItem="5ls-AF-slB" secondAttribute="bottom" id="IJq-V7-9zj"/>
@@ -91,7 +91,7 @@
                     <tabBarItem key="tabBarItem" title="Home" image="photo.fill" catalog="system" id="rmv-82-PyM"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="zZn-Hk-aY9">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
