@@ -30,6 +30,7 @@ protocol FavoritesDelegate: AnyObject {
     func bulkEditFinished(error: Bool)
     func fetchResultReceived(resultItemCount: Int?)
     func editCellUpdated(cell: CollectionViewCell, indexPath: IndexPath)
+    func videoSelected()
 }
 
 @MainActor
@@ -286,6 +287,7 @@ final class FavoritesViewModel {
     }
     
     func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
+        delegate.videoSelected()
         coordinator.showViewerPager(currentIndex: currentIndex, metadatas: metadatas)
     }
     

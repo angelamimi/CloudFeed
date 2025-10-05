@@ -21,7 +21,6 @@
 
 import AVFoundation
 import AVKit
-import NextcloudKit
 import os.log
 import UIKit
 
@@ -70,12 +69,12 @@ class PreviewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         
         activityIndicator.startAnimating()
-        
-        if metadata.classFile == NKTypeClassFile.video.rawValue {
+
+        if metadata.video {
             loadVideo()
         } else if metadata.livePhoto {
             loadLiveVideo()
-        } else if metadata.classFile == NKTypeClassFile.image.rawValue {
+        } else if metadata.image {
             viewImage(metadata: metadata)
         }
     }

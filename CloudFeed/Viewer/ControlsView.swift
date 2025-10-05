@@ -43,6 +43,7 @@ class ControlsView: UIView {
     @IBOutlet weak var audioTrackView: UIVisualEffectView!
     @IBOutlet weak var volumeView: UIVisualEffectView!
     @IBOutlet weak var controlsView: UIVisualEffectView!
+    @IBOutlet weak var timeView: UIVisualEffectView!
     
     @IBOutlet weak var audioTrackButton: UIButton!
     
@@ -50,16 +51,30 @@ class ControlsView: UIView {
     @IBOutlet weak var volumeButton: UIButton!
     @IBOutlet weak var volumeTopConstraint: NSLayoutConstraint!
     
-    @IBOutlet weak var timeSlider: UISlider!
+    @IBOutlet weak var innerTimeSlider: UISlider!
+    @IBOutlet weak var currentTimeSlider: UISlider!
+    
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var totalTimeLabel: UILabel!
+    
+    @IBOutlet weak var timeButton: UIButton!
+    @IBOutlet weak var totalTimeButton: UIButton!
+    
     @IBOutlet weak var captionsButton: UIButton!
     @IBOutlet weak var skipBackButton: UIButton!
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var skipForwardButton: UIButton!
     @IBOutlet weak var speedButton: UIButton!
     
+    @IBOutlet weak var speedButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var captionsButtonWidthConstraint: NSLayoutConstraint!
+    
+    @IBOutlet weak var volumeViewTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var audioViewLeadingConstraint: NSLayoutConstraint!
+    
     weak var delegate: ControlsDelegate?
+    
+    var timeSlider: UISlider!
     
     private var volume: Int = 100 // 0% for mute, 100% for full volume
     private var isPlaying: Bool = false
@@ -94,7 +109,9 @@ class ControlsView: UIView {
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        if volumeView.frame.contains(point) || controlsView.frame.contains(point) || audioTrackView.frame.contains(point) {
+        if volumeView.frame.contains(point)
+            || controlsView.frame.contains(point)
+            || audioTrackView.frame.contains(point) {
             return super.hitTest(point, with: event)
         }
         
@@ -155,10 +172,12 @@ class ControlsView: UIView {
     
     func setTime(time: String) {
         timeLabel.text = time
+        timeButton.setTitle(time, for: .normal)
     }
     
     func setRemainingTime(time: String) {
         totalTimeLabel.text = time
+        totalTimeButton.setTitle(time, for: .normal)
     }
     
     func setPlaying(playing: Bool) {
@@ -476,8 +495,14 @@ class ControlsView: UIView {
         formatter.unitsStyle = .positional
         formatter.zeroFormattingBehavior = [.pad]
         
-        timeLabel.text = formatter.string(from: TimeInterval(timeValue))!
-        totalTimeLabel.text = "-\(formatter.string(from: TimeInterval(remainingValue))!)"
+        let formattedTime = formatter.string(from: TimeInterval(timeValue))!
+        let formattedTotalTime = "-\(formatter.string(from: TimeInterval(remainingValue))!)"
+        
+        timeLabel.text = formattedTime
+        totalTimeLabel.text = formattedTotalTime
+        
+        timeButton.setTitle(formattedTime, for: .normal)
+        totalTimeButton.setTitle(formattedTotalTime, for: .normal)
     }
     
     private func setVolumeButton(mute: Bool) {
@@ -498,6 +523,8 @@ class ControlsView: UIView {
         speedButton.isEnabled = enabled
         timeLabel.isEnabled = enabled
         totalTimeLabel.isEnabled = enabled
+        timeButton.isEnabled = enabled
+        totalTimeButton.isEnabled = enabled
         skipBackButton.isEnabled = enabled
         skipForwardButton.isEnabled = enabled
     }
@@ -567,14 +594,94 @@ class ControlsView: UIView {
         timeLabel.maximumContentSizeCategory = .accessibilityExtraLarge
         totalTimeLabel.maximumContentSizeCategory = .accessibilityExtraLarge
         
-        audioTrackView.clipsToBounds = true
-        audioTrackView.layer.cornerRadius = 8
+        timeButton.maximumContentSizeCategory = .accessibilityExtraLarge
+        totalTimeButton.maximumContentSizeCategory = .accessibilityExtraLarge
         
-        volumeView.clipsToBounds = true
-        volumeView.layer.cornerRadius = 8
-        
-        controlsView.clipsToBounds = true
-        controlsView.layer.cornerRadius = 8
+        if #available(iOS 26, *) {
+            
+            timeSlider = innerTimeSlider
+            currentTimeSlider.isHidden = true
+            
+            let glassEffect = UIGlassEffect(style: .regular)
+            glassEffect.isInteractive = true
+            volumeView.effect = glassEffect
+            volumeView.cornerConfiguration = .capsule()
+            
+            volumeButton.configuration = .clearGlass()
+            volumeButton.setImage(UIImage(systemName: "speaker.wave.2"), for: .normal)
+            volumeButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+            
+            timeView.effect = glassEffect
+            timeView.cornerConfiguration = .capsule()
+            
+            audioTrackButton.configuration = .glass()
+            audioTrackButton.setImage(UIImage(systemName: "waveform"), for: .normal)
+            audioTrackButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+            
+            controlsView.effect = UIGlassContainerEffect()
+            audioTrackView.effect = UIGlassContainerEffect()
+            
+            playButton.configuration = .glass()
+            playButton.setImage(UIImage(systemName: "play.circle.fill"), for: .normal)
+            playButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 46), forImageIn: .normal)
+            
+            skipBackButton.configuration = .glass()
+            skipBackButton.setImage(UIImage(systemName: "backward.fill"), for: .normal)
+            skipBackButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+            
+            skipForwardButton.configuration = .glass()
+            skipForwardButton.setImage(UIImage(systemName: "forward.fill"), for: .normal)
+            skipForwardButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+            
+            captionsButton.configuration = .glass()
+            captionsButton.setImage(UIImage(systemName: "captions.bubble"), for: .normal)
+            captionsButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+            
+            speedButton.configuration = .glass()
+            speedButton.setImage(UIImage(systemName: "gauge.with.dots.needle.100percent"), for: .normal)
+            speedButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+            
+            timeButton.configuration = .glass()
+            timeButton.configuration?.titleLineBreakMode = .byTruncatingHead
+            timeButton.setTitle("00:00", for: .normal)
+            
+            totalTimeButton.configuration = .glass()
+            totalTimeButton.configuration?.titleLineBreakMode = .byTruncatingHead
+            totalTimeButton.setTitle("00:00", for: .normal)
+            
+        } else {
+            
+            timeSlider = currentTimeSlider
+            timeView.isHidden = true
+            
+            audioTrackView.clipsToBounds = true
+            audioTrackView.layer.cornerRadius = 8
+            
+            volumeView.clipsToBounds = true
+            volumeView.layer.cornerRadius = 8
+            
+            controlsView.clipsToBounds = true
+            controlsView.layer.cornerRadius = 8
+            
+            timeView.clipsToBounds = true
+            timeView.layer.cornerRadius = 8
+            
+            timeButton.configuration = .plain()
+            timeButton.configuration?.titleLineBreakMode = .byTruncatingHead
+            timeButton.configuration?.contentInsets = .zero
+            timeButton.setTitle("00:00", for: .normal)
+            
+            totalTimeButton.configuration = .plain()
+            totalTimeButton.configuration?.titleLineBreakMode = .byTruncatingHead
+            totalTimeButton.configuration?.contentInsets = .zero
+            totalTimeButton.setTitle("00:00", for: .normal)
+
+            speedButton.contentHorizontalAlignment = .trailing
+            captionsButton.contentHorizontalAlignment = .leading
+            
+            volumeViewTrailingConstraint.constant = 0
+            audioViewLeadingConstraint.constant = 0
+        }
         
         volumeSlider.addTarget(self, action: #selector(volumeChanged), for: .valueChanged)
         timeSlider.addTarget(self, action: #selector(timeChanged), for: .valueChanged)

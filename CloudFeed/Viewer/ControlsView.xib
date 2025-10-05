@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="landscape" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -13,31 +13,202 @@
             <connections>
                 <outlet property="audioTrackButton" destination="OYM-Gd-I7P" id="2G3-dv-RJM"/>
                 <outlet property="audioTrackView" destination="q2D-Dm-4a7" id="saO-EW-mVh"/>
+                <outlet property="audioViewLeadingConstraint" destination="Hsb-11-IK8" id="mKP-bF-Kxv"/>
                 <outlet property="captionsButton" destination="JAq-bM-gDn" id="36X-Jy-Gxk"/>
+                <outlet property="captionsButtonWidthConstraint" destination="Xa8-94-aGK" id="dKc-wB-WjY"/>
                 <outlet property="controlsView" destination="AXL-dv-8Qn" id="mtk-N9-R2J"/>
+                <outlet property="currentTimeSlider" destination="djr-qE-xK2" id="6fb-eC-nUl"/>
+                <outlet property="innerTimeSlider" destination="TQa-8z-Wo6" id="70S-0Q-h2a"/>
                 <outlet property="playButton" destination="Kl1-HT-Qt7" id="TZU-zB-wih"/>
                 <outlet property="skipBackButton" destination="SxX-p9-6Sb" id="fie-mN-Fbg"/>
                 <outlet property="skipForwardButton" destination="obn-Lo-YLJ" id="Z8V-ba-NAy"/>
                 <outlet property="speedButton" destination="Wyc-o3-XBg" id="7Tw-rW-tyh"/>
+                <outlet property="speedButtonWidthConstraint" destination="FGP-Wu-t7X" id="wz8-YY-D7h"/>
+                <outlet property="timeButton" destination="YCf-Gc-4iH" id="Nac-qb-zxl"/>
                 <outlet property="timeLabel" destination="TRG-FX-qcn" id="Tok-zW-6Nk"/>
-                <outlet property="timeSlider" destination="TQa-8z-Wo6" id="LR3-Y8-tz4"/>
+                <outlet property="timeView" destination="bl4-yO-kwe" id="35Y-yd-F8P"/>
+                <outlet property="totalTimeButton" destination="ZMD-Vw-KCm" id="KEW-7c-4Pl"/>
                 <outlet property="totalTimeLabel" destination="heG-hn-bNN" id="tod-um-FaR"/>
                 <outlet property="volumeButton" destination="meV-1j-cr0" id="a8L-fd-mwv"/>
                 <outlet property="volumeSlider" destination="WVT-e9-SFW" id="vKs-hr-8hC"/>
                 <outlet property="volumeTopConstraint" destination="8z1-X0-k3d" id="hHA-ks-TtJ"/>
                 <outlet property="volumeView" destination="NBR-iP-9gV" id="O8q-Lw-W6n"/>
+                <outlet property="volumeViewTrailingConstraint" destination="2qC-ai-TtE" id="YOV-mk-NJO"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view opaque="NO" contentMode="scaleToFill" id="iN0-l3-epB">
-            <rect key="frame" x="0.0" y="0.0" width="642" height="423"/>
+            <rect key="frame" x="0.0" y="0.0" width="642" height="528"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AXL-dv-8Qn" userLabel="Controls Visual Effect View">
-                    <rect key="frame" x="59" y="225.66666666666666" width="524" height="126.33333333333334"/>
+                    <rect key="frame" x="59" y="214.66666666666663" width="524" height="242.33333333333337"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="WXq-nj-p7a">
-                        <rect key="frame" x="0.0" y="0.0" width="524" height="126.33333333333334"/>
+                        <rect key="frame" x="0.0" y="0.0" width="524" height="242.33333333333337"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Wmb-p0-zvf">
+                                <rect key="frame" x="0.0" y="16.000000000000014" width="524" height="226.33333333333337"/>
+                                <subviews>
+                                    <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="djr-qE-xK2">
+                                        <rect key="frame" x="16" y="0.0" width="492" height="34"/>
+                                        <color key="tintColor" systemColor="labelColor"/>
+                                    </slider>
+                                    <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bl4-yO-kwe">
+                                        <rect key="frame" x="16" y="42.000000000000028" width="492" height="50"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="E8k-MG-Td0">
+                                            <rect key="frame" x="0.0" y="0.0" width="492" height="50"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <subviews>
+                                                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TQa-8z-Wo6" userLabel="Time Slider">
+                                                    <rect key="frame" x="8" y="8" width="476" height="34"/>
+                                                    <color key="tintColor" systemColor="labelColor"/>
+                                                </slider>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="TQa-8z-Wo6" firstAttribute="leading" secondItem="E8k-MG-Td0" secondAttribute="leading" constant="8" id="6Ao-xQ-iue"/>
+                                                <constraint firstItem="TQa-8z-Wo6" firstAttribute="top" secondItem="E8k-MG-Td0" secondAttribute="top" constant="8" id="JxA-jy-MkB"/>
+                                                <constraint firstAttribute="bottom" secondItem="TQa-8z-Wo6" secondAttribute="bottom" constant="8" id="SfW-cQ-AKe"/>
+                                                <constraint firstAttribute="trailing" secondItem="TQa-8z-Wo6" secondAttribute="trailing" constant="8" id="TdM-EE-vEk"/>
+                                            </constraints>
+                                        </view>
+                                        <blurEffect style="regular"/>
+                                    </visualEffectView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="05Y-Dk-tB3">
+                                        <rect key="frame" x="16" y="100.00000000000003" width="492" height="34.333333333333343"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="headTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TRG-FX-qcn" userLabel="Time Label">
+                                                <rect key="frame" x="0.0" y="0.0" width="46" height="34.333333333333336"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="headTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="heG-hn-bNN" userLabel="Total Time Label">
+                                                <rect key="frame" x="0.0" y="0.0" width="46" height="34.333333333333336"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YCf-Gc-4iH">
+                                                <rect key="frame" x="0.0" y="0.0" width="70" height="34.333333333333336"/>
+                                                <color key="tintColor" systemColor="labelColor"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="00:00"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZMD-Vw-KCm">
+                                                <rect key="frame" x="422" y="0.0" width="70" height="34.333333333333336"/>
+                                                <color key="tintColor" systemColor="labelColor"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="00:00"/>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
+                                        <variation key="default">
+                                            <mask key="subviews">
+                                                <exclude reference="TRG-FX-qcn"/>
+                                                <exclude reference="heG-hn-bNN"/>
+                                            </mask>
+                                        </variation>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="3Xu-iX-Osf">
+                                        <rect key="frame" x="16" y="142.33333333333334" width="492" height="60"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JAq-bM-gDn" userLabel="Captions Button">
+                                                <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="60" id="OuW-HU-Rab"/>
+                                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="60" id="Xa8-94-aGK"/>
+                                                </constraints>
+                                                <color key="tintColor" systemColor="labelColor"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" image="captions.bubble" catalog="system">
+                                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
+                                                    <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
+                                                </buttonConfiguration>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SxX-p9-6Sb" userLabel="Skip Back Button">
+                                                <rect key="frame" x="108" y="0.0" width="60" height="60"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="60" id="6FG-x9-EDr"/>
+                                                    <constraint firstAttribute="width" constant="60" id="gYK-gl-fsw"/>
+                                                </constraints>
+                                                <color key="tintColor" systemColor="labelColor"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" image="backward" catalog="system">
+                                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
+                                                </buttonConfiguration>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kl1-HT-Qt7" userLabel="Play Button">
+                                                <rect key="frame" x="216" y="0.0" width="60" height="60"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="60" id="RRe-y8-vfW"/>
+                                                    <constraint firstAttribute="width" constant="60" id="iaR-gX-JMO"/>
+                                                </constraints>
+                                                <color key="tintColor" systemColor="labelColor"/>
+                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                <state key="normal" title="Button">
+                                                    <imageReference key="image" image="play.circle.fill" catalog="system" symbolScale="default"/>
+                                                    <preferredSymbolConfiguration key="preferredSymbolConfiguration"/>
+                                                </state>
+                                                <buttonConfiguration key="configuration" style="plain" cornerStyle="capsule">
+                                                    <imageReference key="image" image="play.circle.fill" catalog="system" symbolScale="default"/>
+                                                    <backgroundConfiguration key="background"/>
+                                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="46"/>
+                                                </buttonConfiguration>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="obn-Lo-YLJ" userLabel="Skip Forward Button">
+                                                <rect key="frame" x="324" y="0.0" width="60" height="60"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="60" id="2Id-uT-Epv"/>
+                                                    <constraint firstAttribute="height" constant="60" id="MmG-Tm-cry"/>
+                                                </constraints>
+                                                <color key="tintColor" systemColor="labelColor"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" image="forward" catalog="system">
+                                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
+                                                </buttonConfiguration>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wyc-o3-XBg" userLabel="Speed Button">
+                                                <rect key="frame" x="432" y="0.0" width="60" height="60"/>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="60" id="3VM-lb-JtO"/>
+                                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="60" id="FGP-Wu-t7X"/>
+                                                </constraints>
+                                                <color key="tintColor" systemColor="labelColor"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" image="gauge.with.dots.needle.100percent" catalog="system">
+                                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
+                                                    <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
+                                                </buttonConfiguration>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
+                                    </stackView>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gew-by-zcR">
+                                        <rect key="frame" x="16" y="210.33333333333334" width="492" height="16"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="16" id="hOx-aX-X6V"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="IFn-PE-KrN"/>
+                                </constraints>
+                                <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
+                            </stackView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="Wmb-p0-zvf" firstAttribute="leading" secondItem="WXq-nj-p7a" secondAttribute="leading" id="LiQ-cl-eTg"/>
+                            <constraint firstItem="Wmb-p0-zvf" firstAttribute="top" secondItem="WXq-nj-p7a" secondAttribute="top" constant="16" id="imX-8Q-Jgy"/>
+                            <constraint firstAttribute="bottom" secondItem="Wmb-p0-zvf" secondAttribute="bottom" id="kSy-aE-ogW"/>
+                            <constraint firstAttribute="trailing" secondItem="Wmb-p0-zvf" secondAttribute="trailing" id="wsC-jR-ENk"/>
+                        </constraints>
                     </view>
                     <constraints>
                         <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="l1U-Yf-Y5B"/>
@@ -45,131 +216,17 @@
                     <edgeInsets key="layoutMargins" top="8" left="16" bottom="8" right="16"/>
                     <blurEffect style="prominent"/>
                 </visualEffectView>
-                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="Wmb-p0-zvf">
-                    <rect key="frame" x="21" y="233.66666666666666" width="600" height="126.33333333333334"/>
-                    <subviews>
-                        <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TQa-8z-Wo6" userLabel="Time Slider">
-                            <rect key="frame" x="52" y="0.0" width="496" height="31"/>
-                            <color key="tintColor" systemColor="labelColor"/>
-                        </slider>
-                        <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="05Y-Dk-tB3">
-                            <rect key="frame" x="54" y="30.000000000000028" width="492" height="20.333333333333329"/>
-                            <subviews>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="headTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TRG-FX-qcn" userLabel="Time Label">
-                                    <rect key="frame" x="0.0" y="0.0" width="46" height="20.333333333333332"/>
-                                    <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                    <nil key="textColor"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="headTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="heG-hn-bNN" userLabel="Total Time Label">
-                                    <rect key="frame" x="446" y="0.0" width="46" height="20.333333333333332"/>
-                                    <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                    <nil key="textColor"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
-                            </subviews>
-                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
-                        </stackView>
-                        <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="3Xu-iX-Osf">
-                            <rect key="frame" x="54" y="50.333333333333343" width="492" height="60"/>
-                            <subviews>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JAq-bM-gDn" userLabel="Captions Button">
-                                    <rect key="frame" x="0.0" y="0.0" width="100" height="60"/>
-                                    <constraints>
-                                        <constraint firstAttribute="height" constant="60" id="OuW-HU-Rab"/>
-                                        <constraint firstAttribute="width" constant="100" id="Xa8-94-aGK"/>
-                                    </constraints>
-                                    <color key="tintColor" systemColor="labelColor"/>
-                                    <state key="normal" title="Button"/>
-                                    <buttonConfiguration key="configuration" style="plain" image="captions.bubble" catalog="system">
-                                        <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
-                                        <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
-                                    </buttonConfiguration>
-                                </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SxX-p9-6Sb" userLabel="Skip Back Button">
-                                    <rect key="frame" x="128" y="0.0" width="60" height="60"/>
-                                    <constraints>
-                                        <constraint firstAttribute="height" constant="60" id="6FG-x9-EDr"/>
-                                        <constraint firstAttribute="width" constant="60" id="gYK-gl-fsw"/>
-                                    </constraints>
-                                    <color key="tintColor" systemColor="labelColor"/>
-                                    <state key="normal" title="Button"/>
-                                    <buttonConfiguration key="configuration" style="plain" image="backward" catalog="system">
-                                        <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
-                                    </buttonConfiguration>
-                                </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kl1-HT-Qt7" userLabel="Play Button">
-                                    <rect key="frame" x="216" y="0.0" width="60" height="60"/>
-                                    <constraints>
-                                        <constraint firstAttribute="height" constant="60" id="RRe-y8-vfW"/>
-                                        <constraint firstAttribute="width" constant="60" id="iaR-gX-JMO"/>
-                                    </constraints>
-                                    <color key="tintColor" systemColor="labelColor"/>
-                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                    <state key="normal" title="Button">
-                                        <imageReference key="image" image="play.circle.fill" catalog="system" symbolScale="default"/>
-                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration"/>
-                                    </state>
-                                    <buttonConfiguration key="configuration" style="plain">
-                                        <imageReference key="image" image="play.circle.fill" catalog="system" symbolScale="default"/>
-                                        <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="48" scale="large"/>
-                                    </buttonConfiguration>
-                                </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="obn-Lo-YLJ" userLabel="Skip Forward Button">
-                                    <rect key="frame" x="304" y="0.0" width="60" height="60"/>
-                                    <constraints>
-                                        <constraint firstAttribute="width" constant="60" id="2Id-uT-Epv"/>
-                                        <constraint firstAttribute="height" constant="60" id="MmG-Tm-cry"/>
-                                    </constraints>
-                                    <color key="tintColor" systemColor="labelColor"/>
-                                    <state key="normal" title="Button"/>
-                                    <buttonConfiguration key="configuration" style="plain" image="forward" catalog="system">
-                                        <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
-                                    </buttonConfiguration>
-                                </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wyc-o3-XBg" userLabel="Speed Button">
-                                    <rect key="frame" x="392" y="0.0" width="100" height="60"/>
-                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    <constraints>
-                                        <constraint firstAttribute="height" constant="60" id="3VM-lb-JtO"/>
-                                        <constraint firstAttribute="width" constant="100" id="FGP-Wu-t7X"/>
-                                    </constraints>
-                                    <color key="tintColor" systemColor="labelColor"/>
-                                    <state key="normal" title="Button"/>
-                                    <buttonConfiguration key="configuration" style="plain" image="gauge.with.dots.needle.100percent" catalog="system">
-                                        <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
-                                        <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="0.0"/>
-                                    </buttonConfiguration>
-                                </button>
-                            </subviews>
-                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
-                        </stackView>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gew-by-zcR">
-                            <rect key="frame" x="54" y="110.33333333333334" width="492" height="16"/>
-                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="16" id="hOx-aX-X6V"/>
-                            </constraints>
-                        </view>
-                    </subviews>
-                    <constraints>
-                        <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="IFn-PE-KrN"/>
-                    </constraints>
-                    <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
-                </stackView>
                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NBR-iP-9gV" userLabel="Volume Visual Effect View">
-                    <rect key="frame" x="313" y="75" width="270" height="56"/>
+                    <rect key="frame" x="297" y="75" width="270" height="60"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="se5-JG-BBz">
-                        <rect key="frame" x="0.0" y="0.0" width="270" height="56"/>
+                        <rect key="frame" x="0.0" y="0.0" width="270" height="60"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="100" minValue="0.0" maxValue="100" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WVT-e9-SFW" userLabel="Volume Slider">
-                                <rect key="frame" x="6" y="8" width="214" height="41"/>
+                                <rect key="frame" x="8" y="0.0" width="210" height="60"/>
                                 <color key="tintColor" systemColor="labelColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="Z6X-nJ-poU"/>
+                                    <constraint firstAttribute="height" constant="60" id="Z6X-nJ-poU"/>
                                     <constraint firstAttribute="width" constant="210" id="voQ-fE-B8t"/>
                                 </constraints>
                             </slider>
@@ -188,35 +245,44 @@
                         </subviews>
                         <constraints>
                             <constraint firstItem="WVT-e9-SFW" firstAttribute="leading" secondItem="se5-JG-BBz" secondAttribute="leading" constant="8" id="Kog-BZ-u9W"/>
-                            <constraint firstItem="WVT-e9-SFW" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" constant="8" id="UCZ-tE-ohT"/>
+                            <constraint firstItem="WVT-e9-SFW" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" id="UCZ-tE-ohT"/>
                             <constraint firstAttribute="trailing" secondItem="meV-1j-cr0" secondAttribute="trailing" constant="8" id="aiw-oq-F3k"/>
                             <constraint firstItem="meV-1j-cr0" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" constant="8" id="x3t-a9-8hz"/>
                         </constraints>
                     </view>
                     <constraints>
-                        <constraint firstAttribute="height" constant="56" id="FLl-mz-sFw"/>
+                        <constraint firstAttribute="height" constant="60" id="FLl-mz-sFw"/>
                         <constraint firstAttribute="width" constant="270" id="t8s-r8-wms"/>
                     </constraints>
                     <blurEffect style="prominent"/>
                 </visualEffectView>
                 <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q2D-Dm-4a7">
-                    <rect key="frame" x="59" y="75" width="56" height="56"/>
+                    <rect key="frame" x="75" y="75" width="60" height="60"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="TeL-Uj-fXd">
-                        <rect key="frame" x="0.0" y="0.0" width="56" height="56"/>
+                        <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OYM-Gd-I7P">
-                                <rect key="frame" x="4" y="11" width="49" height="35"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OYM-Gd-I7P">
+                                <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="wEq-AD-aHJ"/>
+                                    <constraint firstAttribute="height" constant="60" id="x5e-GK-Whg"/>
+                                </constraints>
                                 <color key="tintColor" systemColor="labelColor"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="waveform" catalog="system"/>
+                                <buttonConfiguration key="configuration" style="plain" image="waveform" catalog="system">
+                                    <backgroundConfiguration key="background"/>
+                                </buttonConfiguration>
                             </button>
                         </subviews>
+                        <constraints>
+                            <constraint firstItem="OYM-Gd-I7P" firstAttribute="leading" secondItem="TeL-Uj-fXd" secondAttribute="leading" id="X2X-AZ-i9e"/>
+                            <constraint firstItem="OYM-Gd-I7P" firstAttribute="top" secondItem="TeL-Uj-fXd" secondAttribute="top" id="ab8-Ez-Md3"/>
+                        </constraints>
                     </view>
                     <constraints>
-                        <constraint firstAttribute="width" constant="56" id="Bot-u2-ksD"/>
-                        <constraint firstAttribute="height" constant="56" id="dsn-YR-NU8"/>
+                        <constraint firstAttribute="width" constant="60" id="Bot-u2-ksD"/>
+                        <constraint firstAttribute="height" constant="60" id="dsn-YR-NU8"/>
                     </constraints>
                     <blurEffect style="prominent"/>
                 </visualEffectView>
@@ -224,22 +290,17 @@
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NBR-iP-9gV" secondAttribute="trailing" id="2qC-ai-TtE"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NBR-iP-9gV" secondAttribute="trailing" constant="16" id="2qC-ai-TtE"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="4wa-M8-UL0"/>
                 <constraint firstItem="NBR-iP-9gV" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="8z1-X0-k3d"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="AXL-dv-8Qn" secondAttribute="bottom" constant="16" id="Agk-Fg-nkc"/>
-                <constraint firstItem="q2D-Dm-4a7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Hsb-11-IK8"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="Wmb-p0-zvf" secondAttribute="bottom" constant="8" id="QIM-qh-DvE"/>
-                <constraint firstItem="AXL-dv-8Qn" firstAttribute="height" secondItem="Wmb-p0-zvf" secondAttribute="height" id="Wg8-pd-IOO"/>
+                <constraint firstItem="q2D-Dm-4a7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Hsb-11-IK8"/>
                 <constraint firstItem="q2D-Dm-4a7" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="Zvh-3y-G73"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" priority="750" id="a5f-HK-ZzW"/>
-                <constraint firstItem="Wmb-p0-zvf" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" priority="750" id="lff-Nz-0Gu"/>
-                <constraint firstItem="Wmb-p0-zvf" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="nkM-hq-2BP"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="Wmb-p0-zvf" secondAttribute="trailing" priority="750" id="oBH-1F-Lk4"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="AXL-dv-8Qn" secondAttribute="trailing" priority="750" id="syX-KT-Ztl"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="376.76056338028172" y="-348.85496183206106"/>
+            <point key="canvasLocation" x="376.76056338028172" y="-429.00763358778624"/>
         </view>
     </objects>
     <resources>

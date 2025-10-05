@@ -387,6 +387,12 @@ extension FavoritesController: CollectionDelegate {
 }
 
 extension FavoritesController: FavoritesDelegate {
+    
+    func videoSelected() {
+        //Hack. iOS 26 and above. Setting background color to match viewer background when video is selected.
+        //Background color is returned to system in appear
+        collectionView.backgroundColor = .black
+    }
 
     func bulkEditFinished(error: Bool) {
         

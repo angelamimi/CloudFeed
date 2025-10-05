@@ -31,6 +31,7 @@ protocol MediaDelegate: AnyObject {
     func searching()
     func searchResultReceived(resultItemCount: Int?)
     func selectCellUpdated(cell: CollectionViewCell, indexPath: IndexPath)
+    func videoSelected()
 }
 
 @MainActor
@@ -335,6 +336,7 @@ final class MediaViewModel {
     }
     
     func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
+        delegate.videoSelected()
         coordinator.showViewerPager(currentIndex: currentIndex, metadatas: metadatas)
     }
     

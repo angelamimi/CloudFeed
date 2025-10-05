@@ -127,25 +127,53 @@ class PagerController: UIViewController {
     
     private func initNavigation(metadata: Metadata) {
         
-        navigationController?.navigationBar.prefersLargeTitles = true
-        navigationController?.navigationBar.preservesSuperviewLayoutMargins = true
         navigationController?.navigationBar.tintColor = .label
         
         if #unavailable(iOS 26) {
+            
             let appearance = UINavigationBarAppearance()
             appearance.configureWithTransparentBackground()
             appearance.backgroundEffect = UIBlurEffect(style: .prominent)
             navigationItem.standardAppearance = appearance
             navigationItem.scrollEdgeAppearance = appearance
             navigationController?.navigationBar.preservesSuperviewLayoutMargins = true
+            navigationController?.navigationBar.prefersLargeTitles = true
+            
+            navigationItem.title = getFileName(metadata)
+            navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
         } else {
-            //navigationController?.navigationBar.backgroundColor = .systemBackground
-            //navigationController?.navigationBar.isTranslucent = false
-            //navigationController?.navigationBar.
+            navigationController?.navigationBar.prefersLargeTitles = false
+            initButtonTitle(metadata: metadata)
         }
+    }
+    
+    private func initButtonTitle(metadata: Metadata) {
         
-        navigationItem.title = getFileName(metadata)
-        navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
+        if #available(iOS 26, *) {
+            
+            let button = UIButton(type: .custom)
+            button.configuration = .glass()
+            
+            var container = AttributeContainer()
+            container.font = UIFont.boldSystemFont(ofSize: 20) //UIFont.preferredFont(forTextStyle: .headline)
+
+            button.configuration?.attributedTitle = AttributedString(metadata.creationDate.formatted(date: .abbreviated, time: .omitted), attributes: container)
+            
+            var subtitleContainer = AttributeContainer()
+            subtitleContainer.font = UIFont.systemFont(ofSize: 16) //UIFont.preferredFont(forTextStyle: .subheadline)
+
+            button.configuration?.attributedSubtitle = AttributedString(metadata.creationDate.formatted(date: .omitted, time: .shortened), attributes: subtitleContainer)
+            
+            button.configuration?.titleLineBreakMode = .byTruncatingTail
+            button.configuration?.titleAlignment = .center
+            
+            button.setTitleColor(.label, for: .normal)
+            
+            navigationItem.titleView = button
+            navigationItem.titleView?.setNeedsLayout()
+            navigationItem.titleView?.sizeToFit()
+            navigationItem.titleView?.invalidateIntrinsicContentSize()
+        }
     }
     
     private func initStatusView() {
@@ -206,14 +234,21 @@ class PagerController: UIViewController {
         
         let menu = UIMenu(children: [action, shareAction])
         let menuButton = UIBarButtonItem.init(title: nil, image: UIImage(systemName: "ellipsis"), target: self, action: nil, menu: menu)
-        let detailsButton = UIBarButtonItem.init(title: nil, image: UIImage(systemName: "info.circle"), target: self, action: #selector(showInfo))
-        
         menuButton.tintColor = .label
-        detailsButton.tintColor = .label
         
-        DispatchQueue.main.async { [weak self] in
-            //self?.navigationItem.leftBarButtonItems = [] //TODO: Need this for <26?
-            self?.navigationItem.rightBarButtonItems = [menuButton, detailsButton]
+        if #available(iOS 26, *) {
+            DispatchQueue.main.async { [weak self] in
+                self?.navigationItem.rightBarButtonItems = [menuButton]
+            }
+        } else {
+            let detailsButton = UIBarButtonItem.init(title: nil, image: UIImage(systemName: "info.circle"), target: self, action: #selector(showInfo))
+            
+            detailsButton.tintColor = .label
+            
+            DispatchQueue.main.async { [weak self] in
+                self?.navigationItem.leftBarButtonItems = []
+                self?.navigationItem.rightBarButtonItems = [menuButton, detailsButton]
+            }
         }
     }
     
@@ -491,14 +526,16 @@ extension PagerController: PagerViewModelDelegate {
     func finishedPaging(metadata: Metadata) {
         
         DispatchQueue.main.async { [weak self] in
-            self?.navigationItem.title = self?.getFileName(metadata)
+            
             self?.setTypeContainerView()
             
-            /*if let style = DateFormatter.Style(rawValue: 0) {
-                self?.navigationItem.prompt = DateFormatter.localizedString(from: metadata.date, dateStyle: .medium, timeStyle: style)
-            }*/
-            self?.navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
-            self?.navigationController?.navigationBar.sizeToFit()
+            if #unavailable(iOS 26) {
+                self?.navigationItem.title = self?.getFileName(metadata)
+                self?.navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
+                self?.navigationController?.navigationBar.sizeToFit()
+            } else {
+                self?.initButtonTitle(metadata: metadata)
+            }
         }
         
         setMenu(isFavorite: metadata.favorite)

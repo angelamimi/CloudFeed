@@ -59,12 +59,14 @@ final class AcknowledgementsController : UIViewController {
         navigationItem.title = Strings.SettingsItemAcknowledgements
         navigationItem.largeTitleDisplayMode = .never
         
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        navigationController?.navigationBar.compactAppearance = appearance
-        navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
+        if #unavailable(iOS 26) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithTransparentBackground()
+            navigationController?.navigationBar.standardAppearance = appearance
+            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+            navigationController?.navigationBar.compactAppearance = appearance
+            navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
+        }
     }
 }
 

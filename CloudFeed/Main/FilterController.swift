@@ -149,7 +149,7 @@ class FilterController: UIViewController {
     }
     
     private func initData() {
-        let years = 1940...Calendar.current.component(.year, from: .now)
+        let years = 1900...Calendar.current.component(.year, from: .now)
         yearsData = years.reversed()
     }
     
@@ -231,12 +231,7 @@ class FilterController: UIViewController {
                 }
                 
                 //reflect changes
-                let refreshItems = collectionView.indexPathsForVisibleItems
-                let items = refreshItems.compactMap { presetsDataSource.itemIdentifier(for: $0) }
-                var snapshot = presetsDataSource.snapshot()
-                
-                snapshot.reconfigureItems(items)
-                presetsDataSource.apply(snapshot)
+                reconfigureVisibleItems()
             }
             
             setDateRange()
@@ -246,7 +241,19 @@ class FilterController: UIViewController {
             selectedMonths.append(sender.tag)
             setMonthRange()
             setDateRange()
+            
+            //reflect changes
+            reconfigureVisibleItems()
         }
+    }
+    
+    private func reconfigureVisibleItems() {
+        let refreshItems = collectionView.indexPathsForVisibleItems
+        let items = refreshItems.compactMap { presetsDataSource.itemIdentifier(for: $0) }
+        var snapshot = presetsDataSource.snapshot()
+        
+        snapshot.reconfigureItems(items)
+        presetsDataSource.apply(snapshot)
     }
     
     private func setDateRange() {
@@ -347,14 +354,21 @@ class FilterController: UIViewController {
         if selected {
             button.tintColor = .tintColor
             button.isSelected = true
-            button.layer.cornerRadius = 8.0
-            button.layer.borderWidth = 2.0
-            button.layer.borderColor = UIColor.tintColor.cgColor
+            
+            var config = UIButton.Configuration.plain()
+            config.background.strokeWidth = 2
+            config.background.strokeColor = .tintColor
+            
+            button.configuration = config
+            
         } else {
             button.tintColor = .label
             button.isSelected = false
-            button.layer.cornerRadius = 8.0
-            button.layer.borderWidth = 0
+            
+            var config = UIButton.Configuration.gray()
+            config.background.strokeWidth = 0
+            
+            button.configuration = config
         }
     }
 }

@@ -81,6 +81,13 @@ class CollectionController: UIViewController {
         super.viewWillAppear(animated)
         
         navigationController?.isNavigationBarHidden = false
+        navigationController?.navigationBar.prefersLargeTitles = true
+        
+        if collectionView.backgroundColor == .black {
+            UIView.animate { [weak self] in
+                self?.collectionView.backgroundColor = .systemBackground
+            }
+        }
     }
     
     deinit {
@@ -189,6 +196,10 @@ class CollectionController: UIViewController {
         refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
         collectionView.refreshControl = refreshControl
         collectionView.isPrefetchingEnabled = false
+        
+        if #available(iOS 26, *) {
+            collectionView.topEdgeEffect.style = .soft
+        }
     }
     
     func initTitle(allowEdit: Bool, allowSelect: Bool, layoutType: String) {
@@ -210,7 +221,10 @@ class CollectionController: UIViewController {
         
         navigationItem.leftBarButtonItems = []
         navigationItem.rightBarButtonItems = [menuButton, filterButton]
-        //navigationItem.backBarButtonItem = UIBarButtonItem(title: Strings.BackAction, style: .plain, target: nil, action: nil) //TODO: Need this for <26?
+        
+        if #unavailable(iOS 26) {
+            navigationItem.backBarButtonItem = UIBarButtonItem(title: Strings.BackAction, style: .plain, target: nil, action: nil)
+        }
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(scrollToTop))
         tap.numberOfTapsRequired = 1

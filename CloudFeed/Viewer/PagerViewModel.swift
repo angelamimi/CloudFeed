@@ -140,9 +140,9 @@ extension PagerViewModel: UIPageViewControllerDelegate {
             currentIndex = nextIndex!
             
             if currentIndex >= 0 && currentIndex < metadatas.count {
-                self.delegate?.finishedPaging(metadata: metadatas[currentIndex])
+                delegate?.finishedPaging(metadata: metadatas[currentIndex])
             }
         }
-        self.nextIndex = nil
+        nextIndex = nil
     }
 }

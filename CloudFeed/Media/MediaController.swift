@@ -100,7 +100,7 @@ class MediaController: CollectionController {
     }
     
     public func scrollToMetadata(metadata: Metadata) {
-
+        
         if let indexPath = viewModel.getIndexPathForMetadata(metadata: metadata) {
             //only scroll to item if not visible already
             if collectionView.indexPathsForVisibleItems.contains(indexPath) == false {
@@ -350,6 +350,12 @@ extension MediaController: CollectionDelegate {
 }
 
 extension MediaController: MediaDelegate {
+    
+    func videoSelected() {
+        //Hack. iOS 26 and above. Setting background color to match viewer background when video is selected.
+        //Background color is returned to system in appear
+        collectionView.backgroundColor = .black
+    }
     
     func dataSourceUpdated(refresh: Bool) {
         displayResults(refresh: refresh)

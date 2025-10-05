@@ -176,9 +176,8 @@
                                                             <subviews>
                                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9ey-xP-O0l">
                                                                     <rect key="frame" x="0.0" y="0.0" width="128" height="50"/>
-                                                                    <color key="tintColor" systemColor="labelColor"/>
                                                                     <state key="normal" title="Button"/>
-                                                                    <buttonConfiguration key="configuration" style="gray" title="Button"/>
+                                                                    <buttonConfiguration key="configuration" style="gray" title="Button" cornerStyle="medium"/>
                                                                 </button>
                                                             </subviews>
                                                             <constraints>
@@ -201,10 +200,10 @@
                                                             <subviews>
                                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RY2-bY-Dd6">
                                                                     <rect key="frame" x="0.0" y="0.0" width="128" height="50"/>
-                                                                    <color key="tintColor" systemColor="labelColor"/>
+                                                                    <color key="tintColor" systemColor="secondaryLabelColor"/>
                                                                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                                     <state key="normal" title="Button"/>
-                                                                    <buttonConfiguration key="configuration" style="gray" title="Button"/>
+                                                                    <buttonConfiguration key="configuration" style="gray" title="Button" cornerStyle="medium"/>
                                                                 </button>
                                                             </subviews>
                                                             <constraints>
@@ -316,8 +315,8 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="utA-5z-Vge"/>
-        <segue reference="Oc2-G2-8qL"/>
+        <segue reference="Xvi-iG-97F"/>
+        <segue reference="c8I-tM-W6e"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="calendar" catalog="system" width="128" height="107"/>
@@ -325,11 +324,14 @@
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGrayColor">
-            <color red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

@@ -27,13 +27,13 @@ class FilterMonthCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        
+
         monthButton.tintColor = .label
         monthButton.isSelected = false
-        monthButton.layer.borderWidth = 0
+        monthButton.configuration = UIButton.Configuration.gray()
     }
     
     func setMonth(index: Int, _ month: String) {
-        monthButton.setTitle(month, for: .normal)
+        monthButton.setTitle(month, for: [])
     }
 }

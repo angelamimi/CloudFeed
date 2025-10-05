@@ -64,12 +64,14 @@ final class DisplayController: UIViewController {
         navigationItem.title = Strings.SettingsItemAppearance
         navigationItem.largeTitleDisplayMode = .never
         
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        navigationController?.navigationBar.compactAppearance = appearance
-        navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
+        if #unavailable(iOS 26) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithTransparentBackground()
+            navigationController?.navigationBar.standardAppearance = appearance
+            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+            navigationController?.navigationBar.compactAppearance = appearance
+            navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
+        }
     }
     
     @objc

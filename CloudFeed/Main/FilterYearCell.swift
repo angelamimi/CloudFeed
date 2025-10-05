@@ -30,10 +30,10 @@ class FilterYearCell: UICollectionViewCell {
         
         yearButton.isSelected = false
         yearButton.tintColor = .label
-        yearButton.layer.borderWidth = 0
+        yearButton.configuration = UIButton.Configuration.gray()
     }
     
     func setYear(_ year: Int) {
-        yearButton.setTitle(year.description, for: .normal)
+        yearButton.setTitle(year.description, for: [])
     }
 }
