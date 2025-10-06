@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="r40-jb-ixQ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
@@ -8,84 +8,6 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Viewer Pager Controller-->
-        <scene sceneID="nRX-ek-qgC">
-            <objects>
-                <viewController storyboardIdentifier="PagerController" hidesBottomBarWhenPushed="YES" id="r40-jb-ixQ" userLabel="Viewer Pager Controller" customClass="PagerController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="TjY-XO-TRA">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="W1n-Dw-rA6">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <connections>
-                                    <segue destination="KfW-kE-79u" kind="embed" id="jcx-X3-EqB"/>
-                                </connections>
-                            </containerView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cgD-fs-t0w">
-                                <rect key="frame" x="16" y="126" width="76.333333333333329" height="28"/>
-                                <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Hhc-ac-kfS">
-                                        <rect key="frame" x="8.0000000000000036" y="4" width="58.333333333333343" height="20"/>
-                                        <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="livephoto" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ZgX-u5-E2L" userLabel="Status Image View">
-                                                <rect key="frame" x="0.0" y="-3.5527136788005009e-15" width="20" height="20.333333333333336"/>
-                                                <color key="tintColor" systemColor="labelColor"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="20" id="Gl9-ba-Ihi"/>
-                                                    <constraint firstAttribute="width" constant="20" id="xTp-C2-8nc"/>
-                                                </constraints>
-                                            </imageView>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LIVE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vSe-Ge-hD8" userLabel="Status Label">
-                                                <rect key="frame" x="24.000000000000004" y="0.0" width="34.333333333333343" height="20"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                        </subviews>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </stackView>
-                                </subviews>
-                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" priority="250" constant="28" id="8Ox-9L-Wxc"/>
-                                    <constraint firstAttribute="bottom" secondItem="Hhc-ac-kfS" secondAttribute="bottom" constant="4" id="Dvm-1a-fx2"/>
-                                    <constraint firstAttribute="trailing" secondItem="Hhc-ac-kfS" secondAttribute="trailing" constant="10" id="QGd-Z6-xu9"/>
-                                    <constraint firstItem="Hhc-ac-kfS" firstAttribute="leading" secondItem="cgD-fs-t0w" secondAttribute="leading" constant="8" id="S72-eT-pR7"/>
-                                    <constraint firstItem="Hhc-ac-kfS" firstAttribute="top" secondItem="cgD-fs-t0w" secondAttribute="top" constant="4" id="ep8-2w-Ir5"/>
-                                </constraints>
-                            </view>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="TIa-9d-2uX"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="W1n-Dw-rA6" firstAttribute="top" secondItem="TjY-XO-TRA" secondAttribute="top" id="9aU-V0-Zai"/>
-                            <constraint firstAttribute="trailing" secondItem="W1n-Dw-rA6" secondAttribute="trailing" id="In1-ax-uxC"/>
-                            <constraint firstItem="cgD-fs-t0w" firstAttribute="top" secondItem="TIa-9d-2uX" secondAttribute="top" constant="8" id="JRD-SH-Isq"/>
-                            <constraint firstItem="cgD-fs-t0w" firstAttribute="leading" secondItem="TIa-9d-2uX" secondAttribute="leading" constant="16" id="KIl-gq-gcA"/>
-                            <constraint firstAttribute="bottom" secondItem="W1n-Dw-rA6" secondAttribute="bottom" id="hJO-ZY-DSR"/>
-                            <constraint firstItem="W1n-Dw-rA6" firstAttribute="leading" secondItem="TjY-XO-TRA" secondAttribute="leading" id="hWt-eU-Bou"/>
-                        </constraints>
-                    </view>
-                    <navigationItem key="navigationItem" largeTitleDisplayMode="always" id="KHH-pV-Az5"/>
-                    <connections>
-                        <outlet property="statusContainerView" destination="cgD-fs-t0w" id="k4A-dS-mg0"/>
-                        <outlet property="statusLabel" destination="vSe-Ge-hD8" id="jSM-ni-LJc"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="gzJ-F7-ztV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-89" y="-92"/>
-        </scene>
-        <!--Page View Controller-->
-        <scene sceneID="VUR-2c-SgR">
-            <objects>
-                <pageViewController autoresizesArchivedViewToFullSize="NO" transitionStyle="scroll" navigationOrientation="horizontal" spineLocation="none" id="KfW-kE-79u" sceneMemberID="viewController"/>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="keR-GP-Uw0" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="683" y="-92"/>
-        </scene>
         <!--Viewer Controller-->
         <scene sceneID="zes-6L-b59">
             <objects>
@@ -223,15 +145,8 @@
         </scene>
     </scenes>
     <resources>
-        <image name="livephoto" catalog="system" width="128" height="124"/>
-        <systemColor name="labelColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

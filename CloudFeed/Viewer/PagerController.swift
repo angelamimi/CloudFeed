@@ -27,7 +27,7 @@ import os.log
 class PagerController: UIViewController {
     
     @IBOutlet weak var statusLabel: UILabel!
-    @IBOutlet weak var statusContainerView: UIView!
+    @IBOutlet weak var statusContainerView: UIVisualEffectView!
     
     var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
@@ -155,12 +155,12 @@ class PagerController: UIViewController {
             button.configuration = .glass()
             
             var container = AttributeContainer()
-            container.font = UIFont.boldSystemFont(ofSize: 20) //UIFont.preferredFont(forTextStyle: .headline)
+            container.font = UIFont.boldSystemFont(ofSize: 20)
 
             button.configuration?.attributedTitle = AttributedString(metadata.creationDate.formatted(date: .abbreviated, time: .omitted), attributes: container)
             
             var subtitleContainer = AttributeContainer()
-            subtitleContainer.font = UIFont.systemFont(ofSize: 16) //UIFont.preferredFont(forTextStyle: .subheadline)
+            subtitleContainer.font = UIFont.systemFont(ofSize: 16)
 
             button.configuration?.attributedSubtitle = AttributedString(metadata.creationDate.formatted(date: .omitted, time: .shortened), attributes: subtitleContainer)
             
@@ -169,17 +169,25 @@ class PagerController: UIViewController {
             
             button.setTitleColor(.label, for: .normal)
             
+            button.addTarget(self, action: #selector(titleButtonTapped), for: .touchUpInside)
+            
             navigationItem.titleView = button
-            navigationItem.titleView?.setNeedsLayout()
-            navigationItem.titleView?.sizeToFit()
-            navigationItem.titleView?.invalidateIntrinsicContentSize()
         }
     }
     
     private func initStatusView() {
+        
         statusContainerView.isHidden = true
         statusContainerView.alpha = 0
-        statusContainerView.layer.cornerRadius = 14
+        
+        if #available(iOS 26, *) {
+            statusContainerView.effect = UIGlassEffect(style: .regular)
+            statusContainerView.cornerConfiguration = .capsule()
+        } else {
+            statusContainerView.layer.cornerRadius = 14
+            statusContainerView.layer.masksToBounds = true
+        }
+        
         statusLabel.text = Strings.LiveTitle
         statusLabel.accessibilityLabel = Strings.ViewerLabelLivePhoto
     }
@@ -349,6 +357,10 @@ class PagerController: UIViewController {
         if presentedViewController == nil {
             present(controller, animated: true)
         }
+    }
+    
+    @objc private func titleButtonTapped() {
+        showInfo()
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {

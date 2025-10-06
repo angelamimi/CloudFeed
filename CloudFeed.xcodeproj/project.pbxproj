@@ -79,6 +79,7 @@
 		397B5C3A2C52E9B200EC7923 /* DetailView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 397B5C392C52E9B200EC7923 /* DetailView.xib */; };
 		397B5C3C2C52F4B800EC7923 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397B5C3B2C52F4B800EC7923 /* DetailView.swift */; };
 		397B5C3E2C54625400EC7923 /* DetailsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397B5C3D2C54625400EC7923 /* DetailsController.swift */; };
+		39888EC42E92B448003C1166 /* Pager.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39888EC32E92B448003C1166 /* Pager.storyboard */; };
 		398D14CC2B93B76700526E42 /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398D14CB2B93B76700526E42 /* CacheManager.swift */; };
 		398D14D22B9A4D2700526E42 /* ImageUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398D14D12B9A4D2700526E42 /* ImageUtility.swift */; };
 		398DA7252AC33F9E00F98E7F /* MockNextcloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391579BC2AB8AFD500DFEAB1 /* MockNextcloudKitService.swift */; };
@@ -231,6 +232,7 @@
 		397B5C392C52E9B200EC7923 /* DetailView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DetailView.xib; sourceTree = "<group>"; };
 		397B5C3B2C52F4B800EC7923 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
 		397B5C3D2C54625400EC7923 /* DetailsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsController.swift; sourceTree = "<group>"; };
+		39888EC32E92B448003C1166 /* Pager.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Pager.storyboard; sourceTree = "<group>"; };
 		398D14CB2B93B76700526E42 /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
 		398D14D12B9A4D2700526E42 /* ImageUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtility.swift; sourceTree = "<group>"; };
 		398DA7272AC6199500F98E7F /* mock-search.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "mock-search.json"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.json; };
@@ -341,6 +343,7 @@
 			isa = PBXGroup;
 			children = (
 				39271D5F29D905DA00522DFD /* Viewer.storyboard */,
+				39888EC32E92B448003C1166 /* Pager.storyboard */,
 				39FE2FE82C8B85F000CE51AC /* ControlsView.xib */,
 				397B5C392C52E9B200EC7923 /* DetailView.xib */,
 				397B5C3B2C52F4B800EC7923 /* DetailView.swift */,
@@ -658,6 +661,7 @@
 				3966634529DF321F005727D4 /* EmptyView.xib in Resources */,
 				39B03F0F29C53FD300704670 /* CollectionViewCell.xib in Resources */,
 				397B5C3A2C52E9B200EC7923 /* DetailView.xib in Resources */,
+				39888EC42E92B448003C1166 /* Pager.storyboard in Resources */,
 				39271D6029D905DA00522DFD /* Viewer.storyboard in Resources */,
 				39271D4D29D7975A00522DFD /* Settings.storyboard in Resources */,
 			);

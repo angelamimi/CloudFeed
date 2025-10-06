@@ -42,7 +42,7 @@ final class PagerCoordinator {
     func start(currentIndex: Int, metadatas: [Metadata]) {
         
         let viewerCoordinator = ViewerCoordinator(dataService: dataService)
-        weak var viewerPager: PagerController? = UIStoryboard(name: "Viewer", bundle: nil).instantiateInitialViewController() as? PagerController
+        weak var viewerPager: PagerController? = UIStoryboard(name: "Pager", bundle: nil).instantiateInitialViewController() as? PagerController
         let viewModel = PagerViewModel(coordinator: viewerCoordinator, pagerCoordinator: self, dataService: dataService, delegate: viewerPager!, viewerDelegate: viewerPager!, currentIndex: currentIndex, metadatas: metadatas)
         
         viewerPager!.viewModel = viewModel

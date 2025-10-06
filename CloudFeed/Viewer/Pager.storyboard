@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Y6W-OH-hqX">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Pager Controller-->
+        <scene sceneID="s0d-6b-0kx">
+            <objects>
+                <viewController storyboardIdentifier="PagerController2" id="Y6W-OH-hqX" customClass="PagerController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YJP-mb-tLg">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <connections>
+                                    <segue destination="yrF-wK-JaD" kind="embed" id="ttk-0n-Sls"/>
+                                </connections>
+                            </containerView>
+                            <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jok-bZ-N0D">
+                                <rect key="frame" x="16" y="126" width="74.333333333333329" height="28"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8ng-ur-sC7">
+                                    <rect key="frame" x="0.0" y="0.0" width="74.333333333333329" height="28"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="n6X-pL-5SO">
+                                            <rect key="frame" x="8.0000000000000036" y="4" width="58.333333333333343" height="20"/>
+                                            <subviews>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="livephoto" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="4sg-Q6-IgY" userLabel="Status Image View">
+                                                    <rect key="frame" x="0.0" y="-3.5527136788005009e-15" width="20" height="20.333333333333336"/>
+                                                    <color key="tintColor" systemColor="labelColor"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="20" id="OZZ-4a-StS"/>
+                                                        <constraint firstAttribute="width" constant="20" id="qQg-De-xlo"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LIVE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1tZ-EE-hDS" userLabel="Status Label">
+                                                    <rect key="frame" x="24.000000000000004" y="0.0" width="34.333333333333343" height="20"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </stackView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="n6X-pL-5SO" firstAttribute="leading" secondItem="8ng-ur-sC7" secondAttribute="leading" constant="8" id="7E3-65-u8M"/>
+                                        <constraint firstAttribute="bottom" secondItem="n6X-pL-5SO" secondAttribute="bottom" constant="4" id="Bav-Gc-Zu2"/>
+                                        <constraint firstAttribute="trailing" secondItem="n6X-pL-5SO" secondAttribute="trailing" constant="8" id="cvq-Sc-uvg"/>
+                                        <constraint firstItem="n6X-pL-5SO" firstAttribute="top" secondItem="8ng-ur-sC7" secondAttribute="top" constant="4" id="de2-QE-p6M"/>
+                                    </constraints>
+                                </view>
+                                <constraints>
+                                    <constraint firstAttribute="height" priority="250" constant="28" id="Dl2-9m-0sZ"/>
+                                </constraints>
+                                <blurEffect style="regular"/>
+                            </visualEffectView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="jok-bZ-N0D" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="8" id="5tQ-lP-3l5"/>
+                            <constraint firstAttribute="trailing" secondItem="YJP-mb-tLg" secondAttribute="trailing" id="HKz-Yy-txc"/>
+                            <constraint firstItem="jok-bZ-N0D" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="SQa-Zf-k52"/>
+                            <constraint firstItem="YJP-mb-tLg" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="Sxp-JB-IpI"/>
+                            <constraint firstAttribute="bottom" secondItem="YJP-mb-tLg" secondAttribute="bottom" id="o27-CE-DUc"/>
+                            <constraint firstItem="YJP-mb-tLg" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" id="x7t-Ow-QSi"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="statusContainerView" destination="jok-bZ-N0D" id="eOG-CJ-wOz"/>
+                        <outlet property="statusLabel" destination="1tZ-EE-hDS" id="fgA-J7-XGW"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="140" y="92"/>
+        </scene>
+        <!--Page View Controller-->
+        <scene sceneID="fVC-jr-Pei">
+            <objects>
+                <pageViewController autoresizesArchivedViewToFullSize="NO" transitionStyle="scroll" navigationOrientation="horizontal" spineLocation="none" id="yrF-wK-JaD" sceneMemberID="viewController"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="9ux-qD-pMJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1024" y="92"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="livephoto" catalog="system" width="128" height="124"/>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

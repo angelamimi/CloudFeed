@@ -597,6 +597,9 @@ class ControlsView: UIView {
         timeButton.maximumContentSizeCategory = .accessibilityExtraLarge
         totalTimeButton.maximumContentSizeCategory = .accessibilityExtraLarge
         
+        audioTrackButton.setImage(UIImage(systemName: "waveform"), for: .normal)
+        audioTrackButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+        
         if #available(iOS 26, *) {
             
             timeSlider = innerTimeSlider
@@ -615,9 +618,7 @@ class ControlsView: UIView {
             timeView.cornerConfiguration = .capsule()
             
             audioTrackButton.configuration = .glass()
-            audioTrackButton.setImage(UIImage(systemName: "waveform"), for: .normal)
-            audioTrackButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
-            
+
             controlsView.effect = UIGlassContainerEffect()
             audioTrackView.effect = UIGlassContainerEffect()
             
@@ -649,6 +650,11 @@ class ControlsView: UIView {
             totalTimeButton.configuration?.titleLineBreakMode = .byTruncatingHead
             totalTimeButton.setTitle("00:00", for: .normal)
             
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                volumeViewTrailingConstraint.constant = 8
+                audioViewLeadingConstraint.constant = 8
+            }
+            
         } else {
             
             timeSlider = currentTimeSlider
@@ -678,6 +684,9 @@ class ControlsView: UIView {
 
             speedButton.contentHorizontalAlignment = .trailing
             captionsButton.contentHorizontalAlignment = .leading
+            
+            speedButton.contentVerticalAlignment = .bottom
+            captionsButton.contentVerticalAlignment = .bottom
             
             volumeViewTrailingConstraint.constant = 0
             audioViewLeadingConstraint.constant = 0

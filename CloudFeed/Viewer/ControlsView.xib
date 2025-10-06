@@ -256,7 +256,7 @@
                     </constraints>
                     <blurEffect style="prominent"/>
                 </visualEffectView>
-                <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q2D-Dm-4a7">
+                <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q2D-Dm-4a7" userLabel="Status Visual Effect View">
                     <rect key="frame" x="75" y="75" width="60" height="60"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="TeL-Uj-fXd">
                         <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
