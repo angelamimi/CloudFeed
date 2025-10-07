@@ -11,7 +11,7 @@
         <!--Pager Controller-->
         <scene sceneID="s0d-6b-0kx">
             <objects>
-                <viewController storyboardIdentifier="PagerController2" id="Y6W-OH-hqX" customClass="PagerController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PagerController2" hidesBottomBarWhenPushed="YES" id="Y6W-OH-hqX" customClass="PagerController" customModule="CloudFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -24,9 +24,9 @@
                                 </connections>
                             </containerView>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jok-bZ-N0D">
-                                <rect key="frame" x="16" y="126" width="74.333333333333329" height="28"/>
+                                <rect key="frame" x="16" y="126" width="74" height="28"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8ng-ur-sC7">
-                                    <rect key="frame" x="0.0" y="0.0" width="74.333333333333329" height="28"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="74" height="28"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="n6X-pL-5SO">

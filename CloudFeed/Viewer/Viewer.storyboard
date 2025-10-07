@@ -135,18 +135,58 @@
                     <view key="view" contentMode="scaleToFill" id="uMS-Ws-hUq">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="RFa-97-UBf" userLabel="Navigation Stack View">
+                                <rect key="frame" x="16" y="134" width="361" height="34.333333333333343"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yee-Eg-yvm">
+                                        <rect key="frame" x="0.0" y="17.333333333333343" width="326.66666666666669" height="0.0"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="751" verticalHuggingPriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="close" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gju-BR-3tj">
+                                        <rect key="frame" x="326.66666666666669" y="0.0" width="34.333333333333314" height="34.333333333333336"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="30" id="1j1-WZ-iEt"/>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="Jb6-ew-5aT"/>
+                                        </constraints>
+                                        <buttonConfiguration key="configuration" style="gray" cornerStyle="capsule"/>
+                                    </button>
+                                </subviews>
+                                <color key="tintColor" systemColor="secondaryLabelColor"/>
+                            </stackView>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IA9-sT-gKp">
+                                <rect key="frame" x="0.0" y="168.33333333333331" width="393" height="615.66666666666674"/>
+                            </scrollView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="rK7-NA-i7O"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="RFa-97-UBf" firstAttribute="leading" secondItem="rK7-NA-i7O" secondAttribute="leading" constant="16" id="4cR-Bu-DnM"/>
+                            <constraint firstItem="RFa-97-UBf" firstAttribute="top" secondItem="rK7-NA-i7O" secondAttribute="top" constant="16" id="Fhq-YX-ikj"/>
+                            <constraint firstItem="rK7-NA-i7O" firstAttribute="trailing" secondItem="IA9-sT-gKp" secondAttribute="trailing" id="KuQ-Rm-vpq"/>
+                            <constraint firstItem="rK7-NA-i7O" firstAttribute="bottom" secondItem="IA9-sT-gKp" secondAttribute="bottom" id="P6q-Qs-adk"/>
+                            <constraint firstItem="IA9-sT-gKp" firstAttribute="top" secondItem="RFa-97-UBf" secondAttribute="bottom" id="PLX-WQ-IDN"/>
+                            <constraint firstItem="IA9-sT-gKp" firstAttribute="leading" secondItem="rK7-NA-i7O" secondAttribute="leading" id="YnQ-lU-uiA"/>
+                            <constraint firstItem="rK7-NA-i7O" firstAttribute="trailing" secondItem="RFa-97-UBf" secondAttribute="trailing" constant="16" id="hve-sh-uoI"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="closeButton" destination="gju-BR-3tj" id="b5R-cm-9Tc"/>
+                        <outlet property="navigationStackView" destination="RFa-97-UBf" id="GLS-Qa-giN"/>
+                        <outlet property="scrollView" destination="IA9-sT-gKp" id="E5N-LE-j7c"/>
+                        <outlet property="titleLabel" destination="yee-Eg-yvm" id="Bte-iU-EkL"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xdP-Yo-YSL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2931" y="-92"/>
+            <point key="canvasLocation" x="2930.5343511450383" y="-92.253521126760575"/>
         </scene>
     </scenes>
     <resources>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

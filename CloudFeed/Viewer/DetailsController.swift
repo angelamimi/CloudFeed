@@ -31,6 +31,11 @@ protocol DetailsControllerDelegate: AnyObject {
 //DetailsView container used for pad only
 class DetailsController: UIViewController {
     
+    @IBOutlet weak var navigationStackView: UIStackView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var closeButton: UIButton!
+    @IBOutlet weak var scrollView: UIScrollView!
+    
     private weak var detailView: DetailView!
     
     var metadata: Metadata?
@@ -46,15 +51,34 @@ class DetailsController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        titleLabel.text = Strings.DetailTitle
+        
+        closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
+        
         initDetailView()
-        detailView.delegate = self
         
         addGestures()
         bindDetailView()
     }
     
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        if view.frame.width == 0 || view.frame.height == 0 {
+            //Bug? Sometimes the view's frame is rendered invalid upon rotation. User sees nothing but system reports a visible presentedViewController
+            close()
+        }
+    }
+    
     override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
         setPreferredSize()
+
+        let size = CGSizeMake(view.frame.size.width, detailView.height())
+        if !scrollView.contentSize.equalTo(size) {
+            scrollView.contentSize = size
+        }
     }
     
     func populateDetails(metadata: Metadata, url: URL) {
@@ -73,6 +97,10 @@ class DetailsController: UIViewController {
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
+        close()
+    }
+    
+    @objc func close() {
         delegate?.dismissingDetails()
         dismiss(animated: true)
     }
@@ -81,23 +109,14 @@ class DetailsController: UIViewController {
         
         guard let detailView = Bundle.main.loadNibNamed("DetailView", owner: self, options: nil)?.first as? DetailView else { return }
         
+        detailView.delegate = self
+        
         self.detailView = detailView
         
-        view.addSubview(detailView)
-        
-        detailView.showNavigation()
+        scrollView.addSubview(detailView)
         
         detailView.translatesAutoresizingMaskIntoConstraints = false
-        
-        detailView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-        detailView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor).isActive = true
         detailView.widthAnchor.constraint(equalToConstant: preferredContentSize.width).isActive = true
-        
-        let heightAnchor = detailView.heightAnchor.constraint(equalToConstant: 0)
-        heightAnchor.priority = .defaultLow
-        heightAnchor.isActive = true
-        
-        view.layoutIfNeeded()
     }
     
     private func bindDetailView() {
@@ -125,27 +144,12 @@ class DetailsController: UIViewController {
     }
     
     private func setPreferredSize() {
-        let targetSize = CGSize(width: 400, height: detailView.height())
-        preferredContentSize = detailView.systemLayoutSizeFitting(targetSize)
-    }
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        
-        if view.frame.width == 0 || view.frame.height == 0 {
-            //Bug? Sometimes the view's frame is rendered invalid upon rotation. User sees nothing but system reports a visible presentedViewController
-            delegate?.dismissingDetails()
-            dismiss(animated: false)
-        }
+        let height = detailView.height() + navigationStackView.frame.height + 16
+        preferredContentSize = CGSize(width: 400, height: height)
     }
 }
 
 extension DetailsController : DetailViewDelegate {
-    
-    func close() {
-        delegate?.dismissingDetails()
-        dismiss(animated: true)
-    }
     
     func detailsLoaded() {
         UIView.animate(withDuration: 0.2, animations: { [weak self] in
