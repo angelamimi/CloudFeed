@@ -57,9 +57,6 @@ class LoginServerController: UIViewController {
         
         if parent != nil && parent!.isBeingPresented {
             serverURLLabel.textColor = .label
-            serverURLTextField.textColor = .label
-            serverURLTextField.backgroundColor = .systemBackground
-            serverURLTextField.borderStyle = .line
             logoImageView.isHidden = true
             closeButton.isHidden = false
             centerConstraint.constant = -50
