@@ -190,10 +190,11 @@ class SettingsController: UIViewController {
             
             await viewModel.downloadAvatar(account: account, user: account.user)
             
-            let image = await viewModel.loadAvatar(account: account)
+            let image = await roundAvatar(account: account)
             let name = account.displayName
+            let host = URL(string: account.urlBase)?.host ?? ""
             
-            let action = UIAction(title: name, image: image, state: account.active ? .on : .off) { [weak self] _ in
+            let action = UIAction(title: name, subtitle: host, image: image, state: account.active ? .on : .off) { [weak self] _ in
                 if !account.active {
                     self?.changeAccount(account: account.account)
                 }
@@ -203,6 +204,23 @@ class SettingsController: UIViewController {
         }
         
         return accountActions
+    }
+    
+    private func roundAvatar(account: Account) async -> UIImage? {
+        
+        if var image = await viewModel.loadAvatar(account: account) {
+
+            let rect = CGRect(x: 0, y: 0, width: 30, height: 30)
+            UIGraphicsBeginImageContextWithOptions(rect.size, false, 0.0)
+            UIBezierPath(roundedRect: rect, cornerRadius: rect.size.height).addClip()
+            image.draw(in: rect)
+            image = UIGraphicsGetImageFromCurrentImageContext() ?? image
+            UIGraphicsEndImageContext()
+             
+            return image
+        }
+        
+        return nil
     }
     
     private func addAccount() {
