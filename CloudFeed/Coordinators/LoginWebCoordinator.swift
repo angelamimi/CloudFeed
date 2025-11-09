@@ -50,7 +50,6 @@ final class LoginWebCoordinator : Coordinator {
         loginController.endpoint = endpoint
         loginController.login = login
         loginController.viewModel = LoginViewModel(delegate: self, dataService: dataService, coordinator: self)
-        
         self.navigationController.pushViewController(loginController, animated: true)
     }
 }

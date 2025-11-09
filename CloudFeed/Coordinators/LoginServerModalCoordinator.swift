@@ -26,15 +26,9 @@ protocol UserDelegate: AnyObject {
     func currentUserChanged()
 }
 
-@MainActor
-protocol LoginUserDelegate: AnyObject {
-    func loginSuccess()
-}
-
 final class LoginServerModalCoordinator : LoginCoordinator {
     
     var delegate: UserDelegate?
-    var loginDelegate: LoginUserDelegate?
     
     override func start() {
         
@@ -55,7 +49,6 @@ final class LoginServerModalCoordinator : LoginCoordinator {
     }
     
     func handleLoginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
-        loginDelegate?.loginSuccess()
         delegate?.currentUserChanged()
         navigationController.dismiss(animated: true)
     }

@@ -33,9 +33,9 @@ final class SettingsViewModel: ProfileViewModel {
     
     weak var settingsDelegate: SettingsDelegate!
 
-    init(delegate: SettingsDelegate, profileDelegate: ProfileDelegate, dataService: DataService, coordinator: SettingsCoordinator) {
+    init(delegate: SettingsDelegate, profileDelegate: ProfileDelegate, resetDelegate: ResetApplicationDelegate, dataService: DataService, coordinator: SettingsCoordinator) {
         self.settingsDelegate = delegate
-        super.init(delegate: profileDelegate, accountDelegate: delegate, dataService: dataService, coordinator: coordinator)
+        super.init(delegate: profileDelegate, accountDelegate: delegate, resetDelegate: resetDelegate, dataService: dataService, coordinator: coordinator)
     }
     
     func getAccounts() async -> [Account] {
@@ -46,7 +46,7 @@ final class SettingsViewModel: ProfileViewModel {
         coordinator.clearUser()
     }
 
-    func clearCache() {
+    func clearCache(notify: Bool) {
         
         Task { [weak self] in
             
@@ -56,27 +56,31 @@ final class SettingsViewModel: ProfileViewModel {
             
             await self?.dataService.store.clearCache()
             
-            self?.coordinator.cacheCleared()
-            self?.settingsDelegate.cacheCleared()
+            if notify {
+                self?.coordinator.cacheCleared()
+                self?.settingsDelegate.cacheCleared()
+            }
         }
     }
     
     func reset() {
-        
-        let store = dataService.store
-        
+
         Task { [weak self] in
             
-            await store.clearCache()
-            await store.removeDocumentsDirectory()
-            store.deleteAllChainStore()
-            
-            await self?.dataService.clearDatabase()
+            await self?.dataService.reset()
             
             Environment.current.currentUser = nil
             
-            self?.coordinator.applicationReset()
+            self?.resetDelegate.reset()
         }
+    }
+    
+    func hasPasscode() -> Bool {
+        if let account = Environment.current.currentUser?.account,
+           let passcode = dataService.store.getPasscode(account) {
+            return passcode.isEmpty == false
+        }
+        return false
     }
     
     func calculateCacheSize() {
@@ -110,5 +114,13 @@ final class SettingsViewModel: ProfileViewModel {
     
     func showDisplay() {
         coordinator.showDisplay()
+    }
+    
+    func showPrivacy() {
+        coordinator.showPasscode()
+    }
+    
+    func showRemovePasscode() {
+        coordinator.showRemovePasscode()
     }
 }

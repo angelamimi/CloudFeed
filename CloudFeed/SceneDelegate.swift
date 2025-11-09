@@ -24,6 +24,8 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    
+    private var appCoordinator: AppCoordinator!
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
@@ -33,12 +35,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
         
         if ProcessInfo.processInfo.environment["XCInjectBundleInto"] == nil {
-            let appCoordinator = AppCoordinator(window: window)
+            appCoordinator = AppCoordinator(window: window)
             appCoordinator.start()
         } else {
             window.rootViewController = UINavigationController()
             self.window = window
             window.makeKeyAndVisible()
+        }
+    }
+    
+    func sceneWillEnterForeground(_ scene: UIScene) {
+
+        if let tabs = window?.rootViewController as? UITabBarController {
+
+            if let presented = tabs.presentedViewController {
+                presented.dismiss(animated: false, completion: { [weak self] in
+                    _ = self?.appCoordinator.requiresPasscode(controller: tabs)
+                })
+            } else {
+                _ = appCoordinator.requiresPasscode(controller: tabs)
+            }
         }
     }
 }

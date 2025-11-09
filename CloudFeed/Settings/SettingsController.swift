@@ -44,7 +44,7 @@ class SettingsController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -54,19 +54,26 @@ class SettingsController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        tableView.reloadData()
+        
         requestProfile()
         calculateCacheSize()
     }
 
-    func clear() {
-
+    func clear(notify: Bool, reload: Bool) {
+        
         profileName = ""
         profileEmail = ""
         profileImage = nil
-        tableView.reloadData()
+        tableView?.reloadData()
         
-        requestProfile()
-        viewModel.clearCache()
+        if reload {
+            requestProfile()
+        }
+        
+        viewModel.clearCache(notify: notify)
     }
     
     func updateMode(_ mode: Global.SettingsMode) {
@@ -80,7 +87,8 @@ class SettingsController: UIViewController {
         case .data: title = Strings.SettingsSectionData
         case .display: title = Strings.SettingsSectionDisplay
         case .information: title = Strings.SettingsSectionInformation
-        default: 
+        case .privacy: title = Strings.SettingsSectionPrivacy
+        default:
             title = ""
         }
         
@@ -136,7 +144,6 @@ class SettingsController: UIViewController {
             viewModel.addAccount()
         } else {
             startActivityIndicator()
-            
             Task { [weak self] in
                 await self?.viewModel.requestProfile()
             }
@@ -266,13 +273,19 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             if indexPath.section == 0 && indexPath.item == 0 {
                 viewModel.showDisplay()
             }
+        case .privacy:
+            if indexPath.section == 0 && indexPath.item == 0 {
+                viewModel.showPrivacy()
+            } else if indexPath.section == 0 && indexPath.item == 1 {
+                viewModel.showRemovePasscode()
+            }
         case .information:
             if indexPath.section == 0 && indexPath.item == 0 {
                 acknowledgements()
             }
         case .data:
             if indexPath.section == 0 && indexPath.item == 0 {
-                viewModel.clearCache()
+                viewModel.clearCache(notify: true)
             } else if indexPath.section == 0 && indexPath.item == 1 {
                 checkReset()
             }
@@ -282,11 +295,15 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             } else if indexPath.section == 1 && indexPath.item == 0 {
                 viewModel.showDisplay()
             } else if indexPath.section == 2 && indexPath.item == 0 {
-                acknowledgements()
+                viewModel.showPrivacy()
+            } else if indexPath.section == 2 && indexPath.item == 1 {
+                viewModel.showRemovePasscode()
             } else if indexPath.section == 3 && indexPath.item == 0 {
+                acknowledgements()
+            } else if indexPath.section == 4 && indexPath.item == 0 {
                 startActivityIndicator()
-                viewModel.clearCache()
-            } else if indexPath.section == 3 && indexPath.item == 1 {
+                viewModel.clearCache(notify: true)
+            } else if indexPath.section == 4 && indexPath.item == 1 {
                 checkReset()
             }
         }
@@ -299,12 +316,14 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             return 1
         case .display:
             return 1
+        case .privacy:
+            return 1
         case .information:
             return 1
         case .data:
             return 1
         case .all:
-            return 4
+            return 5
         }
     }
     
@@ -313,8 +332,10 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             if section == 1 {
                 return Strings.SettingsSectionDisplay
             } else if section == 2 {
-                return Strings.SettingsSectionInformation
+                return Strings.SettingsSectionPrivacy
             } else if section == 3 {
+                return Strings.SettingsSectionInformation
+            } else if section == 4 {
                 return Strings.SettingsSectionData
             }
         }
@@ -335,6 +356,12 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             return 1
         case .display:
             return 1
+        case .privacy:
+            if viewModel.hasPasscode() {
+                return 2
+            } else {
+                return 1
+            }
         case .information:
             return 2
         case .data:
@@ -342,6 +369,12 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         case .all:
             if section == 0 || section == 1 {
                 return 1
+            } else if section == 2 {
+                if viewModel.hasPasscode() {
+                    return 2
+                } else {
+                    return 1
+                }
             } else {
                 return 2
             }
@@ -358,6 +391,12 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             return configureProfileCell(indexPath)
         case .display:
             return configureAppearanceCell(indexPath)
+        case .privacy:
+            if indexPath.section == 0 && indexPath.item == 0 {
+                return configurePasscodeCell(indexPath)
+            } else if viewModel.hasPasscode() && indexPath.section == 0 && indexPath.item == 1 {
+                return configureRemovePasscodeCell(indexPath)
+            }
         case .information:
             if indexPath.section == 0 && indexPath.item == 0 {
                 return configureAcknowledgementsCell(indexPath)
@@ -376,12 +415,16 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             } else if indexPath.section == 1 && indexPath.item == 0 {
                 return configureAppearanceCell(indexPath)
             } else if indexPath.section == 2 && indexPath.item == 0 {
-                return configureAcknowledgementsCell(indexPath)
+                return configurePasscodeCell(indexPath)
             } else if indexPath.section == 2 && indexPath.item == 1 {
-                return configureVersionCell(indexPath)
+                return configureRemovePasscodeCell(indexPath)
             } else if indexPath.section == 3 && indexPath.item == 0 {
-                return configureCacheCell(indexPath)
+                return configureAcknowledgementsCell(indexPath)
             } else if indexPath.section == 3 && indexPath.item == 1 {
+                return configureVersionCell(indexPath)
+            } else if indexPath.section == 4 && indexPath.item == 0 {
+                return configureCacheCell(indexPath)
+            } else if indexPath.section == 4 && indexPath.item == 1 {
                 return configureResetCell(indexPath)
             }
         }
@@ -424,9 +467,44 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         
         result.content.image = UIImage(systemName: "sun.max")
         result.content.text = Strings.SettingsItemAppearance
-        result.cell.tintColor = UIColor.label
+        result.cell.tintColor = .label
         result.cell.accessoryType = .disclosureIndicator
         
+        result.cell.contentConfiguration = result.content
+        
+        return result.cell
+    }
+    
+    private func configurePasscodeCell(_ indexPath: IndexPath) -> UITableViewCell {
+        
+        var result = buildSettingsCellContent(indexPath: indexPath)
+        
+        if viewModel.hasPasscode() {
+            result.content.image = UIImage(systemName: "lock")
+            result.content.text = Strings.SettingsItemSettingsPasscode
+        } else {
+            result.content.image = UIImage(systemName: "lock.open")
+            result.content.text = Strings.SettingsItemAddPasscode
+        }
+        
+        result.cell.tintColor = .label
+        result.cell.accessoryType = .disclosureIndicator
+
+        result.cell.contentConfiguration = result.content
+        
+        return result.cell
+    }
+    
+    private func configureRemovePasscodeCell(_ indexPath: IndexPath) -> UITableViewCell {
+        
+        var result = buildSettingsCellContent(indexPath: indexPath)
+        
+        result.content.image = UIImage(systemName: "lock.slash")
+        result.content.text = Strings.SettingsItemDeletePasscode
+        
+        result.cell.tintColor = .red
+        result.cell.accessoryType = .disclosureIndicator
+
         result.cell.contentConfiguration = result.content
         
         return result.cell
@@ -438,9 +516,9 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         
         result.content.image = UIImage(systemName: "person.wave.2")
         result.content.text = Strings.SettingsItemAcknowledgements
-        result.cell.tintColor = UIColor.label
+        result.cell.tintColor = .label
         result.cell.accessoryType = .disclosureIndicator
-        
+
         result.cell.contentConfiguration = result.content
         
         return result.cell
@@ -452,7 +530,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         
         result.content.image = UIImage(systemName: "info.circle")
         result.cell.accessoryType = .none
-        result.cell.tintColor = UIColor.label
+        result.cell.tintColor = .label
         result.cell.selectionStyle = .none
         
         if let dictionary = Bundle.main.infoDictionary,
@@ -475,7 +553,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         result.content.image = UIImage(systemName: "trash")
         result.content.text = Strings.SettingsItemClearCache
         result.content.secondaryText = "\(Strings.SettingsLabelCacheSize): \(cacheSizeDescription)"
-        result.cell.tintColor = UIColor.label
+        result.cell.tintColor = .label
         result.cell.accessoryType = .none
         
         result.cell.contentConfiguration = result.content
@@ -489,7 +567,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         
         result.content.image = UIImage(systemName: "xmark.octagon")
         result.content.text = Strings.SettingsItemResetApplication
-        result.cell.tintColor = UIColor.red
+        result.cell.tintColor = .red
         result.cell.accessoryType = .none
         
         result.cell.contentConfiguration = result.content
@@ -524,8 +602,9 @@ extension SettingsController: SettingsDelegate {
     func userChanged() {
         DispatchQueue.main.async { [weak self] in
             self?.stopActivityIndicator()
-            self?.clear()
+            self?.clear(notify: true, reload: true)
             self?.viewModel.userAccountChanged()
+            self?.viewModel?.lockCheck()
         }
     }
     
@@ -544,7 +623,6 @@ extension SettingsController: SettingsDelegate {
         
         DispatchQueue.main.async { [weak self] in
             if self?.tableView.window != nil {
-                self?.tableView.reloadRows(at: [IndexPath(item: 1, section: 0)], with: .automatic)
                 self?.tableView.reloadData()
             }
         }

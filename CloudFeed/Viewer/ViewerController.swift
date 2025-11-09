@@ -155,7 +155,7 @@ class ViewerController: UIViewController {
     }
     
     func willEnterForeground() {
-        if presentedViewController != nil {
+        if presentedViewController != nil && presentedViewController is DetailsController {
             presentedViewController?.dismiss(animated: false)
             updateStatus(.title)
         } else if UIDevice.current.userInterfaceIdiom != .pad && currentStatus() == .details {

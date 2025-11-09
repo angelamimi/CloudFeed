@@ -63,6 +63,8 @@ class PagerController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        tabBarController?.tabBar.isHidden = true
+        
         pageViewController?.delegate = viewModel
         pageViewController?.dataSource = viewModel
         
@@ -151,7 +153,7 @@ class PagerController: UIViewController {
         
         if #available(iOS 26, *) {
             
-            let button = UIButton(type: .custom)
+            let button = UIButton.init(type: .custom)
             button.configuration = .glass()
             
             var container = AttributeContainer()
@@ -163,12 +165,10 @@ class PagerController: UIViewController {
             subtitleContainer.font = UIFont.systemFont(ofSize: 16)
 
             button.configuration?.attributedSubtitle = AttributedString(metadata.creationDate.formatted(date: .omitted, time: .shortened), attributes: subtitleContainer)
-            
             button.configuration?.titleLineBreakMode = .byTruncatingTail
             button.configuration?.titleAlignment = .center
             
             button.setTitleColor(.label, for: .normal)
-            
             button.addTarget(self, action: #selector(titleButtonTapped), for: .touchUpInside)
             
             navigationItem.titleView = button

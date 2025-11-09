@@ -48,6 +48,7 @@ final class MainCoordinator : NSObject, Coordinator {
         
         tabBarController?.delegate = self
         tabBarController?.view.backgroundColor = .black
+        tabBarController?.tabBar.tintColor = .label
         
         if #unavailable(iOS 26) {
             let appearance = UITabBarAppearance()
@@ -67,35 +68,6 @@ final class MainCoordinator : NSObject, Coordinator {
     func start() {
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()
-    }
-}
-
-extension MainCoordinator: UITabBarControllerDelegate {
-    
-    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-        if let nav = viewController as? UINavigationController {
-            nav.popToRootViewController(animated: false)
-        }
-    }
-}
-
-extension MainCoordinator: CacheDelegate {
-    
-    func reset() {
-        clearSettingsController()
-        clearMediaController()
-        clearFavoritesController()
-    }
-    
-    func clearUser() {
-        clearSettingsController()
-        resetMediaFilter()
-        resetFavoritesFilter()
-    }
-    
-    func cacheCleared() {
-        clearMediaController()
-        clearFavoritesController()
     }
 }
 
@@ -122,26 +94,50 @@ extension MainCoordinator {
     }
     
     private func clearMediaController() {
+        
+        if let nav = tabBarController?.viewControllers?[0] as? UINavigationController {
+            nav.popToRootViewController(animated: false)
+        }
+        
         if let media = getMediaController() {
             media.clear()
         }
     }
     
     private func clearFavoritesController() {
+        
+        if let nav = tabBarController?.viewControllers?[1] as? UINavigationController {
+            nav.popToRootViewController(animated: false)
+        }
+        
         if let favs = getFavoritesController() {
             favs.clear()
         }
     }
     
-    private func clearSettingsController() {
+    private func clearSettingsController(notify: Bool, reload: Bool) {
         if tabBarController?.viewControllers?[2] is UINavigationController {
             let settingsNavController = tabBarController?.viewControllers?[2] as! UINavigationController
-            let settingsController = settingsNavController.viewControllers[0] as! SettingsController
-            settingsController.clear()
+            let settingsController = settingsNavController.viewControllers[0] as? SettingsController
+            settingsController?.clear(notify: notify, reload: reload)
         } else {
             let settingsSplitController = tabBarController?.viewControllers?[2] as! UISplitViewController
-            let settingsController = settingsSplitController.viewController(for: .secondary) as! SettingsController
-            settingsController.clear()
+            let settingsController = settingsSplitController.viewController(for: .secondary) as? SettingsController
+            settingsController?.clear(notify: notify, reload: reload)
+        }
+    }
+    
+    private func blurWithTag(_ blurTag: Int) {
+        
+        if let currentView = tabBarController?.viewIfLoaded {
+            let blurEffect = UIBlurEffect(style: .light)
+            let blurEffectView = UIVisualEffectView(effect: blurEffect)
+            
+            blurEffectView.frame = currentView.frame
+            blurEffectView.tag = blurTag
+            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            
+            currentView.addSubview(blurEffectView)
         }
     }
     
@@ -161,11 +157,11 @@ extension MainCoordinator {
         
         let mediaCoordinator = MediaCoordinator(navigationController: mediaNavController, dataService: dataService)
         let favoriteCoordinator = FavoritesCoordinator(navigationController: favoritesNavController, dataService: dataService)
-        let settingCoordinator = SettingsCoordinator(settingsController: settingsViewController, dataService: dataService, cacheDelegate: self)
+        let settingCoordinator = SettingsCoordinator(settingsController: settingsViewController, dataService: dataService, cacheDelegate: self, resetDelegate: self)
         
         mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService, cacheManager: cacheManager, coordinator: mediaCoordinator)
         favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager, coordinator: favoriteCoordinator)
-        settingsViewController.viewModel = SettingsViewModel(delegate: settingsViewController, profileDelegate: settingsViewController, dataService: dataService, coordinator: settingCoordinator)
+        settingsViewController.viewModel = SettingsViewModel(delegate: settingsViewController, profileDelegate: settingsViewController, resetDelegate: self, dataService: dataService, coordinator: settingCoordinator)
         
         settingsViewController.mode = .all
         
@@ -193,14 +189,13 @@ extension MainCoordinator {
         settingsController.mode = .account
         
         let cacheManager = CacheManager(dataService: dataService)
-        
         let mediaCoordinator = MediaCoordinator(navigationController: mediaNavController, dataService: dataService)
         let favoriteCoordinator = FavoritesCoordinator(navigationController: favoritesNavController, dataService: dataService)
-        let settingCoordinator = SettingsCoordinator(settingsController: settingsController, dataService: dataService, cacheDelegate: self)
+        let settingCoordinator = SettingsCoordinator(settingsController: settingsController, dataService: dataService, cacheDelegate: self, resetDelegate: self)
         
         mediaViewController.viewModel = MediaViewModel(delegate: mediaViewController, dataService: dataService, cacheManager: cacheManager, coordinator: mediaCoordinator)
         favoritesViewController.viewModel = FavoritesViewModel(delegate: favoritesViewController, dataService: dataService, cacheManager: cacheManager, coordinator: favoriteCoordinator)
-        settingsController.viewModel = SettingsViewModel(delegate: settingsController, profileDelegate: settingsController, dataService: dataService, coordinator: settingCoordinator)
+        settingsController.viewModel = SettingsViewModel(delegate: settingsController, profileDelegate: settingsController, resetDelegate: self, dataService: dataService, coordinator: settingCoordinator)
         
         mediaViewController.delegate = mediaViewController
         favoritesViewController.delegate = favoritesViewController
@@ -209,13 +204,14 @@ extension MainCoordinator {
     private func updateMode(_ mode: Global.SettingsMode) {
         
         let settingsSplitController = tabBarController?.viewControllers?[2] as! UISplitViewController
-        
+
         if let controller = settingsSplitController.viewController(for: .secondary) {
             
-            if controller is SettingsController {
+            let count = controller.navigationController?.viewControllers.count
+            
+            if count == 1 && controller is SettingsController {
                 (controller as! SettingsController).updateMode(mode)
             } else {
-                
                 controller.navigationController?.popToRootViewController(animated: false)
                 
                 if let settings = settingsSplitController.viewController(for: .secondary) as? SettingsController {
@@ -236,11 +232,89 @@ extension MainCoordinator: MenuDelegate {
         updateMode(.display)
     }
     
+    func selectPrivacy() {
+        updateMode(.privacy)
+    }
+    
     func selectInformation() {
         updateMode(.information)
     }
     
     func selectData() {
         updateMode(.data)
+    }
+}
+
+extension MainCoordinator: UITabBarControllerDelegate {
+    
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        if let nav = viewController as? UINavigationController {
+            nav.popToRootViewController(animated: false)
+        }
+    }
+}
+
+extension MainCoordinator: CacheDelegate {
+    
+    func clearUser() {
+        clearSettingsController(notify: true, reload: true)
+        resetMediaFilter()
+        resetFavoritesFilter()
+    }
+    
+    func cacheCleared() {
+        clearMediaController()
+        clearFavoritesController()
+    }
+}
+
+extension MainCoordinator: ResetApplicationDelegate {
+    
+    func reset() {
+        
+        let blurTag = 999
+        blurWithTag(blurTag)
+
+        tabBarController?.dismiss(animated: true, completion: { [weak self] in
+            
+            let reload: Bool
+            if self?.tabBarController?.selectedIndex == 2 {
+                reload = true
+            } else {
+                self?.tabBarController?.selectedIndex = 2
+                reload = false
+            }
+            
+            if let nav = self?.tabBarController?.selectedViewController as? UINavigationController {
+                
+                nav.popToRootViewController(animated: true)
+                
+                DispatchQueue.main.async { [weak self] in
+                    self?.clearSettingsController(notify: false, reload: reload)
+                    self?.clearMediaController()
+                    self?.clearFavoritesController()
+                    
+                    if let blur = self?.tabBarController?.view.viewWithTag(blurTag) {
+                        blur.removeFromSuperview()
+                    }
+                }
+            } else if let splitController = self?.tabBarController?.selectedViewController as? UISplitViewController {
+                
+                if let controller = splitController.viewController(for: .secondary) {
+                    
+                    controller.navigationController?.popToRootViewController(animated: false)
+                    
+                    DispatchQueue.main.async { [weak self] in
+                        self?.clearSettingsController(notify: false, reload: controller is SettingsController)
+                        self?.clearMediaController()
+                        self?.clearFavoritesController()
+                        
+                        if let blur = self?.tabBarController?.view.viewWithTag(blurTag) {
+                            blur.removeFromSuperview()
+                        }
+                    }
+                }
+            }
+        })
     }
 }

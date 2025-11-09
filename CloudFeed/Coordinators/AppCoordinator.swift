@@ -25,6 +25,7 @@ final class AppCoordinator: NSObject, Coordinator {
     
     let window: UIWindow
     var dataService: DataService?
+    var mainCoordinator: MainCoordinator?
     
     init(window: UIWindow) {
         self.window = window
@@ -59,27 +60,72 @@ final class AppCoordinator: NSObject, Coordinator {
                 if let activeAccount = await dataService.getActiveAccount() {
                     Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId)
                 }
-                
+
                 if Environment.current.currentUser != nil {
-                    
-                    if let style = dataService.getDisplayStyle() {
-                        self?.window.overrideUserInterfaceStyle = style
-                    }
-                    
-                    for acc in await dataService.getAccountsOrdered() {
-                        await dataService.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
-                    }
-                    
-                    if let window = self?.window {
-                        let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
-                        mainCoordinator.start()
-                    }
+                    await self?.startMainCoordinator(unlock: false)
                 } else if self?.window != nil {
                     let loginServerCoordinator = LoginServerCoordinator(window: self!.window, dataService: dataService)
+                    loginServerCoordinator.delegate = self
                     loginServerCoordinator.start()
                 }
             }
         }
+    }
+    
+    private func startMainCoordinator(unlock: Bool) async {
+        
+        guard dataService != nil else { return }
+        
+        if let style = dataService?.getDisplayStyle() {
+            window.overrideUserInterfaceStyle = style
+        }
+        
+        for acc in await dataService!.getAccountsOrdered() {
+            await dataService?.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
+        }
+        
+        if mainCoordinator == nil {
+            mainCoordinator = MainCoordinator(window: window, dataService: dataService!)
+        }
+
+        mainCoordinator?.start()
+        
+        if !unlock && requiresPasscode(controller: window.rootViewController) {
+            return
+        }
+    }
+    
+    func requiresPasscode(controller: UIViewController? = nil) -> Bool {
+
+        if let user = Environment.current.currentUser {
+            
+            if (dataService?.store.getPasscode(user.account)) != nil && mainCoordinator != nil {
+                
+                let passcodeController = UIStoryboard(name: "Passcode", bundle: nil).instantiateViewController(identifier: "PasscodeController") as PasscodeController
+                
+                passcodeController.viewModel = PasscodeViewModel(coordinator: nil, dataService: dataService!, resetDelegate: mainCoordinator!)
+                passcodeController.mode = .unlock
+                passcodeController.delegate = self
+                passcodeController.modalPresentationStyle = .overCurrentContext
+                
+                if #available(iOS 18.0, *) {
+                    passcodeController.preferredTransition = .crossDissolve
+                }
+                
+                if let showController = controller {
+                    passcodeController.isModalInPresentation = true
+                    showController.show(passcodeController, sender: self)
+                } else {
+                    let navigationController = UINavigationController(rootViewController: passcodeController)
+                    window.rootViewController = navigationController
+                    window.makeKeyAndVisible()
+                }
+                
+                return true
+            }
+        }
+        
+        return false
     }
     
     func showInitFailedError() {
@@ -188,6 +234,28 @@ extension AppCoordinator: CertificateDelegate {
     nonisolated func certificateDisplayError() {
         DispatchQueue.main.async { [weak self] in
             self?.showCertificateDisplayError()
+        }
+    }
+}
+
+extension AppCoordinator: PasscodeDelegate {
+
+    func unlock() {
+        if window.rootViewController is UITabBarController {
+            window.rootViewController?.dismiss(animated: true)
+        } else {
+            Task { [weak self] in
+                await self?.startMainCoordinator(unlock: true)
+            }
+        }
+    }
+}
+
+extension AppCoordinator: LoginServerCoordinatorDelegate {
+    
+    func loginSuccess() {
+        Task { [weak self] in
+            await self?.startMainCoordinator(unlock: true)
         }
     }
 }

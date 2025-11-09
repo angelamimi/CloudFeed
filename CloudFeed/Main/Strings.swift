@@ -28,6 +28,7 @@ extension Strings {
     //Common
     public static let OkAction = NSLocalizedString("Ok.Action", comment: "")
     public static let CancelAction = NSLocalizedString("Cancel.Action", comment: "")
+    public static let DeleteAction = NSLocalizedString("Delete.Action", comment: "")
     public static let RetryAction = NSLocalizedString("Retry.Action", comment: "")
     public static let SelectAction = NSLocalizedString("Select.Action", comment: "")
     public static let ErrorTitle = NSLocalizedString("Error.Title", comment: "")
@@ -48,10 +49,17 @@ extension Strings {
     
     //Settings
     public static let SettingsNavTitle = NSLocalizedString("Settings.Nav.Title", comment: "")
+    public static let SettingsSectionPrivacy = NSLocalizedString("Settings.Section.Privacy", comment: "")
     public static let SettingsSectionInformation = NSLocalizedString("Settings.Section.Information", comment: "")
     public static let SettingsSectionData = NSLocalizedString("Settings.Section.Data", comment: "")
     public static let SettingsSectionDisplay = NSLocalizedString("Settings.Section.Display", comment: "")
     public static let SettingsSectionDisplayMode = NSLocalizedString("Settings.Section.DisplayMode", comment: "")
+    public static let SettingsItemAddPasscode = NSLocalizedString("Settings.Item.Passcode.Add", comment: "")
+    public static let SettingsItemEditPasscode = NSLocalizedString("Settings.Item.Passcode.Edit", comment: "")
+    public static let SettingsItemDeletePasscode = NSLocalizedString("Settings.Item.Passcode.Delete", comment: "")
+    public static let SettingsItemSettingsPasscode = NSLocalizedString("Settings.Item.Passcode.Settings", comment: "")
+    public static let SettingsItemResetAppPasscode = NSLocalizedString("Settings.Item.Passcode.ResetApp", comment: "")
+    public static let SettingsItemResetAppDescriptionPasscode = NSLocalizedString("Settings.Item.Passcode.ResetAppDescription", comment: "")
     public static let SettingsItemAppearance = NSLocalizedString("Settings.Item.Appearance", comment: "")
     public static let SettingsItemAcknowledgements = NSLocalizedString("Settings.Item.Acknowledgements", comment: "")
     public static let SettingsItemClearCache = NSLocalizedString("Settings.Item.ClearCache", comment: "")
@@ -162,6 +170,23 @@ extension Strings {
     public static let ControlsSpeedRate175 = NSLocalizedString("Controls.SpeedRate.1.75", comment: "")
     public static let ControlsSpeedRate2 = NSLocalizedString("Controls.SpeedRate.2", comment: "")
     public static let ControlsSpeedRateTitle = NSLocalizedString("Controls.SpeedRate.Title", comment: "")
+    
+    //Passcode
+    public static let PasscodeNumberPad0 = NSLocalizedString("Passcode.NumberPad.0", comment: "")
+    public static let PasscodeNumberPad1 = NSLocalizedString("Passcode.NumberPad.1", comment: "")
+    public static let PasscodeNumberPad2 = NSLocalizedString("Passcode.NumberPad.2", comment: "")
+    public static let PasscodeNumberPad3 = NSLocalizedString("Passcode.NumberPad.3", comment: "")
+    public static let PasscodeNumberPad4 = NSLocalizedString("Passcode.NumberPad.4", comment: "")
+    public static let PasscodeNumberPad5 = NSLocalizedString("Passcode.NumberPad.5", comment: "")
+    public static let PasscodeNumberPad6 = NSLocalizedString("Passcode.NumberPad.6", comment: "")
+    public static let PasscodeNumberPad7 = NSLocalizedString("Passcode.NumberPad.7", comment: "")
+    public static let PasscodeNumberPad8 = NSLocalizedString("Passcode.NumberPad.8", comment: "")
+    public static let PasscodeNumberPad9 = NSLocalizedString("Passcode.NumberPad.9", comment: "")
+    public static let PasscodeEnter = NSLocalizedString("Passcode.Enter", comment: "")
+    public static let PasscodeCreate = NSLocalizedString("Passcode.Create", comment: "")
+    public static let PasscodeValidate = NSLocalizedString("Passcode.Validate", comment: "")
+    public static let PasscodeSaved = NSLocalizedString("Passcode.Saved", comment: "")
+    public static let PasscodeDeleted = NSLocalizedString("Passcode.Deleted", comment: "")
     
     //Image Detail and EXIF
     public static let DetailTitle = NSLocalizedString("Detail.Title", comment: "")

@@ -202,6 +202,7 @@ extension ProfileController: AccountDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.stopActivityIndicator()
             self?.navigationController?.popViewController(animated: true)
+            self?.viewModel?.lockCheck()
         }
     }
     

@@ -121,8 +121,18 @@ final class Global: Sendable {
         case all
         case account
         case display
+        case privacy
         case information
         case data
+    }
+    
+    // MARK: - Passcode
+    //
+    enum PasscodeMode {
+        case create
+        case validate
+        case unlock
+        case delete
     }
     
     // MARK: - File Types

@@ -69,6 +69,24 @@ struct StoreUtility: Sendable {
         }
     }
     
+    func getPasscode(_ account: String!) -> String! {
+        let key = "passcode" + account
+        return Keychain(service: Global.shared.keyChain)[key]
+    }
+    
+    func setPasscode(_ account: String, passcode: String?) {
+        let key = "passcode" + account
+        Keychain(service: Global.shared.keyChain)[key] = passcode
+    }
+    
+    func deletePasscode(_ account: String) {
+        let key = "passcode" + account
+        try? Keychain(service: Global.shared.keyChain).remove(key)
+        
+        deleteFailedPasscodeCount(account)
+        deleteAppResetOnFailedAttempts(account)
+    }
+    
     func getPassword(_ account: String!) -> String! {
         let key = "password" + account
         return Keychain(service: Global.shared.keyChain)[key]
@@ -77,6 +95,42 @@ struct StoreUtility: Sendable {
     func setPassword(_ account: String, password: String?) {
         let key = "password" + account
         Keychain(service: Global.shared.keyChain)[key] = password
+    }
+    
+    func getFailedPasscodeCount(_ account: String) -> Int {
+        let key = "failedPasscodeCount" + account
+        if let rawValue = Keychain(service: Global.shared.keyChain)[key] {
+            return Int(rawValue) ?? 0
+        }
+        return 0
+    }
+    
+    func setFailedPasscodeCount(_ account: String, _ count: Int) {
+        let key = "failedPasscodeCount" + account
+        Keychain(service: Global.shared.keyChain)[key] = count.description
+    }
+    
+    func deleteFailedPasscodeCount(_ account: String) {
+        let key = "failedPasscodeCount" + account
+        try? Keychain(service: Global.shared.keyChain).remove(key)
+    }
+    
+    func setAppResetOnFailedAttempts(_ account: String, _ reset: Bool) {
+        let key = "appResetOnFailedAttempts" + account
+        Keychain(service: Global.shared.keyChain)[key] = reset.description
+    }
+    
+    func getAppResetOnFailedAttempts(_ account: String) -> Bool {
+        let key = "appResetOnFailedAttempts" + account
+        if let reset = Keychain(service: Global.shared.keyChain)[key] {
+            return reset == "true"
+        }
+        return false
+    }
+    
+    func deleteAppResetOnFailedAttempts(_ account: String) {
+        let key = "appResetOnFailedAttempts" + account
+        try? Keychain(service: Global.shared.keyChain).remove(key)
     }
     
     func getDisplayStyle() -> UIUserInterfaceStyle? {

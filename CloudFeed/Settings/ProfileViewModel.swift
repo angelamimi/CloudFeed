@@ -42,10 +42,12 @@ class ProfileViewModel {
     weak var delegate: ProfileDelegate!
     weak var accountDelegate: AccountDelegate!
     let coordinator: SettingsCoordinator
+    let resetDelegate: ResetApplicationDelegate
     
-    init(delegate: ProfileDelegate, accountDelegate: AccountDelegate, dataService: DataService, coordinator: SettingsCoordinator) {
+    init(delegate: ProfileDelegate, accountDelegate: AccountDelegate, resetDelegate: ResetApplicationDelegate, dataService: DataService, coordinator: SettingsCoordinator) {
         self.delegate = delegate
         self.accountDelegate = accountDelegate
+        self.resetDelegate = resetDelegate
         self.dataService = dataService
         self.coordinator = coordinator
     }
@@ -109,6 +111,13 @@ class ProfileViewModel {
         }
     }
     
+    func lockCheck() {
+        if let account = Environment.current.currentUser?.account,
+           (dataService.store.getPasscode(account)) != nil {
+            coordinator.showPasscode(modal: true)
+        }
+    }
+    
     func removeAccount() {
         
         delegate?.beginSwitchingAccounts()
@@ -143,7 +152,15 @@ class ProfileViewModel {
     }
     
     func applicationReset() {
-        coordinator.applicationReset()
+        
+        Task { [weak self] in
+
+            await self?.dataService.reset()
+            
+            Environment.current.currentUser = nil
+            
+            self?.resetDelegate.reset()
+        }
     }
     
     private func removeCurrentAccount() async {

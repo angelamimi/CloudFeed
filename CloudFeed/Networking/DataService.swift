@@ -465,6 +465,13 @@ final class DataService: NSObject, Sendable {
         return buildHomeServer(urlBase: urlBase, userId: userId)
     }
     
+    func reset() async {
+        await store.clearCache()
+        await store.removeDocumentsDirectory()
+        store.deleteAllChainStore()
+        await clearDatabase()
+    }
+    
     private func buildHomeServer(urlBase: String, userId: String) -> String {
         let homeServer = urlBase + Global.shared.davLocation + userId
         return homeServer

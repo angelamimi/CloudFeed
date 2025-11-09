@@ -24,6 +24,7 @@ import UIKit
 @MainActor
 protocol MenuDelegate: AnyObject {
     func selectProfile()
+    func selectPrivacy()
     func selectDisplay()
     func selectInformation()
     func selectData()
@@ -81,14 +82,16 @@ extension MenuController: UITableViewDataSource, UITableViewDelegate {
         } else if indexPath.section == 0 && indexPath.item == 1 {
             delegate?.selectDisplay()
         } else if indexPath.section == 0 && indexPath.item == 2 {
-            delegate?.selectInformation()
+            delegate?.selectPrivacy()
         } else if indexPath.section == 0 && indexPath.item == 3 {
+            delegate?.selectInformation()
+        } else if indexPath.section == 0 && indexPath.item == 4 {
             delegate?.selectData()
         }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 4
+        return 5
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -112,9 +115,12 @@ extension MenuController: UITableViewDataSource, UITableViewDelegate {
             config.text = Strings.SettingsSectionDisplay
             config.image = UIImage(systemName: "sun.max")
         } else if indexPath.section == 0 && indexPath.item == 2 {
+            config.text = Strings.SettingsSectionPrivacy
+            config.image = UIImage(systemName: "key")
+        } else if indexPath.section == 0 && indexPath.item == 3 {
             config.text = Strings.SettingsSectionInformation
             config.image = UIImage(systemName: "info.circle")
-        } else if indexPath.section == 0 && indexPath.item == 3 {
+        } else if indexPath.section == 0 && indexPath.item == 4 {
             config.text = Strings.SettingsSectionData
             config.image = UIImage(systemName: "note.text")
         }

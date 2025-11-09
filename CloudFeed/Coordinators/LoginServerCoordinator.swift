@@ -21,9 +21,15 @@
 
 import UIKit
 
+@MainActor
+protocol LoginServerCoordinatorDelegate: AnyObject {
+    func loginSuccess()
+}
+
 final class LoginServerCoordinator : LoginCoordinator {
     
     private let window: UIWindow
+    var delegate: LoginServerCoordinatorDelegate?
     
     init(window: UIWindow, dataService: DataService) {
         
@@ -53,8 +59,7 @@ final class LoginServerCoordinator : LoginCoordinator {
 
         navigationController.setViewControllers([], animated: false)
         
-        let mainCoordinator = MainCoordinator(window: window, dataService: dataService)
-        mainCoordinator.start()
+        delegate?.loginSuccess()
     }
 }
 

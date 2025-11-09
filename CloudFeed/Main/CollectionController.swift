@@ -63,8 +63,6 @@ class CollectionController: UIViewController {
         navigationController?.navigationBar.preservesSuperviewLayoutMargins = true
         navigationController?.isNavigationBarHidden = false
         navigationItem.largeTitleDisplayMode = .automatic
-        
-        collectionView.contentInsetAdjustmentBehavior = .automatic
            
         if #unavailable(iOS 26) {
             let appearance = UINavigationBarAppearance()
@@ -79,6 +77,8 @@ class CollectionController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        tabBarController?.tabBar.isHidden = false
         
         navigationController?.isNavigationBarHidden = false
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -503,18 +503,19 @@ extension CollectionController : UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
+        guard scrollView.isTracking || scrollView.isDragging else { return }
+        
         let currentOffset = scrollView.contentOffset
         let currentTime = Date.timeIntervalSinceReferenceDate
         let diff = currentTime - lastOffsetTime
         
         if diff > 0.1 {
-            
             let distance = Float(currentOffset.y - lastOffset.y)
             let scrollSpeedNotAbs = Float((distance * 10.0) / 1000.0)
             let scrollSpeed = fabsf(scrollSpeedNotAbs)
-
+            
             delegate?.scrollSpeedChanged(scrolling: scrollSpeed > 1)
-
+            
             lastOffset = currentOffset
             lastOffsetTime = currentTime
         }
