@@ -109,6 +109,7 @@ final class SettingsCoordinator {
     func showPicker() {
         if let nav = settingsController?.navigationController {
             let pickerCoordinator = PickerCoordinator(navigationController: nav, dataService: dataService)
+            pickerCoordinator.delegate = self
             pickerCoordinator.start()
         }
     }
@@ -237,6 +238,15 @@ extension SettingsCoordinator: PasscodeDelegate {
             settingsController?.navigationController?.dismiss(animated: true)
         } else {
             showPasscodeSettings(passcodeCount: 1)
+        }
+    }
+}
+
+extension SettingsCoordinator: PickerCoordinatorDelegate {
+    
+    func mediaPathChanged() {
+        if let profile = settingsController?.navigationController?.visibleViewController as? ProfileController {
+            profile.mediaPathChanged()
         }
     }
 }

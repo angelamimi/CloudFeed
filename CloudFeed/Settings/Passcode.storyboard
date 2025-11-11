@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24128" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -24,30 +24,6 @@
                                 </view>
                                 <blurEffect style="regular"/>
                             </visualEffectView>
-                            <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="bottom" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Rfc-OU-ghn">
-                                <rect key="frame" x="16" y="733.66666666666663" width="345" height="34.333333333333371"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="edb-73-HQV">
-                                        <rect key="frame" x="0.0" y="0.0" width="75" height="34.333333333333336"/>
-                                        <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="plain" title="Button"/>
-                                        <connections>
-                                            <action selector="cancelButtonTouched:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="Oeq-lc-2xJ"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="q0W-8p-xiF">
-                                        <rect key="frame" x="270" y="0.0" width="75" height="34.333333333333336"/>
-                                        <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="plain" title="Button"/>
-                                        <connections>
-                                            <action selector="deleteButtonTouched:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="A87-TF-Eys"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <color key="tintColor" systemColor="labelColor"/>
-                                <variation key="heightClass=compact-widthClass=compact" axis="vertical"/>
-                                <variation key="heightClass=compact-widthClass=regular" axis="vertical"/>
-                            </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="9Ft-11-P76" userLabel="Label Stack View">
                                 <rect key="frame" x="96.666666666666686" y="239" width="200" height="68"/>
                                 <subviews>
@@ -322,26 +298,49 @@
                                     </button>
                                 </subviews>
                             </stackView>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="bottom" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Rfc-OU-ghn">
+                                <rect key="frame" x="16" y="733.66666666666663" width="361" height="34.333333333333371"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="edb-73-HQV">
+                                        <rect key="frame" x="0.0" y="0.0" width="75" height="34.333333333333336"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Button"/>
+                                        <connections>
+                                            <action selector="cancelButtonTouched:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="Oeq-lc-2xJ"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="q0W-8p-xiF">
+                                        <rect key="frame" x="286" y="0.0" width="75" height="34.333333333333336"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Button"/>
+                                        <connections>
+                                            <action selector="deleteButtonTouched:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="A87-TF-Eys"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="tintColor" systemColor="labelColor"/>
+                                <variation key="heightClass=compact-widthClass=compact" axis="vertical"/>
+                                <variation key="heightClass=compact-widthClass=regular" axis="vertical"/>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="Rfc-OU-ghn" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="0rr-G9-m5I"/>
                             <constraint firstItem="9Ft-11-P76" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="2es-K6-Yrs"/>
                             <constraint firstItem="WJt-JD-vS8" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="9AT-up-KKZ"/>
                             <constraint firstItem="a9p-gk-Hiu" firstAttribute="top" secondItem="9Ft-11-P76" secondAttribute="bottom" id="B5r-Uu-CzD"/>
                             <constraint firstAttribute="bottom" secondItem="WJt-JD-vS8" secondAttribute="bottom" id="JMh-iE-PbL"/>
                             <constraint firstItem="9Ft-11-P76" firstAttribute="centerX" secondItem="vDu-zF-Fre" secondAttribute="centerX" id="M6N-af-Gpq"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Rfc-OU-ghn" secondAttribute="bottom" constant="16" id="Uzp-EO-lXO"/>
+                            <constraint firstItem="Rfc-OU-ghn" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="U5F-uB-9XA"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Rfc-OU-ghn" secondAttribute="trailing" constant="16" id="WkO-qW-zme"/>
                             <constraint firstItem="WJt-JD-vS8" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" id="Yem-nM-eMb"/>
                             <constraint firstAttribute="trailing" secondItem="WJt-JD-vS8" secondAttribute="trailing" id="bjP-rW-KZO"/>
-                            <constraint firstItem="Rfc-OU-ghn" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="32" id="d6Y-u3-MXi"/>
                             <constraint firstItem="a9p-gk-Hiu" firstAttribute="centerY" secondItem="vDu-zF-Fre" secondAttribute="centerY" id="gRJ-m8-z2x">
                                 <variation key="heightClass=regular-widthClass=compact" constant="40"/>
                             </constraint>
                             <constraint firstItem="9Ft-11-P76" firstAttribute="centerY" secondItem="vDu-zF-Fre" secondAttribute="centerY" id="gY7-17-QVG"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Rfc-OU-ghn" secondAttribute="bottom" constant="16" id="lA0-6T-5Nc"/>
                             <constraint firstItem="a9p-gk-Hiu" firstAttribute="centerX" secondItem="vDu-zF-Fre" secondAttribute="centerX" id="mEU-sP-PbS"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Rfc-OU-ghn" secondAttribute="trailing" constant="32" id="vvh-gB-ZP8"/>
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
@@ -349,7 +348,6 @@
                                 <exclude reference="2es-K6-Yrs"/>
                                 <exclude reference="gY7-17-QVG"/>
                                 <exclude reference="B5r-Uu-CzD"/>
-                                <exclude reference="d6Y-u3-MXi"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
@@ -365,13 +363,11 @@
                         <variation key="heightClass=compact-widthClass=compact">
                             <mask key="constraints">
                                 <include reference="gY7-17-QVG"/>
-                                <include reference="d6Y-u3-MXi"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact-widthClass=regular">
                             <mask key="constraints">
                                 <include reference="gY7-17-QVG"/>
-                                <include reference="d6Y-u3-MXi"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
@@ -421,7 +417,7 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

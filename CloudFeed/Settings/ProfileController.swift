@@ -46,12 +46,6 @@ final class ProfileController: UIViewController {
         tableView.dataSource = self
         
         initTitle()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(mediaPathChanged), name: Notification.Name("MediaPathChanged"), object: nil)
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -67,7 +61,7 @@ final class ProfileController: UIViewController {
         }
     }
     
-    @objc func mediaPathChanged() {
+    func mediaPathChanged() {
         reload()
     }
     
