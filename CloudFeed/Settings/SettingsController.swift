@@ -55,11 +55,17 @@ class SettingsController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-
+        
         tableView.reloadData()
         
         requestProfile()
         calculateCacheSize()
+    }
+    
+    func setCompactNavigation() {
+        mode = .all
+        navigationItem.hidesBackButton = true
+        navigationItem.title = Strings.SettingsNavTitle
     }
 
     func clear(notify: Bool, reload: Bool) {

@@ -32,6 +32,7 @@ class PagerController: UIViewController {
     var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
     var status: Global.ViewerStatus = .title
+    var traitChangeRegistration: UITraitChangeRegistration?
     
     override var prefersStatusBarHidden: Bool {
         return hideStatusBar
@@ -85,6 +86,11 @@ class PagerController: UIViewController {
     }
     
     deinit {
+        MainActor.assumeIsolated {
+            if traitChangeRegistration != nil {
+                unregisterForTraitChanges(traitChangeRegistration!)
+            }
+        }
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
@@ -120,6 +126,11 @@ class PagerController: UIViewController {
     }
     
     private func initObservers() {
+        
+        traitChangeRegistration = registerForTraitChanges([UITraitHorizontalSizeClass.self, UITraitVerticalSizeClass.self]) { [weak self] (viewController: UIViewController, previousTraitCollection: UITraitCollection?) in
+            self?.onTraitChange()
+        }
+        
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
             DispatchQueue.main.async { [weak self] in
                 self?.willEnterForegroundNotification()
@@ -219,6 +230,10 @@ class PagerController: UIViewController {
         if isViewLoaded && view.window != nil {
             currentViewController?.willEnterForeground()
         }
+    }
+    
+    private func onTraitChange() {
+        currentViewController?.handleTraitChange()
     }
 
     private func setMenu(isFavorite: Bool) {
@@ -329,6 +344,14 @@ class PagerController: UIViewController {
         return (metadata.fileNameView as NSString).deletingPathExtension
     }
     
+    private func isPad() -> Bool {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            let isCompact = traitCollection.horizontalSizeClass == .compact
+            return isCompact == false
+        }
+        return false
+    }
+    
     private func presentDetailPopover() {
 
         let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
@@ -339,6 +362,7 @@ class PagerController: UIViewController {
         controller.url = current.getUrl()
         controller.metadata = current.metadata
         controller.modalPresentationStyle = .popover
+        controller.modalTransitionStyle = .crossDissolve
         controller.preferredContentSize = CGSize(width: 400, height: 200)
         
         if let popover = controller.popoverPresentationController {
@@ -372,14 +396,14 @@ class PagerController: UIViewController {
                 updateStatus(status: .details)
                 hideType()
 
-                if UIDevice.current.userInterfaceIdiom == .pad && presentedViewController == nil {
+                if isPad() && presentedViewController == nil {
                     presentDetailPopover()
                 }
             }
             
         } else {
             
-            if UIDevice.current.userInterfaceIdiom == .pad {
+            if isPad() {
                 
                 let previousStatus = status
                 
@@ -462,7 +486,7 @@ class PagerController: UIViewController {
         hideType()
         hideStatusBar = true
         
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if isPad() {
             if presentedViewController == nil {
                 presentDetailPopover()
             }
@@ -493,7 +517,7 @@ extension PagerController: UIPopoverPresentationControllerDelegate {
 extension PagerController: ViewerDelegate {
     
     func mediaLoaded(metadata: Metadata, url: URL) {
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if isPad() {
             if let details = presentedViewController as? DetailsController {
                 if let current = currentViewController?.metadata.id, current == metadata.id {
                     details.populateDetails(metadata: metadata, url: url)

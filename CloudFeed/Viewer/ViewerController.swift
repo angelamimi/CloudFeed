@@ -125,7 +125,7 @@ class ViewerController: UIViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
 
-        if imageViewTrailingConstraint?.constant != 0 && size.height > size.width && UIDevice.current.userInterfaceIdiom != .pad {
+        if imageViewTrailingConstraint?.constant != 0 && size.height > size.width && isPad() == false {
             imageViewTrailingConstraint?.constant = 0  //prevent contraints from conflicting on orientation change
         }
         
@@ -158,7 +158,7 @@ class ViewerController: UIViewController {
         if presentedViewController != nil && presentedViewController is DetailsController {
             presentedViewController?.dismiss(animated: false)
             updateStatus(.title)
-        } else if UIDevice.current.userInterfaceIdiom != .pad && currentStatus() == .details {
+        } else if isPad() == false && currentStatus() == .details {
             showDetails(animate: false, reset: true, recenter: false)
         }
     }
@@ -181,7 +181,7 @@ class ViewerController: UIViewController {
             return false
         }
         
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if isPad() {
             setImageViewBackgroundColor()
             if !details {
                 toggleControlsVisibility()
@@ -241,6 +241,19 @@ class ViewerController: UIViewController {
         }
     }
     
+    func handleTraitChange() {
+        if presentedViewController != nil && presentedViewController is DetailsController {
+            presentedViewController?.dismiss(animated: false)
+            updateStatus(.title)
+        } else if verticalDetailsVisible() {
+            hideVerticalDetails(animate: false)
+            updateStatus(.title)
+        } else if horizontalDetailsVisible() {
+            hideHorizontalDetails(animate: false)
+            updateStatus(.title)
+        }
+    }
+    
     func getUrl() -> URL? {
         
         if metadata.image, let path = viewModel.getFilePath(metadata) {
@@ -259,7 +272,7 @@ class ViewerController: UIViewController {
             }, completion: nil)
         }
         
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if isPad() {
             
             if imageView.transform.a != 1.0 {
                 center = nil
@@ -291,7 +304,7 @@ class ViewerController: UIViewController {
     }
     
     private func handlePopover() {
-        if currentStatus() == .details && UIDevice.current.userInterfaceIdiom == .pad && presentedViewController == nil {
+        if currentStatus() == .details && isPad() && presentedViewController == nil {
             showDetails(animate: true, reset: true, recenter: false)
         }
     }
@@ -321,7 +334,7 @@ class ViewerController: UIViewController {
         } else {
             let status = currentStatus()
             let color: UIColor
-            let pad = UIDevice.current.userInterfaceIdiom == .pad
+            let pad = isPad()
             
             if !imageView.transform.isIdentity && ((pad && (status == .details || status == .title)) || (!pad && status == .title)) {
                 color = .black
@@ -545,7 +558,7 @@ class ViewerController: UIViewController {
         
         guard url != nil else { return }
         
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if isPad() {
             delegate?.mediaLoaded(metadata: metadata, url: url!)
         } else {
             detailView?.metadata = metadata
@@ -633,7 +646,7 @@ class ViewerController: UIViewController {
         
         let detailsVisible = currentStatus() == .details
         
-        if UIDevice.current.userInterfaceIdiom != .pad && detailsVisible {
+        if isPad() == false && detailsVisible {
 
             if isPortrait() {
                 showVerticalDetails(animate: false, reset: true)
@@ -653,7 +666,7 @@ class ViewerController: UIViewController {
     
     @objc private func handleSingleTap(tapGesture: UITapGestureRecognizer) {
 
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if isPad() {
             
             if presentedViewController == nil {
                 
@@ -693,14 +706,14 @@ class ViewerController: UIViewController {
     @objc private func handleDoubleTap() {
         
         let details = detailsVisible()
-        guard !details || UIDevice.current.userInterfaceIdiom == .pad else { return }
+        guard !details || isPad() else { return }
         
         if imageView.transform.isIdentity {
             
             panRecognizer?.isEnabled = true
             center = nil
             
-            if UIDevice.current.userInterfaceIdiom == .pad {
+            if isPad() {
                 if !details {
                     hideAll()
                 }
@@ -712,7 +725,7 @@ class ViewerController: UIViewController {
                 self?.imageView.transform = CGAffineTransformMakeScale(2, 2)
                 self?.imageView.center = self?.view.center ?? .zero
             }, completion: { [weak self] _ in
-                if UIDevice.current.userInterfaceIdiom == .pad {
+                if self?.isPad() == true {
                     self?.setImageViewBackgroundColor()
                 }
             })
@@ -720,7 +733,7 @@ class ViewerController: UIViewController {
             panRecognizer?.isEnabled = false
             setImageViewIdentity()
             
-            if UIDevice.current.userInterfaceIdiom == .pad {
+            if isPad() {
                 
                 if details {
                     setImageViewBackgroundColor()
@@ -1048,12 +1061,20 @@ class ViewerController: UIViewController {
         setImageViewBackgroundColor()
     }
     
+    private func isPad() -> Bool {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            let isCompact = traitCollection.horizontalSizeClass == .compact
+            return isCompact == false
+        }
+        return false
+    }
+    
     private func isPortrait() -> Bool {
         return view.frame.size.height >= view.frame.size.width
     }
     
     private func detailsVisible() -> Bool {
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if isPad() {
             return presentedViewController != nil
         } else {
             //Size of zero = haven't laid out subviews. Details not really visible.
@@ -1117,7 +1138,9 @@ class ViewerController: UIViewController {
         updateStatus(.details)
         hideControls()
         
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if isPad() {
+
+            hideVerticalDetails(animate: false)
             
             if imageView.transform.a == 1.0 {
                 panRecognizer?.isEnabled = false
@@ -1129,7 +1152,7 @@ class ViewerController: UIViewController {
 
             imageViewHeightConstraint?.constant = view.frame.height
             
-        } else if UIDevice.current.userInterfaceIdiom == .phone {
+        } else {
 
             pinchRecognizer?.isEnabled = false
             panRecognizer?.isEnabled = false
@@ -1201,7 +1224,7 @@ class ViewerController: UIViewController {
     
     private func scrollDownDetails() {
         
-        if UIDevice.current.userInterfaceIdiom == .phone {
+        if isPad() == false {
             
             if isPortrait() {
                 scrollDownVerticalDetails()
@@ -1221,7 +1244,7 @@ class ViewerController: UIViewController {
             showControls()
         }
         
-        if UIDevice.current.userInterfaceIdiom == .phone {
+        if isPad() == false {
             
             if isPortrait() {
                 hideVerticalDetails(animate: animate)

@@ -46,10 +46,6 @@ final class MainCoordinator : NSObject, Coordinator {
         
         super.init()
         
-        tabBarController?.delegate = self
-        tabBarController?.view.backgroundColor = .black
-        tabBarController?.tabBar.tintColor = .label
-        
         if #unavailable(iOS 26) {
             let appearance = UITabBarAppearance()
             appearance.configureWithTransparentBackground()
@@ -63,6 +59,10 @@ final class MainCoordinator : NSObject, Coordinator {
         } else {
             initTabCoordinators(dataService: dataService)
         }
+        
+        tabBarController?.delegate = self
+        tabBarController?.view?.backgroundColor = .black
+        tabBarController?.tabBar.tintColor = .label
     }
     
     func start() {
@@ -178,6 +178,7 @@ extension MainCoordinator {
         let settingsSplitController = tabBarController?.viewControllers?[2] as! UISplitViewController
         
         settingsSplitController.title = Strings.SettingsNavTitle
+        settingsSplitController.delegate = self
         
         let menuController = settingsSplitController.viewController(for: .primary) as! MenuController
         menuController.delegate = self
@@ -203,9 +204,8 @@ extension MainCoordinator {
     
     private func updateMode(_ mode: Global.SettingsMode) {
         
-        let settingsSplitController = tabBarController?.viewControllers?[2] as! UISplitViewController
-
-        if let controller = settingsSplitController.viewController(for: .secondary) {
+        if let settingsSplitController = tabBarController?.viewControllers?[2] as? UISplitViewController,
+           let controller = settingsSplitController.viewController(for: .secondary) {
             
             let count = controller.navigationController?.viewControllers.count
             
@@ -316,5 +316,18 @@ extension MainCoordinator: ResetApplicationDelegate {
                 }
             }
         })
+    }
+}
+
+extension MainCoordinator: UISplitViewControllerDelegate {
+    
+    func splitViewControllerDidCollapse(_ svc: UISplitViewController) {
+        
+        updateMode(.all)
+        
+        if let settingsSplitController = tabBarController?.viewControllers?[2] as? UISplitViewController,
+           let controller = settingsSplitController.viewController(for: .secondary) as? SettingsController {
+            controller.setCompactNavigation()
+        }
     }
 }
