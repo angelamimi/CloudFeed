@@ -130,24 +130,10 @@ class PasscodeController: UIViewController {
             containterView.isHidden = true
             view.backgroundColor = .systemGroupedBackground
         }
-        
-        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            DispatchQueue.main.async { [weak self] in
-                self?.willEnterForegroundNotification()
-            }
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         clearCode()
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
-    }
-    
-    private func willEnterForegroundNotification() {
-        setPasscodeViewBorderColor()
     }
     
     private func initInstructions() {

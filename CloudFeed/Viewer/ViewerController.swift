@@ -242,6 +242,9 @@ class ViewerController: UIViewController {
     }
     
     func handleTraitChange() {
+        
+        guard UIDevice.current.userInterfaceIdiom == .pad else { return }
+        
         if presentedViewController != nil && presentedViewController is DetailsController {
             presentedViewController?.dismiss(animated: false)
             updateStatus(.title)
