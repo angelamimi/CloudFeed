@@ -733,20 +733,19 @@ class ViewerController: UIViewController {
                 }
             })
         } else {
+
             panRecognizer?.isEnabled = false
             setImageViewIdentity()
+            center = nil
             
             if isPad() {
-                
                 if details {
                     setImageViewBackgroundColor()
                 } else {
-                    center = nil
                     updateStatus(.title)
                     showControls()
                 }
             } else {
-                center = nil
                 updateStatus(.title)
                 showControls()
             }
@@ -754,14 +753,13 @@ class ViewerController: UIViewController {
     }
     
     @objc private func handlePan(panGesture: UIPanGestureRecognizer) {
-
+        
         if let view = panGesture.view {
             
             switch panGesture.state {
             case .began:
                 break
             case .changed:
-                
                 let translation = panGesture.translation(in: view)
                 
                 // Get the current scale of the image view
@@ -854,7 +852,6 @@ class ViewerController: UIViewController {
     
     private func adjustImageView() {
         
-        //guard let image = imageView.image else { return }
         let imageSize: CGSize
         
         if imageView.image == nil {
@@ -966,7 +963,6 @@ class ViewerController: UIViewController {
     }
     
     private func setImageViewCenter(_ center: CGPoint) {
-        
         self.center = center
         
         UIView.animate(withDuration: 0.5, animations: { [weak self] in

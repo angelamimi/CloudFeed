@@ -25,7 +25,7 @@
                                 <blurEffect style="regular"/>
                             </visualEffectView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="9Ft-11-P76" userLabel="Label Stack View">
-                                <rect key="frame" x="96.666666666666686" y="239" width="200" height="68"/>
+                                <rect key="frame" x="96.666666666666686" y="251" width="200" height="68"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tqa-pW-YlR">
                                         <rect key="frame" x="0.0" y="0.0" width="200" height="0.0"/>
@@ -98,8 +98,8 @@
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="200" id="nhI-cK-kYa"/>
                                 </constraints>
                             </stackView>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="a9p-gk-Hiu" userLabel="Keypad Stack View">
-                                <rect key="frame" x="68.666666666666686" y="307" width="256" height="368"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="a9p-gk-Hiu" userLabel="Keypad Stack View">
+                                <rect key="frame" x="68.666666666666686" y="319" width="256" height="344"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="uBx-Rb-bRn" userLabel="Row 1 Stack View">
                                         <rect key="frame" x="0.0" y="0.0" width="256" height="80"/>
@@ -161,7 +161,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="0Lg-g0-PFN" userLabel="Row 2 Stack View">
-                                        <rect key="frame" x="0.0" y="96" width="256" height="80"/>
+                                        <rect key="frame" x="0.0" y="88" width="256" height="80"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YNy-Qb-tRQ">
                                                 <rect key="frame" x="0.0" y="0.0" width="80" height="80"/>
@@ -220,7 +220,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="b1p-mw-3jR" userLabel="Row 3 Stack View">
-                                        <rect key="frame" x="0.0" y="192" width="256" height="80"/>
+                                        <rect key="frame" x="0.0" y="176" width="256" height="80"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="O3L-cX-Ffn">
                                                 <rect key="frame" x="0.0" y="0.0" width="80" height="80"/>
@@ -279,7 +279,7 @@
                                         </subviews>
                                     </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kXb-1c-KXY">
-                                        <rect key="frame" x="87.999999999999986" y="288" width="80.000000000000014" height="80"/>
+                                        <rect key="frame" x="87.999999999999986" y="264" width="80.000000000000014" height="80"/>
                                         <constraints>
                                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="80" id="5VF-UB-UhR"/>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="80" id="UsB-hd-sYM"/>
