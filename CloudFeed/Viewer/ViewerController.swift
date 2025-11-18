@@ -28,6 +28,7 @@ import os.log
 @MainActor
 protocol ViewerDelegate: AnyObject {
     func singleTapped()
+    func doubleTapped()
     func videoError()
     func updateStatus(status: Global.ViewerStatus)
     func mediaLoaded(metadata: Metadata, url: URL)
@@ -172,11 +173,15 @@ class ViewerController: UIViewController {
         avpLayer?.removeFromSuperlayer()
     }
     
+    func isZoomed() -> Bool {
+        return imageView.transform.a != 1.0
+    }
+    
     func handleSwipeUp() -> Bool {
         
        let details = detailsVisible()
         
-        if !details && imageView.transform.a != 1.0 {
+        if !details && isZoomed() {
             //sometimes swipe hijacks child view controller pan when zoomed
             return false
         }
@@ -731,6 +736,7 @@ class ViewerController: UIViewController {
                 if self?.isPad() == true {
                     self?.setImageViewBackgroundColor()
                 }
+                self?.delegate?.doubleTapped()
             })
         } else {
 
@@ -749,6 +755,8 @@ class ViewerController: UIViewController {
                 updateStatus(.title)
                 showControls()
             }
+            
+            delegate?.doubleTapped()
         }
     }
     

@@ -236,21 +236,29 @@
                                 <viewLayoutGuide key="contentLayoutGuide" id="N4s-bq-0y2"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="MEE-jb-awT"/>
                             </scrollView>
-                            <stackView opaque="NO" contentMode="scaleToFill" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="XHY-nv-up9">
+                            <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ueJ-AT-6xC">
+                                <rect key="frame" x="0.0" y="717.66666666666663" width="393" height="134.33333333333337"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="SNq-m6-S5P">
+                                    <rect key="frame" x="0.0" y="0.0" width="393" height="134.33333333333337"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                </view>
+                                <blurEffect style="regular"/>
+                            </visualEffectView>
+                            <stackView contentMode="scaleToFill" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="XHY-nv-up9">
                                 <rect key="frame" x="0.0" y="717.66666666666663" width="393" height="66.333333333333329"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xKY-uO-FxY">
+                                    <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xKY-uO-FxY">
                                         <rect key="frame" x="16" y="16.000000000000004" width="172.66666666666666" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="gray" title="Button"/>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3mF-yh-pxL">
+                                    <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3mF-yh-pxL">
                                         <rect key="frame" x="204.66666666666663" y="16.000000000000004" width="172.33333333333337" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Button"/>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <edgeInsets key="layoutMargins" top="16" left="16" bottom="16" right="16"/>
                             </stackView>
                         </subviews>
@@ -258,12 +266,16 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="MSS-92-kvS" firstAttribute="top" secondItem="cs3-fx-qKP" secondAttribute="top" constant="16" id="0ZR-br-wnf"/>
+                            <constraint firstItem="ueJ-AT-6xC" firstAttribute="leading" secondItem="rLJ-87-MGa" secondAttribute="leading" id="7Ij-6a-Z9G"/>
                             <constraint firstItem="rLJ-87-MGa" firstAttribute="bottom" secondItem="XHY-nv-up9" secondAttribute="bottom" id="Bhj-uI-cxw"/>
                             <constraint firstItem="rLJ-87-MGa" firstAttribute="bottom" secondItem="MSS-92-kvS" secondAttribute="bottom" id="PLj-q0-GGg"/>
                             <constraint firstItem="MSS-92-kvS" firstAttribute="leading" secondItem="rLJ-87-MGa" secondAttribute="leading" id="WeO-FV-5ak"/>
+                            <constraint firstItem="XHY-nv-up9" firstAttribute="top" secondItem="ueJ-AT-6xC" secondAttribute="top" id="a4c-CB-nf0"/>
                             <constraint firstItem="rLJ-87-MGa" firstAttribute="trailing" secondItem="XHY-nv-up9" secondAttribute="trailing" id="had-n1-YPR"/>
+                            <constraint firstItem="rLJ-87-MGa" firstAttribute="trailing" secondItem="ueJ-AT-6xC" secondAttribute="trailing" id="jLf-XN-4B4"/>
                             <constraint firstItem="XHY-nv-up9" firstAttribute="leading" secondItem="rLJ-87-MGa" secondAttribute="leading" id="mF5-iq-jfb"/>
                             <constraint firstItem="MSS-92-kvS" firstAttribute="trailing" secondItem="rLJ-87-MGa" secondAttribute="trailing" id="u5y-gM-xYR"/>
+                            <constraint firstAttribute="bottom" secondItem="ueJ-AT-6xC" secondAttribute="bottom" id="xpt-MI-AT9"/>
                         </constraints>
                     </view>
                     <connections>
@@ -325,13 +337,13 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGrayColor">
-            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
