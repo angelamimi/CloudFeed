@@ -336,7 +336,7 @@ class ViewerController: UIViewController {
         }
     }
     
-    private func setImageViewBackgroundColor() {
+    func setImageViewBackgroundColor() {
         if metadata.video {
             imageView.backgroundColor = .black
         } else {

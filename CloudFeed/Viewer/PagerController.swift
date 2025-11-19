@@ -409,6 +409,7 @@ class PagerController: UIViewController {
                 let scrolledOnly = currentViewController?.handleSwipeDown() ?? false
                 if !scrolledOnly {
                     updateStatus(status: .title)
+                    currentViewController?.setImageViewBackgroundColor()
                     view.backgroundColor = .systemBackground
                 }
             }
@@ -472,7 +473,10 @@ class PagerController: UIViewController {
         status = .title
         showTitle()
         setTypeContainerView()
-        
+        setBackground()
+    }
+    
+    private func setBackground() {
         view.backgroundColor =  currentViewController?.isZoomed() == true ? .black : .systemBackground
     }
     
@@ -490,10 +494,6 @@ class PagerController: UIViewController {
         
         currentViewController?.showDetails(animate: true, reset: true, recenter: true)
     }
-    
-    private func syncBackground() {
-        view.backgroundColor = currentViewController?.imageView.backgroundColor
-    }
 }
 
 extension PagerController: DetailsControllerDelegate {
@@ -504,7 +504,7 @@ extension PagerController: DetailsControllerDelegate {
     
     func dismissingDetails() {
         currentViewController?.handlePresentationControllerDidDismiss()
-        syncBackground()
+        setBackground()
     }
 }
 
@@ -543,11 +543,11 @@ extension PagerController: ViewerDelegate {
         
         if status == .title {
             showTitle()
+            view.backgroundColor = .systemBackground
         } else {
             hideTitle()
+            view.backgroundColor = .black
         }
-        
-        syncBackground()
     }
     
     func singleTapped() {
@@ -568,7 +568,7 @@ extension PagerController: ViewerDelegate {
     }
     
     func doubleTapped() {
-        view.backgroundColor =  currentViewController?.isZoomed() == true ? .black : .systemBackground
+        setBackground()
     }
 }
 
