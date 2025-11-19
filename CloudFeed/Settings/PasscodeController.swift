@@ -363,7 +363,7 @@ class PasscodeController: UIViewController {
         
         if viewModel?.getAppResetOnFailedAttempts() ?? false {
             
-            if let failCount = viewModel?.getFailedPasscodeCount(), failCount >= 3 { //TODO: CHANGE BACK TO 10
+            if let failCount = viewModel?.getFailedPasscodeCount(), failCount >= Global.shared.maxPasscodeAttempts {
                 viewModel?.reset()
             }
         }

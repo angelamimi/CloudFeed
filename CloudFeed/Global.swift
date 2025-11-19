@@ -33,6 +33,7 @@ final class Global: Sendable {
     // MARK: - Login
     //
     let minimumServerVersion          = 12
+    let maxPasscodeAttempts           = 10
     
     // MARK: - Remote
     //
