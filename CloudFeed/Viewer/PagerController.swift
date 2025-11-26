@@ -148,7 +148,7 @@ class PagerController: UIViewController {
             navigationItem.title = getFileName(metadata)
             navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
         } else {
-            navigationController?.navigationBar.prefersLargeTitles = false
+            navigationItem.largeTitleDisplayMode = .never
             initButtonTitle(metadata: metadata)
         }
     }
