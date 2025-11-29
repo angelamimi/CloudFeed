@@ -454,6 +454,8 @@ class ControlsView: UIView {
     }
     
     @objc private func timeButtonTapped(tapGesture: UITapGestureRecognizer) {
+        timeSlider.value = 0
+        setTimeLabelFromPosition(0)
         delegate?.timeChanged(time: 0)
     }
     
