@@ -217,24 +217,24 @@
                     <blurEffect style="prominent"/>
                 </visualEffectView>
                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NBR-iP-9gV" userLabel="Volume Visual Effect View">
-                    <rect key="frame" x="297" y="75" width="270" height="60"/>
-                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="se5-JG-BBz">
-                        <rect key="frame" x="0.0" y="0.0" width="270" height="60"/>
+                    <rect key="frame" x="297" y="67" width="270" height="50"/>
+                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" id="se5-JG-BBz">
+                        <rect key="frame" x="0.0" y="0.0" width="270" height="50"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="100" minValue="0.0" maxValue="100" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WVT-e9-SFW" userLabel="Volume Slider">
-                                <rect key="frame" x="8" y="0.0" width="210" height="60"/>
+                                <rect key="frame" x="8" y="0.0" width="210" height="50"/>
                                 <color key="tintColor" systemColor="labelColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="60" id="Z6X-nJ-poU"/>
+                                    <constraint firstAttribute="height" constant="50" id="Z6X-nJ-poU"/>
                                     <constraint firstAttribute="width" constant="210" id="voQ-fE-B8t"/>
                                 </constraints>
                             </slider>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="meV-1j-cr0" userLabel="Volume Button">
-                                <rect key="frame" x="222" y="8" width="40" height="40"/>
+                                <rect key="frame" x="218" y="0.0" width="50" height="50"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="B9G-h7-wyL"/>
-                                    <constraint firstAttribute="width" constant="40" id="cnQ-9x-4Ul"/>
+                                    <constraint firstAttribute="height" constant="50" id="B9G-h7-wyL"/>
+                                    <constraint firstAttribute="width" constant="50" id="cnQ-9x-4Ul"/>
                                 </constraints>
                                 <color key="tintColor" systemColor="labelColor"/>
                                 <state key="normal" title="Button"/>
@@ -244,29 +244,30 @@
                             </button>
                         </subviews>
                         <constraints>
+                            <constraint firstItem="meV-1j-cr0" firstAttribute="leading" secondItem="WVT-e9-SFW" secondAttribute="trailing" id="2Pr-83-giX"/>
                             <constraint firstItem="WVT-e9-SFW" firstAttribute="leading" secondItem="se5-JG-BBz" secondAttribute="leading" constant="8" id="Kog-BZ-u9W"/>
                             <constraint firstItem="WVT-e9-SFW" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" id="UCZ-tE-ohT"/>
                             <constraint firstAttribute="trailing" secondItem="meV-1j-cr0" secondAttribute="trailing" constant="8" id="aiw-oq-F3k"/>
-                            <constraint firstItem="meV-1j-cr0" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" constant="8" id="x3t-a9-8hz"/>
+                            <constraint firstItem="meV-1j-cr0" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" id="x3t-a9-8hz"/>
                         </constraints>
                     </view>
                     <constraints>
-                        <constraint firstAttribute="height" constant="60" id="FLl-mz-sFw"/>
+                        <constraint firstAttribute="height" constant="50" id="FLl-mz-sFw"/>
                         <constraint firstAttribute="width" constant="270" id="t8s-r8-wms"/>
                     </constraints>
                     <blurEffect style="prominent"/>
                 </visualEffectView>
                 <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q2D-Dm-4a7" userLabel="Status Visual Effect View">
-                    <rect key="frame" x="75" y="75" width="60" height="60"/>
+                    <rect key="frame" x="75" y="67" width="50" height="50"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="TeL-Uj-fXd">
-                        <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
+                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OYM-Gd-I7P">
-                                <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
+                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="60" id="wEq-AD-aHJ"/>
-                                    <constraint firstAttribute="height" constant="60" id="x5e-GK-Whg"/>
+                                    <constraint firstAttribute="width" constant="50" id="wEq-AD-aHJ"/>
+                                    <constraint firstAttribute="height" constant="50" id="x5e-GK-Whg"/>
                                 </constraints>
                                 <color key="tintColor" systemColor="labelColor"/>
                                 <state key="normal" title="Button"/>
@@ -281,8 +282,8 @@
                         </constraints>
                     </view>
                     <constraints>
-                        <constraint firstAttribute="width" constant="60" id="Bot-u2-ksD"/>
-                        <constraint firstAttribute="height" constant="60" id="dsn-YR-NU8"/>
+                        <constraint firstAttribute="width" constant="50" id="Bot-u2-ksD"/>
+                        <constraint firstAttribute="height" constant="50" id="dsn-YR-NU8"/>
                     </constraints>
                     <blurEffect style="prominent"/>
                 </visualEffectView>
@@ -292,10 +293,10 @@
             <constraints>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NBR-iP-9gV" secondAttribute="trailing" constant="16" id="2qC-ai-TtE"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="4wa-M8-UL0"/>
-                <constraint firstItem="NBR-iP-9gV" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="8z1-X0-k3d"/>
+                <constraint firstItem="NBR-iP-9gV" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="8z1-X0-k3d"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="AXL-dv-8Qn" secondAttribute="bottom" id="Agk-Fg-nkc"/>
                 <constraint firstItem="q2D-Dm-4a7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Hsb-11-IK8"/>
-                <constraint firstItem="q2D-Dm-4a7" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="Zvh-3y-G73"/>
+                <constraint firstItem="q2D-Dm-4a7" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="Zvh-3y-G73"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" priority="750" id="a5f-HK-ZzW"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="AXL-dv-8Qn" secondAttribute="trailing" priority="750" id="syX-KT-Ztl"/>
             </constraints>

@@ -79,7 +79,8 @@ class ControlsView: UIView {
     private var volume: Int = 100 // 0% for mute, 100% for full volume
     private var isPlaying: Bool = false
     private var length: Double = 0
-    private let skipSeconds: Int32 = 10
+    private let skipSeconds: Double = 10.0
+    private let endSeconds: Float = 10.0
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -452,6 +453,37 @@ class ControlsView: UIView {
         }
     }
     
+    @objc private func timeButtonTapped(tapGesture: UITapGestureRecognizer) {
+        delegate?.timeChanged(time: 0)
+    }
+    
+    @objc private func totalTimeButtonTapped(tapGesture: UITapGestureRecognizer) {
+        
+        guard length > 0 else { return }
+        
+        let totalSeconds = Float(length / 1_000)
+        var newTime: Float
+        
+        if totalSeconds >= endSeconds * 2 {
+            newTime = totalSeconds - endSeconds
+        } else {
+            newTime = totalSeconds / 2
+        }
+        
+        var newPosition = newTime / totalSeconds
+        
+        if newPosition < timeSlider.minimumValue {
+            newPosition = 0
+        } else if newPosition > timeSlider.maximumValue {
+            newPosition = 1
+        }
+        
+        timeSlider.value = newPosition
+        setTimeLabelFromPosition(newPosition)
+        
+        delegate?.timeChanged(time: newPosition)
+    }
+    
     private func setAudioTrackButtonVisibility(visible: Bool) {
         audioTrackView.isHidden = !visible
     }
@@ -461,16 +493,16 @@ class ControlsView: UIView {
         guard length > 0 else { return }
         
         let mediaLength = length / 1_000
-        let currentTime = Double.init(timeSlider.value) * mediaLength
+        let currentTime = Double(timeSlider.value) * mediaLength
         var newTime: Double
         
         if forward {
-            newTime = currentTime + Double.init(skipSeconds)
+            newTime = currentTime + skipSeconds
         } else {
-            newTime = currentTime - Double.init(skipSeconds)
+            newTime = currentTime - skipSeconds
         }
         
-        var newPosition = Float.init(newTime / mediaLength)
+        var newPosition = Float(newTime / mediaLength)
 
         if newPosition < timeSlider.minimumValue {
             newPosition = 0
@@ -487,7 +519,7 @@ class ControlsView: UIView {
     private func setTimeLabelFromPosition(_ position: Float) {
         
         let lengthSeconds = length / 1_000
-        let timeValue = lengthSeconds * Double.init(position)
+        let timeValue = lengthSeconds * Double(position)
         let remainingValue = lengthSeconds - timeValue
         let formatter = DateComponentsFormatter()
        
@@ -610,10 +642,6 @@ class ControlsView: UIView {
             volumeView.effect = glassEffect
             volumeView.cornerConfiguration = .capsule()
             
-            volumeButton.configuration = .clearGlass()
-            volumeButton.setImage(UIImage(systemName: "speaker.wave.2"), for: .normal)
-            volumeButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
-            
             timeView.effect = glassEffect
             timeView.cornerConfiguration = .capsule()
             
@@ -719,6 +747,12 @@ class ControlsView: UIView {
         
         let tapVolume = UITapGestureRecognizer(target: self, action: #selector(volumeSliderTapped(tapGesture:)))
         volumeView.addGestureRecognizer(tapVolume)
+        
+        let tapBeginning = UITapGestureRecognizer(target: self, action: #selector(timeButtonTapped(tapGesture:)))
+        timeButton.addGestureRecognizer(tapBeginning)
+        
+        let tapEnd = UITapGestureRecognizer(target: self, action: #selector(totalTimeButtonTapped(tapGesture:)))
+        totalTimeButton.addGestureRecognizer(tapEnd)
         
         disableSeek()
         disableCaptions()
