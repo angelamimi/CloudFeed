@@ -1,17 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "\"Settings.Item.Passcode.ResetApp\"" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reset application after failed attempts"
-          }
-        }
-      }
-    },
     "Back.Action" : {
       "extractionState" : "manual",
       "localizations" : {
