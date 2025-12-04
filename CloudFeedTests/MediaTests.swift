@@ -192,6 +192,7 @@ final class MockFavoritesDelegate: FavoritesDelegate {
     func dataSourceUpdated(refresh: Bool) {}
     func bulkEditFinished(error: Bool) {}
     func editCellUpdated(cell: CloudFeed.CollectionViewCell, indexPath: IndexPath) {}
+    func videoSelected() {}
     
     func fetchResultReceived(resultItemCount: Int?) {
         onFetchResultReceived(resultItemCount ?? -1)
@@ -212,6 +213,7 @@ final class MockMediaDelegate: MediaDelegate {
     func shareComplete() {}
     func progressUpdated(_ progress: Double) {}
     func selectCellUpdated(cell: CloudFeed.CollectionViewCell, indexPath: IndexPath) {}
+    func videoSelected() {}
     
     func searchResultReceived(resultItemCount: Int?) {
         onSearchResultReceived(resultItemCount ?? -1)

@@ -92,8 +92,6 @@
 		3990953B2DF77D83002FBD25 /* DataLayerAvatarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3990953A2DF77D83002FBD25 /* DataLayerAvatarTests.swift */; };
 		399C88132D131D9700694EA2 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399C88122D131D9700694EA2 /* DetailViewModel.swift */; };
 		39A83B062D4D7D850059C403 /* CertificateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A83B052D4D7D850059C403 /* CertificateController.swift */; };
-		39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; };
-		39A896402C7FED9C003827B8 /* MobileVLCKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		39AC3F552DCE832D0053040F /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AC3F542DCE832D0053040F /* MenuController.swift */; };
 		39AD95882DB92B0D0032EF06 /* AvatarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AD95872DB92B0D0032EF06 /* AvatarCell.swift */; };
 		39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B03F0C29C53FD300704670 /* CollectionViewCell.swift */; };
@@ -102,6 +100,7 @@
 		39B449A92AEAA790003DA6BA /* PreviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39B449A82AEAA790003DA6BA /* PreviewController.swift */; };
 		39BA00A32E6DEF5E0029A078 /* FilterYearCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39BA00A22E6DEF5E0029A078 /* FilterYearCell.swift */; };
 		39BA00A52E6DEFFA0029A078 /* FilterMonthCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39BA00A42E6DEFFA0029A078 /* FilterMonthCell.swift */; };
+		39C1B6A02EE23CB2006003D2 /* VLCKitSPM in Frameworks */ = {isa = PBXBuildFile; productRef = 39C1B69F2EE23CB2006003D2 /* VLCKitSPM */; };
 		39C1BBAE2CBC2EDE00206EB5 /* DownloadOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C1BBAD2CBC2EC800206EB5 /* DownloadOperation.swift */; };
 		39C1BBB02CBC2F2A00206EB5 /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C1BBAF2CBC2F2700206EB5 /* AsyncOperation.swift */; };
 		39C31E8E2A7994880045DF50 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C31E8D2A7994880045DF50 /* DataService.swift */; };
@@ -153,7 +152,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				39A896402C7FED9C003827B8 /* MobileVLCKit.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -249,7 +247,6 @@
 		3990953A2DF77D83002FBD25 /* DataLayerAvatarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLayerAvatarTests.swift; sourceTree = "<group>"; };
 		399C88122D131D9700694EA2 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
 		39A83B052D4D7D850059C403 /* CertificateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateController.swift; sourceTree = "<group>"; };
-		39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MobileVLCKit.xcframework; path = Carthage/Build/MobileVLCKit.xcframework; sourceTree = "<group>"; };
 		39AC3F542DCE832D0053040F /* MenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuController.swift; sourceTree = "<group>"; };
 		39AD95872DB92B0D0032EF06 /* AvatarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarCell.swift; sourceTree = "<group>"; };
 		39B03F0C29C53FD300704670 /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
@@ -297,10 +294,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39C1B6A02EE23CB2006003D2 /* VLCKitSPM in Frameworks */,
 				392718662C35A181001C57C0 /* SVGKitSwift in Frameworks */,
 				392735B029BE3DED0058796A /* KeychainAccess in Frameworks */,
 				39FA11A62D2AEA270054DFF6 /* OpenSSL in Frameworks */,
-				39A8963F2C7FED9C003827B8 /* MobileVLCKit.xcframework in Frameworks */,
 				3927359C29BD3D510058796A /* NextcloudKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -506,7 +503,6 @@
 		394BCB1029C7E82100C4F619 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				39A8963D2C7FED7A003827B8 /* MobileVLCKit.xcframework */,
 				391579C32AB8D18900DFEAB1 /* XCTest.framework */,
 			);
 			name = Frameworks;
@@ -586,6 +582,7 @@
 				392735AF29BE3DED0058796A /* KeychainAccess */,
 				392718652C35A181001C57C0 /* SVGKitSwift */,
 				39FA11A52D2AEA270054DFF6 /* OpenSSL */,
+				39C1B69F2EE23CB2006003D2 /* VLCKitSPM */,
 			);
 			productName = CloudFeed;
 			productReference = 3927356729BD1E820058796A /* CloudFeed.app */;
@@ -645,6 +642,7 @@
 				392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */,
 				39FA11A42D2AEA270054DFF6 /* XCRemoteSwiftPackageReference "OpenSSL" */,
+				39C1B69E2EE23CB2006003D2 /* XCRemoteSwiftPackageReference "vlckit-spm" */,
 			);
 			productRefGroup = 3927356829BD1E820058796A /* Products */;
 			projectDirPath = "";
@@ -1140,6 +1138,14 @@
 				minimumVersion = 4.2.2;
 			};
 		};
+		39C1B69E2EE23CB2006003D2 /* XCRemoteSwiftPackageReference "vlckit-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tylerjonesio/vlckit-spm/";
+			requirement = {
+				kind = exactVersion;
+				version = 3.6.0;
+			};
+		};
 		39FA11A42D2AEA270054DFF6 /* XCRemoteSwiftPackageReference "OpenSSL" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/krzyzanowskim/OpenSSL";
@@ -1165,6 +1171,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
+		};
+		39C1B69F2EE23CB2006003D2 /* VLCKitSPM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 39C1B69E2EE23CB2006003D2 /* XCRemoteSwiftPackageReference "vlckit-spm" */;
+			productName = VLCKitSPM;
 		};
 		39FA11A52D2AEA270054DFF6 /* OpenSSL */ = {
 			isa = XCSwiftPackageProductDependency;
