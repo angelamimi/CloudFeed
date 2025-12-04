@@ -83,7 +83,9 @@ final class ImageUtility: NSObject {
         if cgImage == nil {
             return nil
         } else {
-            return UIImage(cgImage: cgImage!)
+            return autoreleasepool { () -> UIImage? in
+                return UIImage(cgImage: cgImage!)
+            }
         }
     }
 }

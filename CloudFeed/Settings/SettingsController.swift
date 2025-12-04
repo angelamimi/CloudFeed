@@ -175,7 +175,7 @@ class SettingsController: UIViewController {
     private func buildAccountsMenu() -> UIMenu {
         
         let accountActions = UIDeferredMenuElement.uncached ({ [weak self] completion in
-            Task {
+            Task { [weak self] in
                 let items = await self?.buildAccountMenuItems()
                 completion(items == nil ? [] : items!)
             }

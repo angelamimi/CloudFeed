@@ -64,7 +64,6 @@ struct ViewerViewModel {
                 await downloadLivePhotoVideo(metadata: videoMetadata)
             }
             
-            
             await dataService.download(metadata: metadata, progressHandler: { _, _ in })
         }
         
@@ -107,15 +106,15 @@ extension ViewerViewModel {
         
         if dataService.store.previewExists(metadata.ocId, metadata.etag) {
             let imagePreviewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
-            return UIImage(contentsOfFile: imagePreviewPath)
+            return autoreleasepool { () -> UIImage? in
+                return UIImage(contentsOfFile: imagePreviewPath)
+            }
         }
 
         return nil
     }
     
     private func getImage(metadata: Metadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
-        
-        var image: UIImage?
         
         guard dataService.store.fileExists(metadata) && metadata.classFile == NKTypeClassFile.image.rawValue else { return nil }
             
@@ -127,11 +126,13 @@ extension ViewerViewModel {
             if !FileManager().fileExists(atPath: previewPath) {
                 await createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
             }
-            
-            if let fileData = FileManager().contents(atPath: imagePath) {
-                image = UIImage.gifImageWithData(fileData)
-            } else {
-                image = UIImage(contentsOfFile: imagePath)
+
+            return autoreleasepool { () -> UIImage? in
+                if let fileData = FileManager().contents(atPath: imagePath) {
+                    return UIImage.gifImageWithData(fileData)
+                } else {
+                    return UIImage(contentsOfFile: imagePath)
+                }
             }
             
         } else if metadata.svg {
@@ -139,34 +140,13 @@ extension ViewerViewModel {
             return await ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
             
         } else {
-
+            
             await createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
-            image = UIImage(contentsOfFile: imagePath)
             
-            /*let imageWidth : CGFloat = image?.size.width ?? 0
-            let imageHeight : CGFloat = image?.size.height ?? 0
-            
-            if image != nil && (imageWidth > viewWidth || imageHeight > viewHeight) {
-                
-                let filePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
-                let fileData = FileManager().contents(atPath: filePath)
-                
-                if fileData != nil {
-                    var newSize : CGSize?
-                    if imageWidth > imageHeight {
-                        newSize = CGSize(width: viewWidth, height: viewWidth)
-                    } else {
-                        newSize = CGSize(width: viewHeight, height: viewHeight)
-                    }
-
-                    return UIImage.downsample(imageData: (fileData! as CFData), to: newSize!, scale: UIScreen.main.scale)
-                }
-            }*/
-                
-            return image
+            return autoreleasepool { () -> UIImage? in
+                return UIImage(contentsOfFile: imagePath)
+            }
         }
-        
-        return image
     }
     
     private func createImageFrom(fileNameView: String, ocId: String, etag: String, classFile: String) async {
@@ -182,7 +162,9 @@ extension ViewerViewModel {
             return
         }
         
-        originalImage = UIImage(contentsOfFile: fileNamePath)
+        autoreleasepool {
+            originalImage = UIImage(contentsOfFile: fileNamePath)
+        }
 
         scaleImagePreview = await originalImage?.byPreparingThumbnail(ofSize: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
 

@@ -369,13 +369,13 @@ class ViewerController: UIViewController {
                 //Unable to access Nextcloud. VLC doesn't report an error state if stopped because of
                 //a failed connection, so allowing to fail here as a check for access upon video reload.
                 //https://code.videolan.org/videolan/VLCKit/-/issues/720
-                delegate?.videoError()
+                self.delegate?.videoError()
                 
-                activityIndicator.stopAnimating()
+                self.activityIndicator.stopAnimating()
                 
-                if controlsView != nil && controlsView!.isDescendant(of: view) {
-                    controlsView?.enable() //make sure enabled so user can try again
-                    controlsView?.reset()
+                if self.controlsView != nil && self.controlsView!.isDescendant(of: view) {
+                    self.controlsView?.enable() //make sure enabled so user can try again
+                    self.controlsView?.reset()
                 }
                 
                 return
@@ -390,8 +390,8 @@ class ViewerController: UIViewController {
             
             await self.showFrame(url: videoURL!)
 
-            setupVideoControls()
-            activityIndicator.stopAnimating()
+            self.setupVideoControls()
+            self.activityIndicator.stopAnimating()
         }
     }
     
@@ -643,8 +643,8 @@ class ViewerController: UIViewController {
         
         guard let image = viewModel.getVideoFrame(metadata: metadata) else { return }
 
-        Task {
-            await self.setImage(image: image)
+        Task { [weak self] in
+            await self?.setImage(image: image)
         }
     }
     
@@ -1518,8 +1518,8 @@ class ViewerController: UIViewController {
         if animate && !UIAccessibility.isReduceMotionEnabled {
             
             if imageView.contentMode != .scaleAspectFit {
-                UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: {
-                    self.updateContentMode(contentMode: .scaleAspectFit)
+                UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: { [weak self] in
+                    self?.updateContentMode(contentMode: .scaleAspectFit)
                 })
             }
             

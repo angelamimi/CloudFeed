@@ -317,7 +317,9 @@ final class DataService: NSObject, Sendable {
         let path = store.getImagePath(metadata.ocId, metadata.etag)
         
         if FileManager().fileExists(atPath: path) {
-            return UIImage(contentsOfFile: path)
+            return autoreleasepool { () -> UIImage? in
+                return UIImage(contentsOfFile: path)
+            }
         }
         
         return nil
@@ -328,7 +330,9 @@ final class DataService: NSObject, Sendable {
         let path = store.getImagePath(metadata.ocId, metadata.etag)
         
         if FileManager().fileExists(atPath: path) {
-            return UIImage(contentsOfFile: path)
+            return autoreleasepool { () -> UIImage? in
+                return UIImage(contentsOfFile: path)
+            }
         } else {
             let image = await ImageUtility.imageFromVideo(url: url, size: size)
             try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
