@@ -36,11 +36,11 @@ final class CacheManager {
         self.dataService = dataService
         
         cache = NSCache<NSString, UIImage>()
-        cache.countLimit = 300
+        cache.countLimit = Global.shared.cacheLimit
         
         queue = OperationQueue()
         queue.name = "downloadQueue"
-        queue.maxConcurrentOperationCount = 5
+        queue.maxConcurrentOperationCount = Global.shared.queueLimit
         queue.qualityOfService = .background
     }
     

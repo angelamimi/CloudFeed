@@ -55,6 +55,8 @@ final class Global: Sendable {
     // MARK: - Cache
     //
     let fileCacheLimit: UInt = 500 //megabytes
+    let cacheLimit           = 200
+    let queueLimit           = 5
     
     
     // MARK: - Capabilities
