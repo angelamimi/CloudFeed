@@ -102,6 +102,10 @@ class FavoritesController: CollectionController {
         reload()
     }
     
+    func sync() {
+        syncFavorites()
+    }
+    
     public func reload() {
         clear()
         syncFavorites()

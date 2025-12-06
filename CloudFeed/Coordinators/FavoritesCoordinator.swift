@@ -109,7 +109,9 @@ extension FavoritesCoordinator {
             self.navigationController.popViewController(animated: true)
         }))
         
-        navigationController.present(alertController, animated: true)
+        if navigationController.presentedViewController == nil { //passcode controller not visible
+            navigationController.present(alertController, animated: true)
+        }
     }
     
     func showFavoriteUpdateFailedError() {

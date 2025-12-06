@@ -105,14 +105,14 @@ extension MediaCoordinator {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaErrorMessage, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
+        alertController.addAction(UIAlertAction(title: Strings.RetryAction, style: .default, handler: { _ in
             retry()
             self.navigationController.popViewController(animated: true)
         }))
         
-        alertController.addAction(UIAlertAction(title: Strings.CancelAction, style: .cancel))
-
-        navigationController.present(alertController, animated: true)
+        if navigationController.presentedViewController == nil { //passcode controller not visible
+            navigationController.present(alertController, animated: true)
+        }
     }
     
     func showFavoriteUpdateFailedError() {

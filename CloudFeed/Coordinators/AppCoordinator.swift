@@ -242,7 +242,9 @@ extension AppCoordinator: PasscodeDelegate {
 
     func unlock() {
         if window.rootViewController is UITabBarController {
-            window.rootViewController?.dismiss(animated: true)
+            window.rootViewController?.dismiss(animated: true, completion: { [weak self] in
+                self?.mainCoordinator?.sync()
+            })
         } else {
             Task { [weak self] in
                 await self?.startMainCoordinator(unlock: true)

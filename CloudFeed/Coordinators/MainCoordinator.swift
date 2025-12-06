@@ -104,6 +104,18 @@ extension MainCoordinator {
         }
     }
     
+    func sync() {
+        
+        if let nav = tabBarController?.selectedViewController as? UINavigationController {
+           
+            if let media = nav.topViewController as? MediaController {
+                media.sync()
+            } else if let fav = nav.topViewController as? FavoritesController {
+                fav.sync()
+            }
+        }
+    }
+    
     private func clearFavoritesController() {
         
         if let nav = tabBarController?.viewControllers?[1] as? UINavigationController {

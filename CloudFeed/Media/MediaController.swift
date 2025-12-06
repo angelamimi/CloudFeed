@@ -85,6 +85,10 @@ class MediaController: CollectionController {
         reload()
     }
     
+    func sync() {
+        syncMedia()
+    }
+    
     public func reload() {
         clear()
         syncMedia()
