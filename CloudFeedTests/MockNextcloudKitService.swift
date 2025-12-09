@@ -34,7 +34,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
     }
     
     func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?) {
-        return (nil, nil)
+        return (32, nil)
     }
     
     func setup() {
