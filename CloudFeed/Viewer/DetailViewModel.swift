@@ -356,7 +356,7 @@ final class DetailViewModel: NSObject {
     private func appendGeneralDetails(metadata: Metadata) {
 
         details[.general]?.addDetail(title: Strings.DetailName, detail: metadata.fileNameView)
-        details[.general]?.addDetail(title: Strings.DetailEditedDate, detail: (metadata.date as Date).formatted(date: .abbreviated, time: .standard))
+        details[.general]?.addDetail(title: Strings.DetailEditedDate, detail: metadata.date.formatted(date: .abbreviated, time: .standard))
                        
         if metadata.size > 0 {
             let sizeString = ByteCountFormatter.string(fromByteCount: metadata.size, countStyle: .file)

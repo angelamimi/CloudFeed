@@ -37,6 +37,7 @@ final class MetadataModel {
     var contentType = ""
     var creationDate = Date()
     var date = Date()
+    var datePhotosOriginal = Date()
     var etag = ""
     var favorite: Bool = false
     var fileId = ""
@@ -56,7 +57,7 @@ final class MetadataModel {
     var width: Double = 0
     
     init(ocId: String = "", account: String = "", classFile: String = "", contentType: String = "", creationDate: Date = Date(),
-         date: Date = Date(), etag: String = "", favorite: Bool, fileId: String = "",
+         date: Date = Date(), datePhotosOriginal: Date = Date(), etag: String = "", favorite: Bool, fileId: String = "",
          fileName: String = "", fileNameView: String = "", hasPreview: Bool, livePhotoFile: String = "", name: String = "",
          path: String = "", serverUrl: String = "", size: Int64, uploadDate: Date = Date(), urlBase: String = "",
          user: String = "", userId: String = "", height: Double, width: Double) {
@@ -65,6 +66,7 @@ final class MetadataModel {
         self.contentType = contentType
         self.creationDate = creationDate
         self.date = date
+        self.datePhotosOriginal = datePhotosOriginal
         self.etag = etag
         self.favorite = favorite
         self.fileId = fileId
@@ -91,6 +93,7 @@ final class MetadataModel {
         self.contentType = dto.contentType
         self.creationDate = dto.creationDate
         self.date = dto.date
+        self.datePhotosOriginal = dto.datePhotosOriginal
         self.etag = dto.etag
         self.favorite = dto.favorite
         self.fileId = dto.fileId
@@ -123,6 +126,7 @@ struct Metadata: Sendable, Identifiable {
     var classFile: String
     var contentType: String
     var creationDate: Date
+    var datePhotosOriginal: Date
     var date: Date
     var etag: String
     var favorite: Bool
@@ -149,6 +153,7 @@ struct Metadata: Sendable, Identifiable {
         self.contentType = ""
         self.creationDate = Date()
         self.date = date
+        self.datePhotosOriginal = date
         self.etag = ""
         self.favorite = favorite
         self.fileId = fileId
@@ -174,6 +179,7 @@ struct Metadata: Sendable, Identifiable {
         contentType = model.contentType
         creationDate = model.creationDate
         date = model.date
+        datePhotosOriginal = model.datePhotosOriginal
         etag = model.etag
         favorite = model.favorite
         fileId = model.fileId
@@ -204,6 +210,11 @@ struct Metadata: Sendable, Identifiable {
             creationDate = file.date
         }
         date = file.date
+        if let fileDatePhotosOriginal = file.datePhotosOriginal {
+            datePhotosOriginal = fileDatePhotosOriginal
+        } else {
+            datePhotosOriginal = date
+        }
         etag = file.etag
         favorite = file.favorite
         fileId = file.fileId
@@ -314,13 +325,16 @@ extension DatabaseManager {
                 
                 if let result = metadatasResult.first(where: { $0.ocId == metadata.ocId }) {
                     
-                    if result.etag != metadata.etag || result.fileNameView != metadata.fileNameView || result.date != metadata.date || result.hasPreview != metadata.hasPreview || result.favorite != metadata.favorite {
+                    if result.etag != metadata.etag || result.fileNameView != metadata.fileNameView
+                        || result.date != metadata.date || result.datePhotosOriginal != metadata.datePhotosOriginal
+                        || result.hasPreview != metadata.hasPreview || result.favorite != metadata.favorite {
                         
                         if let model = try getMetadataModel(metadata.ocId) {
                             updatedOcIds.append(metadata.ocId)
                             model.etag = metadata.etag
                             model.fileNameView = metadata.fileNameView
                             model.date = metadata.date
+                            model.datePhotosOriginal = metadata.datePhotosOriginal
                             model.hasPreview = metadata.hasPreview
                             model.favorite = metadata.favorite
                         }
@@ -369,7 +383,7 @@ extension DatabaseManager {
         let predicate = #Predicate<MetadataModel> { metadata in
             metadata.account == account
             && metadata.serverUrl.starts(with: startServerUrl)
-            && metadata.date >= fromDate && metadata.date <= toDate
+            && metadata.datePhotosOriginal >= fromDate && metadata.datePhotosOriginal <= toDate
             && (metadata.classFile == image || metadata.classFile == video)
         }
         
@@ -408,7 +422,7 @@ extension DatabaseManager {
     func paginateMetadata(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [Metadata] {
         
         let predicate = buildMediaPredicate(favorite: favorite, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
-        let sortBy = [SortDescriptor<MetadataModel>(\.date, order: .reverse),
+        let sortBy = [SortDescriptor<MetadataModel>(\.datePhotosOriginal, order: .reverse),
                       SortDescriptor<MetadataModel>(\.fileNameView, comparator: .localizedStandard, order: .reverse)]
         
         let fetchDescriptor = FetchDescriptor(predicate: predicate, sortBy: sortBy)
@@ -428,11 +442,11 @@ extension DatabaseManager {
             for index in results.indices {
                 let metadata = results[index]
                 
-                if metadata.date as Date == offsetDate {
+                if metadata.datePhotosOriginal as Date == offsetDate {
                     if metadata.fileNameView.compare(offsetName!, options: [.numeric, .caseInsensitive, .diacriticInsensitive]) == .orderedAscending {
                         metadatas.append(Metadata.init(model: metadata))
                     }
-                } else if metadata.date < offsetDate! {
+                } else if metadata.datePhotosOriginal < offsetDate! {
                     metadatas.append(Metadata.init(model: metadata))
                 }
                 
@@ -450,7 +464,7 @@ extension DatabaseManager {
     func fetchMetadata(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [Metadata] {
         
         let predicate = buildMediaPredicate(favorite: favorite, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
-        let sortBy = [SortDescriptor<MetadataModel>(\.date, order: .reverse),
+        let sortBy = [SortDescriptor<MetadataModel>(\.datePhotosOriginal, order: .reverse),
                       SortDescriptor<MetadataModel>(\.fileNameView, order: .reverse)]
         
         let fetchDescriptor = FetchDescriptor<MetadataModel>(predicate: predicate, sortBy: sortBy)
@@ -531,8 +545,8 @@ extension DatabaseManager {
         let basePredicate = #Predicate<MetadataModel> { metadata in
             metadata.account == account
             && metadata.serverUrl.starts(with: startServerUrl)
-            && metadata.date >= fromDate
-            && metadata.date <= toDate
+            && metadata.datePhotosOriginal >= fromDate
+            && metadata.datePhotosOriginal <= toDate
         }
         
         let typePredicate: Predicate<MetadataModel>

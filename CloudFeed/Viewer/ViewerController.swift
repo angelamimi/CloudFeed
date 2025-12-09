@@ -188,8 +188,8 @@ class ViewerController: UIViewController {
         
         if isPad() {
             setImageViewBackgroundColor()
-            if !details {
-                toggleControlsVisibility()
+            if controlsView != nil {
+                hideControls()
             }
         } else {
             

@@ -72,7 +72,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return nil
     }
     
-    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [CloudFeed.Metadata], error: Bool) {
+    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int, serverVersion: Int?) async -> (files: [CloudFeed.Metadata], error: Bool) {
         return mockSearchMedia(fileName: "mock-search")
     }
     
@@ -134,6 +134,7 @@ extension MockNextcloudKitService {
                 dateFormatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
                 let date = dateFormatter.date(from: fileJSON["date"] as! String)
                 file.date = date!
+                file.datePhotosOriginal = date!
             }
             
             resultFiles.append(CloudFeed.Metadata.init(model: file))

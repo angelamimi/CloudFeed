@@ -235,7 +235,7 @@ class MediaController: CollectionController {
         if lastItem == nil {
             return (nil, nil)
         } else {
-            return (Date(), lastItem!.date as Date)
+            return (Date(), lastItem!.datePhotosOriginal)
         }
     }
     
@@ -337,7 +337,7 @@ extension MediaController: CollectionDelegate {
         }
 
         if let metadata = viewModel.getItemAtIndexPath(indexPath) {
-            setTitle(getFormattedDate(metadata.date as Date))
+            setTitle(getFormattedDate(metadata.datePhotosOriginal))
         } else {
             setTitle("")
         }

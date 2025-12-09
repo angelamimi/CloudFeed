@@ -46,7 +46,7 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String?
     func getDirectDownload(metadata: Metadata) async -> URL?
     
-    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool)
+    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int, serverVersion: Int?) async -> (files: [Metadata], error: Bool)
 
     func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> Bool
     func listingFavorites(account: String) async -> (account: String, files: [Metadata]?)
@@ -214,41 +214,40 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
+    
+    
     // MARK: -
     // MARK: Search
-    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool) {
-
+    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int, serverVersion: Int?) async -> (files: [Metadata], error: Bool) {
+        
         let limit: Int = limit
         let options = NKRequestOptions(timeout: 120, queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
         
-        let greaterDate = Calendar.current.date(byAdding: .second, value: -1, to: fromDate)!
-        let lessDate = Calendar.current.date(byAdding: .second, value: 1, to: toDate)!
+        let elementDate: String
+        var lessDateAny: Any
+        var greaterDateAny: Any
 
-        return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.searchMedia(
-                path: mediaPath,
-                lessDate: lessDate,
-                greaterDate: greaterDate,
-                elementDate: "d:getlastmodified",
-                limit: limit,
-                account: account,
-                options: options) { responseAccount, files, data, error in
-                    
-                    //Self.logger.debug("searchMedia() - files count: \(files?.count ?? -1) toDate: \(toDate.formatted(date: .abbreviated, time: .standard)) fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
-                    
-                    if error == .success && responseAccount == account && files != nil && files!.count > 0 {
-                        continuation.resume(returning: (Array(files!.map { Metadata.init(file: $0) }), false))
-                    } else if error == .success && files != nil && files!.count == 0 {
-                        continuation.resume(returning: ([], false))
-                    } else if error != .success {
-                        Self.logger.error("[ERROR] Media search new media error code \(error.errorCode) \(error.errorDescription)")
-                        continuation.resume(returning: ([], true))
-                    } else {
-                        continuation.resume(returning: ([], true)) //invalid state, like account mismatch
-                    }
-                }
+        if serverVersion != nil && serverVersion! >= Global.shared.photoOriginalServerVersion {
+            elementDate = "nc:metadata-photos-original_date_time"
+            lessDateAny = Int(toDate.timeIntervalSince1970)
+            greaterDateAny = Int(fromDate.timeIntervalSince1970)
+        } else {
+            elementDate = "d:getlastmodified"
+            lessDateAny = toDate
+            greaterDateAny = fromDate
+        }
+        
+        let result = await NextcloudKit.shared.searchMediaAsync(path: mediaPath, lessDate: lessDateAny, greaterDate: greaterDateAny,
+                                                                elementDate: elementDate, limit: limit, account: account, options: options)
+        
+        if result.error == .success, let files = result.files {
+            return (Array(files.map { Metadata.init(file: $0) }), false)
+        } else {
+            Self.logger.error("[ERROR] Media search new media error code \(result.error.errorCode) \(result.error.errorDescription)")
+            return ([], true)
         }
     }
+    
     
     
     // MARK: -

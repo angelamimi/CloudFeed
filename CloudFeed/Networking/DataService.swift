@@ -377,8 +377,11 @@ final class DataService: NSObject, Sendable {
         guard let mediaPath = await getMediaPath() else { return ([], [], [], [], true) }
         guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount) else { return ([], [], [], [], true) }
         
+        let statusResult = await checkServerStatus(url: currentUserAccount!.urlBase)
+        guard let serverVersion = statusResult.serverVersion else { return ([], [], [], [], true) }
+        
         let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath,
-                                                              toDate: toDate, fromDate: fromDate, limit: limit)
+                                                              toDate: toDate, fromDate: fromDate, limit: limit, serverVersion: serverVersion)
 
         if searchResult.error {
             return ([], [], [], [], true)

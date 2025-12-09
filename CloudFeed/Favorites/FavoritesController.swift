@@ -289,8 +289,8 @@ class FavoritesController: CollectionController {
             if firstMetadata == nil {
                 //Self.logger.debug("getVisibleItemData() - missing metadata")
             } else {
-                //Self.logger.debug("getVisibleItemData() - \(firstMetadata!.date) \(firstMetadata!.fileNameView)")
-                return (firstMetadata!.date as Date, firstMetadata!.fileNameView)
+                //Self.logger.debug("getVisibleItemData() - \(firstMetadata!.datePhotosOriginal) \(firstMetadata!.fileNameView)")
+                return (firstMetadata!.datePhotosOriginal as Date, firstMetadata!.fileNameView)
             }
         }
         
@@ -374,7 +374,7 @@ extension FavoritesController: CollectionDelegate {
         }
         
         if let metadata = viewModel.getItemAtIndexPath(indexPath) {
-            setTitle(getFormattedDate(metadata.date as Date))
+            setTitle(getFormattedDate(metadata.datePhotosOriginal))
         } else {
             setTitle("")
         }

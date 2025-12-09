@@ -107,7 +107,7 @@ struct DataLayerMetadataTests {
             #expect(metadata.account == account)
             #expect(metadata.serverUrl == serverUrl)
             #expect(metadata.classFile == Global.FileType.image.rawValue || metadata.classFile == Global.FileType.video.rawValue)
-            #expect(metadata.date >= fromDate && metadata.date <= toDate)
+            #expect(metadata.datePhotosOriginal >= fromDate && metadata.datePhotosOriginal <= toDate)
         }
     }
     
@@ -161,7 +161,7 @@ struct DataLayerMetadataTests {
         #expect(pagedResults.count == 200)
         
         let last = pagedResults[pagedResults.count - 1]
-        let nextPagedResults = await databaseManager.paginateMetadata(favorite: false, type: .all, account: account, startServerUrl: serverUrl, fromDate: fromDate, toDate: toDate, offsetDate: last.date, offsetName: last.fileNameView)
+        let nextPagedResults = await databaseManager.paginateMetadata(favorite: false, type: .all, account: account, startServerUrl: serverUrl, fromDate: fromDate, toDate: toDate, offsetDate: last.datePhotosOriginal, offsetName: last.fileNameView)
         #expect(nextPagedResults.count == 10)
         
         //Test favorites only

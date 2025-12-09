@@ -163,12 +163,12 @@ class PagerController: UIViewController {
             var container = AttributeContainer()
             container.font = UIFont.boldSystemFont(ofSize: 20)
 
-            button.configuration?.attributedTitle = AttributedString(metadata.creationDate.formatted(date: .abbreviated, time: .omitted), attributes: container)
+            button.configuration?.attributedTitle = AttributedString(metadata.datePhotosOriginal.formatted(date: .abbreviated, time: .omitted), attributes: container)
             
             var subtitleContainer = AttributeContainer()
             subtitleContainer.font = UIFont.systemFont(ofSize: 16)
 
-            button.configuration?.attributedSubtitle = AttributedString(metadata.creationDate.formatted(date: .omitted, time: .shortened), attributes: subtitleContainer)
+            button.configuration?.attributedSubtitle = AttributedString(metadata.datePhotosOriginal.formatted(date: .omitted, time: .shortened), attributes: subtitleContainer)
             button.configuration?.titleLineBreakMode = .byTruncatingTail
             button.configuration?.titleAlignment = .center
             

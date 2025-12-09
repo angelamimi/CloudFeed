@@ -207,7 +207,7 @@ class DetailView: UIView {
         fileNameLabel.accessibilityLabel = Strings.DetailName
         fileNameLabel.accessibilityValue = name
         
-        let formattedDate = formatDate(metadata!.date as Date)
+        let formattedDate = formatDate(metadata!.datePhotosOriginal as Date)
         fileDateLabel.text = formattedDate
         fileDateLabel.accessibilityLabel = Strings.DetailFileDate
         fileDateLabel.accessibilityValue = formattedDate

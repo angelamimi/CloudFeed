@@ -29,6 +29,7 @@ final class Global: Sendable {
     let userAgent                     = "CloudFeed-iOS"
     
     let tablePadding                  = 16.0
+    let photoOriginalServerVersion    = 31
     
     // MARK: - Login
     //
