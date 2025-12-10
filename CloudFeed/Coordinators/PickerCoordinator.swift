@@ -32,8 +32,6 @@ final class PickerCoordinator {
     private let navigationController: UINavigationController
     private let dataService: DataService
     
-    private var pickerNavigationController: UINavigationController!
-    
     weak var delegate: PickerCoordinatorDelegate?
     
     init(navigationController: UINavigationController, dataService: DataService) {
@@ -42,7 +40,7 @@ final class PickerCoordinator {
     }
     
     func start(_ serverUrl: String? = nil) {
-        pickerNavigationController = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(identifier: "PickerNavController") as UINavigationController
+        let pickerNavigationController = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(identifier: "PickerNavController") as UINavigationController
         if let picker = pickerNavigationController.viewControllers[0] as? PickerController {
             picker.viewModel = PickerViewModel(coordinator: self, dataService: dataService)
             picker.delegate = self
@@ -56,7 +54,7 @@ final class PickerCoordinator {
         picker.serverUrl = serverUrl
         picker.metadata = metadata
         picker.delegate = self
-        pickerNavigationController.pushViewController(picker, animated: true)
+        (navigationController.presentedViewController as? UINavigationController)?.pushViewController(picker, animated: true)
     }
 }
 
