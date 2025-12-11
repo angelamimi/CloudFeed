@@ -115,7 +115,7 @@ class FavoritesController: CollectionController {
 
         viewModel?.clearCache()
 
-        scrollToTop()
+        scrollToTop(false)
         viewModel?.resetDataSource()
         setTitle("")
     }
@@ -494,6 +494,7 @@ extension FavoritesController: Filterable {
         filterFromDate = nil
         
         initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
+        setTitle("")
         
         refresh()
         

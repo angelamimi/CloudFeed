@@ -225,11 +225,6 @@ class CollectionController: UIViewController {
         if #unavailable(iOS 26) {
             navigationItem.backBarButtonItem = UIBarButtonItem(title: Strings.BackAction, style: .plain, target: nil, action: nil)
         }
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(scrollToTop))
-        tap.numberOfTapsRequired = 1
-        navigationController?.navigationBar.isUserInteractionEnabled = true
-        navigationController?.navigationBar.addGestureRecognizer(tap)
     }
     
     func initEmptyView(imageSystemName: String, title: String, description: String) {
@@ -305,13 +300,17 @@ class CollectionController: UIViewController {
                 //When scrolled far in a long list, then filtered, the user ends up at a scroll position that
                 //doesn't display the newly filtered list. Screen appears blank. Enabling scroll to top may need
                 //more conditions around it or will scroll to top when the user is interacting with the list.
-                self.scrollToTop(true)
+                self.scrollToTop(false)
             }
         }
     }
     
     @objc
-    func scrollToTop(_ animated: Bool = false) {
+    private func refresh(_ sender: Any) {
+        delegate?.refresh()
+    }
+    
+    func scrollToTop(_ animated: Bool = true) {
 
         guard collectionView != nil else { return }
         
@@ -321,11 +320,6 @@ class CollectionController: UIViewController {
             delegate?.scrollSpeedChanged(scrolling: false)
             delegate?.setTitle()
         }
-    }
-    
-    @objc
-    private func refresh(_ sender: Any) {
-        delegate?.refresh()
     }
     
     func getFormattedDate(_ date: Date) -> String {
@@ -478,6 +472,10 @@ extension CollectionController : UIScrollViewDelegate {
         }
         
         delegate?.scrollSpeedChanged(scrolling: false)
+    }
+    
+    func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
+        delegate?.setTitle()
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

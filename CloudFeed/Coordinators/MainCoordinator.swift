@@ -62,7 +62,7 @@ final class MainCoordinator : NSObject, Coordinator {
         
         tabBarController?.delegate = self
         tabBarController?.view?.backgroundColor = .black
-        tabBarController?.tabBar.tintColor = .label
+        //tabBarController?.tabBar.tintColor = .label
     }
     
     func start() {

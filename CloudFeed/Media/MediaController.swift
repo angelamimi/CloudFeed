@@ -98,7 +98,7 @@ class MediaController: CollectionController {
         
         viewModel?.clearCache()
 
-        scrollToTop()
+        scrollToTop(false)
         viewModel?.resetDataSource()
         setTitle("")
     }
@@ -335,7 +335,7 @@ extension MediaController: CollectionDelegate {
             setTitle("")
             return
         }
-
+        
         if let metadata = viewModel.getItemAtIndexPath(indexPath) {
             setTitle(getFormattedDate(metadata.datePhotosOriginal))
         } else {
@@ -480,6 +480,7 @@ extension MediaController: Filterable {
         filterFromDate = nil
         
         initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
+        setTitle("")
         
         refresh()
         
