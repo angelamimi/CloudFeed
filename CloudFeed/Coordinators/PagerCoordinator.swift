@@ -42,18 +42,21 @@ final class PagerCoordinator {
     func start(currentIndex: Int, metadatas: [Metadata]) {
         
         let viewerCoordinator = ViewerCoordinator(dataService: dataService)
-        weak var viewerPager: PagerController? = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "PagerController") as? PagerController
-        let viewModel = PagerViewModel(coordinator: viewerCoordinator, pagerCoordinator: self, dataService: dataService, delegate: viewerPager!, viewerDelegate: viewerPager!, currentIndex: currentIndex, metadatas: metadatas)
         
-        viewerPager!.viewModel = viewModel
-        viewerPager!.coordinator = self
-        
-        navigationController.pushViewController(viewerPager!, animated: true)
-        
-        if UIDevice.current.userInterfaceIdiom == .pad,
-           #available(iOS 18.0, *),
-           let tab = navigationController.parent as? UITabBarController {
-            tab.setTabBarHidden(true, animated: !UIAccessibility.isReduceMotionEnabled)
+        if let viewerPager = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "PagerController") as? PagerController {
+            
+            let viewModel = PagerViewModel(coordinator: viewerCoordinator, pagerCoordinator: self, dataService: dataService, delegate: viewerPager, viewerDelegate: viewerPager, currentIndex: currentIndex, metadatas: metadatas)
+            
+            viewerPager.viewModel = viewModel
+            viewerPager.coordinator = self
+            
+            navigationController.pushViewController(viewerPager, animated: true)
+            
+            if UIDevice.current.userInterfaceIdiom == .pad,
+               #available(iOS 18.0, *),
+               let tab = navigationController.parent as? UITabBarController {
+                tab.setTabBarHidden(true, animated: !UIAccessibility.isReduceMotionEnabled)
+            }
         }
     }
     

@@ -32,8 +32,8 @@ final class LoginServerModalCoordinator : LoginCoordinator {
     
     override func start() {
         
-        weak var loginNavigationController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController() as? UINavigationController
-        weak var loginServerController = loginNavigationController?.viewControllers[0] as? LoginServerController
+        let loginNavigationController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController() as? UINavigationController
+        let loginServerController = loginNavigationController?.viewControllers[0] as? LoginServerController
         
         loginServerController?.viewModel = LoginServerViewModel(dataService: dataService, coordinator: self)
 
