@@ -31,10 +31,12 @@ final class Global: Sendable {
     let tablePadding                  = 16.0
     let photoOriginalServerVersion    = 31
     
-    // MARK: - Login
+    // MARK: - Login & Passcode
     //
     let minimumServerVersion          = 12
     let maxPasscodeAttempts           = 10
+    let maxPasscodeWaitAttempts       = 3
+    let passcodeWaitSeconds           = 60
     
     // MARK: - Remote
     //

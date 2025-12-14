@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -25,16 +25,16 @@
                                 <blurEffect style="regular"/>
                             </visualEffectView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="9Ft-11-P76" userLabel="Label Stack View">
-                                <rect key="frame" x="96.666666666666686" y="251" width="200" height="68"/>
+                                <rect key="frame" x="46.666666666666657" y="251" width="300" height="68"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tqa-pW-YlR">
-                                        <rect key="frame" x="0.0" y="0.0" width="200" height="0.0"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="300" height="0.0"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="9Jy-hZ-AhJ" userLabel="Code Stack View">
-                                        <rect key="frame" x="0.0" y="16" width="200" height="20"/>
+                                        <rect key="frame" x="0.0" y="16" width="300" height="20"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hP2-AZ-2l9">
                                                 <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
@@ -45,7 +45,7 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rVe-ML-6O2" userLabel="Code View1">
-                                                <rect key="frame" x="35.999999999999986" y="0.0" width="20" height="20"/>
+                                                <rect key="frame" x="56" y="0.0" width="20" height="20"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="20" id="J3S-vt-IXM"/>
@@ -53,7 +53,7 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9F2-nJ-1mW">
-                                                <rect key="frame" x="71.999999999999986" y="0.0" width="20" height="20"/>
+                                                <rect key="frame" x="112" y="0.0" width="20" height="20"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="20" id="sCQ-0v-kVk"/>
@@ -61,7 +61,7 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9AQ-eP-nF3">
-                                                <rect key="frame" x="107.99999999999999" y="0.0" width="20" height="20"/>
+                                                <rect key="frame" x="168" y="0.0" width="20" height="20"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="20" id="f7Z-Ip-mz1"/>
@@ -69,7 +69,7 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EZP-zo-DrO" userLabel="Code View4">
-                                                <rect key="frame" x="144" y="0.0" width="20" height="20"/>
+                                                <rect key="frame" x="224.00000000000003" y="0.0" width="20" height="20"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="20" id="Y3F-1q-wRK"/>
@@ -77,7 +77,7 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sJK-Vg-FIs">
-                                                <rect key="frame" x="180" y="0.0" width="20" height="20"/>
+                                                <rect key="frame" x="280" y="0.0" width="20" height="20"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="20" id="7gA-G0-ajn"/>
@@ -87,7 +87,7 @@
                                         </subviews>
                                     </stackView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KMX-40-EDR" userLabel="Spacer View">
-                                        <rect key="frame" x="0.0" y="52" width="200" height="16"/>
+                                        <rect key="frame" x="0.0" y="52" width="300" height="16"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="16" id="Y1E-WP-f1k"/>
@@ -95,8 +95,25 @@
                                     </view>
                                 </subviews>
                                 <constraints>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="300" id="C9n-We-rdW"/>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="200" id="nhI-cK-kYa"/>
                                 </constraints>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="nhI-cK-kYa"/>
+                                        <exclude reference="C9n-We-rdW"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="nhI-cK-kYa"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular">
+                                    <mask key="constraints">
+                                        <include reference="C9n-We-rdW"/>
+                                    </mask>
+                                </variation>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="a9p-gk-Hiu" userLabel="Keypad Stack View">
                                 <rect key="frame" x="68.666666666666686" y="319" width="256" height="344"/>
@@ -298,6 +315,12 @@
                                     </button>
                                 </subviews>
                             </stackView>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="wordWrap" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fgb-7X-vVT">
+                                <rect key="frame" x="196.66666666666666" y="351" width="0.0" height="0.0"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="80"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="bottom" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Rfc-OU-ghn">
                                 <rect key="frame" x="16" y="733.66666666666663" width="361" height="34.333333333333371"/>
                                 <subviews>
@@ -329,12 +352,15 @@
                             <constraint firstItem="9Ft-11-P76" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="2es-K6-Yrs"/>
                             <constraint firstItem="WJt-JD-vS8" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="9AT-up-KKZ"/>
                             <constraint firstItem="a9p-gk-Hiu" firstAttribute="top" secondItem="9Ft-11-P76" secondAttribute="bottom" id="B5r-Uu-CzD"/>
+                            <constraint firstItem="Fgb-7X-vVT" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="BfQ-oG-mwF"/>
                             <constraint firstAttribute="bottom" secondItem="WJt-JD-vS8" secondAttribute="bottom" id="JMh-iE-PbL"/>
                             <constraint firstItem="9Ft-11-P76" firstAttribute="centerX" secondItem="vDu-zF-Fre" secondAttribute="centerX" id="M6N-af-Gpq"/>
                             <constraint firstItem="Rfc-OU-ghn" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="U5F-uB-9XA"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Rfc-OU-ghn" secondAttribute="trailing" constant="16" id="WkO-qW-zme"/>
+                            <constraint firstItem="Fgb-7X-vVT" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" id="XhJ-nU-TjM"/>
                             <constraint firstItem="WJt-JD-vS8" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" id="Yem-nM-eMb"/>
                             <constraint firstAttribute="trailing" secondItem="WJt-JD-vS8" secondAttribute="trailing" id="bjP-rW-KZO"/>
+                            <constraint firstItem="Fgb-7X-vVT" firstAttribute="top" secondItem="9Ft-11-P76" secondAttribute="bottom" constant="32" id="fZA-oy-cpQ"/>
                             <constraint firstItem="a9p-gk-Hiu" firstAttribute="centerY" secondItem="vDu-zF-Fre" secondAttribute="centerY" id="gRJ-m8-z2x">
                                 <variation key="heightClass=regular-widthClass=compact" constant="40"/>
                             </constraint>
@@ -348,16 +374,20 @@
                                 <exclude reference="2es-K6-Yrs"/>
                                 <exclude reference="gY7-17-QVG"/>
                                 <exclude reference="B5r-Uu-CzD"/>
+                                <exclude reference="XhJ-nU-TjM"/>
+                                <exclude reference="fZA-oy-cpQ"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
                             <mask key="constraints">
                                 <include reference="2es-K6-Yrs"/>
+                                <include reference="XhJ-nU-TjM"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular">
                             <mask key="constraints">
                                 <include reference="B5r-Uu-CzD"/>
+                                <include reference="fZA-oy-cpQ"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact-widthClass=compact">
@@ -402,9 +432,12 @@
                         <outlet property="codeView4" destination="EZP-zo-DrO" id="dO2-C3-JwM"/>
                         <outlet property="codeView5" destination="sJK-Vg-FIs" id="e6J-iC-YNn"/>
                         <outlet property="containterView" destination="WJt-JD-vS8" id="Qut-bO-0s1"/>
+                        <outlet property="countdownLabel" destination="Fgb-7X-vVT" id="scM-6s-hJw"/>
                         <outlet property="deleteButton" destination="q0W-8p-xiF" id="xrz-Hk-5BJ"/>
+                        <outlet property="keypadStackView" destination="a9p-gk-Hiu" id="Ld9-eS-pUm"/>
                         <outlet property="label" destination="tqa-pW-YlR" id="7wI-pL-8Us"/>
                         <outlet property="labelStackView" destination="9Ft-11-P76" id="oYw-a9-ch5"/>
+                        <outlet property="spacerView" destination="KMX-40-EDR" id="Afl-tg-AXI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -417,7 +450,7 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

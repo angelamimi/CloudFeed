@@ -32,8 +32,10 @@ class PasscodeController: UIViewController {
     @IBOutlet weak var actionStackView: UIStackView!
     @IBOutlet weak var codeStackView: UIStackView!
     @IBOutlet weak var labelStackView: UIStackView!
+    @IBOutlet weak var keypadStackView: UIStackView!
     
     @IBOutlet weak var label: UILabel!
+    @IBOutlet weak var countdownLabel: UILabel!
     
     @IBOutlet weak var codeView0: UIView!
     @IBOutlet weak var codeView1: UIView!
@@ -41,6 +43,8 @@ class PasscodeController: UIViewController {
     @IBOutlet weak var codeView3: UIView!
     @IBOutlet weak var codeView4: UIView!
     @IBOutlet weak var codeView5: UIView!
+    
+    @IBOutlet weak var spacerView: UIView!
     
     @IBOutlet weak var button0: UIButton!
     @IBOutlet weak var button1: UIButton!
@@ -133,7 +137,15 @@ class PasscodeController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
         clearCode()
+        
+        if mode == .unlock,
+           let failCount = viewModel?.getFailedPasscodeCount(),
+           failCount >= Global.shared.maxPasscodeWaitAttempts {
+            waitOnFail()
+        }
     }
     
     private func initInstructions() {
@@ -361,12 +373,59 @@ class PasscodeController: UIViewController {
         
         viewModel?.incrementFailedPasscodeCount()
         
-        if viewModel?.getAppResetOnFailedAttempts() ?? false {
+        if let failCount = viewModel?.getFailedPasscodeCount() {
             
-            if let failCount = viewModel?.getFailedPasscodeCount(), failCount >= Global.shared.maxPasscodeAttempts {
-                viewModel?.reset()
+            if viewModel?.getAppResetOnFailedAttempts() ?? false {
+                
+                if failCount >= Global.shared.maxPasscodeAttempts {
+                    viewModel?.reset()
+                } else if failCount >= Global.shared.maxPasscodeWaitAttempts {
+                    waitOnFail()
+                }
+            } else if failCount >= Global.shared.maxPasscodeWaitAttempts {
+                waitOnFail()
             }
         }
+    }
+    
+    private func waitOnFail() {
+        
+        setPasscodeWait()
+        
+        var countdown = Global.shared.passcodeWaitSeconds
+        
+        countdownLabel.text = countdown.description
+        
+        Task { [weak self] in
+            while countdown >= 0 {
+                try await Task.sleep(for: .seconds(1))
+                countdown -= 1
+                if countdown <= 0 {
+                    self?.removePasscodeWait()
+                } else {
+                    self?.countdownLabel.text =  countdown.description
+                }
+            }
+        }
+    }
+    
+    private func setPasscodeWait() {
+        countdownLabel.isHidden = false
+        keypadStackView.isHidden = true
+        actionStackView.isHidden = true
+        codeStackView.isHidden = true
+        spacerView.isHidden = true
+        
+        label.text = Strings.PasscodeWait
+    }
+    
+    private func removePasscodeWait() {
+        initInstructions()
+        countdownLabel.isHidden = true
+        keypadStackView.isHidden = false
+        actionStackView.isHidden = false
+        codeStackView.isHidden = false
+        spacerView.isHidden = false
     }
     
     private func highlightView(view: UIView) {

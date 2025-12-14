@@ -187,6 +187,7 @@ extension Strings {
     public static let PasscodeValidate = NSLocalizedString("Passcode.Validate", comment: "")
     public static let PasscodeSaved = NSLocalizedString("Passcode.Saved", comment: "")
     public static let PasscodeDeleted = NSLocalizedString("Passcode.Deleted", comment: "")
+    public static let PasscodeWait = NSLocalizedString("Passcode.Wait", comment: "")
     
     //Image Detail and EXIF
     public static let DetailTitle = NSLocalizedString("Detail.Title", comment: "")

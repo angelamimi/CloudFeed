@@ -2573,6 +2573,17 @@
         }
       }
     },
+    "Passcode.Wait" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many failed passcode attempts. Please wait before attempting again."
+          }
+        }
+      }
+    },
     "Profile.Error.Message" : {
       "comment" : "Settings - Profile fetch error dialog",
       "localizations" : {
