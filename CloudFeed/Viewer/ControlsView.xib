@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="landscape" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -61,15 +61,15 @@
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TQa-8z-Wo6" userLabel="Time Slider">
-                                                    <rect key="frame" x="8" y="8" width="476" height="34"/>
+                                                    <rect key="frame" x="16" y="8" width="460" height="34"/>
                                                     <color key="tintColor" systemColor="labelColor"/>
                                                 </slider>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="TQa-8z-Wo6" firstAttribute="leading" secondItem="E8k-MG-Td0" secondAttribute="leading" constant="8" id="6Ao-xQ-iue"/>
+                                                <constraint firstItem="TQa-8z-Wo6" firstAttribute="leading" secondItem="E8k-MG-Td0" secondAttribute="leading" constant="16" id="6Ao-xQ-iue"/>
                                                 <constraint firstItem="TQa-8z-Wo6" firstAttribute="top" secondItem="E8k-MG-Td0" secondAttribute="top" constant="8" id="JxA-jy-MkB"/>
                                                 <constraint firstAttribute="bottom" secondItem="TQa-8z-Wo6" secondAttribute="bottom" constant="8" id="SfW-cQ-AKe"/>
-                                                <constraint firstAttribute="trailing" secondItem="TQa-8z-Wo6" secondAttribute="trailing" constant="8" id="TdM-EE-vEk"/>
+                                                <constraint firstAttribute="trailing" secondItem="TQa-8z-Wo6" secondAttribute="trailing" constant="16" id="TdM-EE-vEk"/>
                                             </constraints>
                                         </view>
                                         <blurEffect style="regular"/>
@@ -223,7 +223,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="100" minValue="0.0" maxValue="100" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WVT-e9-SFW" userLabel="Volume Slider">
-                                <rect key="frame" x="8" y="0.0" width="210" height="50"/>
+                                <rect key="frame" x="16" y="0.0" width="210" height="50"/>
                                 <color key="tintColor" systemColor="labelColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="Z6X-nJ-poU"/>
@@ -231,7 +231,7 @@
                                 </constraints>
                             </slider>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="meV-1j-cr0" userLabel="Volume Button">
-                                <rect key="frame" x="218" y="0.0" width="50" height="50"/>
+                                <rect key="frame" x="226" y="0.0" width="50" height="50"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="B9G-h7-wyL"/>
                                     <constraint firstAttribute="width" constant="50" id="cnQ-9x-4Ul"/>
@@ -245,7 +245,7 @@
                         </subviews>
                         <constraints>
                             <constraint firstItem="meV-1j-cr0" firstAttribute="leading" secondItem="WVT-e9-SFW" secondAttribute="trailing" id="2Pr-83-giX"/>
-                            <constraint firstItem="WVT-e9-SFW" firstAttribute="leading" secondItem="se5-JG-BBz" secondAttribute="leading" constant="8" id="Kog-BZ-u9W"/>
+                            <constraint firstItem="WVT-e9-SFW" firstAttribute="leading" secondItem="se5-JG-BBz" secondAttribute="leading" constant="16" id="Kog-BZ-u9W"/>
                             <constraint firstItem="WVT-e9-SFW" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" id="UCZ-tE-ohT"/>
                             <constraint firstAttribute="trailing" secondItem="meV-1j-cr0" secondAttribute="trailing" constant="8" id="aiw-oq-F3k"/>
                             <constraint firstItem="meV-1j-cr0" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" id="x3t-a9-8hz"/>
