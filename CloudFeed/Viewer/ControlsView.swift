@@ -45,6 +45,9 @@ class ControlsView: UIView {
     @IBOutlet weak var controlsView: UIVisualEffectView!
     @IBOutlet weak var timeView: UIVisualEffectView!
     
+    @IBOutlet weak var controlsViewTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var controlsStackViewTopConstraint: NSLayoutConstraint!
+    
     @IBOutlet weak var audioTrackButton: UIButton!
     
     @IBOutlet weak var volumeSlider: UISlider!
@@ -639,7 +642,7 @@ class ControlsView: UIView {
             timeSlider = innerTimeSlider
             currentTimeSlider.isHidden = true
             
-            let glassEffect = UIGlassEffect(style: .regular)
+            let glassEffect = UIGlassEffect()
             glassEffect.isInteractive = true
             volumeView.effect = glassEffect
             volumeView.cornerConfiguration = .capsule()
@@ -685,6 +688,9 @@ class ControlsView: UIView {
                 audioViewLeadingConstraint.constant = 8
             }
             
+            controlsViewTopConstraint.isActive = true
+            controlsStackViewTopConstraint.isActive = false
+            
         } else {
             
             timeSlider = currentTimeSlider
@@ -720,6 +726,9 @@ class ControlsView: UIView {
             
             volumeViewTrailingConstraint.constant = 0
             audioViewLeadingConstraint.constant = 0
+            
+            controlsViewTopConstraint.isActive = false
+            controlsStackViewTopConstraint.isActive = true
         }
         
         volumeSlider.addTarget(self, action: #selector(volumeChanged), for: .valueChanged)

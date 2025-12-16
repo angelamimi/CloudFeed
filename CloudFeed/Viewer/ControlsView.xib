@@ -16,7 +16,9 @@
                 <outlet property="audioViewLeadingConstraint" destination="Hsb-11-IK8" id="mKP-bF-Kxv"/>
                 <outlet property="captionsButton" destination="JAq-bM-gDn" id="36X-Jy-Gxk"/>
                 <outlet property="captionsButtonWidthConstraint" destination="Xa8-94-aGK" id="dKc-wB-WjY"/>
+                <outlet property="controlsStackViewTopConstraint" destination="imX-8Q-Jgy" id="Mhv-vi-9W8"/>
                 <outlet property="controlsView" destination="AXL-dv-8Qn" id="mtk-N9-R2J"/>
+                <outlet property="controlsViewTopConstraint" destination="9tG-4w-mP1" id="tZZ-A3-fJS"/>
                 <outlet property="currentTimeSlider" destination="djr-qE-xK2" id="6fb-eC-nUl"/>
                 <outlet property="innerTimeSlider" destination="TQa-8z-Wo6" id="70S-0Q-h2a"/>
                 <outlet property="playButton" destination="Kl1-HT-Qt7" id="TZU-zB-wih"/>
@@ -42,20 +44,20 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AXL-dv-8Qn" userLabel="Controls Visual Effect View">
-                    <rect key="frame" x="59" y="230.66666666666663" width="524" height="242.33333333333337"/>
+                    <rect key="frame" x="59" y="59" width="524" height="414"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="WXq-nj-p7a">
-                        <rect key="frame" x="0.0" y="0.0" width="524" height="242.33333333333337"/>
+                        <rect key="frame" x="0.0" y="0.0" width="524" height="414"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Wmb-p0-zvf">
-                                <rect key="frame" x="0.0" y="16.000000000000014" width="524" height="226.33333333333337"/>
+                                <rect key="frame" x="0.0" y="16" width="524" height="398"/>
                                 <subviews>
                                     <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="djr-qE-xK2">
                                         <rect key="frame" x="16" y="0.0" width="492" height="34"/>
                                         <color key="tintColor" systemColor="labelColor"/>
                                     </slider>
                                     <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bl4-yO-kwe">
-                                        <rect key="frame" x="16" y="42.000000000000028" width="492" height="50"/>
+                                        <rect key="frame" x="16" y="85" width="492" height="50"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="E8k-MG-Td0">
                                             <rect key="frame" x="0.0" y="0.0" width="492" height="50"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -75,7 +77,7 @@
                                         <blurEffect style="regular"/>
                                     </visualEffectView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="05Y-Dk-tB3">
-                                        <rect key="frame" x="16" y="100.00000000000003" width="492" height="34.333333333333343"/>
+                                        <rect key="frame" x="16" y="186" width="492" height="34.333333333333343"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="headTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TRG-FX-qcn" userLabel="Time Label">
                                                 <rect key="frame" x="0.0" y="0.0" width="46" height="34.333333333333336"/>
@@ -114,7 +116,7 @@
                                         </variation>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="3Xu-iX-Osf">
-                                        <rect key="frame" x="16" y="142.33333333333334" width="492" height="60"/>
+                                        <rect key="frame" x="16" y="271" width="492" height="60"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JAq-bM-gDn" userLabel="Captions Button">
                                                 <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
@@ -190,7 +192,7 @@
                                         <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                     </stackView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gew-by-zcR">
-                                        <rect key="frame" x="16" y="210.33333333333334" width="492" height="16"/>
+                                        <rect key="frame" x="16" y="382" width="492" height="16"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="16" id="hOx-aX-X6V"/>
@@ -294,6 +296,7 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NBR-iP-9gV" secondAttribute="trailing" constant="16" id="2qC-ai-TtE"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="4wa-M8-UL0"/>
                 <constraint firstItem="NBR-iP-9gV" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="8z1-X0-k3d"/>
+                <constraint firstItem="AXL-dv-8Qn" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="9tG-4w-mP1"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="AXL-dv-8Qn" secondAttribute="bottom" id="Agk-Fg-nkc"/>
                 <constraint firstItem="q2D-Dm-4a7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Hsb-11-IK8"/>
                 <constraint firstItem="q2D-Dm-4a7" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="Zvh-3y-G73"/>
