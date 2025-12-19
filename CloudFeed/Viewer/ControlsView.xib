@@ -16,6 +16,7 @@
                 <outlet property="audioViewLeadingConstraint" destination="Hsb-11-IK8" id="mKP-bF-Kxv"/>
                 <outlet property="captionsButton" destination="JAq-bM-gDn" id="36X-Jy-Gxk"/>
                 <outlet property="captionsButtonWidthConstraint" destination="Xa8-94-aGK" id="dKc-wB-WjY"/>
+                <outlet property="controlsStackView" destination="Wmb-p0-zvf" id="2wW-Ed-Cfu"/>
                 <outlet property="controlsStackViewTopConstraint" destination="imX-8Q-Jgy" id="Mhv-vi-9W8"/>
                 <outlet property="controlsView" destination="AXL-dv-8Qn" id="mtk-N9-R2J"/>
                 <outlet property="controlsViewTopConstraint" destination="9tG-4w-mP1" id="tZZ-A3-fJS"/>

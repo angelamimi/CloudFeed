@@ -45,6 +45,8 @@ class ControlsView: UIView {
     @IBOutlet weak var controlsView: UIVisualEffectView!
     @IBOutlet weak var timeView: UIVisualEffectView!
     
+    @IBOutlet weak var controlsStackView: UIStackView!
+    
     @IBOutlet weak var controlsViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var controlsStackViewTopConstraint: NSLayoutConstraint!
     
@@ -113,9 +115,10 @@ class ControlsView: UIView {
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+
         if volumeView.frame.contains(point)
-            || controlsView.frame.contains(point)
-            || audioTrackView.frame.contains(point) {
+            || audioTrackView.frame.contains(point)
+            || controlsStackView.convert(controlsStackView.bounds, to: self).contains(point) {
             return super.hitTest(point, with: event)
         }
         
