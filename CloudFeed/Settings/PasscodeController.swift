@@ -35,7 +35,10 @@ class PasscodeController: UIViewController {
     @IBOutlet weak var keypadStackView: UIStackView!
     
     @IBOutlet weak var label: UILabel!
+    @IBOutlet weak var waitLabel: UILabel!
     @IBOutlet weak var countdownLabel: UILabel!
+    
+    @IBOutlet weak var labelContainer: UIView!
     
     @IBOutlet weak var codeView0: UIView!
     @IBOutlet weak var codeView1: UIView!
@@ -43,8 +46,6 @@ class PasscodeController: UIViewController {
     @IBOutlet weak var codeView3: UIView!
     @IBOutlet weak var codeView4: UIView!
     @IBOutlet weak var codeView5: UIView!
-    
-    @IBOutlet weak var spacerView: UIView!
     
     @IBOutlet weak var button0: UIButton!
     @IBOutlet weak var button1: UIButton!
@@ -118,6 +119,8 @@ class PasscodeController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationItem.largeTitleDisplayMode = .never
+        
         deleteButton.setTitle(Strings.DeleteAction, for: .normal)
         cancelButton.setTitle(Strings.CancelAction, for: .normal)
 
@@ -126,6 +129,12 @@ class PasscodeController: UIViewController {
         
         cancelButton.isHidden = true
         deleteButton.isHidden = true
+        
+        label.minimumContentSizeCategory = .extraExtraExtraLarge
+        waitLabel.minimumContentSizeCategory = .extraLarge
+        countdownLabel.minimumContentSizeCategory = .accessibilityExtraExtraExtraLarge
+        keypadStackView.minimumContentSizeCategory = .accessibilityLarge
+        deleteButton.minimumContentSizeCategory = .extraExtraExtraLarge
         
         if isModalInPresentation {
             containterView.isHidden = false
@@ -211,23 +220,14 @@ class PasscodeController: UIViewController {
         
         if #available(iOS 26.0, *) {
             
-            //containterView.effect = UIGlassEffect(style: .regular)
-            
             var borderedGlassConfig = UIButton.Configuration.glass()
             
             borderedGlassConfig.background.strokeWidth = 1
             borderedGlassConfig.background.strokeColor = .secondaryLabel
+            borderedGlassConfig.titleAlignment = .center
+            borderedGlassConfig.titlePadding = -2
             
-            button0.configuration = borderedGlassConfig
-            button1.configuration = borderedGlassConfig
-            button2.configuration = borderedGlassConfig
-            button3.configuration = borderedGlassConfig
-            button4.configuration = borderedGlassConfig
-            button5.configuration = borderedGlassConfig
-            button6.configuration = borderedGlassConfig
-            button7.configuration = borderedGlassConfig
-            button8.configuration = borderedGlassConfig
-            button9.configuration = borderedGlassConfig
+            setNumberPadButtonConfigurations(borderedGlassConfig)
             
         } else {
             
@@ -237,17 +237,10 @@ class PasscodeController: UIViewController {
             config.background.strokeWidth = 1
             config.background.strokeColor = .secondaryLabel
             config.baseForegroundColor = .label
+            config.titleAlignment = .center
+            config.titlePadding = -2
             
-            button0.configuration = config
-            button1.configuration = config
-            button2.configuration = config
-            button3.configuration = config
-            button4.configuration = config
-            button5.configuration = config
-            button6.configuration = config
-            button7.configuration = config
-            button8.configuration = config
-            button9.configuration = config
+            setNumberPadButtonConfigurations(config)
             
             setButtonConfigurationUpdateHandler(button0)
             setButtonConfigurationUpdateHandler(button1)
@@ -271,6 +264,39 @@ class PasscodeController: UIViewController {
         button7.configuration?.title = Strings.PasscodeNumberPad7
         button8.configuration?.title = Strings.PasscodeNumberPad8
         button9.configuration?.title = Strings.PasscodeNumberPad9
+
+        button1.configuration?.attributedSubtitle = buildAttributedSubtitle(subtitle: Strings.PasscodeNumberPad1Subtitle)
+        button2.configuration?.attributedSubtitle = buildAttributedSubtitle(subtitle: Strings.PasscodeNumberPad2Subtitle)
+        button3.configuration?.attributedSubtitle = buildAttributedSubtitle(subtitle: Strings.PasscodeNumberPad3Subtitle)
+        button4.configuration?.attributedSubtitle = buildAttributedSubtitle(subtitle: Strings.PasscodeNumberPad4Subtitle)
+        button5.configuration?.attributedSubtitle = buildAttributedSubtitle(subtitle: Strings.PasscodeNumberPad5Subtitle)
+        button6.configuration?.attributedSubtitle = buildAttributedSubtitle(subtitle: Strings.PasscodeNumberPad6Subtitle)
+        button7.configuration?.attributedSubtitle = buildAttributedSubtitle(subtitle: Strings.PasscodeNumberPad7Subtitle)
+        button8.configuration?.attributedSubtitle = buildAttributedSubtitle(subtitle: Strings.PasscodeNumberPad8Subtitle)
+        button9.configuration?.attributedSubtitle = buildAttributedSubtitle(subtitle: Strings.PasscodeNumberPad9Subtitle)
+    }
+    
+    private func setNumberPadButtonConfigurations(_ config: UIButton.Configuration) {
+        button0.configuration = config
+        button1.configuration = config
+        button2.configuration = config
+        button3.configuration = config
+        button4.configuration = config
+        button5.configuration = config
+        button6.configuration = config
+        button7.configuration = config
+        button8.configuration = config
+        button9.configuration = config
+    }
+    
+    private func buildAttributedSubtitle(subtitle: String) -> AttributedString {
+
+        let attributedString = NSMutableAttributedString(string: subtitle)
+        
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 12, weight: .semibold), range: NSRange(location: 0, length: subtitle.count))
+        attributedString.addAttribute(.kern, value: 3, range: NSRange(location: 0, length: subtitle.count - 1))
+        
+        return AttributedString(attributedString)
     }
     
     private func setButtonConfigurationUpdateHandler(_ numberButton: UIButton) {
@@ -410,22 +436,69 @@ class PasscodeController: UIViewController {
     }
     
     private func setPasscodeWait() {
-        countdownLabel.isHidden = false
+        
+        labelContainer.isHidden = true
+        label.isHidden = true
+        labelStackView.isHidden = true
         keypadStackView.isHidden = true
         actionStackView.isHidden = true
         codeStackView.isHidden = true
-        spacerView.isHidden = true
         
-        label.text = Strings.PasscodeWait
+        button0.isHidden = true
+        button1.isHidden = true
+        button2.isHidden = true
+        button3.isHidden = true
+        button4.isHidden = true
+        button5.isHidden = true
+        button6.isHidden = true
+        button7.isHidden = true
+        button8.isHidden = true
+        button9.isHidden = true
+        
+        waitLabel.isHidden = false
+        countdownLabel.isHidden = false
+        
+        codeView0.isHidden = true
+        codeView1.isHidden = true
+        codeView2.isHidden = true
+        codeView3.isHidden = true
+        codeView4.isHidden = true
+        codeView5.isHidden = true
+        
+        waitLabel.text = Strings.PasscodeWait
     }
     
     private func removePasscodeWait() {
+        
         initInstructions()
+        
+        waitLabel.isHidden = true
         countdownLabel.isHidden = true
+        
+        labelContainer.isHidden = false
+        label.isHidden = false
+        labelStackView.isHidden = false
         keypadStackView.isHidden = false
         actionStackView.isHidden = false
         codeStackView.isHidden = false
-        spacerView.isHidden = false
+        
+        button0.isHidden = false
+        button1.isHidden = false
+        button2.isHidden = false
+        button3.isHidden = false
+        button4.isHidden = false
+        button5.isHidden = false
+        button6.isHidden = false
+        button7.isHidden = false
+        button8.isHidden = false
+        button9.isHidden = false
+        
+        codeView0.isHidden = false
+        codeView1.isHidden = false
+        codeView2.isHidden = false
+        codeView3.isHidden = false
+        codeView4.isHidden = false
+        codeView5.isHidden = false
     }
     
     private func highlightView(view: UIView) {

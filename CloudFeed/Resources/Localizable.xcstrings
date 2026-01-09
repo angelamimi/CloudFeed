@@ -2463,6 +2463,17 @@
         }
       }
     },
+    "Passcode.NumberPad.1.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " "
+          }
+        }
+      }
+    },
     "Passcode.NumberPad.2" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2470,6 +2481,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "2"
+          }
+        }
+      }
+    },
+    "Passcode.NumberPad.2.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ABC"
           }
         }
       }
@@ -2485,6 +2507,17 @@
         }
       }
     },
+    "Passcode.NumberPad.3.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DEF"
+          }
+        }
+      }
+    },
     "Passcode.NumberPad.4" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2492,6 +2525,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "4"
+          }
+        }
+      }
+    },
+    "Passcode.NumberPad.4.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GHI"
           }
         }
       }
@@ -2507,6 +2551,17 @@
         }
       }
     },
+    "Passcode.NumberPad.5.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JKL"
+          }
+        }
+      }
+    },
     "Passcode.NumberPad.6" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2514,6 +2569,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "6"
+          }
+        }
+      }
+    },
+    "Passcode.NumberPad.6.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MNO"
           }
         }
       }
@@ -2529,6 +2595,17 @@
         }
       }
     },
+    "Passcode.NumberPad.7.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PQRS"
+          }
+        }
+      }
+    },
     "Passcode.NumberPad.8" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2540,6 +2617,17 @@
         }
       }
     },
+    "Passcode.NumberPad.8.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TUV"
+          }
+        }
+      }
+    },
     "Passcode.NumberPad.9" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2547,6 +2635,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "9"
+          }
+        }
+      }
+    },
+    "Passcode.NumberPad.9.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WXYZ"
           }
         }
       }
@@ -2579,7 +2678,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Too many failed passcode attempts. Please wait before attempting again."
+            "value" : "Too many failed passcode attempts. Please wait before trying again."
           }
         }
       }

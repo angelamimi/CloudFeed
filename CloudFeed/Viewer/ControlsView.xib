@@ -221,20 +221,25 @@
                 </visualEffectView>
                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NBR-iP-9gV" userLabel="Volume Visual Effect View">
                     <rect key="frame" x="297" y="67" width="270" height="50"/>
-                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" id="se5-JG-BBz">
+                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="se5-JG-BBz">
                         <rect key="frame" x="0.0" y="0.0" width="270" height="50"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="100" minValue="0.0" maxValue="100" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WVT-e9-SFW" userLabel="Volume Slider">
-                                <rect key="frame" x="16" y="0.0" width="210" height="50"/>
+                                <rect key="frame" x="16" y="0.0" width="196" height="50"/>
                                 <color key="tintColor" systemColor="labelColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="Z6X-nJ-poU"/>
                                     <constraint firstAttribute="width" constant="210" id="voQ-fE-B8t"/>
                                 </constraints>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="voQ-fE-B8t"/>
+                                    </mask>
+                                </variation>
                             </slider>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="meV-1j-cr0" userLabel="Volume Button">
-                                <rect key="frame" x="226" y="0.0" width="50" height="50"/>
+                                <rect key="frame" x="212" y="0.0" width="50" height="50"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="B9G-h7-wyL"/>
                                     <constraint firstAttribute="width" constant="50" id="cnQ-9x-4Ul"/>
