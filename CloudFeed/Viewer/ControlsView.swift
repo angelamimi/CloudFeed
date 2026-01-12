@@ -44,11 +44,17 @@ class ControlsView: UIView {
     @IBOutlet weak var volumeView: UIVisualEffectView!
     @IBOutlet weak var controlsView: UIVisualEffectView!
     @IBOutlet weak var timeView: UIVisualEffectView!
+    @IBOutlet weak var horizontalTimeView: UIVisualEffectView!
     
     @IBOutlet weak var controlsStackView: UIStackView!
     
+    @IBOutlet weak var horizontalTimeViewHeightConstraint: NSLayoutConstraint!
+    
     @IBOutlet weak var controlsViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var controlsStackViewTopConstraint: NSLayoutConstraint!
+    
+    @IBOutlet weak var timeSliderLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var timeSliderTrailingConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var audioTrackButton: UIButton!
     
@@ -56,8 +62,8 @@ class ControlsView: UIView {
     @IBOutlet weak var volumeButton: UIButton!
     @IBOutlet weak var volumeTopConstraint: NSLayoutConstraint!
     
-    @IBOutlet weak var innerTimeSlider: UISlider!
-    @IBOutlet weak var currentTimeSlider: UISlider!
+    @IBOutlet weak var verticalTimeSlider: UISlider!
+    @IBOutlet weak var horizontalTimeSlider: UISlider!
     
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var totalTimeLabel: UILabel!
@@ -78,8 +84,7 @@ class ControlsView: UIView {
     @IBOutlet weak var audioViewLeadingConstraint: NSLayoutConstraint!
     
     weak var delegate: ControlsDelegate?
-    
-    var timeSlider: UISlider!
+    var glass: Bool = false
     
     private var volume: Int = 100 // 0% for mute, 100% for full volume
     private var isPlaying: Bool = false
@@ -94,6 +99,11 @@ class ControlsView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+    }
+    
+    required convenience init(glass: Bool, frame: CGRect) {
+        self.init(frame: frame)
+        self.glass = glass
         commonInit()
     }
     
@@ -172,6 +182,7 @@ class ControlsView: UIView {
     }
     
     func setPosition(position: Float) {
+        let timeSlider = getTimeSlider()
         if position >= timeSlider.minimumValue && position <= timeSlider.maximumValue {
             timeSlider.setValue(position, animated: true)
         }
@@ -321,8 +332,8 @@ class ControlsView: UIView {
             setVolumeButton(mute: false)
         }
     }
-    
-    @objc private func timeChanged() {
+
+    @objc private func timeChanged(_ timeSlider: UISlider) {
         delegate?.timeChanged(time: timeSlider.value)
     }
     
@@ -382,6 +393,8 @@ class ControlsView: UIView {
     
     @objc private func timeSliderPan(panGesture: UIPanGestureRecognizer) {
         
+        guard let timeSlider = panGesture.view as? UISlider else { return }
+        
         switch panGesture.state {
         case .began:
             delegate?.beganTracking() 
@@ -411,6 +424,8 @@ class ControlsView: UIView {
     }
     
     @objc private func timeSliderTapped(tapGesture: UITapGestureRecognizer) {
+        
+        guard let timeSlider = tapGesture.view as? UISlider else { return }
         
         let location = tapGesture.location(in: timeSlider)
         let value = Float.init(location.x / timeSlider.frame.width)
@@ -460,7 +475,8 @@ class ControlsView: UIView {
     }
     
     @objc private func timeButtonTapped(tapGesture: UITapGestureRecognizer) {
-        timeSlider.value = 0
+        horizontalTimeSlider.value = 0
+        verticalTimeSlider.value = 0
         setTimeLabelFromPosition(0)
         delegate?.timeChanged(time: 0)
     }
@@ -479,6 +495,7 @@ class ControlsView: UIView {
         }
         
         var newPosition = newTime / totalSeconds
+        let timeSlider = getTimeSlider()
         
         if newPosition < timeSlider.minimumValue {
             newPosition = 0
@@ -486,7 +503,9 @@ class ControlsView: UIView {
             newPosition = 1
         }
         
-        timeSlider.value = newPosition
+        horizontalTimeSlider.value = newPosition
+        verticalTimeSlider.value = newPosition
+        
         setTimeLabelFromPosition(newPosition)
         
         delegate?.timeChanged(time: newPosition)
@@ -500,6 +519,7 @@ class ControlsView: UIView {
         
         guard length > 0 else { return }
         
+        let timeSlider = getTimeSlider()
         let mediaLength = length / 1_000
         let currentTime = Double(timeSlider.value) * mediaLength
         var newTime: Double
@@ -518,7 +538,9 @@ class ControlsView: UIView {
             newPosition = 1
         }
         
-        timeSlider.value = newPosition
+        horizontalTimeSlider.value = newPosition
+        verticalTimeSlider.value = newPosition
+        
         setTimeLabelFromPosition(newPosition)
         
         delegate?.timeChanged(time: newPosition)
@@ -557,7 +579,8 @@ class ControlsView: UIView {
         audioTrackButton.isEnabled = enabled
         volumeButton.isEnabled = enabled
         volumeSlider.isEnabled = enabled
-        timeSlider.isEnabled = enabled
+        verticalTimeSlider.isEnabled = enabled
+        horizontalTimeSlider.isEnabled = enabled
         captionsButton.isEnabled = enabled
         playButton.isEnabled = enabled
         speedButton.isEnabled = enabled
@@ -570,7 +593,8 @@ class ControlsView: UIView {
     }
     
     private func setSeekIsEnabled(enabled: Bool) {
-        timeSlider.isEnabled = enabled
+        verticalTimeSlider.isEnabled = enabled
+        horizontalTimeSlider.isEnabled = enabled
         skipBackButton.isEnabled = enabled
         skipForwardButton.isEnabled = enabled
         speedButton.isEnabled = enabled
@@ -581,6 +605,14 @@ class ControlsView: UIView {
         UIView.animate(withDuration: 0.4, animations: {
             button.tintColor = .label
         })
+    }
+    
+    func getTimeSlider() -> UISlider {
+        if horizontalTimeView.isHidden == false {
+            return horizontalTimeSlider
+        } else {
+            return verticalTimeSlider
+        }
     }
     
     private func speedRateChanged(rate: Float) {
@@ -640,15 +672,17 @@ class ControlsView: UIView {
         audioTrackButton.setImage(UIImage(systemName: "waveform"), for: .normal)
         audioTrackButton.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
         
-        if #available(iOS 26, *) {
-            
-            timeSlider = innerTimeSlider
-            currentTimeSlider.isHidden = true
+        if #available(iOS 26, *), glass {
             
             let glassEffect = UIGlassEffect()
+            
             glassEffect.isInteractive = true
+            
             volumeView.effect = glassEffect
             volumeView.cornerConfiguration = .capsule()
+            
+            horizontalTimeView.effect = glassEffect
+            horizontalTimeView.cornerConfiguration = .capsule()
             
             timeView.effect = glassEffect
             timeView.cornerConfiguration = .capsule()
@@ -694,22 +728,35 @@ class ControlsView: UIView {
             controlsViewTopConstraint.isActive = true
             controlsStackViewTopConstraint.isActive = false
             
+            controlsStackView.spacing = 16
+            
+            horizontalTimeViewHeightConstraint.constant = 50
+            
         } else {
             
-            timeSlider = currentTimeSlider
-            timeView.isHidden = true
+            timeView.effect = .none
+            timeView.backgroundColor = .clear
             
-            audioTrackView.clipsToBounds = true
-            audioTrackView.layer.cornerRadius = 8
+            horizontalTimeView.effect = .none
+            horizontalTimeView.backgroundColor = .clear
             
-            volumeView.clipsToBounds = true
-            volumeView.layer.cornerRadius = 8
+            if #available(iOS 26, *) {
+                volumeView.effect = UIGlassEffect()
+                volumeView.cornerConfiguration = .capsule()
+                
+                audioTrackButton.configuration = .glass()
+                audioTrackView.effect = UIGlassContainerEffect()
+            } else {
+                
+                audioTrackView.clipsToBounds = true
+                audioTrackView.layer.cornerRadius = 8
+                
+                volumeView.clipsToBounds = true
+                volumeView.layer.cornerRadius = 8
+            }
             
             controlsView.clipsToBounds = true
             controlsView.layer.cornerRadius = 8
-            
-            timeView.clipsToBounds = true
-            timeView.layer.cornerRadius = 8
             
             timeButton.configuration = .plain()
             timeButton.configuration?.titleLineBreakMode = .byTruncatingHead
@@ -732,10 +779,17 @@ class ControlsView: UIView {
             
             controlsViewTopConstraint.isActive = false
             controlsStackViewTopConstraint.isActive = true
+            
+            timeSliderLeadingConstraint.constant = 0
+            timeSliderTrailingConstraint.constant = 0
+            
+            horizontalTimeViewHeightConstraint.constant = 30
         }
         
         volumeSlider.addTarget(self, action: #selector(volumeChanged), for: .valueChanged)
-        timeSlider.addTarget(self, action: #selector(timeChanged), for: .valueChanged)
+        
+        horizontalTimeSlider.addTarget(self, action: #selector(timeChanged(_:)), for: .valueChanged)
+        verticalTimeSlider.addTarget(self, action: #selector(timeChanged(_:)), for: .valueChanged)
         
         volumeButton.addTarget(self, action: #selector(volumeButtonTapped), for: .touchUpInside)
         skipBackButton.addTarget(self, action: #selector(skipBackButtonTapped), for: .touchUpInside)
@@ -751,10 +805,12 @@ class ControlsView: UIView {
         speedButton.menu = buildSpeedRateMenu(currentRate: 1.0)
         
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(timeSliderPan(panGesture:)))
-        timeSlider.addGestureRecognizer(panGesture)
+        horizontalTimeSlider.addGestureRecognizer(panGesture)
+        verticalTimeSlider.addGestureRecognizer(panGesture)
         
         let tapTime = UITapGestureRecognizer(target: self, action: #selector(timeSliderTapped(tapGesture:)))
-        timeSlider.addGestureRecognizer(tapTime)
+        horizontalTimeSlider.addGestureRecognizer(tapTime)
+        verticalTimeSlider.addGestureRecognizer(tapTime)
         
         let panVolume = UIPanGestureRecognizer(target: self, action: #selector(volumeSliderPan(panGesture:)))
         volumeView.addGestureRecognizer(panVolume)

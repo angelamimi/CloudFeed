@@ -20,8 +20,9 @@
                 <outlet property="controlsStackViewTopConstraint" destination="imX-8Q-Jgy" id="Mhv-vi-9W8"/>
                 <outlet property="controlsView" destination="AXL-dv-8Qn" id="mtk-N9-R2J"/>
                 <outlet property="controlsViewTopConstraint" destination="9tG-4w-mP1" id="tZZ-A3-fJS"/>
-                <outlet property="currentTimeSlider" destination="djr-qE-xK2" id="6fb-eC-nUl"/>
-                <outlet property="innerTimeSlider" destination="TQa-8z-Wo6" id="70S-0Q-h2a"/>
+                <outlet property="horizontalTimeSlider" destination="edg-E9-ls8" id="37O-7V-SBU"/>
+                <outlet property="horizontalTimeView" destination="u4w-Dq-iVA" id="aVo-A1-A27"/>
+                <outlet property="horizontalTimeViewHeightConstraint" destination="j9Y-ZP-086" id="tfa-r1-RU4"/>
                 <outlet property="playButton" destination="Kl1-HT-Qt7" id="TZU-zB-wih"/>
                 <outlet property="skipBackButton" destination="SxX-p9-6Sb" id="fie-mN-Fbg"/>
                 <outlet property="skipForwardButton" destination="obn-Lo-YLJ" id="Z8V-ba-NAy"/>
@@ -29,9 +30,12 @@
                 <outlet property="speedButtonWidthConstraint" destination="FGP-Wu-t7X" id="wz8-YY-D7h"/>
                 <outlet property="timeButton" destination="YCf-Gc-4iH" id="Nac-qb-zxl"/>
                 <outlet property="timeLabel" destination="TRG-FX-qcn" id="Tok-zW-6Nk"/>
+                <outlet property="timeSliderLeadingConstraint" destination="6Ao-xQ-iue" id="8oN-2k-39q"/>
+                <outlet property="timeSliderTrailingConstraint" destination="TdM-EE-vEk" id="k35-xu-fuh"/>
                 <outlet property="timeView" destination="bl4-yO-kwe" id="35Y-yd-F8P"/>
                 <outlet property="totalTimeButton" destination="ZMD-Vw-KCm" id="KEW-7c-4Pl"/>
                 <outlet property="totalTimeLabel" destination="heG-hn-bNN" id="tod-um-FaR"/>
+                <outlet property="verticalTimeSlider" destination="TQa-8z-Wo6" id="gy6-xX-oXH"/>
                 <outlet property="volumeButton" destination="meV-1j-cr0" id="a8L-fd-mwv"/>
                 <outlet property="volumeSlider" destination="WVT-e9-SFW" id="vKs-hr-8hC"/>
                 <outlet property="volumeTopConstraint" destination="8z1-X0-k3d" id="hHA-ks-TtJ"/>
@@ -45,20 +49,16 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AXL-dv-8Qn" userLabel="Controls Visual Effect View">
-                    <rect key="frame" x="59" y="59" width="524" height="414"/>
+                    <rect key="frame" x="59" y="59" width="524" height="469"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="WXq-nj-p7a">
-                        <rect key="frame" x="0.0" y="0.0" width="524" height="414"/>
+                        <rect key="frame" x="0.0" y="0.0" width="524" height="469"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Wmb-p0-zvf">
-                                <rect key="frame" x="0.0" y="16" width="524" height="398"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="Wmb-p0-zvf">
+                                <rect key="frame" x="0.0" y="16" width="524" height="453"/>
                                 <subviews>
-                                    <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="djr-qE-xK2">
-                                        <rect key="frame" x="16" y="0.0" width="492" height="34"/>
-                                        <color key="tintColor" systemColor="labelColor"/>
-                                    </slider>
                                     <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bl4-yO-kwe">
-                                        <rect key="frame" x="16" y="85" width="492" height="50"/>
+                                        <rect key="frame" x="16" y="0.0" width="492" height="50"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="E8k-MG-Td0">
                                             <rect key="frame" x="0.0" y="0.0" width="492" height="50"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -76,9 +76,11 @@
                                             </constraints>
                                         </view>
                                         <blurEffect style="regular"/>
+                                        <variation key="heightClass=compact-widthClass=regular" hidden="YES"/>
+                                        <variation key="heightClass=regular-widthClass=regular" hidden="YES"/>
                                     </visualEffectView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="05Y-Dk-tB3">
-                                        <rect key="frame" x="16" y="186" width="492" height="34.333333333333343"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="05Y-Dk-tB3">
+                                        <rect key="frame" x="16" y="130.66666666666666" width="492" height="30"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="headTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TRG-FX-qcn" userLabel="Time Label">
                                                 <rect key="frame" x="0.0" y="0.0" width="46" height="34.333333333333336"/>
@@ -95,13 +97,44 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YCf-Gc-4iH">
-                                                <rect key="frame" x="0.0" y="0.0" width="70" height="34.333333333333336"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="70" height="30"/>
                                                 <color key="tintColor" systemColor="labelColor"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain" title="00:00"/>
                                             </button>
+                                            <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="u4w-Dq-iVA">
+                                                <rect key="frame" x="78" y="0.0" width="32" height="30"/>
+                                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="fcc-NS-S0J">
+                                                    <rect key="frame" x="0.0" y="0.0" width="32" height="30"/>
+                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                    <subviews>
+                                                        <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="edg-E9-ls8">
+                                                            <rect key="frame" x="16" y="0.0" width="0.0" height="30"/>
+                                                            <color key="tintColor" systemColor="labelColor"/>
+                                                        </slider>
+                                                    </subviews>
+                                                    <constraints>
+                                                        <constraint firstAttribute="trailing" secondItem="edg-E9-ls8" secondAttribute="trailing" constant="16" id="0Uk-c9-vOd"/>
+                                                        <constraint firstAttribute="bottom" secondItem="edg-E9-ls8" secondAttribute="bottom" id="PQq-SL-CXd"/>
+                                                        <constraint firstItem="edg-E9-ls8" firstAttribute="leading" secondItem="fcc-NS-S0J" secondAttribute="leading" constant="16" id="fVc-y5-pGh"/>
+                                                        <constraint firstItem="edg-E9-ls8" firstAttribute="top" secondItem="fcc-NS-S0J" secondAttribute="top" id="qzF-Al-0gA"/>
+                                                    </constraints>
+                                                </view>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="30" id="j9Y-ZP-086"/>
+                                                    <constraint firstAttribute="width" priority="999" constant="300" id="nfT-7Y-D3D"/>
+                                                </constraints>
+                                                <blurEffect style="regular"/>
+                                                <variation key="default">
+                                                    <mask key="constraints">
+                                                        <exclude reference="nfT-7Y-D3D"/>
+                                                    </mask>
+                                                </variation>
+                                                <variation key="heightClass=compact-widthClass=regular" hidden="NO"/>
+                                                <variation key="heightClass=regular-widthClass=regular" hidden="NO"/>
+                                            </visualEffectView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZMD-Vw-KCm">
-                                                <rect key="frame" x="422" y="0.0" width="70" height="34.333333333333336"/>
+                                                <rect key="frame" x="422" y="0.0" width="70" height="30"/>
                                                 <color key="tintColor" systemColor="labelColor"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain" title="00:00"/>
@@ -115,9 +148,11 @@
                                                 <exclude reference="heG-hn-bNN"/>
                                             </mask>
                                         </variation>
+                                        <variation key="heightClass=compact-widthClass=regular" distribution="fill"/>
+                                        <variation key="heightClass=regular-widthClass=regular" distribution="fill"/>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="3Xu-iX-Osf">
-                                        <rect key="frame" x="16" y="271" width="492" height="60"/>
+                                        <rect key="frame" x="16" y="241.33333333333331" width="492" height="60"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JAq-bM-gDn" userLabel="Captions Button">
                                                 <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
@@ -214,13 +249,13 @@
                         </constraints>
                     </view>
                     <constraints>
-                        <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="l1U-Yf-Y5B"/>
+                        <constraint firstAttribute="width" relation="lessThanOrEqual" constant="700" id="l1U-Yf-Y5B"/>
                     </constraints>
                     <edgeInsets key="layoutMargins" top="8" left="16" bottom="8" right="16"/>
                     <blurEffect style="prominent"/>
                 </visualEffectView>
                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NBR-iP-9gV" userLabel="Volume Visual Effect View">
-                    <rect key="frame" x="297" y="67" width="270" height="50"/>
+                    <rect key="frame" x="313" y="67" width="270" height="50"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="se5-JG-BBz">
                         <rect key="frame" x="0.0" y="0.0" width="270" height="50"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -266,7 +301,7 @@
                     <blurEffect style="prominent"/>
                 </visualEffectView>
                 <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q2D-Dm-4a7" userLabel="Status Visual Effect View">
-                    <rect key="frame" x="75" y="67" width="50" height="50"/>
+                    <rect key="frame" x="59" y="67" width="50" height="50"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="TeL-Uj-fXd">
                         <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -297,14 +332,17 @@
                 </visualEffectView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
-            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NBR-iP-9gV" secondAttribute="trailing" constant="16" id="2qC-ai-TtE"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NBR-iP-9gV" secondAttribute="trailing" constant="16" id="2qC-ai-TtE">
+                    <variation key="heightClass=compact" constant="0.0"/>
+                </constraint>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="4wa-M8-UL0"/>
                 <constraint firstItem="NBR-iP-9gV" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="8z1-X0-k3d"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="9tG-4w-mP1"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="AXL-dv-8Qn" secondAttribute="bottom" id="Agk-Fg-nkc"/>
-                <constraint firstItem="q2D-Dm-4a7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Hsb-11-IK8"/>
+                <constraint firstItem="AXL-dv-8Qn" firstAttribute="bottom" secondItem="iN0-l3-epB" secondAttribute="bottom" id="Agk-Fg-nkc"/>
+                <constraint firstItem="q2D-Dm-4a7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Hsb-11-IK8">
+                    <variation key="heightClass=compact" constant="0.0"/>
+                </constraint>
                 <constraint firstItem="q2D-Dm-4a7" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="Zvh-3y-G73"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" priority="750" id="a5f-HK-ZzW"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="AXL-dv-8Qn" secondAttribute="trailing" priority="750" id="syX-KT-Ztl"/>

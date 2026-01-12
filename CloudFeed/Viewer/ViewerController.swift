@@ -461,7 +461,7 @@ class ViewerController: UIViewController {
     }
     
     private func initControls() {
-        controlsView = ControlsView.init(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
+        controlsView = ControlsView(glass: true, frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
         controlsView?.alpha = 0
         controlsView?.isOpaque = false
     }
@@ -1678,7 +1678,7 @@ extension ViewerController: VLCMediaPlayerDelegate {
 
             self?.activityIndicator.stopAnimating()
             
-            guard let currentPosition = self?.controlsView?.timeSlider.value else { return }
+            guard let currentPosition = self?.controlsView?.getTimeSlider().value else { return }
             guard let playerPosition = self?.mediaPlayer?.position else { return }
             
             self?.controlsView?.setMediaLength(length: self?.mediaPlayer?.media?.length.value?.doubleValue ?? 0)
