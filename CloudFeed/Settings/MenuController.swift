@@ -57,12 +57,28 @@ class MenuController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         if tableView.indexPathForSelectedRow == nil {
             selectProfile()
+        } else {
+            select(indexPath: tableView.indexPathForSelectedRow!) //resizing back into split screen from single view
         }
     }
     
     func selectProfile() {
         tableView.selectRow(at: IndexPath(item: 0, section: 0), animated: true, scrollPosition: .top)
         delegate?.selectProfile()
+    }
+    
+    private func select(indexPath: IndexPath) {
+        if indexPath.section == 0 && indexPath.item == 0 {
+            delegate?.selectProfile()
+        } else if indexPath.section == 0 && indexPath.item == 1 {
+            delegate?.selectDisplay()
+        } else if indexPath.section == 0 && indexPath.item == 2 {
+            delegate?.selectPrivacy()
+        } else if indexPath.section == 0 && indexPath.item == 3 {
+            delegate?.selectInformation()
+        } else if indexPath.section == 0 && indexPath.item == 4 {
+            delegate?.selectData()
+        }
     }
 }
 
@@ -77,17 +93,7 @@ extension MenuController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.section == 0 && indexPath.item == 0 {
-            delegate?.selectProfile()
-        } else if indexPath.section == 0 && indexPath.item == 1 {
-            delegate?.selectDisplay()
-        } else if indexPath.section == 0 && indexPath.item == 2 {
-            delegate?.selectPrivacy()
-        } else if indexPath.section == 0 && indexPath.item == 3 {
-            delegate?.selectInformation()
-        } else if indexPath.section == 0 && indexPath.item == 4 {
-            delegate?.selectData()
-        }
+        select(indexPath: indexPath)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

@@ -38,8 +38,6 @@ class PasscodeController: UIViewController {
     @IBOutlet weak var waitLabel: UILabel!
     @IBOutlet weak var countdownLabel: UILabel!
     
-    @IBOutlet weak var labelContainer: UIView!
-    
     @IBOutlet weak var codeView0: UIView!
     @IBOutlet weak var codeView1: UIView!
     @IBOutlet weak var codeView2: UIView!
@@ -436,8 +434,7 @@ class PasscodeController: UIViewController {
     }
     
     private func setPasscodeWait() {
-        
-        labelContainer.isHidden = true
+
         label.isHidden = true
         labelStackView.isHidden = true
         keypadStackView.isHidden = true
@@ -475,7 +472,6 @@ class PasscodeController: UIViewController {
         waitLabel.isHidden = true
         countdownLabel.isHidden = true
         
-        labelContainer.isHidden = false
         label.isHidden = false
         labelStackView.isHidden = false
         keypadStackView.isHidden = false
