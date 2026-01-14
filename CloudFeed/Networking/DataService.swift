@@ -468,6 +468,14 @@ final class DataService: NSObject, Sendable {
         return store.getDisplayStyle()
     }
     
+    func getVideoControlsStyleGlass() -> Bool? {
+        return store.getVideoControlsStyleGlass()
+    }
+    
+    func saveVideoControlsStyleGlass(isGlass: Bool) {
+        store.saveVideoControlsStyleGlass(isGlass: isGlass)
+    }
+    
     func getHomeServer(urlBase: String, userId: String) -> String {
         return buildHomeServer(urlBase: urlBase, userId: userId)
     }

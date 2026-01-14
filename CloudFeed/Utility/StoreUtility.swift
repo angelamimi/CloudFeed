@@ -153,6 +153,20 @@ struct StoreUtility: Sendable {
         Keychain(service: Global.shared.keyChain)["displayStyle"] = value
     }
     
+    func getVideoControlsStyleGlass() -> Bool? {
+        
+        if let value = Keychain(service: Global.shared.keyChain)["videoControlsStyle"] {
+            return value == "glass" ? true : false
+        }
+        
+        return nil
+    }
+    
+    func saveVideoControlsStyleGlass(isGlass: Bool) {
+        
+        Keychain(service: Global.shared.keyChain)["videoControlsStyle"] = isGlass ? "glass" : "opaque"
+    }
+    
     func getMediaColumnCount(_ device: UIUserInterfaceIdiom) -> Int! {
 
         let defaultCount = device == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault

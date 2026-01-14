@@ -37,4 +37,12 @@ class DisplayViewModel {
     func setStyle(style: UIUserInterfaceStyle?) {
         dataService.saveDisplayStyle(style: style)
     }
+    
+    func getVideoControlsGlass() -> Bool? {
+        return dataService.getVideoControlsStyleGlass()
+    }
+    
+    func setVideoControlsGlass(isGlass: Bool) {
+        dataService.saveVideoControlsStyleGlass(isGlass: isGlass)
+    }
 }

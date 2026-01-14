@@ -26,6 +26,7 @@ final class DisplayController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     private var style: UIUserInterfaceStyle?
+    private var videoControlsGlass: Bool?
     
     var viewModel: DisplayViewModel?
     
@@ -39,6 +40,7 @@ final class DisplayController: UIViewController {
         initTitle()
         
         style = viewModel?.getStyle()
+        videoControlsGlass = viewModel?.getVideoControlsGlass() ?? true
     }
     
     deinit {
@@ -89,6 +91,18 @@ final class DisplayController: UIViewController {
         }
     }
     
+    @objc
+    private func videoControlsGlassSwitchChanged(_ sender: UISwitch!) {
+        
+        if sender.isOn {
+            videoControlsGlass = true
+            viewModel?.setVideoControlsGlass(isGlass: true)
+        } else {
+            videoControlsGlass = false
+            viewModel?.setVideoControlsGlass(isGlass: false)
+        }
+    }
+    
     private func updateUserInterfaceStyle(_ style: UIUserInterfaceStyle?) {
         
         if style != nil {
@@ -125,17 +139,19 @@ extension DisplayController : UITableViewDelegate, UITableViewDataSource {
         if section == 0 {
             return 2
         } else {
-            return 0
+            return 1
         }
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return 2
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0 {
             return Strings.SettingsSectionDisplayMode
+        } else if section == 1 {
+            return Strings.SettingsSectionVideoControls
         } else {
             return ""
         }
@@ -150,33 +166,56 @@ extension DisplayController : UITableViewDelegate, UITableViewDataSource {
             cell.setStyle(style: processCellStyle(style))
             return cell
             
-        } else {
+        } else if indexPath.section == 0 && indexPath.item == 1 {
             
             let cell = UITableViewCell()
             cell.selectionStyle = .none
             cell.backgroundColor = .secondarySystemGroupedBackground
             
             var config = cell.defaultContentConfiguration()
-
+            
             config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
             config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: 0)
             config.textProperties.color = .label
+            config.text = Strings.SettingsItemSystemStyle
             
-            if indexPath.section == 0 && indexPath.item == 1 {
-                config.text = Strings.SettingsItemSystemStyle
-                
-                let switchView = UISwitch(frame: .zero)
-                
-                switchView.onTintColor = .tintColor
-                switchView.setOn(style == nil, animated: true)
-                switchView.addTarget(self, action: #selector(systemSwitchChanged(_:)), for: .valueChanged)
-                
-                cell.isAccessibilityElement = true
-                cell.accessibilityLabel = Strings.SettingsItemSystemStyle
-                cell.accessibilityValue = style == nil ? Strings.SwitchValueOn : Strings.SwitchValueOff
-                cell.accessoryView = switchView
-            }
+            let switchView = UISwitch(frame: .zero)
             
+            switchView.onTintColor = .tintColor
+            switchView.setOn(style == nil, animated: true)
+            switchView.addTarget(self, action: #selector(systemSwitchChanged(_:)), for: .valueChanged)
+            
+            cell.isAccessibilityElement = true
+            cell.accessibilityLabel = Strings.SettingsItemSystemStyle
+            cell.accessibilityValue = style == nil ? Strings.SwitchValueOn : Strings.SwitchValueOff
+            cell.accessoryView = switchView
+            cell.contentConfiguration = config
+            
+            return cell
+            
+        } else {
+                
+            let cell = UITableViewCell()
+            cell.selectionStyle = .none
+            cell.backgroundColor = .secondarySystemGroupedBackground
+            
+            var config = cell.defaultContentConfiguration()
+            
+            config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
+            config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: 0)
+            config.textProperties.color = .label
+            config.text = Strings.SettingsLabelVideoControlsGlass
+            
+            let switchView = UISwitch(frame: .zero)
+            
+            switchView.onTintColor = .tintColor
+            switchView.setOn(videoControlsGlass == true, animated: true)
+            switchView.addTarget(self, action: #selector(videoControlsGlassSwitchChanged(_:)), for: .valueChanged)
+            
+            cell.isAccessibilityElement = true
+            cell.accessibilityLabel = Strings.SettingsLabelVideoControlsGlass
+            cell.accessibilityValue = videoControlsGlass == true ? Strings.SwitchValueOn : Strings.SwitchValueOff
+            cell.accessoryView = switchView
             cell.contentConfiguration = config
             
             return cell

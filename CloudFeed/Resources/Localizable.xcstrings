@@ -3041,6 +3041,17 @@
         }
       }
     },
+    "Settings.Label.VideoControlsGlass" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Glass"
+          }
+        }
+      }
+    },
     "Settings.Menu.AddAccount" : {
       "localizations" : {
         "en" : {
@@ -3109,6 +3120,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Privacy"
+          }
+        }
+      }
+    },
+    "Settings.Section.VideoControls" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video Controls"
           }
         }
       }

@@ -461,7 +461,7 @@ class ViewerController: UIViewController {
     }
     
     private func initControls() {
-        controlsView = ControlsView(glass: true, frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
+        controlsView = ControlsView(glass: viewModel.getVideoControlsStyleGlass(), frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
         controlsView?.alpha = 0
         controlsView?.isOpaque = false
     }

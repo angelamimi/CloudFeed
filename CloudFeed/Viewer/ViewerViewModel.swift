@@ -94,6 +94,10 @@ struct ViewerViewModel {
     func fileExists(_ metadata: Metadata) -> Bool {
         return dataService.store.fileExists(metadata)
     }
+    
+    func getVideoControlsStyleGlass() -> Bool {
+        return dataService.getVideoControlsStyleGlass() ?? true
+    }
 }
 
 extension ViewerViewModel {

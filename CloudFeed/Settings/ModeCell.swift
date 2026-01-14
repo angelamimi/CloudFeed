@@ -36,7 +36,7 @@ class ModeCell: UITableViewCell {
     @IBOutlet weak var darkStackView: UIStackView!
     @IBOutlet weak var lightStackView: UIStackView!
     
-    var delegate: ModeDelegate?
+    weak var delegate: ModeDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()

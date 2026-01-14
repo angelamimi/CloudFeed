@@ -54,6 +54,7 @@ extension Strings {
     public static let SettingsSectionData = NSLocalizedString("Settings.Section.Data", comment: "")
     public static let SettingsSectionDisplay = NSLocalizedString("Settings.Section.Display", comment: "")
     public static let SettingsSectionDisplayMode = NSLocalizedString("Settings.Section.DisplayMode", comment: "")
+    public static let SettingsSectionVideoControls = NSLocalizedString("Settings.Section.VideoControls", comment: "")
     public static let SettingsItemAddPasscode = NSLocalizedString("Settings.Item.Passcode.Add", comment: "")
     public static let SettingsItemEditPasscode = NSLocalizedString("Settings.Item.Passcode.Edit", comment: "")
     public static let SettingsItemDeletePasscode = NSLocalizedString("Settings.Item.Passcode.Delete", comment: "")
@@ -74,6 +75,7 @@ extension Strings {
     public static let SettingsLabelFolders = NSLocalizedString("Settings.Label.Folders", comment: "")
     public static let SettingsLabelNextcloud = NSLocalizedString("Settings.Label.Nextcloud", comment: "")
     public static let SettingsLabelMediaPath = NSLocalizedString("Settings.Label.MediaPath", comment: "")
+    public static let SettingsLabelVideoControlsGlass = NSLocalizedString("Settings.Label.VideoControlsGlass", comment: "")
     public static let SettingsMenuAddAccount = NSLocalizedString("Settings.Menu.AddAccount", comment: "")
     
     //Profile
