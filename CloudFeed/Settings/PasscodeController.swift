@@ -299,7 +299,7 @@ class PasscodeController: UIViewController {
     
     private func setButtonConfigurationUpdateHandler(_ numberButton: UIButton) {
         numberButton.configurationUpdateHandler = { button in
-            button.configuration?.baseBackgroundColor = button.isHighlighted ? .secondarySystemFill : .clear
+            button.configuration?.baseBackgroundColor = button.state == .highlighted ? .secondaryLabel: .clear
         }
     }
     
