@@ -378,17 +378,10 @@ final class FavoritesViewModel {
         
         if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {
             cell.setImage(cachedImage)
-        } else if systemIconIds.contains(metadata.id) {
-            cell.imageStatus.tintColor = .systemGray2
-            if !metadata.video && !metadata.livePhoto {
-                cell.imageStatus.isHidden = false
-                cell.imageStatus.image = UIImage(systemName: "photo")
-            }
         } else {
-            
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             
-            if FileManager().fileExists(atPath: path) {
+            if FileManager.default.fileExists(atPath: path) {
                 
                 autoreleasepool {
                     
@@ -399,11 +392,17 @@ final class FavoritesViewModel {
                         cacheManager.cache(metadata: metadata, image: image!)
                     }
                 }
-                
-            }  else {
-                
-                if !pauseLoading {
-                    cacheManager.download(metadata: metadata, delegate: self)
+            } else {
+                if systemIconIds.contains(metadata.id) {
+                    cell.imageStatus.tintColor = .systemGray2
+                    if !metadata.video && !metadata.livePhoto {
+                        cell.imageStatus.isHidden = false
+                        cell.imageStatus.image = UIImage(systemName: "photo")
+                    }
+                } else {
+                    if !pauseLoading {
+                        cacheManager.download(metadata: metadata, delegate: self)
+                    }
                 }
             }
         }

@@ -55,12 +55,19 @@ final class MetadataModel {
     var userId = ""
     var height: Double = 0
     var width: Double = 0
+    var latitude: Double = 0
+    var longitude: Double = 0
+    var altitude: Double = 0
+    
+    @Relationship(deleteRule: .cascade, inverse: \MetadataExifModel.metadata)
+    var exifPhotos: [MetadataExifModel]?
     
     init(ocId: String = "", account: String = "", classFile: String = "", contentType: String = "", creationDate: Date = Date(),
          date: Date = Date(), datePhotosOriginal: Date = Date(), etag: String = "", favorite: Bool, fileId: String = "",
          fileName: String = "", fileNameView: String = "", hasPreview: Bool, livePhotoFile: String = "", name: String = "",
          path: String = "", serverUrl: String = "", size: Int64, uploadDate: Date = Date(), urlBase: String = "",
-         user: String = "", userId: String = "", height: Double, width: Double) {
+         user: String = "", userId: String = "", height: Double, width: Double, latitude: Double = 0, longitude: Double = 0, altitude: Double = 0,
+         exifPhotos: [MetadataExifModel] = []) {
         self.account = account
         self.classFile = classFile
         self.contentType = contentType
@@ -85,6 +92,7 @@ final class MetadataModel {
         self.userId = userId
         self.height = height
         self.width = width
+        self.exifPhotos = exifPhotos
     }
     
     init(dto: Metadata) {
@@ -112,6 +120,31 @@ final class MetadataModel {
         self.userId = dto.userId
         self.height = dto.height
         self.width = dto.width
+        self.latitude = dto.latitude
+        self.longitude = dto.longitude
+        self.altitude = dto.altitude
+        
+        if let exifs = dto.exifPhotos {
+            self.exifPhotos = []
+            for exif in exifs {
+                for key in exif.keys {
+                    self.exifPhotos?.append(MetadataExifModel(key: key, value: exif[key]!, metadata: self))
+                }
+            }
+        }
+    }
+}
+
+@Model
+final class MetadataExifModel {
+    var key: String
+    var value: String
+    var metadata: MetadataModel?
+    
+    init(key: String, value: String, metadata: MetadataModel) {
+        self.key = key
+        self.value = value
+        self.metadata = metadata
     }
 }
 
@@ -145,6 +178,10 @@ struct Metadata: Sendable, Identifiable {
     var userId: String
     var height: Double
     var width: Double
+    var latitude: Double
+    var longitude: Double
+    var altitude: Double
+    var exifPhotos: [[String:String]]?
     
     init(ocId: String, account: String, classFile: String = "", date: Date = Date(), favorite: Bool = false, fileId: String = "",
          fileName: String, livePhotoFile: String = "", serverUrl: String = "") {
@@ -172,6 +209,10 @@ struct Metadata: Sendable, Identifiable {
         self.userId = ""
         self.width = 0
         self.height = 0
+        self.latitude = 0
+        self.longitude = 0
+        self.altitude = 0
+        self.exifPhotos = nil
     }
     
     init(model: MetadataModel) {
@@ -199,6 +240,16 @@ struct Metadata: Sendable, Identifiable {
         userId = model.userId
         width = model.width
         height = model.height
+        latitude = model.latitude
+        longitude = model.longitude
+        altitude = model.altitude
+        
+        if let exifs = model.exifPhotos {
+            exifPhotos = [[:]]
+            for exif in exifs {
+                exifPhotos!.append([exif.key: exif.value])
+            }
+        }
     }
     
     init(file: NKFile) {
@@ -238,6 +289,20 @@ struct Metadata: Sendable, Identifiable {
         userId = file.userId
         width = file.width
         height = file.height
+        latitude = file.latitude
+        longitude = file.longitude
+        altitude = file.altitude
+        
+        if file.exifPhotos.isEmpty == false {
+            exifPhotos = [[:]]
+            for exif in file.exifPhotos {
+                for key in exif.keys {
+                    if let val = exif[key], val != nil {
+                        exifPhotos!.append([key: val!])
+                    }
+                }
+            }
+        }
     }
 }
 

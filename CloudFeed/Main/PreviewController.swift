@@ -178,18 +178,13 @@ class PreviewController: UIViewController {
     
     private func viewImage(metadata: Metadata) {
         
-        if metadata.gif {
-            loadGIF(metadata: metadata)
+        if metadata.svg || metadata.gif {
+            loadImageFromMetadata(metadata: metadata)
             return
         }
-        
-        if metadata.svg {
-            loadSVG(metadata: metadata)
-            return
-        }
-        
-        if viewModel.dataService.store.previewExists(metadata.ocId, metadata.etag) {
-            if let image = UIImage(contentsOfFile: viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)) {
+
+        if viewModel.previewExists(metadata) {
+            if let image = UIImage(contentsOfFile: viewModel.getPreviewPath(metadata)) {
                 imageView.image = image
                 showImage()
             }
@@ -203,58 +198,31 @@ class PreviewController: UIViewController {
         Task { [weak self] in
             guard let self else { return }
             
-            await self.viewModel.dataService.downloadPreview(metadata: metadata)
+            await self.viewModel.downloadPreview(metadata)
             
-            if let image = UIImage(contentsOfFile: self.viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)) {
-                self.imageView.image = image
-                self.showImage()
+            if let image = UIImage(contentsOfFile: self.viewModel.getPreviewPath(metadata)) {
+                DispatchQueue.main.async { [weak self] in
+                    self?.imageView.image = image
+                    self?.showImage()
+                }
             } else {
-                self.activityIndicator.stopAnimating() //load failed. stop the spinner
+                DispatchQueue.main.async { [weak self] in
+                    self?.activityIndicator.stopAnimating() //load failed. stop the spinner
+                }
             }
         }
     }
     
-    private func loadGIF(metadata: Metadata) {
+    private func loadImageFromMetadata(metadata: Metadata) {
         
         Task { [weak self] in
             guard let self else { return }
             
-            guard let image = await viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height) else { return }
+            guard let image = await viewModel.loadImage(metadata: metadata) else { return }
             
             DispatchQueue.main.async { [weak self] in
                 self?.imageView.image = image
                 self?.showImage()
-            }
-        }
-    }
-    
-    private func loadSVG(metadata: Metadata) {
-        
-        guard let imagePath = viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView) else { return }
-        let previewPath = viewModel.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
-        
-        if viewModel.dataService.store.fileExists(metadata) {
-            Task { [weak self] in
-                
-                guard let image = await ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath) else { return }
-                
-                DispatchQueue.main.async { [weak self] in
-                    self?.imageView.image = image
-                    self?.showImage()
-                }
-            }
-        } else {
-            Task { [weak self] in
-                guard let self else { return }
-                
-                _ = await viewModel.loadImage(metadata: metadata, viewWidth: self.view.frame.width, viewHeight: self.view.frame.height)
-                
-                guard let image = await ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath) else { return }
-                
-                DispatchQueue.main.async { [weak self] in
-                    self?.imageView.image = image
-                    self?.showImage()
-                }
             }
         }
     }

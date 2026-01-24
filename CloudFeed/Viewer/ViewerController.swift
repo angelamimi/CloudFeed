@@ -534,7 +534,7 @@ class ViewerController: UIViewController {
     
     private func loadImage(metadata: Metadata) async {
     
-        let image = await viewModel.loadImage(metadata: metadata, viewWidth: view.frame.width, viewHeight: view.frame.height)
+        let image = await viewModel.loadImage(metadata: metadata)
         
         path = viewModel.getFilePath(metadata)
         
@@ -542,14 +542,23 @@ class ViewerController: UIViewController {
             updateDetailsForPath(path!)
         }
 
+        if image == nil {
+            DispatchQueue.main.async { [weak self] in
+                self?.imageView.image = UIImage(systemName: "photo")
+            }
+        }
+
         if image != nil && metadata.ocId == self.metadata.ocId && imageView.layer.sublayers?.count == nil {
             await setImage(image: image!)
-            handleImageLoaded(metadata: metadata)
         }
+        
+        handleImageLoadComplete(metadata: metadata)
     }
     
-    private func handleImageLoaded(metadata: Metadata) {
-        activityIndicator.stopAnimating()
+    private func handleImageLoadComplete(metadata: Metadata) {
+        DispatchQueue.main.async { [weak self] in
+            self?.activityIndicator.stopAnimating()
+        }
     }
     
     private func updateDetailsForPath(_ path: String) {
@@ -1264,7 +1273,7 @@ class ViewerController: UIViewController {
     private func showVerticalDetails(animate: Bool, reset: Bool) {
         
         guard let detailView = self.detailView else { return }
-        let allowTransform = imageViewRatioWithinThreshold()
+        let allowTransform = imageViewRatioWithinThreshold() && imageView.image?.isSymbolImage == false
         let heightOffset: CGFloat
         let size = view.frame.size
         let height = size.height
@@ -1425,7 +1434,7 @@ class ViewerController: UIViewController {
         
         guard let detailView = self.detailView else { return }
         
-        let allowTransform = imageViewRatioWithinThreshold()
+        let allowTransform = imageViewRatioWithinThreshold() && imageView.image?.isSymbolImage == false
         let trailingOffset: CGFloat
         let topOffset: CGFloat
         let height = view.frame.height

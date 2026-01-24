@@ -153,6 +153,11 @@ extension Strings {
     public static let ShareMessageDownloading = NSLocalizedString("Share.Message.Downloading", comment: "")
     public static let ShareMessageCancel = NSLocalizedString("Share.Message.Cancel", comment: "")
     
+    //Download
+    public static let DownloadAction = NSLocalizedString("Download.Action", comment: "")
+    public static let DownloadMessageDownloading = NSLocalizedString("Download.Message.Downloading", comment: "")
+    public static let DownloadMessageCancel = NSLocalizedString("Download.Message.Cancel", comment: "")
+    
     //Viewer
     public static let ViewerLabelImage = NSLocalizedString("Viewer.Label.Image", comment: "")
     public static let ViewerLabelVideo = NSLocalizedString("Viewer.Label.Video", comment: "")

@@ -119,6 +119,14 @@ class PagerController: UIViewController {
         return !(navigationController?.isNavigationBarHidden ?? true)
     }
     
+    func reload() {
+        
+        if let metadata = self.currentViewController?.metadata {
+            setMenu(isFavorite: metadata.favorite)
+        }
+        currentViewController?.viewWillAppear(false)
+    }
+    
     private func initObservers() {
         
         registerForTraitChanges([UITraitHorizontalSizeClass.self, UITraitVerticalSizeClass.self]) { (self: Self, previousTraitCollection: UITraitCollection) in
@@ -231,7 +239,7 @@ class PagerController: UIViewController {
 
     private func setMenu(isFavorite: Bool) {
 
-        guard let currentViewController = currentViewController else { return }
+        guard let currentMetadata = currentViewController?.metadata else { return }
         var action: UIAction
         
         if (isFavorite) {
@@ -245,10 +253,20 @@ class PagerController: UIViewController {
         }
 
         let shareAction = UIAction(title: Strings.ShareAction, image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
-            self?.share([currentViewController.metadata])
+            self?.share([currentMetadata])
         }
         
-        let menu = UIMenu(children: [action, shareAction])
+        let menu: UIMenu
+        
+        if currentMetadata.video || currentMetadata.svg || currentMetadata.gif || viewModel.fileExists(currentMetadata) {
+            menu = UIMenu(children: [action, shareAction])
+        } else {
+            let fullAction = UIAction(title: Strings.DownloadAction, image: UIImage(systemName: "photo")) { [weak self] _ in
+                self?.downloadImage(currentMetadata)
+            }
+            menu = UIMenu(children: [action, shareAction, fullAction])
+        }
+        
         let menuButton = UIBarButtonItem.init(title: nil, image: UIImage(systemName: "ellipsis"), target: self, action: nil, menu: menu)
         menuButton.tintColor = .label
         
@@ -266,6 +284,10 @@ class PagerController: UIViewController {
                 self?.navigationItem.rightBarButtonItems = [menuButton, detailsButton]
             }
         }
+    }
+    
+    private func downloadImage(_ metadata: Metadata) {
+        viewModel.downloadImage(metadata: metadata)
     }
     
     private func toggleFavoriteNetwork(isFavorite: Bool) {
@@ -599,6 +621,8 @@ extension PagerController: PagerViewModelDelegate {
                 
                 if let url = currentViewController?.getUrl() {
                     detail.populateDetails(metadata: metadata, url: url)
+                } else {
+                    detail.populateDetails(metadata: metadata)
                 }
             }
         }

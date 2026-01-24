@@ -81,19 +81,21 @@ class DetailsController: UIViewController {
         }
     }
     
+    func populateDetails(metadata: Metadata) {
+        self.metadata = metadata
+        self.url = nil
+        
+        detailView.initDetails(metadata: metadata, url: nil)
+        animateDetailView()
+    }
+    
     func populateDetails(metadata: Metadata, url: URL) {
         
         self.metadata = metadata
         self.url = url
         
         detailView.initDetails(metadata: metadata, url: url)
-        
-        UIView.animate(withDuration: 0.2, animations: { [weak self] in
-            self?.detailView?.alpha = 0.4
-            self?.detailView?.layoutIfNeeded()
-        }, completion: { [weak self] _ in
-            self?.detailView.populateDetails()
-        })
+        animateDetailView()
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
@@ -103,6 +105,16 @@ class DetailsController: UIViewController {
     @objc func close() {
         delegate?.dismissingDetails()
         dismiss(animated: true)
+    }
+    
+    private func animateDetailView() {
+        
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            self?.detailView?.alpha = 0.4
+            self?.detailView?.layoutIfNeeded()
+        }, completion: { [weak self] _ in
+            self?.detailView.populateDetails()
+        })
     }
     
     private func initDetailView() {

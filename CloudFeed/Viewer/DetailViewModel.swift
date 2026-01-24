@@ -362,6 +362,16 @@ final class DetailViewModel: NSObject {
             let sizeString = ByteCountFormatter.string(fromByteCount: metadata.size, countStyle: .file)
             details[.general]?.addDetail(title: Strings.DetailFileSize, detail: sizeString)
         }
+        
+        if metadata.image {
+            let detail = NSMutableDictionary()
+            if mediaPath == nil {
+                detail[kCGImagePropertyPixelWidth] = metadata.width
+                detail[kCGImagePropertyPixelHeight] = metadata.height
+                
+                appendData(data: detail)
+            }
+        }
     }
     
     private func appendData(data: NSMutableDictionary) {

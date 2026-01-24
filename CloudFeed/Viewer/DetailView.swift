@@ -276,7 +276,7 @@ class DetailView: UIView {
         divider5Label.isHidden = false
     }
     
-    func initDetails(metadata: Metadata, url: URL) {
+    func initDetails(metadata: Metadata, url: URL?) {
         self.metadata = metadata
         self.url = url
     }
@@ -295,14 +295,19 @@ class DetailView: UIView {
     
     private func populateImageDetails() async {
 
-        guard url != nil else { return }
-        
         resetLabels()
+        
+        guard url != nil else {
+            populateImageSizeInfo(pixelProperties: [:], sizeProperties: [:])
+            populateLocationFromMetadata()
+            //populateExifFromMetadata()
+            return
+        }
 
         guard let originalSource = CGImageSourceCreateWithURL(url! as CFURL, nil),
               let fileProperties = CGImageSourceCopyProperties(originalSource, nil),
               let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else {
-            await setMapHidden(true)
+            populateLocationFromMetadata()
             return
         }
         
@@ -322,10 +327,31 @@ class DetailView: UIView {
         }
     }
     
+    private func populateLocationFromMetadata() {
+        
+        if let latitude = metadata?.latitude, let longitude = metadata?.longitude {
+            Task.detached { [weak self] in
+                await self?.showLocation(latitudeValue: latitude, longitudeValue: longitude)
+            }
+        }
+    }
+    
+    private func populateExifFromMetadata() {
+        
+        if let exifArray = metadata?.exifPhotos {
+            var dict: [NSString:AnyObject] = [:]
+            for exif in exifArray {
+                _ = exif.map { dict[$0.key as NSString] = $0.value as AnyObject }
+            }
+            
+            populateImageExifInfo(dict, nil)
+        }
+    }
+    
     private func populateImageLocationInfo(imageProperties: NSMutableDictionary) async {
         
         guard let gpsData = imageProperties[kCGImagePropertyGPSDictionary] as? [NSString: AnyObject] else {
-            await setMapHidden(true)
+            populateLocationFromMetadata()
             return
         }
         
@@ -413,6 +439,7 @@ class DetailView: UIView {
             formattedPixels = "\(formattedWidth) x \(formattedHeight)"
             
             let megaPixels: Double = Double(width! * height!) / 1000000
+            
             formattedMegaPixels = megaPixels < 1 ? String(format: "%.1f MP", megaPixels) : "\(Int(megaPixels)) MP"
         }
         

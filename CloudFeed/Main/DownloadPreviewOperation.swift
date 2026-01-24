@@ -36,7 +36,7 @@ class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable {
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
-        category: String(describing: DownloadOperation.self)
+        category: String(describing: DownloadPreviewOperation.self)
     )
 
     init(_ metadata: Metadata, dataService: DataService, delegate: DownloadPreviewOperationDelegate) {
@@ -81,24 +81,9 @@ class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable {
         if metadata?.video ?? false {
             await dataService?.downloadVideoPreview(metadata: metadata)
         } else if metadata?.svg ?? false {
-            await downloadSVG(metadata: metadata)
+            await dataService?.downloadSVGPreview(metadata: metadata)
         } else if metadata != nil {
             await dataService?.downloadPreview(metadata: metadata)
-        }
-    }
-    
-    private func downloadSVG(metadata: Metadata?) async {
-        
-        guard dataService != nil && metadata != nil else { return }
-
-        if !dataService!.store.fileExists(metadata!) {
-            
-            await dataService!.download(metadata: metadata!, progressHandler: { _, _ in })
-            
-            let iconPath = dataService!.store.getIconPath(metadata!.ocId, metadata!.etag)
-            let imagePath = dataService!.store.getCachePath(metadata!.ocId, metadata!.fileNameView)!
-            
-            await ImageUtility.loadSVGPreview(metadata: metadata!, imagePath: imagePath, previewPath: iconPath)
         }
     }
 }

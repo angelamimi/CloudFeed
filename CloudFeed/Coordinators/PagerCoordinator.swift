@@ -75,6 +75,11 @@ final class PagerCoordinator {
         coordinator.start()
     }
     
+    func download(_ metadata: Metadata) {
+        let coordinator = DownloadCoordinator(navigationController: navigationController, dataService: dataService, delegate: self, metadata: metadata)
+        coordinator.start()
+    }
+    
     func showFavoriteUpdateFailedError() {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.FavUpdateErrorMessage, preferredStyle: .alert)
@@ -91,5 +96,20 @@ final class PagerCoordinator {
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default))
         
         navigationController.present(alertController, animated: true)
+    }
+}
+
+extension PagerCoordinator: DownloadCoordinatorDelegate {
+    
+    func downloadComplete() {
+        
+        if let pager = navigationController.topViewController as? PagerController {
+            
+            pager.reload()
+            
+            DispatchQueue.main.async{ [weak self] in
+                self?.navigationController.dismiss(animated: false)
+            }
+        }
     }
 }

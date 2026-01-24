@@ -79,6 +79,10 @@ final class PagerViewModel: NSObject {
         }
     }
 
+    func fileExists(_ metadata: Metadata) -> Bool {
+        return dataService.store.fileExists(metadata)
+    }
+    
     func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
         return await dataService.getMetadataLivePhoto(metadata: metadata)
     }
@@ -94,6 +98,12 @@ final class PagerViewModel: NSObject {
     
     func share(metadatas: [Metadata]) {
         pagerCoordinator?.share(metadatas)
+    }
+    
+    func downloadImage(metadata: Metadata) {
+        if !dataService.store.fileExists(metadata) {
+            pagerCoordinator?.download(metadata)
+        }
     }
 }
 

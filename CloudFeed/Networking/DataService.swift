@@ -21,7 +21,6 @@
 
 import Alamofire
 import os.log
-@preconcurrency import NextcloudKit
 import SwiftyJSON
 import UIKit
 
@@ -80,7 +79,7 @@ final class DataService: NSObject, Sendable {
             let certificateToPath = path + "/" + host + ".der"
             
             if !store.copyFile(atPath: certificateAtPath, toPath: certificateToPath) {
-                nkLog(error: "[ERROR] Write certificare error")
+                Self.logger.error("[ERROR] Write certificare error")
             }
         }
     }
@@ -337,13 +336,26 @@ final class DataService: NSObject, Sendable {
             let image = await ImageUtility.imageFromVideo(url: url, size: size)
             try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
             
+            if image != nil {
+                let iconPath = store.getIconPath(metadata.ocId, metadata.etag)
+                let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
+                
+                ImageUtility.saveImageAtPaths(image: image!, previewPath: previewPath, iconPath: iconPath)
+            }
+            
             return image
         }
     }
     
     func saveVideoPreview(metadata: Metadata, image: UIImage) {
+        
         let path = store.getImagePath(metadata.ocId, metadata.etag)
         try? image.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
+        
+        let iconPath = store.getIconPath(metadata.ocId, metadata.etag)
+        let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
+        
+        ImageUtility.saveImageAtPaths(image: image, previewPath: previewPath, iconPath: iconPath)
     }
     
     func downloadVideoPreview(metadata: Metadata?) async {
@@ -360,6 +372,34 @@ final class DataService: NSObject, Sendable {
                 
                 //Save the preview image
                 try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
+            }
+        }
+    }
+    
+    func downloadSVGPreview(metadata: Metadata?) async {
+        
+        guard metadata != nil else { return }
+        
+        await download(metadata: metadata!, progressHandler: { _, _ in })
+        
+        let iconPath = store.getIconPath(metadata!.ocId, metadata!.etag)
+        let imagePath = store.getCachePath(metadata!.ocId, metadata!.fileNameView)!
+        
+        await ImageUtility.loadSVGPreview(metadata: metadata!, imagePath: imagePath, previewPath: iconPath)
+    }
+    
+    func savePreview(metadata: Metadata) {
+        
+        autoreleasepool {
+            
+            if store.fileExists(metadata),
+               let path = store.getCachePath(metadata.ocId, metadata.fileNameView),
+               let image = UIImage(contentsOfFile: path) {
+                
+                let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
+                let iconPath = store.getIconPath(metadata.ocId, metadata.etag)
+                
+                ImageUtility.saveImageAtPaths(image: image, previewPath: previewPath, iconPath: iconPath)
             }
         }
     }
@@ -392,7 +432,7 @@ final class DataService: NSObject, Sendable {
         
         //add, update, delete stored metadata
         let result = await databaseManager.processMetadatas(searchResult.files, metadatasResult: metadatasResult)
-
+        
         let typeResult = filterMediaResult(type: type, result: result)
         
         let metadatas: [Metadata]

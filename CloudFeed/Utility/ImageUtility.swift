@@ -26,27 +26,30 @@ import UIKit
 final class ImageUtility: NSObject {
     
     static func saveImageAtPaths(data: Data, previewPath: String, iconPath: String) {
-
+        
         autoreleasepool {
-            
             guard let image = UIImage(data: data) else { return }
+            saveImageAtPaths(image: image, previewPath: previewPath, iconPath: iconPath)
+        }
+    }
+    
+    static func saveImageAtPaths(image: UIImage, previewPath: String, iconPath: String) {
             
-            if let previewImage = image.preparingThumbnail(of: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)),
-               let data = previewImage.jpegData(compressionQuality: 0.5) {
-                do {
-                    try data.write(to: URL(fileURLWithPath: previewPath))
-                } catch {
-                    
-                }
+        if let previewImage = image.preparingThumbnail(of: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)),
+           let data = previewImage.jpegData(compressionQuality: 1.0) {
+            do {
+                try data.write(to: URL(fileURLWithPath: previewPath))
+            } catch {
+                
             }
-            
-            if let iconImage = image.preparingThumbnail(of: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon)),
-               let data = iconImage.jpegData(compressionQuality: 0.7) {
-                do {
-                    try data.write(to: URL(fileURLWithPath: iconPath))
-                } catch {
-                    
-                }
+        }
+        
+        if let iconImage = image.preparingThumbnail(of: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon)),
+           let data = iconImage.jpegData(compressionQuality: 0.7) {
+            do {
+                try data.write(to: URL(fileURLWithPath: iconPath))
+            } catch {
+                
             }
         }
     }
@@ -67,6 +70,22 @@ final class ImageUtility: NSObject {
         }
         
         return nil
+    }
+    
+    static func loadGIF(metadata: Metadata, imagePath: String) async -> UIImage? {
+        
+        guard metadata.gif else { return nil }
+        
+        return autoreleasepool { () -> UIImage? in
+            let gif: UIImage?
+            if let fileData = FileManager().contents(atPath: imagePath) {
+                gif = UIImage.gifImageWithData(fileData)
+            } else {
+                gif = UIImage(contentsOfFile: imagePath)
+            }
+            
+            return gif
+        }
     }
     
     static func imageFromVideo(url: URL, size: CGSize) async -> UIImage? {

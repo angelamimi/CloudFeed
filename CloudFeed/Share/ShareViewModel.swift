@@ -22,21 +22,6 @@
 import UIKit
 
 @MainActor
-protocol DownloadDelegate: AnyObject {
-    func progressUpdated(_ progress: Double)
-}
-
-final class Download {
-    var completed: Int64
-    var total: Int64
-    
-    init(completed: Int64, total: Int64) {
-        self.completed = completed
-        self.total = total
-    }
-}
-
-@MainActor
 class ShareViewModel: NSObject {
     
     private let dataService: DataService

@@ -1,9 +1,9 @@
 //
-//  ShareController.swift
+//  DownloadController.swift
 //  CloudFeed
 //
-//  Created by Angela Jarosz on 7/3/25.
-//  Copyright © 2025 Angela Jarosz. All rights reserved.
+//  Created by Angela Jarosz on 1/19/26.
+//  Copyright © 2026 Angela Jarosz. All rights reserved.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,19 +21,21 @@
 
 import UIKit
 
-class ShareController: UIViewController {
+class DownloadController: UIViewController {
     
     @IBOutlet weak var progressView: ProgressView!
     
-    var viewModel: ShareViewModel?
-    var metadatas: [Metadata] = []
+    var viewModel: DownloadViewModel?
+    var metadata: Metadata?
     
     override func viewDidLoad() {
         
         progressView.delegate = self
-        progressView.setLabelText(downloading: Strings.ShareMessageDownloading, cancel: Strings.ShareMessageCancel)
+        progressView.setLabelText(downloading: Strings.DownloadMessageDownloading, cancel: Strings.DownloadMessageCancel)
         
-        viewModel?.share(metadatas)
+        if let downloadMetadata = metadata {
+            viewModel?.download(downloadMetadata)
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -41,7 +43,7 @@ class ShareController: UIViewController {
     }
 }
 
-extension ShareController: DownloadDelegate {
+extension DownloadController: DownloadDelegate {
     
     func progressUpdated(_ progress: Double) {
         if view.subviews.last is ProgressView {
@@ -51,10 +53,11 @@ extension ShareController: DownloadDelegate {
     }
 }
 
-extension ShareController: ProgressDelegate {
+extension DownloadController: ProgressDelegate {
     
     func progressCancelled() {
         viewModel?.cancelDownloads()
         dismiss(animated: true)
     }
 }
+

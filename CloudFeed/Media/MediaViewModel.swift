@@ -558,17 +558,11 @@ final class MediaViewModel {
         
         if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {
             cell.setImage(cachedImage)
-        } else if systemIconIds.contains(metadata.id) {
-            cell.imageStatus.tintColor = .systemGray2
-            if !metadata.video && !metadata.livePhoto {
-                cell.imageStatus.isHidden = false
-                cell.imageStatus.image = UIImage(systemName: "photo")
-            }
         } else {
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             
             if FileManager.default.fileExists(atPath: path) {
-                
+                cell.imageStatus.tintColor = .white
                 autoreleasepool {
                     
                     let image = UIImage(contentsOfFile: path)
@@ -579,8 +573,16 @@ final class MediaViewModel {
                     }
                 }
             } else {
-                if !pauseLoading {
-                    cacheManager.download(metadata: metadata, delegate: self)
+                if systemIconIds.contains(metadata.id) {
+                    cell.imageStatus.tintColor = .systemGray2
+                    if !metadata.video && !metadata.livePhoto {
+                        cell.imageStatus.isHidden = false
+                        cell.imageStatus.image = UIImage(systemName: "photo")
+                    }
+                } else {
+                    if !pauseLoading {
+                        cacheManager.download(metadata: metadata, delegate: self)
+                    }
                 }
             }
         }
@@ -592,6 +594,7 @@ final class MediaViewModel {
 extension MediaViewModel: DownloadPreviewOperationDelegate {
     
     func previewDownloaded(metadata: Metadata) {
+        
         var snapshot = dataSource.snapshot()
         let displayed = snapshot.itemIdentifiers(inSection: 0)
         

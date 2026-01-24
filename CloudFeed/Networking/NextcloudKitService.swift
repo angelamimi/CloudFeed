@@ -228,7 +228,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         var greaterDateAny: Any
 
         if serverVersion != nil && serverVersion! >= Global.shared.photoOriginalServerVersion {
-            elementDate = "nc:metadata-photos-original_date_time"
+            elementDate = "d:getlastmodified" //"nc:metadata-photos-original_date_time" - gifs and svgs disappear
             lessDateAny = Int(toDate.timeIntervalSince1970)
             greaterDateAny = Int(fromDate.timeIntervalSince1970)
         } else {

@@ -56,18 +56,71 @@ struct ViewerViewModel {
         return nil
     }
     
-    func loadImage(metadata: Metadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
-
-        if !dataService.store.fileExists(metadata) {
-
-            if metadata.livePhoto, let videoMetadata = await getMetadataLivePhoto(metadata: metadata) {
+    func previewExists(_ metadata: Metadata) -> Bool {
+        return dataService.store.previewExists(metadata.ocId, metadata.etag)
+    }
+    
+    func getPreviewPath(_ metadata: Metadata) -> String {
+        return dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+    }
+    
+    func downloadPreview(_ metadata: Metadata) async {
+        await dataService.downloadPreview(metadata: metadata)
+    }
+    
+    func loadImage(metadata: Metadata) async -> UIImage? {
+        
+        if metadata.livePhoto {
+            
+            if let videoMetadata = await getMetadataLivePhoto(metadata: metadata), !dataService.store.fileExists(videoMetadata) {
                 await downloadLivePhotoVideo(metadata: videoMetadata)
             }
             
-            await dataService.download(metadata: metadata, progressHandler: { _, _ in })
+        } else if metadata.svg {
+            
+            if !dataService.store.fileExists(metadata) {
+                await dataService.download(metadata: metadata, progressHandler: { _, _ in })
+            }
+            
+            let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+            let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
+            
+            await ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
+            
+        } else if metadata.gif {
+            
+            if !dataService.store.fileExists(metadata) {
+                await dataService.download(metadata: metadata, progressHandler: { _, _ in })
+            }
+    
+            let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
+
+            return await ImageUtility.loadGIF(metadata: metadata, imagePath: imagePath)
+            
+        } else {
+            
+            //check for full res image
+            if dataService.store.fileExists(metadata) {
+                let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
+                return autoreleasepool { () -> UIImage? in
+                    return UIImage(contentsOfFile: imagePath)
+                }
+            }
+            
+            //check for preview image
+            if !dataService.store.previewExists(metadata.ocId, metadata.etag) {
+                await dataService.downloadPreview(metadata: metadata)
+            }
         }
         
-        return await getImageFromMetadata(metadata, viewWidth: viewWidth, viewHeight: viewHeight)
+        if dataService.store.previewExists(metadata.ocId, metadata.etag) {
+            let imagePreviewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+            return autoreleasepool { () -> UIImage? in
+                return UIImage(contentsOfFile: imagePreviewPath)
+            }
+        }
+        
+        return nil
     }
     
     func saveVideoPreview(metadata: Metadata, image: UIImage) {
@@ -87,8 +140,12 @@ struct ViewerViewModel {
     }
     
     func getFilePath(_ metadata: Metadata) -> String? {
-        guard dataService.store.fileExists(metadata) else { return nil }
-        return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
+        if dataService.store.fileExists(metadata) {
+            return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
+        } else if dataService.store.previewExists(metadata.ocId, metadata.etag) {
+            return dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+        }
+        return nil
     }
     
     func fileExists(_ metadata: Metadata) -> Bool {
@@ -97,81 +154,5 @@ struct ViewerViewModel {
     
     func getVideoControlsStyleGlass() -> Bool {
         return dataService.getVideoControlsStyleGlass() ?? true
-    }
-}
-
-extension ViewerViewModel {
-    
-    private func getImageFromMetadata(_ metadata: Metadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
-        
-        if let image = await getImage(metadata: metadata, viewWidth: viewWidth, viewHeight: viewHeight) {
-            return image
-        }
-        
-        if dataService.store.previewExists(metadata.ocId, metadata.etag) {
-            let imagePreviewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
-            return autoreleasepool { () -> UIImage? in
-                return UIImage(contentsOfFile: imagePreviewPath)
-            }
-        }
-
-        return nil
-    }
-    
-    private func getImage(metadata: Metadata, viewWidth: CGFloat, viewHeight: CGFloat) async -> UIImage? {
-        
-        guard dataService.store.fileExists(metadata) && metadata.classFile == NKTypeClassFile.image.rawValue else { return nil }
-            
-        let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
-        let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
-        
-        if metadata.gif {
-            
-            if !FileManager().fileExists(atPath: previewPath) {
-                await createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
-            }
-
-            return autoreleasepool { () -> UIImage? in
-                if let fileData = FileManager().contents(atPath: imagePath) {
-                    return UIImage.gifImageWithData(fileData)
-                } else {
-                    return UIImage(contentsOfFile: imagePath)
-                }
-            }
-            
-        } else if metadata.svg {
-            
-            return await ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
-            
-        } else {
-            
-            await createImageFrom(fileNameView: metadata.fileNameView, ocId: metadata.ocId, etag: metadata.etag, classFile: metadata.classFile)
-            
-            return autoreleasepool { () -> UIImage? in
-                return UIImage(contentsOfFile: imagePath)
-            }
-        }
-    }
-    
-    private func createImageFrom(fileNameView: String, ocId: String, etag: String, classFile: String) async {
-        
-        guard classFile == NKTypeClassFile.image.rawValue else { return }
-        
-        var originalImage, scaleImagePreview: UIImage?
-
-        let fileNamePath = dataService.store.getCachePath(ocId, fileNameView)!
-        let fileNamePathPreview = dataService.store.getPreviewPath(ocId, etag)
-
-        if dataService.store.fileSize(ocId, fileNameView) > 0 && FileManager().fileExists(atPath: fileNamePathPreview) {
-            return
-        }
-        
-        autoreleasepool {
-            originalImage = UIImage(contentsOfFile: fileNamePath)
-        }
-
-        scaleImagePreview = await originalImage?.byPreparingThumbnail(ofSize: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
-
-        try? scaleImagePreview?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: fileNamePathPreview))
     }
 }

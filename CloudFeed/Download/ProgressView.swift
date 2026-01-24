@@ -52,10 +52,12 @@ class ProgressView: UIView {
         }
     }
     
+    func setLabelText(downloading: String, cancel: String) {
+        downloadingLabel.text = downloading
+        cancelLabel.text = cancel
+    }
+    
     private func awake() {
-        downloadingLabel.text = Strings.ShareMessageDownloading
-        cancelLabel.text = Strings.ShareMessageCancel
-        
         stackView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
         stackView.layer.cornerRadius = 8
     }
