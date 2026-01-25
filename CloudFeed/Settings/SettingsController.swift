@@ -66,6 +66,8 @@ class SettingsController: UIViewController {
         mode = .all
         navigationItem.hidesBackButton = true
         navigationItem.title = Strings.SettingsNavTitle
+        
+        initNavigationItem()
     }
 
     func clear(notify: Bool, reload: Bool) {
@@ -100,15 +102,19 @@ class SettingsController: UIViewController {
         
         navigationItem.title = title
         
-        if mode == .account && navigationItem.rightBarButtonItem == nil {
+        initNavigationItem()
+        
+        tableView.reloadData()
+    }
+    
+    private func initNavigationItem() {
+        if (mode == .account || mode == .all) && navigationItem.rightBarButtonItem == nil {
             let item = UIBarButtonItem(image: .init(systemName: "ellipsis.circle"), menu: buildAccountsMenu())
             item.tintColor = .label
             navigationItem.setRightBarButton(item, animated: true)
         } else if mode != .account {
             navigationItem.rightBarButtonItem = nil
         }
-        
-        tableView.reloadData()
     }
     
     private func initTitle() {
