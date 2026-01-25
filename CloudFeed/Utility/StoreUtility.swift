@@ -30,43 +30,55 @@ struct StoreUtility: Sendable {
         category: String(describing: StoreUtility.self)
     )
     
+    var groupURL: URL? {
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Global.shared.groupIdentifier)
+    }
+    
     var cacheDirectory: String {
-        guard let path = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first else {
-            return ""
+        
+        let path = getCacheDirectoryURL()?.path() ?? ""
+        
+        if !path.isEmpty && !FileManager.default.fileExists(atPath: path) {
+            do {
+                try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
+            } catch {
+                print("cacheDirectory - error: \(error)")
+            }
         }
+        
         return path
     }
     
     var databaseDirectory: URL? {
         
-        let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+        let url = groupURL?.appendingPathComponent("Database", isDirectory: true)
+        let path = url?.path() ?? ""
         
-        do {
-            let url = directory!.appendingPathComponent( "DB", isDirectory: true)
-            
-            if !FileManager.default.fileExists(atPath: url.path) {
-                try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        if !path.isEmpty && !FileManager.default.fileExists(atPath: path) {
+            do {
+                try FileManager.default.createDirectory(at: url!, withIntermediateDirectories: true)
+            } catch  {
+                print("databaseDirectory - error: \(error)")
             }
-            return url
-        } catch  {
-            return nil
         }
+        
+        return url
     }
     
     var certificatesDirectory: URL? {
         
-        let directory = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first
+        let url = groupURL?.appendingPathComponent("Certificates", isDirectory: true)
+        let path = url?.path() ?? ""
         
-        do {
-            let url = directory!.appendingPathComponent( "Certificates", isDirectory: true)
-            
-            if !FileManager.default.fileExists(atPath: url.path) {
-                try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        if !path.isEmpty && !FileManager.default.fileExists(atPath: path) {
+            do {
+                try FileManager.default.createDirectory(at: url!, withIntermediateDirectories: true)
+            } catch  {
+                print("certificatesDirectory - error: \(error)")
             }
-            return url
-        } catch  {
-            return nil
         }
+        
+        return url
     }
     
     func getPasscode(_ account: String!) -> String! {
@@ -238,7 +250,7 @@ struct StoreUtility: Sendable {
     }
     
     func getCacheDirectoryURL() -> URL? {
-        return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+        return groupURL?.appendingPathComponent("Cache")
     }
     
     func getUserDirectory() -> String {
@@ -398,10 +410,10 @@ struct StoreUtility: Sendable {
     func clearCache() async {
         
         let fileManager = FileManager.default
-        let cachesDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        let cachesDirectory = getCacheDirectoryURL()
 
         do {
-            let contents = try fileManager.contentsOfDirectory(at: cachesDirectory, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+            let contents = try fileManager.contentsOfDirectory(at: cachesDirectory!, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
 
             for content in contents {
                 do {
@@ -445,11 +457,15 @@ struct StoreUtility: Sendable {
             return false
         }
     }
-
-    func removeDocumentsDirectory() async {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).map(\.path)
-        if paths.count > 0 {
-            try? FileManager.default.removeItem(atPath: paths[0])
+    
+    func removeDirectories() async {
+        
+        if let certs = certificatesDirectory?.path() {
+            try? FileManager.default.removeItem(atPath: certs)
+        }
+        
+        if let caches = getCacheDirectoryURL()?.path() {
+            try? FileManager.default.removeItem(atPath: caches)
         }
     }
     

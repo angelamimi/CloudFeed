@@ -74,6 +74,7 @@ actor DatabaseManager: Sendable {
         
         do {
             try modelContext.delete(model: AccountModel.self)
+            try modelContext.delete(model: MetadataExifModel.self)
             try modelContext.delete(model: MetadataModel.self)
             try modelContext.delete(model: AvatarModel.self)
         } catch {

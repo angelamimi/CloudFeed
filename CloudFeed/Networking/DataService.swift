@@ -522,7 +522,7 @@ final class DataService: NSObject, Sendable {
     
     func reset() async {
         await store.clearCache()
-        await store.removeDocumentsDirectory()
+        await store.removeDirectories()
         store.deleteAllChainStore()
         await clearDatabase()
     }
