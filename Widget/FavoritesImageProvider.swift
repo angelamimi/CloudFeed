@@ -158,7 +158,8 @@ extension FavoritesImageProvider {
             store.setWidgetFavoriteLastImageDate(date: metadata.date)
             
             let title = metadata.date.formatted(date: .abbreviated, time: .shortened)
-            let url = URL(string: "\(Global.shared.widgetScheme)://viewFavorite?ocid=\(metadata.ocId)&etag=\(metadata.etag)&account=\(account.account)")!
+            let action = Global.WidgetAction.viewFavorite.rawValue
+            let url = URL(string: "\(Global.shared.widgetScheme)://\(action)?ocid=\(metadata.ocId)&etag=\(metadata.etag)&account=\(account.account)")!
             
             let path = store.getPreviewPath(metadata.ocId, metadata.etag)
             
@@ -184,7 +185,7 @@ extension FavoritesImageProvider {
             
             store.setWidgetFavoriteLastImageDate(date: nil)
             
-            let url = URL(string: Global.shared.widgetScheme + "://viewFavorite")!
+            let url = URL(string: Global.shared.widgetScheme + "://" + Global.WidgetAction.viewFavorite.rawValue)!
             var entry = ImageDataEntry(date: .now, showDate: configuration.showDate, image: nil, title: "", url: url, message: nil)
             
             if sorted.isEmpty {

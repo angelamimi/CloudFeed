@@ -162,7 +162,8 @@ extension FeedImageProvider {
             store.setWidgetFeedLastImageDate(date: nil)
             
             let title = latest.date.formatted(date: .abbreviated, time: .shortened)
-            let url = URL(string: "\(Global.shared.widgetScheme)://viewImage?ocid=\(latest.ocId)&etag=\(latest.etag)&account=\(account.account)")!
+            let action = Global.WidgetAction.viewImage.rawValue
+            let url = URL(string: "\(Global.shared.widgetScheme)://\(action)?ocid=\(latest.ocId)&etag=\(latest.etag)&account=\(account.account)")!
             let iconPath = store.getIconPath(latest.ocId, latest.etag)
             let previewPath = store.getPreviewPath(latest.ocId, latest.etag)
             let previewExists = store.previewExists(latest.ocId, latest.etag)
@@ -199,7 +200,8 @@ extension FeedImageProvider {
             store.setWidgetFeedLastImageDate(date: metadata.date)
             
             let title = metadata.date.formatted(date: .abbreviated, time: .shortened)
-            let url = URL(string: "\(Global.shared.widgetScheme)://viewImage?ocid=\(metadata.ocId)&etag=\(metadata.etag)&account=\(account.account)")!
+            let action = Global.WidgetAction.viewImage.rawValue
+            let url = URL(string: "\(Global.shared.widgetScheme)://\(action)?ocid=\(metadata.ocId)&etag=\(metadata.etag)&account=\(account.account)")!
             let iconPath = store.getIconPath(metadata.ocId, metadata.etag)
             let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
             let previewExists = store.previewExists(metadata.ocId, metadata.etag)
@@ -239,7 +241,7 @@ extension FeedImageProvider {
     
     private func getEntry(_ message: String? = nil) -> ImageDataEntry {
         
-        let url = URL(string: Global.shared.widgetScheme + "://viewImage")!
+        let url = URL(string: Global.shared.widgetScheme + "://" + Global.WidgetAction.viewImage.rawValue)!
         
         let entry = ImageDataEntry(date: .now, showDate: false, image: nil, title: "", url: url, message: message)
         return entry
