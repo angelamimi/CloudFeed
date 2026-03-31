@@ -36,7 +36,9 @@ struct DataLayerMetadataTests {
         let metadata1 = Metadata.init(ocId: "ocid1", account: "account1", fileName: "file1")
         let metadata2 = Metadata.init(ocId: "ocid2", account: "account1", fileName: "file2")
         var metadata3 = Metadata.init(ocId: "ocid3", account: "account1", fileName: "file3")
-        let metadata4 = Metadata.init(ocId: "ocid4", account: "account1", fileName: "file4")
+        var metadata4 = Metadata.init(ocId: "ocid4", account: "account1", fileName: "file4")
+        
+        metadata4.exifPhotos = [["exifkey1":"exifvalue1"], ["exifkey1":"exifvalue2"], ["exifkey2":"anotherexifvalue1"]]
         
         //Test insert
         let addResults = await databaseManager.processMetadatas([metadata1, metadata2, metadata3, metadata4], metadatasResult: [])
@@ -107,7 +109,7 @@ struct DataLayerMetadataTests {
             #expect(metadata.account == account)
             #expect(metadata.serverUrl == serverUrl)
             #expect(metadata.classFile == Global.FileType.image.rawValue || metadata.classFile == Global.FileType.video.rawValue)
-            #expect(metadata.datePhotosOriginal >= fromDate && metadata.datePhotosOriginal <= toDate)
+            #expect(metadata.date >= fromDate && metadata.date <= toDate)
         }
     }
     
@@ -161,7 +163,7 @@ struct DataLayerMetadataTests {
         #expect(pagedResults.count == 200)
         
         let last = pagedResults[pagedResults.count - 1]
-        let nextPagedResults = await databaseManager.paginateMetadata(favorite: false, type: .all, account: account, startServerUrl: serverUrl, fromDate: fromDate, toDate: toDate, offsetDate: last.datePhotosOriginal, offsetName: last.fileNameView)
+        let nextPagedResults = await databaseManager.paginateMetadata(favorite: false, type: .all, account: account, startServerUrl: serverUrl, fromDate: fromDate, toDate: toDate, offsetDate: last.date, offsetName: last.fileNameView)
         #expect(nextPagedResults.count == 10)
         
         //Test favorites only

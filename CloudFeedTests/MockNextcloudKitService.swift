@@ -72,7 +72,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return nil
     }
     
-    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int, serverVersion: Int?) async -> (files: [CloudFeed.Metadata], error: Bool) {
+    func searchMedia(account: String, userId: String, urlBase: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [CloudFeed.Metadata], error: Bool) {
         return mockSearchMedia(fileName: "mock-search")
     }
     

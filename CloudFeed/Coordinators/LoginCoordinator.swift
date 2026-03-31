@@ -35,7 +35,7 @@ class LoginCoordinator: Coordinator {
         
     }
     
-    func navigateToWebLogin(token: String, endpoint: String, login: String) {
+    func navigateToWebLogin(token: String, endpoint: String, login: String, url: String) {
 
     }
     

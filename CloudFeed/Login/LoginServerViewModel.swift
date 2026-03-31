@@ -49,8 +49,8 @@ final class LoginServerViewModel: NSObject {
         coordinator.showServerConnectionErrorPrompt()
     }
     
-    func navigateToWebLogin(token: String, endpoint: String, login: String) {
-        coordinator.navigateToWebLogin(token: token, endpoint: endpoint, login: login)
+    func navigateToWebLogin(token: String, endpoint: String, login: String, url: String) {
+        coordinator.navigateToWebLogin(token: token, endpoint: endpoint, login: login, url: url)
     }
     
     func beginLoginFlow(url: String) async -> (token: String, endpoint: String, login: String, supported: Bool, errorCode: Int?)? {

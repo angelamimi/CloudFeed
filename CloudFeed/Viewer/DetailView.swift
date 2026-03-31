@@ -207,7 +207,7 @@ class DetailView: UIView {
         fileNameLabel.accessibilityLabel = Strings.DetailName
         fileNameLabel.accessibilityValue = name
         
-        let formattedDate = formatDate(metadata!.datePhotosOriginal as Date)
+        let formattedDate = formatDate(metadata!.date)
         fileDateLabel.text = formattedDate
         fileDateLabel.accessibilityLabel = Strings.DetailFileDate
         fileDateLabel.accessibilityValue = formattedDate
@@ -300,7 +300,7 @@ class DetailView: UIView {
         guard url != nil else {
             populateImageSizeInfo(pixelProperties: [:], sizeProperties: [:])
             populateLocationFromMetadata()
-            //populateExifFromMetadata()
+            populateExifFromMetadata()
             return
         }
 
@@ -343,8 +343,8 @@ class DetailView: UIView {
             for exif in exifArray {
                 _ = exif.map { dict[$0.key as NSString] = $0.value as AnyObject }
             }
-            
-            populateImageExifInfo(dict, nil)
+            //exif data doesn't appear to be standard yet. Commented out for now.
+            //populateImageExifInfo(dict, nil)
         }
     }
     

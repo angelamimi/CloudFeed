@@ -50,24 +50,12 @@ final class PagerCoordinator {
             viewerPager.viewModel = viewModel
             viewerPager.coordinator = self
             
-            navigationController.pushViewController(viewerPager, animated: true)
-            
-            if UIDevice.current.userInterfaceIdiom == .pad,
-               #available(iOS 18.0, *),
-               let tab = navigationController.parent as? UITabBarController {
-                tab.setTabBarHidden(true, animated: !UIAccessibility.isReduceMotionEnabled)
-            }
+            navigationController.pushViewController(viewerPager, animated: false)
         }
     }
     
     func pagingEndedWith(metadata: Metadata) {
         delegate.pagingEndedWith(metadata: metadata)
-        
-        if UIDevice.current.userInterfaceIdiom == .pad,
-           #available(iOS 18.0, *),
-           let tab = navigationController.parent as? UITabBarController {
-            tab.setTabBarHidden(false, animated: !UIAccessibility.isReduceMotionEnabled)
-        }
     }
     
     func share(_ metadatas: [Metadata]) {

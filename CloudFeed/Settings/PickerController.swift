@@ -179,7 +179,7 @@ extension PickerController: UITableViewDataSource {
         formatter.timeStyle = .none
         formatter.dateStyle = .medium
         
-        config.secondaryText = formatter.string(from: metadata.datePhotosOriginal)
+        config.secondaryText = formatter.string(from: metadata.date)
         
         cell.contentConfiguration = config
         

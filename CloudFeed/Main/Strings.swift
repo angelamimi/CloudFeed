@@ -104,6 +104,7 @@ extension Strings {
     public static let LoginUntrustedServerContinue = NSLocalizedString("Login.UntrustedServerContinue", comment: "")
     public static let LoginViewCertificateError = NSLocalizedString("Login.ViewCertificateError", comment: "")
     public static let LoginUntrustedServerChanged = NSLocalizedString("Login.UntrustedServerChanged", comment: "")
+    public static let LoginFailed = NSLocalizedString("Login.Failed", comment: "")
     
     //Media
     public static let MediaErrorMessage = NSLocalizedString("Media.Error.Message", comment: "")

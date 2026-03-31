@@ -49,6 +49,10 @@ final class LoginViewModel: NSObject {
     func showInvalidURLPrompt() {
         coordinator.showInvalidURLPrompt()
     }
+    
+    func showLoginFailedPrompt() {
+        coordinator.showFailedLoginPrompt()
+    }
 
     func loginPoll(token: String, endpoint: String) async {
         

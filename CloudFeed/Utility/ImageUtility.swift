@@ -107,4 +107,35 @@ final class ImageUtility: NSObject {
             }
         }
     }
+    
+    static func ratioWithinThreshold(_ size: CGSize) -> Bool {
+        
+        let width = Double(size.width)
+        let height = Double(size.height)
+        
+        guard width > 0 && height > 0 else { return true }
+        
+        let ratio = width < height ? width / height : height / width
+        
+        if ratio <= 0.25 {
+            return false
+        } else {
+            return true
+        }
+    }
+    
+    static func getImageForSize(_ path: String, size: CGSize, scale: CGFloat) async -> UIImage? {
+        
+        let image: UIImage?
+        let preview = UIImage(contentsOfFile: path)
+        let scaledSize = CGSize(width: size.width * scale, height: size.height * scale)
+        
+        if preview?.size.width ?? 0 > scaledSize.width || preview?.size.height ?? 0 > scaledSize.height {
+            image = await preview?.byPreparingThumbnail(ofSize: scaledSize)
+        } else {
+            image = preview
+        }
+        
+        return image
+    }
 }

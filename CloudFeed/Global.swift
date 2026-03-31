@@ -27,6 +27,7 @@ final class Global: Sendable {
     
     let keyChain                      = "com.angelamimi.cloudfeed"
     let userAgent                     = "CloudFeed-iOS"
+    let database                      = "CloudFeed.db"
     
     let tablePadding                  = 16.0
     let photoOriginalServerVersion    = 31
@@ -43,7 +44,7 @@ final class Global: Sendable {
     let davLocation                   = "/remote.php/dav/files/"
     let loginLocation                 = "/index.php/login/flow"
     let prefix                        = "nc://"
-    let urlValidation                 = "login"
+    let urlValidation                 = "/login"
     let http                          = "http://"
     let https                         = "https://"
     
@@ -71,8 +72,8 @@ final class Global: Sendable {
     //
     let layoutTypeSquare              = "layoutTypeSquare"
     let layoutTypeAspectRatio         = "layoutTypeAspectRatio"
-    let layoutColumnCountDefaultPad   = 3
-    let layoutColumnCountDefault      = 2
+    let layoutColumnCountDefaultPad   = 4
+    let layoutColumnCountDefault      = 3
     
     
     // MARK: - Icon/Preview
@@ -104,6 +105,15 @@ final class Global: Sendable {
     //
     let titleSize: CGFloat          = 50
     let titleSizeLarge: CGFloat     = 70
+    
+    // MARK: - Widget
+    //
+    let widgetScheme: String        = "cloudfeed"
+    
+    enum WidgetAction: String {
+        case viewFavorite = "viewFavorite"
+        case viewImage = "viewImage"
+    }
     
     // MARK: - Filter
     //

@@ -348,7 +348,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="XZE-fJ-x6B">
-                                <rect key="frame" x="0.0" y="172" width="393" height="597"/>
+                                <rect key="frame" x="0.0" y="172" width="393" height="680"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="ProfileCell" rowHeight="200" id="ss6-9g-Eac" userLabel="profileCell" customClass="ProfileCell" customModule="CloudFeed" customModuleProvider="target">
@@ -432,7 +432,7 @@
                             <constraint firstItem="W00-FN-fR1" firstAttribute="leading" secondItem="XZE-fJ-x6B" secondAttribute="leading" id="Vsq-T4-Ksy"/>
                             <constraint firstItem="XZE-fJ-x6B" firstAttribute="top" secondItem="W00-FN-fR1" secondAttribute="top" id="gh3-3z-1It"/>
                             <constraint firstItem="XZE-fJ-x6B" firstAttribute="centerX" secondItem="3s0-UW-uuw" secondAttribute="centerX" priority="999" id="j1Z-q9-5k9"/>
-                            <constraint firstItem="W00-FN-fR1" firstAttribute="bottom" secondItem="XZE-fJ-x6B" secondAttribute="bottom" id="xNh-hk-Got"/>
+                            <constraint firstItem="XZE-fJ-x6B" firstAttribute="bottom" secondItem="3s0-UW-uuw" secondAttribute="bottom" id="xNh-hk-Got"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Settings" id="Tkp-FB-ZVc"/>
@@ -496,7 +496,7 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondarySystemGroupedBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -505,10 +505,10 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGroupedBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="tintColor">
-            <color red="0.0" green="0.53333333333333333" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

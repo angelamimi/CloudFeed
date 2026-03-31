@@ -26,6 +26,7 @@ final class AppCoordinator: NSObject, Coordinator {
     let window: UIWindow
     var dataService: DataService?
     var mainCoordinator: MainCoordinator?
+    var actionURL: URL?
     
     init(window: UIWindow) {
         self.window = window
@@ -40,7 +41,7 @@ final class AppCoordinator: NSObject, Coordinator {
             return
         }
         
-        guard let dbUrl = store.databaseDirectory?.appending(path: "CloudFeed.db") else {
+        guard let dbUrl = store.databaseDirectory?.appending(path: Global.shared.database) else {
             showInitFailedError()
             return
         }
@@ -86,12 +87,33 @@ final class AppCoordinator: NSObject, Coordinator {
         
         if mainCoordinator == nil {
             mainCoordinator = MainCoordinator(window: window, dataService: dataService!)
+            
+            if let url = actionURL, let result = URLUtility.processActionURL(url: url) {
+                actionURL = nil
+                if result.action == Global.WidgetAction.viewFavorite.rawValue {
+                    if let currentUser = Environment.current.currentUser, result.account == currentUser.account {
+                        mainCoordinator?.setViewFavoriteImage(ocId: result.ocId)
+                    }
+                } else if result.action == Global.WidgetAction.viewImage.rawValue {
+                    if let currentUser = Environment.current.currentUser, result.account == currentUser.account {
+                        mainCoordinator?.setViewImage(ocId: result.ocId)
+                    }
+                }
+            }
         }
 
         mainCoordinator?.start()
         
         if !unlock && requiresPasscode(controller: window.rootViewController) {
             return
+        }
+    }
+    
+    func requiresPasscode() -> Bool {
+        if let user = Environment.current.currentUser, (dataService?.store.getPasscode(user.account)) != nil {
+            return true
+        } else {
+            return false
         }
     }
     
@@ -170,6 +192,18 @@ final class AppCoordinator: NSObject, Coordinator {
             showMaintenanceError()
         default:
             break
+        }
+    }
+    
+    func viewFavorite(account: String, ocId: String) {
+        if let currentUser = Environment.current.currentUser, account == currentUser.account {
+            mainCoordinator?.viewFavorite(ocId: ocId)
+        }
+    }
+    
+    func viewImage(account: String, ocId: String) {
+        if let currentUser = Environment.current.currentUser, account == currentUser.account {
+            mainCoordinator?.viewImage(ocId: ocId)
         }
     }
     

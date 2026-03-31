@@ -42,9 +42,9 @@ final class LoginServerModalCoordinator : LoginCoordinator {
         navigationController.present(loginNavigationController!, animated: true)
     }
     
-    override func navigateToWebLogin(token: String, endpoint: String, login: String) {
+    override func navigateToWebLogin(token: String, endpoint: String, login: String, url: String) {
         let loginNavigationController = navigationController.presentedViewController as! UINavigationController
-        let coordinator = LoginWebCoordinator(delegate: self, navigationController: loginNavigationController, dataService: dataService, token: token, endpoint: endpoint, login: login)
+        let coordinator = LoginWebCoordinator(delegate: self, navigationController: loginNavigationController, dataService: dataService, token: token, endpoint: endpoint, login: login, url: url)
         coordinator.start()
     }
     

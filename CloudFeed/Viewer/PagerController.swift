@@ -88,6 +88,22 @@ class PagerController: UIViewController {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        if UIDevice.current.userInterfaceIdiom == .pad,
+           #available(iOS 18.0, *),
+           let tab = navigationController?.parent as? UITabBarController {
+            tab.setTabBarHidden(true, animated: !UIAccessibility.isReduceMotionEnabled)
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        if UIDevice.current.userInterfaceIdiom == .pad,
+           #available(iOS 18.0, *),
+           let tab = navigationController?.parent as? UITabBarController {
+            tab.setTabBarHidden(false, animated: !UIAccessibility.isReduceMotionEnabled)
+        }
+    }
+    
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
@@ -171,12 +187,12 @@ class PagerController: UIViewController {
             var container = AttributeContainer()
             container.font = UIFont.boldSystemFont(ofSize: 20)
 
-            button.configuration?.attributedTitle = AttributedString(metadata.datePhotosOriginal.formatted(date: .abbreviated, time: .omitted), attributes: container)
+            button.configuration?.attributedTitle = AttributedString(metadata.date.formatted(date: .abbreviated, time: .omitted), attributes: container)
             
             var subtitleContainer = AttributeContainer()
             subtitleContainer.font = UIFont.systemFont(ofSize: 16)
 
-            button.configuration?.attributedSubtitle = AttributedString(metadata.datePhotosOriginal.formatted(date: .omitted, time: .shortened), attributes: subtitleContainer)
+            button.configuration?.attributedSubtitle = AttributedString(metadata.date.formatted(date: .omitted, time: .shortened), attributes: subtitleContainer)
             button.configuration?.titleLineBreakMode = .byTruncatingTail
             button.configuration?.titleAlignment = .center
             

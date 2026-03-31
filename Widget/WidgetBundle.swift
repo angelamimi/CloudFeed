@@ -1,9 +1,9 @@
 //
-//  UserAccount.swift
-//  CloudFeed
+//  WidgetBundle.swift
+//  Widget
 //
-//  Created by Angela Jarosz on 8/23/23.
-//  Copyright © 2023 Angela Jarosz. All rights reserved.
+//  Created by Angela Jarosz on 1/25/26.
+//  Copyright © 2026 Angela Jarosz. All rights reserved.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,20 +19,13 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import Foundation
+import WidgetKit
+import SwiftUI
 
-
-public struct UserAccount: Sendable {
-    
-    public let account: String
-    public let urlBase: String
-    public let user: String
-    public let userId: String
-    
-    init(account: String, urlBase: String, user: String, userId: String) {
-        self.account = account
-        self.urlBase = urlBase
-        self.user = user
-        self.userId = userId
+@main
+struct CloudFeedWidgetBundle: WidgetBundle {
+    var body: some Widget {
+        FavoritesWidget()
+        FeedWidget()
     }
 }

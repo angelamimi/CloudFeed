@@ -43,6 +43,9 @@ extension FavoritesCoordinator {
     }
     
     func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
+
+        navigationController.popToRootViewController(animated: false) //may be viewing from a widget tap, so could have controllers on the stack
+        
         let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService, delegate: self)
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }

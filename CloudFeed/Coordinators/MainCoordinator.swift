@@ -73,6 +73,16 @@ final class MainCoordinator : NSObject, Coordinator {
 
 extension MainCoordinator {
     
+    func setViewImage(ocId: String) {
+        tabBarController?.selectedIndex = 0
+        getMediaController()?.setViewImage(ocId: ocId)
+    }
+    
+    func setViewFavoriteImage(ocId: String) {
+        tabBarController?.selectedIndex = 1
+        getFavoritesController()?.setViewImage(ocId: ocId)
+    }
+    
     private func getMediaController() -> MediaController? {
         return (tabBarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] as? MediaController
     }
@@ -113,6 +123,22 @@ extension MainCoordinator {
             } else if let fav = nav.topViewController as? FavoritesController {
                 fav.sync()
             }
+        }
+    }
+    
+    func viewImage(ocId: String) {
+        tabBarController?.selectedIndex = 0
+        if let controller = getMediaController() {
+            controller.navigationController?.popToRootViewController(animated: false)
+            controller.openViewer(ocId: ocId)
+        }
+    }
+    
+    func viewFavorite(ocId: String) {
+        tabBarController?.selectedIndex = 1
+        if let controller = getFavoritesController() {
+            controller.navigationController?.popToRootViewController(animated: false)
+            controller.openViewer(ocId: ocId)
         }
     }
     

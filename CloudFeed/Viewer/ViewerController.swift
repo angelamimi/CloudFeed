@@ -1273,7 +1273,7 @@ class ViewerController: UIViewController {
     private func showVerticalDetails(animate: Bool, reset: Bool) {
         
         guard let detailView = self.detailView else { return }
-        let allowTransform = imageViewRatioWithinThreshold() && imageView.image?.isSymbolImage == false
+        let allowTransform = ImageUtility.ratioWithinThreshold(imageView.image?.size ?? .zero) && imageView.image?.isSymbolImage == false
         let heightOffset: CGFloat
         let size = view.frame.size
         let height = size.height
@@ -1368,7 +1368,7 @@ class ViewerController: UIViewController {
     private func scrollDownVerticalDetails() {
         
         let heightOffset = view.frame.height / 2
-        let allowTransform = imageViewRatioWithinThreshold()
+        let allowTransform = ImageUtility.ratioWithinThreshold(imageView.image?.size ?? .zero)
         
         if UIAccessibility.isReduceMotionEnabled {
             self.calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: view.frame.width, height: heightOffset))
@@ -1434,7 +1434,7 @@ class ViewerController: UIViewController {
         
         guard let detailView = self.detailView else { return }
         
-        let allowTransform = imageViewRatioWithinThreshold() && imageView.image?.isSymbolImage == false
+        let allowTransform = ImageUtility.ratioWithinThreshold(imageView.image?.size ?? .zero) && imageView.image?.isSymbolImage == false
         let trailingOffset: CGFloat
         let topOffset: CGFloat
         let height = view.frame.height
@@ -1590,24 +1590,6 @@ class ViewerController: UIViewController {
     
     private func updateContentMode(contentMode: UIView.ContentMode) {
         imageView.contentMode = contentMode
-    }
-    
-    private func imageViewRatioWithinThreshold() -> Bool {
-        
-        guard let size = imageView.image?.size else { return true }
-        
-        let width = Double(size.width)
-        let height = Double(size.height)
-        
-        guard width > 0 && height > 0 else { return true }
-        
-        let ratio = width < height ? width / height : height / width
-        
-        if ratio <= 0.25 {
-            return false
-        } else {
-            return true
-        }
     }
 }
 

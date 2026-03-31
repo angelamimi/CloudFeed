@@ -23,6 +23,13 @@ import UIKit
 import KeychainAccess
 import os.log
 
+struct ImageProviderData: Codable {
+    var date: Date
+    var widgetUrl: String
+    var imagePath: String
+    var imageTitle: String
+}
+
 struct StoreUtility: Sendable {
     
     private static let logger = Logger(
@@ -42,7 +49,7 @@ struct StoreUtility: Sendable {
             do {
                 try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
             } catch {
-                print("cacheDirectory - error: \(error)")
+                Self.logger.error("cacheDirectory - error: \(error)")
             }
         }
         
@@ -58,7 +65,7 @@ struct StoreUtility: Sendable {
             do {
                 try FileManager.default.createDirectory(at: url!, withIntermediateDirectories: true)
             } catch  {
-                print("databaseDirectory - error: \(error)")
+                Self.logger.error("databaseDirectory - error: \(error)")
             }
         }
         
@@ -74,7 +81,7 @@ struct StoreUtility: Sendable {
             do {
                 try FileManager.default.createDirectory(at: url!, withIntermediateDirectories: true)
             } catch  {
-                print("certificatesDirectory - error: \(error)")
+                Self.logger.error("certificatesDirectory - error: \(error)")
             }
         }
         
@@ -145,9 +152,79 @@ struct StoreUtility: Sendable {
         try? Keychain(service: Global.shared.keyChain).remove(key)
     }
     
+    func getUserDefaults() -> UserDefaults? {
+        return UserDefaults(suiteName: Global.shared.groupIdentifier)
+    }
+    
+    func getWidgetFavoriteLastImageDate() -> Date? {
+        return getUserDefaults()?.value(forKey: "Favorites_lastImageDate") as? Date
+    }
+    
+    func setWidgetFavoriteLastImageDate(date: Date?) {
+        getUserDefaults()?.set(date, forKey: "Favorites_lastImageDate")
+    }
+    
+    func clearWidgetFavoriteData(_ family: String) {
+        getUserDefaults()?.removeObject(forKey: "Favorites_lastImageData_\(family)")
+    }
+    
+    func getWidgetFavoriteLastImageData(_ family: String) -> ImageProviderData? {
+        if let encoded = getUserDefaults()?.value(forKey: "Favorites_lastImageData_\(family)") as? Data {
+            let data = try? JSONDecoder().decode(ImageProviderData.self, from: encoded)
+            return data
+        }
+        return nil
+    }
+    
+    func setWidgetFavoriteLastImageData(data: ImageProviderData, family: String) {
+        guard let encoded = try? JSONEncoder().encode(data) else { return }
+        getUserDefaults()?.set(encoded, forKey: "Favorites_lastImageData_\(family)")
+    }
+    
+    func getWidgetFeedLastImageOcId() -> String? {
+        return getUserDefaults()?.value(forKey: "Feed_lastImageOcId") as? String
+    }
+    
+    func setWidgetFeedLastImageOcId(ocId: String?) {
+        getUserDefaults()?.set(ocId, forKey: "Feed_lastImageOcId")
+    }
+    
+    func getWidgetFeedLastImageDate() -> Date? {
+        return getUserDefaults()?.value(forKey: "Feed_lastImageDate") as? Date
+    }
+    
+    func setWidgetFeedLastImageDate(date: Date?) {
+        getUserDefaults()?.set(date, forKey: "Feed_lastImageDate")
+    }
+    
+    func clearWidgetFeedData(_ family: String) {
+        getUserDefaults()?.removeObject(forKey: "Feed_lastImageData_\(family)")
+    }
+    
+    func getWidgetFeedLastImageData(_ family: String) -> ImageProviderData? {
+        if let encoded = getUserDefaults()?.value(forKey: "Feed_lastImageData_\(family)") as? Data {
+            let data = try? JSONDecoder().decode(ImageProviderData.self, from: encoded)
+            return data
+        }
+        return nil
+    }
+    
+    func setWidgetFeedLastImageData(data: ImageProviderData, family: String) {
+        guard let encoded = try? JSONEncoder().encode(data) else { return }
+        getUserDefaults()?.set(encoded, forKey: "Feed_lastImageData_\(family)")
+    }
+    
+    func setPreferenceValue(key: String, value: Any?) {
+        UserDefaults(suiteName: Global.shared.groupIdentifier)?.set(value, forKey: "Preference_\(key)")
+    }
+    
+    func getPreferenceValue(key: String) -> Any? {
+        return UserDefaults(suiteName: Global.shared.groupIdentifier)?.value(forKey: "Preference_\(key)")
+    }
+    
     func getDisplayStyle() -> UIUserInterfaceStyle? {
         
-        if let value = Keychain(service: Global.shared.keyChain)["displayStyle"] {
+        if let value = getPreferenceValue(key: "displayStyle") as? String {
             return value == "light" ? .light : .dark
         }
         
@@ -161,13 +238,13 @@ struct StoreUtility: Sendable {
         if style != nil {
             value = style == .light ? "light" : "dark"
         }
- 
-        Keychain(service: Global.shared.keyChain)["displayStyle"] = value
+
+        setPreferenceValue(key: "displayStyle", value: value)
     }
     
     func getVideoControlsStyleGlass() -> Bool? {
         
-        if let value = Keychain(service: Global.shared.keyChain)["videoControlsStyle"] {
+        if let value = getPreferenceValue(key: "videoControlsStyle") as? String {
             return value == "glass" ? true : false
         }
         
@@ -175,78 +252,71 @@ struct StoreUtility: Sendable {
     }
     
     func saveVideoControlsStyleGlass(isGlass: Bool) {
-        
-        Keychain(service: Global.shared.keyChain)["videoControlsStyle"] = isGlass ? "glass" : "opaque"
+        setPreferenceValue(key: "videoControlsStyle", value: isGlass ? "glass" : "opaque")
     }
     
-    func getMediaColumnCount(_ device: UIUserInterfaceIdiom) -> Int! {
+    func getMediaColumnCount(_ device: UIUserInterfaceIdiom) -> Int {
 
         let defaultCount = device == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
         
-        guard try! Keychain(service: Global.shared.keyChain).contains("mediaColumnCount") else {
+        if let value = getPreferenceValue(key: "mediaColumnCount") as? Int {
+            return value
+        } else {
             setMediaColumnCount(defaultCount)
-            return defaultCount
-        }
-        
-        if let value = Keychain(service: Global.shared.keyChain)["mediaColumnCount"], let result = Int(value) {
-            return result
         }
         
         return defaultCount
     }
     
     func setMediaColumnCount(_ count: Int) {
-        Keychain(service: Global.shared.keyChain)["mediaColumnCount"] = String(count)
+        setPreferenceValue(key: "mediaColumnCount", value: count)
     }
 
-    func getFavoriteColumnCount(_ device: UIUserInterfaceIdiom) -> Int! {
+    func getFavoriteColumnCount(_ device: UIUserInterfaceIdiom) -> Int {
         
         let defaultCount = device == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
         
-        guard try! Keychain(service: Global.shared.keyChain).contains("favoriteColumnCount") else {
+        if let value = getPreferenceValue(key: "favoriteColumnCount") as? Int {
+            return value
+        } else {
             setFavoriteColumnCount(defaultCount)
-            return defaultCount
-        }
-        
-        if let value = Keychain(service: Global.shared.keyChain)["favoriteColumnCount"], let result = Int(value) {
-            return result
         }
         
         return defaultCount
     }
     
     func setFavoriteColumnCount(_ count: Int) {
-        Keychain(service: Global.shared.keyChain)["favoriteColumnCount"] = String(count)
+        setPreferenceValue(key: "favoriteColumnCount", value: count)
     }
     
-    func getMediaLayoutType() -> String! {
+    func getMediaLayoutType() -> String {
         
-        guard try! Keychain(service: Global.shared.keyChain).contains("mediaLayoutType") else {
+        if let value = getPreferenceValue(key: "mediaLayoutType") as? String {
+            return value
+        } else {
             let defaultLayoutType = Global.shared.layoutTypeSquare
             setMediaLayoutType(defaultLayoutType)
             return defaultLayoutType
         }
-        
-        return Keychain(service: Global.shared.keyChain)["mediaLayoutType"]
     }
     
     func setMediaLayoutType(_ type: String) {
-        Keychain(service: Global.shared.keyChain)["mediaLayoutType"] = type
+        setPreferenceValue(key: "mediaLayoutType", value: type)
     }
     
     func getFavoriteLayoutType() -> String! {
         
-        guard try! Keychain(service: Global.shared.keyChain).contains("favoriteLayoutType") else {
+        if let value = getPreferenceValue(key: "favoriteLayoutType") as? String {
+            return value
+        } else {
             let defaultLayoutType = Global.shared.layoutTypeSquare
-            setMediaLayoutType(defaultLayoutType)
+            setFavoriteLayoutType(defaultLayoutType)
             return defaultLayoutType
         }
-        
-        return Keychain(service: Global.shared.keyChain)["favoriteLayoutType"]
     }
     
     func setFavoriteLayoutType(_ type: String) {
-        Keychain(service: Global.shared.keyChain)["favoriteLayoutType"] = type
+        setPreferenceValue(key: "favoriteLayoutType", value: type)
     }
     
     func getCacheDirectoryURL() -> URL? {

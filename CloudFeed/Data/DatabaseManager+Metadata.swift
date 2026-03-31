@@ -60,14 +60,14 @@ final class MetadataModel {
     var altitude: Double = 0
     
     @Relationship(deleteRule: .cascade, inverse: \MetadataExifModel.metadata)
-    var exifPhotos: [MetadataExifModel]?
+    var exifPhotos: [MetadataExifModel]? = []
     
     init(ocId: String = "", account: String = "", classFile: String = "", contentType: String = "", creationDate: Date = Date(),
          date: Date = Date(), datePhotosOriginal: Date = Date(), etag: String = "", favorite: Bool, fileId: String = "",
          fileName: String = "", fileNameView: String = "", hasPreview: Bool, livePhotoFile: String = "", name: String = "",
          path: String = "", serverUrl: String = "", size: Int64, uploadDate: Date = Date(), urlBase: String = "",
-         user: String = "", userId: String = "", height: Double, width: Double, latitude: Double = 0, longitude: Double = 0, altitude: Double = 0,
-         exifPhotos: [MetadataExifModel] = []) {
+         user: String = "", userId: String = "", height: Double, width: Double, latitude: Double = 0, longitude: Double = 0, altitude: Double = 0) { /*,
+         exifPhotos: [MetadataExifModel]?) {*/
         self.account = account
         self.classFile = classFile
         self.contentType = contentType
@@ -92,7 +92,7 @@ final class MetadataModel {
         self.userId = userId
         self.height = height
         self.width = width
-        self.exifPhotos = exifPhotos
+        //self.exifPhotos = exifPhotos
     }
     
     init(dto: Metadata) {
@@ -124,14 +124,28 @@ final class MetadataModel {
         self.longitude = dto.longitude
         self.altitude = dto.altitude
         
-        if let exifs = dto.exifPhotos {
+        /*if let exifs = dto.exifPhotos {
             self.exifPhotos = []
             for exif in exifs {
                 for key in exif.keys {
-                    self.exifPhotos?.append(MetadataExifModel(key: key, value: exif[key]!, metadata: self))
+                    self.exifPhotos!.append(MetadataExifModel(key: key, value: exif[key]!, metadata: self))
+                }
+            }
+        }*/
+    }
+    
+    static func buildExif(dto: Metadata, model: MetadataModel) {
+        
+        var exifPhotos: [MetadataExifModel] = []
+        if let exifs = dto.exifPhotos {
+            for exif in exifs {
+                for (key, value) in exif {
+                    exifPhotos.append(MetadataExifModel(key: key, value: value, metadata: model))
                 }
             }
         }
+        
+        model.exifPhotos?.append(contentsOf: exifPhotos)
     }
 }
 
@@ -139,9 +153,11 @@ final class MetadataModel {
 final class MetadataExifModel {
     var key: String
     var value: String
+    
+    @Relationship
     var metadata: MetadataModel?
     
-    init(key: String, value: String, metadata: MetadataModel) {
+    init(key: String, value: String, metadata: MetadataModel?) {
         self.key = key
         self.value = value
         self.metadata = metadata
@@ -413,7 +429,11 @@ extension DatabaseManager {
                         addedOcIds.append(metadata.ocId)
                     }
 
-                    modelContext.insert(MetadataModel(dto: metadata))
+                    let model = MetadataModel(dto: metadata)
+                    modelContext.insert(model)
+                    
+                    MetadataModel.buildExif(dto: metadata, model: model)
+                    modelContext.insert(model)
                 }
             }
             
@@ -448,7 +468,7 @@ extension DatabaseManager {
         let predicate = #Predicate<MetadataModel> { metadata in
             metadata.account == account
             && metadata.serverUrl.starts(with: startServerUrl)
-            && metadata.datePhotosOriginal >= fromDate && metadata.datePhotosOriginal <= toDate
+            && metadata.date >= fromDate && metadata.date <= toDate
             && (metadata.classFile == image || metadata.classFile == video)
         }
         
@@ -487,7 +507,7 @@ extension DatabaseManager {
     func paginateMetadata(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [Metadata] {
         
         let predicate = buildMediaPredicate(favorite: favorite, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
-        let sortBy = [SortDescriptor<MetadataModel>(\.datePhotosOriginal, order: .reverse),
+        let sortBy = [SortDescriptor<MetadataModel>(\.date, order: .reverse),
                       SortDescriptor<MetadataModel>(\.fileNameView, comparator: .localizedStandard, order: .reverse)]
         
         let fetchDescriptor = FetchDescriptor(predicate: predicate, sortBy: sortBy)
@@ -507,11 +527,11 @@ extension DatabaseManager {
             for index in results.indices {
                 let metadata = results[index]
                 
-                if metadata.datePhotosOriginal as Date == offsetDate {
+                if metadata.date as Date == offsetDate {
                     if metadata.fileNameView.compare(offsetName!, options: [.numeric, .caseInsensitive, .diacriticInsensitive]) == .orderedAscending {
                         metadatas.append(Metadata.init(model: metadata))
                     }
-                } else if metadata.datePhotosOriginal < offsetDate! {
+                } else if metadata.date < offsetDate! {
                     metadatas.append(Metadata.init(model: metadata))
                 }
                 
@@ -529,7 +549,7 @@ extension DatabaseManager {
     func fetchMetadata(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [Metadata] {
         
         let predicate = buildMediaPredicate(favorite: favorite, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
-        let sortBy = [SortDescriptor<MetadataModel>(\.datePhotosOriginal, order: .reverse),
+        let sortBy = [SortDescriptor<MetadataModel>(\.date, order: .reverse),
                       SortDescriptor<MetadataModel>(\.fileNameView, order: .reverse)]
         
         let fetchDescriptor = FetchDescriptor<MetadataModel>(predicate: predicate, sortBy: sortBy)
@@ -610,8 +630,8 @@ extension DatabaseManager {
         let basePredicate = #Predicate<MetadataModel> { metadata in
             metadata.account == account
             && metadata.serverUrl.starts(with: startServerUrl)
-            && metadata.datePhotosOriginal >= fromDate
-            && metadata.datePhotosOriginal <= toDate
+            && metadata.date >= fromDate
+            && metadata.date <= toDate
         }
         
         let typePredicate: Predicate<MetadataModel>

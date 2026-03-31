@@ -50,8 +50,8 @@ final class LoginServerCoordinator : LoginCoordinator {
         window.makeKeyAndVisible()
     }
     
-    override func navigateToWebLogin(token: String, endpoint: String, login: String) {
-        let coordinator = LoginWebCoordinator(delegate: self, navigationController: navigationController, dataService: dataService, token: token, endpoint: endpoint, login: login)
+    override func navigateToWebLogin(token: String, endpoint: String, login: String, url: String) {
+        let coordinator = LoginWebCoordinator(delegate: self, navigationController: navigationController, dataService: dataService, token: token, endpoint: endpoint, login: login, url: url)
         coordinator.start()
     }
     

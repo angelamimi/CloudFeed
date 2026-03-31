@@ -33,6 +33,7 @@ class LoginWebController: UIViewController {
     var token: String!
     var endpoint: String!
     var login: String!
+    var url: String!
 
     var timerTask: Task<Void, Error>?
     
@@ -49,6 +50,7 @@ class LoginWebController: UIViewController {
         navigationItem.title = Strings.LoginServerTitle
         
         webView.navigationDelegate = self
+        webView.configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
 
         executeLoginFlowRequest()
         beginPolling()
@@ -64,12 +66,12 @@ class LoginWebController: UIViewController {
             viewModel.showInvalidURLPrompt()
             return
         }
-        
-        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-        
-        WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), modifiedSince: .distantPast, completionHandler: { [weak self] in
-            self?.loadRequest(url: url)
-        })
+
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), for: records, completionHandler: { [weak self] in
+                self?.loadRequest(url: url)
+            })
+        }
     }
     
     private func loadRequest(url: URL) {
@@ -107,19 +109,6 @@ class LoginWebController: UIViewController {
         timerTask?.cancel()
         timerTask = nil
     }
-
-    func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
-        
-        guard let url = webView.url else { return }
-        
-        let urlString: String = url.absoluteString.lowercased()
-
-        // prevent http redirection
-        if login.lowercased().hasPrefix(Global.shared.http) && urlString.hasPrefix(Global.shared.https) {
-            //Self.logger.error("didReceiveServerRedirectForProvisionalNavigation() - preventing redirect to \(urlString)")
-            return
-        }
-    }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
 
@@ -139,7 +128,13 @@ class LoginWebController: UIViewController {
 extension LoginWebController: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
-        decisionHandler(.allow)
+
+        if navigationAction.request.url?.absoluteString.hasPrefix("\(self.url ?? "")\(Global.shared.urlValidation)") == true {
+            decisionHandler(.allow)
+        } else {
+            viewModel.showLoginFailedPrompt()
+            decisionHandler(.cancel)
+        }
     }
     
     nonisolated func webView(_ webView: WKWebView, respondTo challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {

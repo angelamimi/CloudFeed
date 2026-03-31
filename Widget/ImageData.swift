@@ -1,9 +1,9 @@
 //
-//  UserAccount.swift
-//  CloudFeed
+//  ImageData.swift
+//  Widget
 //
-//  Created by Angela Jarosz on 8/23/23.
-//  Copyright © 2023 Angela Jarosz. All rights reserved.
+//  Created by Angela Jarosz on 1/27/26.
+//  Copyright © 2026 Angela Jarosz. All rights reserved.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,20 +19,20 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import Foundation
+import UIKit
+import WidgetKit
+import Intents
+import NextcloudKit
 
-
-public struct UserAccount: Sendable {
+struct ImageDataEntry: TimelineEntry {
     
-    public let account: String
-    public let urlBase: String
-    public let user: String
-    public let userId: String
+    let date: Date
+    let showDate: Bool
     
-    init(account: String, urlBase: String, user: String, userId: String) {
-        self.account = account
-        self.urlBase = urlBase
-        self.user = user
-        self.userId = userId
-    }
+    var image: UIImage?
+    var title: String
+    var url: URL
+    var message: String?
 }
+
+let placeholderEntry = ImageDataEntry(date: .now, showDate: false, image: nil, title: "", url: URL(string: Global.shared.widgetScheme + "://")!, message: "")

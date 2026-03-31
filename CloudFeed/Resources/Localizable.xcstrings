@@ -22,6 +22,9 @@
         }
       }
     },
+    "Configuration" : {
+
+    },
     "Controls.SpeedRate.0.5" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1970,6 +1973,9 @@
         }
       }
     },
+    "Displays images with or without image date" : {
+
+    },
     "Download.Action" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2143,6 +2149,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "LIVE"
+          }
+        }
+      }
+    },
+    "Login.Failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login process failed. Please try again."
           }
         }
       }
@@ -3387,6 +3404,102 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Video"
+          }
+        }
+      }
+    },
+    "Widget.Config.Parameter.Title.Date" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display image date"
+          }
+        }
+      }
+    },
+    "Widget.Favorites.Config.Description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your favorites on rotation throughout the day."
+          }
+        }
+      }
+    },
+    "Widget.Favorites.Config.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorites"
+          }
+        }
+      }
+    },
+    "Widget.Favorites.Empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your favorites will display here"
+          }
+        }
+      }
+    },
+    "Widget.Favorites.SignIn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorites will appear here once signed in"
+          }
+        }
+      }
+    },
+    "Widget.Feed.Config.Description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The most recent images from your feed"
+          }
+        }
+      }
+    },
+    "Widget.Feed.Config.Title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recent"
+          }
+        }
+      }
+    },
+    "Widget.Feed.Empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Images from your feed will display here"
+          }
+        }
+      }
+    },
+    "Widget.Feed.SignIn" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Images will appear here once signed in"
           }
         }
       }

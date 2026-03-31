@@ -26,6 +26,7 @@ import UIKit
 class FavoritesController: CollectionController {
     
     var viewModel: FavoritesViewModel!
+    var viewImageOcId: String?
     
     private enum SelectionMode {
         case share
@@ -104,6 +105,10 @@ class FavoritesController: CollectionController {
     
     func sync() {
         syncFavorites()
+    }
+    
+    func setViewImage(ocId: String) {
+        viewImageOcId = ocId
     }
     
     public func reload() {
@@ -261,6 +266,14 @@ class FavoritesController: CollectionController {
         viewModel.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
     }
     
+    func openViewer(ocId: String) {
+        Task { [weak self] in
+            if let metadata = await self?.viewModel.getMetadataFromOcId(ocId) {
+                self?.viewModel.showViewerPager(currentIndex: 0, metadatas: [metadata])
+            }
+        }
+    }
+    
     private func bulkEdit() async {
         guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
         await viewModel.bulkEdit(indexPaths: indexPaths)
@@ -289,8 +302,8 @@ class FavoritesController: CollectionController {
             if firstMetadata == nil {
                 //Self.logger.debug("getVisibleItemData() - missing metadata")
             } else {
-                //Self.logger.debug("getVisibleItemData() - \(firstMetadata!.datePhotosOriginal) \(firstMetadata!.fileNameView)")
-                return (firstMetadata!.datePhotosOriginal as Date, firstMetadata!.fileNameView)
+                //Self.logger.debug("getVisibleItemData() - \(firstMetadata!.date) \(firstMetadata!.fileNameView)")
+                return (firstMetadata!.date, firstMetadata!.fileNameView)
             }
         }
         
@@ -374,7 +387,7 @@ extension FavoritesController: CollectionDelegate {
         }
         
         if let metadata = viewModel.getItemAtIndexPath(indexPath) {
-            setTitle(getFormattedDate(metadata.datePhotosOriginal))
+            setTitle(getFormattedDate(metadata.date))
         } else {
             setTitle("")
         }
@@ -426,6 +439,11 @@ extension FavoritesController: FavoritesDelegate {
         if resultItemCount == nil {
             viewModel.showLoadfailedError()
             displayResults(refresh: false)
+        }
+        
+        if let ocId = viewImageOcId {
+            viewImageOcId = nil //app launched via selecting image from widget. reset.
+            openViewer(ocId: ocId)
         }
     }
     

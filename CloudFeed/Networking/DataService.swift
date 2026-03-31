@@ -23,6 +23,7 @@ import Alamofire
 import os.log
 import SwiftyJSON
 import UIKit
+import WidgetKit
 
 final class DataService: NSObject, Sendable {
     
@@ -126,6 +127,26 @@ final class DataService: NSObject, Sendable {
     
     func updateAccountMediaPath(account: String, mediaPath: String) async {
         await databaseManager.updateAccountMediaPath(account: account, mediaPath: mediaPath)
+    }
+    
+    func clearWidgetData() {
+        
+        store.clearWidgetFavoriteData("")
+        store.clearWidgetFavoriteData(WidgetFamily.systemSmall.description)
+        store.clearWidgetFavoriteData(WidgetFamily.systemMedium.description)
+        store.clearWidgetFavoriteData(WidgetFamily.systemLarge.description)
+        store.clearWidgetFavoriteData(WidgetFamily.systemExtraLarge.description)
+        store.setWidgetFavoriteLastImageDate(date: nil)
+        
+        store.clearWidgetFeedData("")
+        store.clearWidgetFeedData(WidgetFamily.systemSmall.description)
+        store.clearWidgetFeedData(WidgetFamily.systemMedium.description)
+        store.clearWidgetFeedData(WidgetFamily.systemLarge.description)
+        store.clearWidgetFeedData(WidgetFamily.systemExtraLarge.description)
+        store.setWidgetFeedLastImageDate(date: nil)
+        store.setWidgetFeedLastImageOcId(ocId: nil)
+        
+        WidgetCenter.shared.reloadAllTimelines()
     }
     
     
@@ -414,14 +435,13 @@ final class DataService: NSObject, Sendable {
     func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int, currentUserAccount: UserAccount?) async -> (metadatas: [Metadata], added: [Metadata], updated: [Metadata], deleted: [Metadata], error: Bool) {
         
         guard let account = currentUserAccount?.account else { return ([], [], [], [], true) }
+        guard let userId = currentUserAccount?.userId else { return ([], [], [], [], true) }
+        guard let urlBase = currentUserAccount?.urlBase else { return ([], [], [], [], true) }
         guard let mediaPath = await getMediaPath() else { return ([], [], [], [], true) }
         guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount) else { return ([], [], [], [], true) }
         
-        let statusResult = await checkServerStatus(url: currentUserAccount!.urlBase)
-        guard let serverVersion = statusResult.serverVersion else { return ([], [], [], [], true) }
-        
-        let searchResult = await nextcloudService.searchMedia(account: account, mediaPath: mediaPath,
-                                                              toDate: toDate, fromDate: fromDate, limit: limit, serverVersion: serverVersion)
+        let searchResult = await nextcloudService.searchMedia(account: account, userId: userId, urlBase: urlBase, mediaPath: mediaPath,
+                                                              toDate: toDate, fromDate: fromDate, limit: limit)
 
         if searchResult.error {
             return ([], [], [], [], true)
@@ -525,6 +545,7 @@ final class DataService: NSObject, Sendable {
         await store.removeDirectories()
         store.deleteAllChainStore()
         await clearDatabase()
+        clearWidgetData()
     }
     
     private func buildHomeServer(urlBase: String, userId: String) -> String {

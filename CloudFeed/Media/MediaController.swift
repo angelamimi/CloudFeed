@@ -26,6 +26,7 @@ import UIKit
 class MediaController: CollectionController {
     
     var viewModel: MediaViewModel!
+    var viewImageOcId: String?
 
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -92,6 +93,10 @@ class MediaController: CollectionController {
     public func reload() {
         clear()
         syncMedia()
+    }
+    
+    public func setViewImage(ocId: String) {
+        viewImageOcId = ocId
     }
     
     public func clear() {
@@ -228,6 +233,14 @@ class MediaController: CollectionController {
         viewModel.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
     }
     
+    func openViewer(ocId: String) {
+        Task { [weak self] in
+            if let metadata = await self?.viewModel.getMetadataFromOcId(ocId) {
+                self?.viewModel.showViewerPager(currentIndex: 0, metadatas: [metadata])
+            }
+        }
+    }
+    
     private func getSyncDateRange() -> (toDate: Date?, fromDate: Date?) {
         
         let lastItem = viewModel.getLastItem()
@@ -235,7 +248,7 @@ class MediaController: CollectionController {
         if lastItem == nil {
             return (nil, nil)
         } else {
-            return (Date(), lastItem!.datePhotosOriginal)
+            return (Date(), lastItem!.date)
         }
     }
     
@@ -337,7 +350,7 @@ extension MediaController: CollectionDelegate {
         }
         
         if let metadata = viewModel.getItemAtIndexPath(indexPath) {
-            setTitle(getFormattedDate(metadata.datePhotosOriginal))
+            setTitle(getFormattedDate(metadata.date))
         } else {
             setTitle("")
         }
@@ -380,6 +393,11 @@ extension MediaController: MediaDelegate {
         if resultItemCount == nil {
             syncMedia()
             displayResults(refresh: false)
+        }
+        
+        if let ocId = viewImageOcId {
+            viewImageOcId = nil //app launched via selecting image from widget. reset.
+            openViewer(ocId: ocId)
         }
     }
     

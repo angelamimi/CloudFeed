@@ -122,6 +122,10 @@ final class MediaViewModel {
         return items
     }
     
+    func getMetadataFromOcId(_ ocId: String) async -> Metadata? {
+        return await dataService.getMetadataFromOcId(ocId)
+    }
+    
     func getIndexPathForMetadata(metadata: Metadata) -> IndexPath? {
         return dataSource.indexPath(for: metadata.id)
     }
@@ -273,7 +277,7 @@ final class MediaViewModel {
                 if let metadata = metadatas[id] {
                     /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
                      but might lose items with dates in the same second */
-                    offsetDate = metadata.datePhotosOriginal as Date
+                    offsetDate = metadata.date
                     offsetName = metadata.fileNameView
                 }
             }
@@ -451,8 +455,8 @@ final class MediaViewModel {
                             break
                         }
                         
-                        let resultTime = result.datePhotosOriginal.timeIntervalSinceReferenceDate
-                        let visibleTime = visibleMetadata!.datePhotosOriginal.timeIntervalSinceReferenceDate
+                        let resultTime = result.date.timeIntervalSinceReferenceDate
+                        let visibleTime = visibleMetadata!.date.timeIntervalSinceReferenceDate
                         
                         if resultTime > visibleTime {
                             snapshot.insertItems([result.id], beforeItem: visibleItem)
@@ -491,7 +495,7 @@ final class MediaViewModel {
             return (nil, [], [], [])
         }
         
-        let sorted = result.metadatas.sorted(by: {($0.datePhotosOriginal as Date) > ($1.datePhotosOriginal as Date)} )
+        let sorted = result.metadatas.sorted(by: {$0.date > $1.date} )
         
         return (sorted, result.added, result.updated, result.deleted)
     }

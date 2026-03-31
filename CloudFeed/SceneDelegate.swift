@@ -35,7 +35,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
         
         if ProcessInfo.processInfo.environment["XCInjectBundleInto"] == nil {
+            
             appCoordinator = AppCoordinator(window: window)
+            
+            if let url = connectionOptions.urlContexts.first(where: { $0.url.scheme == Global.shared.widgetScheme })?.url {
+                appCoordinator.actionURL = url
+            }
+            
             appCoordinator.start()
         } else {
             window.rootViewController = UINavigationController()
@@ -44,16 +50,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
     
-    func sceneWillEnterForeground(_ scene: UIScene) {
+    func sceneDidEnterBackground(_ scene: UIScene) {
 
-        if let tabs = window?.rootViewController as? UITabBarController {
-
+        if appCoordinator.requiresPasscode(),
+           let tabs = window?.rootViewController as? UITabBarController {
+            
             if let presented = tabs.presentedViewController {
                 presented.dismiss(animated: false, completion: { [weak self] in
                     _ = self?.appCoordinator.requiresPasscode(controller: tabs)
                 })
             } else {
                 _ = appCoordinator.requiresPasscode(controller: tabs)
+            }
+        }
+    }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        
+        let urlContext = URLContexts.first(where: { $0.url.scheme == Global.shared.widgetScheme })
+        
+        if let url = urlContext?.url {
+            handleURL(url: url)
+        }
+    }
+    
+    private func handleURL(url: URL) {
+        
+        if let result = URLUtility.processActionURL(url: url) {
+            if result.action == Global.WidgetAction.viewFavorite.rawValue {
+                appCoordinator.viewFavorite(account: result.account, ocId: result.ocId)
+            } else if result.action == Global.WidgetAction.viewImage.rawValue {
+                appCoordinator.viewImage(account: result.account, ocId: result.ocId)
             }
         }
     }

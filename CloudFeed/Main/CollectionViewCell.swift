@@ -118,14 +118,22 @@ class CollectionViewCell: UICollectionViewCell {
                 return
             }
 
-            self?.imageView.contentMode = .scaleAspectFill
+            let backgroundColor: UIColor
+            
+            if ImageUtility.ratioWithinThreshold(self?.imageView.image?.size ?? .zero) == true {
+                self?.imageView.contentMode = .scaleAspectFill
+                backgroundColor = .secondarySystemBackground
+            } else {
+                self?.imageView.contentMode = .scaleAspectFit
+                backgroundColor = .systemBackground
+            }
 
             if let imageView = self?.imageView {
                 UIView.transition(with: imageView,
                                   duration: 0.5,
                                   options: .transitionCrossDissolve,
                                   animations: { [weak self] in self?.imageView.image = image },
-                                  completion: { [weak self] _ in self?.imageView.backgroundColor = .clear })
+                                  completion: { [weak self] _ in self?.imageView.backgroundColor = backgroundColor })
             }
         }
     }
@@ -136,8 +144,8 @@ class CollectionViewCell: UICollectionViewCell {
         imageView.image = nil
         imageFavorite.image = nil
         
-        imageView.contentMode = .scaleAspectFill
-
+        imageView.backgroundColor = .secondarySystemBackground
+        
         imageFavorite.isHidden = true
         imageStatus.isHidden = true
         imageStatus.tintColor = .white

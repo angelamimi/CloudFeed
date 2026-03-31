@@ -30,8 +30,9 @@ final class LoginWebCoordinator : Coordinator {
     private let token: String
     private let endpoint: String
     private let login: String
+    private let url: String
     
-    init(delegate: LoginDelegate, navigationController: UINavigationController, dataService: DataService, token: String, endpoint: String, login: String) {
+    init(delegate: LoginDelegate, navigationController: UINavigationController, dataService: DataService, token: String, endpoint: String, login: String, url: String) {
         
         self.delegate = delegate
         self.navigationController = navigationController
@@ -40,6 +41,7 @@ final class LoginWebCoordinator : Coordinator {
         self.token = token
         self.endpoint = endpoint
         self.login = login
+        self.url = url
     }
     
     func start() {
@@ -49,7 +51,9 @@ final class LoginWebCoordinator : Coordinator {
         loginController.token = token
         loginController.endpoint = endpoint
         loginController.login = login
+        loginController.url = url
         loginController.viewModel = LoginViewModel(delegate: self, dataService: dataService, coordinator: self)
+        
         self.navigationController.pushViewController(loginController, animated: true)
     }
 }
@@ -57,6 +61,7 @@ final class LoginWebCoordinator : Coordinator {
 extension LoginWebCoordinator: LoginDelegate {
     
     func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
+        dataService.clearWidgetData()
         delegate.loginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
     }
     
@@ -70,6 +75,17 @@ extension LoginWebCoordinator {
     func showInvalidURLPrompt() {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.UrlErrorMessage, preferredStyle: .alert)
+
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
+            self.navigationController.popViewController(animated: true)
+        }))
+
+        navigationController.present(alertController, animated: true)
+    }
+    
+    func showFailedLoginPrompt() {
+
+        let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.LoginFailed, preferredStyle: .alert)
 
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
             self.navigationController.popViewController(animated: true)

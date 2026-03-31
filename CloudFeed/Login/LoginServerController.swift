@@ -131,7 +131,7 @@ class LoginServerController: UIViewController {
         guard let url = validateUrl() else { return }
         
         Task { [weak self] in
-
+            
             if let result = await self?.viewModel.beginLoginFlow(url: url) {
                if !result.supported {
                     self?.viewModel.showUnsupportedVersionErrorPrompt()
@@ -144,7 +144,7 @@ class LoginServerController: UIViewController {
                         self?.viewModel.showServerConnectionErrorPrompt()
                     }
                 } else {
-                    self?.viewModel.navigateToWebLogin(token: result.token, endpoint: result.endpoint, login: result.login)
+                    self?.viewModel.navigateToWebLogin(token: result.token, endpoint: result.endpoint, login: result.login, url: url)
                 }
             } else {
                 self?.viewModel.showServerConnectionErrorPrompt()

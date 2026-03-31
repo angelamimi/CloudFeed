@@ -46,7 +46,7 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String?
     func getDirectDownload(metadata: Metadata) async -> URL?
     
-    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int, serverVersion: Int?) async -> (files: [Metadata], error: Bool)
+    func searchMedia(account: String, userId: String, urlBase: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool)
 
     func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> Bool
     func listingFavorites(account: String) async -> (account: String, files: [Metadata]?)
@@ -218,36 +218,113 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     
     // MARK: -
     // MARK: Search
-    func searchMedia(account: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int, serverVersion: Int?) async -> (files: [Metadata], error: Bool) {
+    func searchMedia(account: String, userId: String, urlBase: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool) {
         
         let limit: Int = limit
-        let options = NKRequestOptions(timeout: 120, queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
-        
-        let elementDate: String
-        var lessDateAny: Any
-        var greaterDateAny: Any
+        let options = NKRequestOptions()
 
-        if serverVersion != nil && serverVersion! >= Global.shared.photoOriginalServerVersion {
-            elementDate = "d:getlastmodified" //"nc:metadata-photos-original_date_time" - gifs and svgs disappear
-            lessDateAny = Int(toDate.timeIntervalSince1970)
-            greaterDateAny = Int(fromDate.timeIntervalSince1970)
-        } else {
-            elementDate = "d:getlastmodified"
-            lessDateAny = toDate
-            greaterDateAny = fromDate
+        let df = DateFormatter()
+
+        df.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+        
+        let href = "/files/" + userId + mediaPath
+        
+        let httpBodyString = String(format: getSearchRequestBody(createProperties: options.createProperties,
+                                                                 removeProperties: options.removeProperties,
+                                                                 href: href,
+                                                                 elementDate: "d:getlastmodified",
+                                                                 lessDate: df.string(from: toDate),
+                                                                 greaterDate: df.string(from: fromDate),
+                                                                 limit: String(limit)))
+        
+        if let httpBody = httpBodyString.data(using: .utf8) {
+            
+            let result = await NextcloudKit.shared.searchAsync(serverUrl: urlBase,
+                                                               httpBody: httpBody,
+                                                               showHiddenFiles: false,
+                                                               includeHiddenFiles: [],
+                                                               account: account,
+                                                               options: options,
+                                                               taskHandler: { _ in })
+    
+            if result.error == .success, let files = result.files {
+                return (Array(files.map { Metadata.init(file: $0) }), false)
+            } else {
+                Self.logger.error("[ERROR] Media search new media error code \(result.error.errorCode) \(result.error.errorDescription)")
+                return ([], true)
+            }
         }
         
-        let result = await NextcloudKit.shared.searchMediaAsync(path: mediaPath, lessDate: lessDateAny, greaterDate: greaterDateAny,
-                                                                elementDate: elementDate, limit: limit, account: account, options: options)
-        
-        if result.error == .success, let files = result.files {
-            return (Array(files.map { Metadata.init(file: $0) }), false)
-        } else {
-            Self.logger.error("[ERROR] Media search new media error code \(result.error.errorCode) \(result.error.errorDescription)")
-            return ([], true)
-        }
+        return ([], true)
     }
     
+    private func getSearchRequestBody(createProperties: [NKProperties]?, removeProperties: [NKProperties] = [], href: String, elementDate: String, lessDate: String, greaterDate: String, limit: String) -> String {
+        
+        let properties = NKProperties.properties(createProperties: createProperties, removeProperties: removeProperties)
+        
+        let request = """
+                <?xml version=\"1.0\"?>
+                <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+                    <d:basicsearch>
+                
+                    <d:select>
+                        <d:prop>\(properties)</d:prop>
+                    </d:select>
+                
+                    <d:from>
+                        <d:scope>
+                            <d:href>\(href)</d:href>
+                            <d:depth>infinity</d:depth>
+                        </d:scope>
+                    </d:from>
+                
+                    <d:orderby>
+                        <d:order>
+                            <d:prop><\(elementDate)/></d:prop>
+                            <d:descending/>
+                        </d:order>
+                        <d:order>
+                            <d:prop><d:displayname/></d:prop>
+                            <d:descending/>
+                        </d:order>
+                    </d:orderby>
+                
+                    <d:where>
+                        <d:and>
+                            <d:or>
+                                <d:like>
+                                    <d:prop><d:getcontenttype/></d:prop>
+                                    <d:literal>image/%%</d:literal>
+                                </d:like>
+                                <d:like>
+                                    <d:prop><d:getcontenttype/></d:prop>
+                                    <d:literal>video/%%</d:literal>
+                                </d:like>
+                            </d:or>
+                
+                            <d:and>
+                                <d:lt>
+                                    <d:prop><\(elementDate)/></d:prop>
+                                    <d:literal>\(lessDate)</d:literal>
+                                </d:lt>
+                                <d:gt>
+                                    <d:prop><\(elementDate)/></d:prop>
+                                    <d:literal>\(greaterDate)</d:literal>
+                                </d:gt>
+                            </d:and>
+                
+                        </d:and>
+                    </d:where>
+                
+                    <d:limit>
+                        <d:nresults>\(limit)</d:nresults>
+                    </d:limit>
+                
+                    </d:basicsearch>
+                </d:searchrequest>
+                """
+        return request
+    }
     
     
     // MARK: -

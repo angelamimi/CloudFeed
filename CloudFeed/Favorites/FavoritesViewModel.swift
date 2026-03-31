@@ -109,6 +109,10 @@ final class FavoritesViewModel {
         return items
     }
     
+    func getMetadataFromOcId(_ ocId: String) async -> Metadata? {
+        return await dataService.getMetadataFromOcId(ocId)
+    }
+    
     func getLayoutType() -> String {
         return dataService.store.getFavoriteLayoutType()
     }
@@ -167,7 +171,7 @@ final class FavoritesViewModel {
             if let id = snapshot.itemIdentifiers(inSection: 0).last {
                 if let metadata = metadatas[id] {
                     offsetName = metadata.fileNameView
-                    offsetDate = metadata.datePhotosOriginal
+                    offsetDate = metadata.date
                     /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
                      but might lose new results from files with dates in the same second */
                     //Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
@@ -471,8 +475,8 @@ final class FavoritesViewModel {
                             break
                         }
                         
-                        let resultTime = result.datePhotosOriginal.timeIntervalSinceReferenceDate
-                        let visibleTime = visibleMetadata!.datePhotosOriginal.timeIntervalSinceReferenceDate
+                        let resultTime = result.date.timeIntervalSinceReferenceDate
+                        let visibleTime = visibleMetadata!.date.timeIntervalSinceReferenceDate
                         
                         if resultTime > visibleTime {
                             snapshot.insertItems([result.id], beforeItem: visibleItem)
