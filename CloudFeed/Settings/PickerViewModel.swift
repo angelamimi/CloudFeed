@@ -39,10 +39,11 @@ class PickerViewModel {
         return nil
     }
     
-    func readFolder(_ serverUrl: String, _ currentDirectoryId: String, depth: String) async -> [Metadata]? {
+    func readFolder(_ serverUrl: String, _ currentDirectoryId: String, depth: String) async -> (metadatas: [Metadata], mediaFileCount: Int)? {
         guard let account = Environment.current.currentUser?.account else { return nil }
-        let folders = await dataService.readFolder(account: account, serverUrl: serverUrl, depth: depth)
-        return folders?.filter { $0.fileId != currentDirectoryId }
+        let result = await dataService.readFolder(account: account, serverUrl: serverUrl, depth: depth)
+        let folders = result?.metadatas.filter { $0.fileId != currentDirectoryId }
+        return (metadatas: folders ?? [], mediaFileCount: result?.mediaFileCount ?? 0)
     }
     
     func open(_ serverUrl: String, _ metadata: Metadata) {

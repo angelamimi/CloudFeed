@@ -73,6 +73,8 @@ extension Strings {
     public static let SettingsLabelLight = NSLocalizedString("Settings.Label.Light", comment: "")
     public static let SettingsLabelFolder = NSLocalizedString("Settings.Label.Folder", comment: "")
     public static let SettingsLabelFolders = NSLocalizedString("Settings.Label.Folders", comment: "")
+    public static let SettingsLabelFile = NSLocalizedString("Settings.Label.File", comment: "")
+    public static let SettingsLabelFiles = NSLocalizedString("Settings.Label.Files", comment: "")
     public static let SettingsLabelNextcloud = NSLocalizedString("Settings.Label.Nextcloud", comment: "")
     public static let SettingsLabelMediaPath = NSLocalizedString("Settings.Label.MediaPath", comment: "")
     public static let SettingsLabelVideoControlsGlass = NSLocalizedString("Settings.Label.VideoControlsGlass", comment: "")

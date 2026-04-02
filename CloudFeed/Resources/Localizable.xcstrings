@@ -3011,6 +3011,28 @@
         }
       }
     },
+    "Settings.Label.File" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "file"
+          }
+        }
+      }
+    },
+    "Settings.Label.Files" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "files"
+          }
+        }
+      }
+    },
     "Settings.Label.Folder" : {
       "localizations" : {
         "en" : {

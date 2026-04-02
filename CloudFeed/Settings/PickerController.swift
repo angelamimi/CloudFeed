@@ -37,6 +37,8 @@ class PickerController: UIViewController {
     weak var delegate: PickerDelegate?
     
     private var metadatas: [Metadata]?
+    private var mediaFileCount: Int?
+    
     var serverUrl: String = ""
     var metadata: Metadata?
     
@@ -77,14 +79,34 @@ class PickerController: UIViewController {
         
         activityIndicator.startAnimating()
         
+        showFolderData()
+    }
+    
+    private func getRootMetadata(folderLocation: String) async -> Metadata? {
+        if let results = await viewModel?.readFolder(folderLocation, "", depth: "0"),
+           let metadata = results.metadatas.first {
+            return metadata
+        }
+        return nil
+    }
+    
+    private func showFolderData() {
+        
         Task { [weak self] in
+            
             if self != nil && self!.serverUrl.isEmpty {
+                
                 if let folderLocation = self?.viewModel?.getHomeServer(),
                    let metadata = await self?.getRootMetadata(folderLocation: folderLocation) {
+                    
+                    let results = await self?.viewModel?.readFolder(folderLocation, metadata.fileId, depth: "1")
+                    
                     self?.navigationItem.title = Strings.SettingsLabelNextcloud
                     self?.metadata = metadata
                     self?.serverUrl = folderLocation
-                    self?.metadatas = await self?.viewModel?.readFolder(folderLocation, metadata.fileId, depth: "1")
+                    self?.metadatas = results?.metadatas ?? []
+                    self?.mediaFileCount = results?.mediaFileCount ?? 0
+                    
                     self?.tableView.reloadData()
                 }
             } else {
@@ -97,7 +119,9 @@ class PickerController: UIViewController {
                     }
                     
                     if let fileId = self?.metadata?.fileId {
-                        self?.metadatas = await self?.viewModel?.readFolder(folderLocation, fileId, depth: "1")
+                        let results = await self?.viewModel?.readFolder(folderLocation, fileId, depth: "1")
+                        self?.metadatas = results?.metadatas ?? []
+                        self?.mediaFileCount = results?.mediaFileCount ?? 0
                         self?.tableView.reloadData()
                     }
                 }
@@ -107,14 +131,6 @@ class PickerController: UIViewController {
                 self?.activityIndicator.stopAnimating()
             }
         }
-    }
-    
-    private func getRootMetadata(folderLocation: String) async -> Metadata? {
-        if let metadatas = await viewModel?.readFolder(folderLocation, "", depth: "0"),
-           let metadata = metadatas.first {
-            return metadata
-        }
-        return nil
     }
 }
 
@@ -139,11 +155,30 @@ extension PickerController: UITableViewDelegate {
 extension PickerController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        if metadatas?.count == 1 {
-            return "\(self.metadatas?.count ?? 0) " + Strings.SettingsLabelFolder
+        
+        var mediaFileCountDescription: String
+        var foldersDescription: String
+        let fileCount = mediaFileCount ?? 0
+        let folderCount = metadatas?.count ?? 0
+        
+        let formatter = NumberFormatter()
+        
+        formatter.numberStyle = .decimal
+        formatter.locale = .current
+        
+        if fileCount == 1 {
+            mediaFileCountDescription = "\(formatter.string(for: fileCount) ?? "") \(Strings.SettingsLabelFile)"
         } else {
-            return "\(self.metadatas?.count ?? 0) " + Strings.SettingsLabelFolders
+            mediaFileCountDescription = "\(formatter.string(for: fileCount) ?? "") \(Strings.SettingsLabelFiles)"
         }
+        
+        if folderCount == 1 {
+            foldersDescription = "\(formatter.string(for: folderCount) ?? "") \(Strings.SettingsLabelFolder)"
+        } else {
+            foldersDescription = "\(formatter.string(for: folderCount) ?? "") \(Strings.SettingsLabelFolders)"
+        }
+        
+        return "\(mediaFileCountDescription) \(foldersDescription)"
     }
     
     func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {

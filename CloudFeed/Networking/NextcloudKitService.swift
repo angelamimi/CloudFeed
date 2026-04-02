@@ -40,7 +40,7 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)?
     func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?)
     
-    func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [Metadata])?
+    func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [Metadata], mediaFileCount: Int)?
     func download(metadata: Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (_ metadata: Metadata, _ progress: Progress) -> Void) async
     func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etag: String) async
     func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String?
@@ -132,21 +132,23 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     
     // MARK: -
     // MARK: Directories
-    func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [Metadata])? {
+    func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [Metadata], mediaFileCount: Int)? {
         
         let options = NKRequestOptions(queue: .main)
         
-        return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.readFileOrFolder(serverUrlFileName: serverUrl, depth: depth, showHiddenFiles: false, account: account, options: options) { account, files, _, error in
-                if error == .success, let files {
-                    let metadatas = files.filter { $0.directory }.map({ Metadata.init(file: $0) })
-                    continuation.resume(returning: (account: account, metadatas: metadatas))
-                    return
-                }
-                continuation.resume(returning: nil)
-            }
+        let result = await NextcloudKit.shared.readFileOrFolderAsync(serverUrlFileName: serverUrl, depth: depth, showHiddenFiles: false, account: account, options: options)
+        
+        if result.error == .success, let files = result.files {
+            
+            let mediaFileCount = files.filter { $0.directory == false && $0.hidden == false && ($0.classFile == Global.FileType.image.rawValue || $0.classFile == Global.FileType.video.rawValue) }.count
+            let metadatas = files.filter { $0.directory }.map({ Metadata.init(file: $0) })
+            
+            return (account: result.account, metadatas: metadatas, mediaFileCount: mediaFileCount)
         }
+        
+        return nil
     }
+    
     
     
     // MARK: -

@@ -88,7 +88,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return (profileDisplayName: "", profileEmail: "")
     }
     
-    func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [CloudFeed.Metadata])? {
+    func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [CloudFeed.Metadata], mediaFileCount: Int)? {
         return nil
     }
 }

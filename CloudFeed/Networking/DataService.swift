@@ -171,9 +171,9 @@ final class DataService: NSObject, Sendable {
         return await databaseManager.getMetadataLivePhoto(metadata: metadata)
     }
     
-    func readFolder(account: String, serverUrl: String, depth: String) async -> [Metadata]? {
+    func readFolder(account: String, serverUrl: String, depth: String) async -> (metadatas: [Metadata], mediaFileCount: Int)? {
         if let results = await nextcloudService.readFolder(account: account, serverUrl: serverUrl, depth: depth) {
-            return results.metadatas
+            return (metadatas: results.metadatas, mediaFileCount: results.mediaFileCount)
         } else {
             return nil
         }
