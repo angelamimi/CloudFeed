@@ -64,14 +64,10 @@ extension FeedImageProvider {
     }
     
     private func getDatabaseManager(_ databaseUrl: URL?) -> DatabaseManager? {
-        do {
-            if let url = databaseUrl {
-                let config = ModelConfiguration(url: url)
-                let modelContainer = try ModelContainer(for: AccountModel.self, MetadataModel.self, AvatarModel.self, configurations: config)
-                return DatabaseManager(modelContainer: modelContainer)
-            }
-        } catch {
-            print("Database error: \(error)")
+        
+        if let url = databaseUrl {
+            let container = DatabaseManager.urlContainer(url)
+            return DatabaseManager(modelContainer: container)
         }
         
         return nil

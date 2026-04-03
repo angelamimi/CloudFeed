@@ -46,8 +46,8 @@ final class AppCoordinator: NSObject, Coordinator {
             return
         }
         
-        let ModelContainer = DatabaseManager.modelConainerWithURL(dbUrl)
-        let dbManager = DatabaseManager(modelContainer: ModelContainer)
+        let container = DatabaseManager.urlContainer(dbUrl)
+        let dbManager = DatabaseManager(modelContainer: container)
         let nextcloudService = NextcloudKitService(certificatesDirectory: certificatesDirectory, delegate: self)
         
         dataService = DataService(store: store, nextcloudService: nextcloudService, databaseManager: dbManager)

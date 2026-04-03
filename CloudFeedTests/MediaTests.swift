@@ -151,7 +151,7 @@ class MediaTests {
     
     private func setup() async throws {
         
-        databaseManager = DatabaseManager(modelContainer: DatabaseManager.test)
+        databaseManager = DatabaseManager(modelContainer: DatabaseManager.memoryContainer())
         #expect(databaseManager != nil)
         
         let store = StoreUtility()

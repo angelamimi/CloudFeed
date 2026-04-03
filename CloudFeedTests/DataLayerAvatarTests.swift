@@ -13,7 +13,7 @@ struct DataLayerAvatarTests {
     private var databaseManager: DatabaseManager
     
     init() async throws {
-        databaseManager = DatabaseManager(modelContainer: DatabaseManager.test)
+        databaseManager = DatabaseManager(modelContainer: DatabaseManager.memoryContainer())
     }
 
     @Test func addAvatar() async throws {

@@ -32,22 +32,20 @@ actor DatabaseManager: Sendable {
         category: String(describing: DatabaseManager.self)
     )
 
-    static var test: ModelContainer {
-        do {
-            let config = ModelConfiguration(isStoredInMemoryOnly: true)
-            let container = try ModelContainer(for: AccountModel.self, MetadataModel.self, AvatarModel.self, configurations: config)
-            return container
-        } catch {
-            fatalError("Failed to create container.")
-        }
+    static func memoryContainer() -> ModelContainer {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        return modelConainerFor(config)
     }
     
-    static func modelConainerWithURL(_ url: URL) -> ModelContainer {
+    static func urlContainer(_ url: URL) -> ModelContainer {
+        let config = ModelConfiguration(url: url)
+        return modelConainerFor(config)
+    }
+    
+    static func modelConainerFor(_ config: ModelConfiguration) -> ModelContainer {
         
         do {
-            let config = ModelConfiguration(url: url)
-            let container = try ModelContainer(for: AccountModel.self, MetadataModel.self, AvatarModel.self, configurations: config)
-            return container
+            return try ModelContainer(for: AccountModel.self, MetadataModel.self, AvatarModel.self, MetadataExifModel.self, configurations: config)
         } catch {
             fatalError("Failed to create container.")
         }
