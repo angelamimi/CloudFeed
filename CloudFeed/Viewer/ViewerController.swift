@@ -86,14 +86,7 @@ class ViewerController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if metadata.video {
-            imageView.accessibilityLabel = Strings.ViewerLabelVideo + " " + metadata.fileNameView 
-        } else if metadata.livePhoto {
-            imageView.accessibilityLabel = Strings.ViewerLabelLivePhoto + " " + metadata.fileNameView
-        } else {
-            imageView.accessibilityLabel = Strings.ViewerLabelImage + " " + metadata.fileNameView
-        }
-
+        initImageAccessibility()
         initGestureRecognizers()
     }
     
@@ -647,6 +640,22 @@ class ViewerController: UIViewController {
         
         panRecognizer?.isEnabled = false
         panRecognizer?.delegate = self
+    }
+    
+    private func initImageAccessibility() {
+        
+        let attributedValue = NSMutableAttributedString(string: metadata.fileNameView, attributes:[.accessibilitySpeechSpellOut: true])
+        imageView.accessibilityAttributedValue = attributedValue
+        
+        if metadata.video {
+            imageView.accessibilityLabel = Strings.ViewerLabelVideo
+        } else if metadata.livePhoto {
+            imageView.accessibilityLabel = Strings.ViewerLabelLivePhoto
+        } else {
+            imageView.accessibilityLabel = Strings.ViewerLabelImage
+        }
+        
+        imageView.accessibilityTraits = .none
     }
     
     private func videoSetupForDetails() {

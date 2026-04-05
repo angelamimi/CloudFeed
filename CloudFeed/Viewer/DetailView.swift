@@ -205,7 +205,9 @@ class DetailView: UIView {
         let name = (metadata!.fileNameView as NSString).deletingPathExtension
         fileNameLabel.text = name
         fileNameLabel.accessibilityLabel = Strings.DetailName
-        fileNameLabel.accessibilityValue = name
+
+        let attributedValue = NSMutableAttributedString(string: name, attributes:[.accessibilitySpeechSpellOut: true])
+        fileNameLabel.accessibilityAttributedValue = attributedValue
         
         let formattedDate = formatDate(metadata!.date)
         fileDateLabel.text = formattedDate
