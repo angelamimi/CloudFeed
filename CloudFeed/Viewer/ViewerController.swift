@@ -52,6 +52,10 @@ class ViewerController: UIViewController {
     private weak var detailViewHeightConstraint: NSLayoutConstraint?
     private weak var detailViewLeadingConstraint: NSLayoutConstraint?
     
+    private var downloadButton: UIButton?
+    private var downloadButtonRightConstraint: NSLayoutConstraint?
+    private var downloadButtonBottomConstraint: NSLayoutConstraint?
+    
     weak var delegate: ViewerDelegate?
     
     var metadata: Metadata!
@@ -113,6 +117,7 @@ class ViewerController: UIViewController {
         if metadata.video {
             loadVideo()
         } else {
+            downloadButton?.isHidden = isDownloadable() == false
             reloadImage()
         }
     }
@@ -1183,6 +1188,18 @@ class ViewerController: UIViewController {
                 initDetailView()
             }
             
+            if downloadButton == nil {
+                initDownloadButton()
+            } else {
+                
+                NSLayoutConstraint.deactivate([downloadButtonRightConstraint!,downloadButtonBottomConstraint!])
+                
+                initDownloadButtonConstraints()
+                
+                downloadButtonRightConstraint?.isActive = true
+                downloadButtonBottomConstraint?.isActive = true
+            }
+            
             //video view is added at runtime, which ends up in front of detail view. bring detail view back to front
             if detailView != nil {
                 view.bringSubviewToFront(detailView!)
@@ -1208,6 +1225,62 @@ class ViewerController: UIViewController {
 
                 UIAccessibility.post(notification: .screenChanged, argument: details.fileDateLabel)
             }
+        }
+    }
+    
+    private func isDownloadable() -> Bool {
+        if metadata.video || metadata.svg || metadata.gif || viewModel.fileExists(metadata) {
+            return false
+        } else {
+            return true
+        }
+    }
+    
+    private func initDownloadButton() {
+        
+        guard downloadButton == nil else { return }
+        guard isDownloadable() else { return }
+        
+        downloadButton = UIButton.init(type: .system)
+        view.addSubview(downloadButton!)
+        
+        downloadButton?.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            downloadButton!.widthAnchor.constraint(equalToConstant: 60),
+            downloadButton!.heightAnchor.constraint(equalToConstant: 60)
+        ])
+        
+        initDownloadButtonConstraints()
+        
+        downloadButtonRightConstraint?.isActive = true
+        downloadButtonBottomConstraint?.isActive = true
+        
+        if #available(iOS 26.0, *) {
+            downloadButton?.configuration = .clearGlass()
+            downloadButton?.cornerConfiguration = .capsule()
+        } else {
+            var config = UIButton.Configuration.bordered()
+            config.cornerStyle = .capsule
+            downloadButton?.configuration = config
+        }
+        
+        downloadButton?.configuration?.image = UIImage(systemName: "square.and.arrow.down")?.withTintColor(.systemBackground, renderingMode: .alwaysOriginal)
+        downloadButton?.addTarget(self, action: #selector(downloadButtonTouched(_:)), for: .touchUpInside)
+    }
+    
+    @objc func downloadButtonTouched(_ sender: UIButton) {
+        viewModel.downloadImage(metadata: metadata)
+    }
+    
+    private func initDownloadButtonConstraints() {
+        
+        if view.frame.width <= view.frame.height {
+            downloadButtonRightConstraint = downloadButton!.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -16)
+            downloadButtonBottomConstraint = downloadButton!.bottomAnchor.constraint(equalTo: detailView!.topAnchor, constant: -16)
+        } else {
+            downloadButtonRightConstraint = downloadButton!.rightAnchor.constraint(equalTo: detailView!.leftAnchor, constant: -16)
+            downloadButtonBottomConstraint = downloadButton!.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16)
         }
     }
     
@@ -1390,12 +1463,17 @@ class ViewerController: UIViewController {
             }, completion: { [weak self] _ in
                 self?.detailView?.removeFromSuperview()
                 self?.detailView = nil
+                self?.downloadButton?.removeFromSuperview()
+                self?.downloadButton = nil
             })
             
         } else {
             updateVerticalConstraintsHide()
             detailView?.removeFromSuperview()
             detailView = nil
+            
+            downloadButton?.removeFromSuperview()
+            downloadButton = nil
         }
     }
     
@@ -1537,6 +1615,8 @@ class ViewerController: UIViewController {
             }, completion: { [weak self] _ in
                 self?.detailView?.removeFromSuperview()
                 self?.detailView = nil
+                self?.downloadButton?.removeFromSuperview()
+                self?.downloadButton = nil
             })
         } else {
             
@@ -1547,6 +1627,8 @@ class ViewerController: UIViewController {
             updateHorizontalConstraintsHide()
             detailView?.removeFromSuperview()
             detailView = nil
+            downloadButton?.removeFromSuperview()
+            downloadButton = nil
         }
     }
     

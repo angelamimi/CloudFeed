@@ -25,12 +25,24 @@ import NextcloudKit
 import UIKit
 
 @MainActor
+protocol DownloadableCoordinator: AnyObject {
+    func download(_ metadata: Metadata)
+}
+
+@MainActor
 struct ViewerViewModel {
     
     let metadata: Metadata
     let dataService: DataService
+    private weak var coordinator: DownloadableCoordinator?
     
     init(dataService: DataService, metadata: Metadata) {
+        self.metadata = metadata
+        self.dataService = dataService
+    }
+    
+    init(coordinator: DownloadableCoordinator, dataService: DataService, metadata: Metadata) {
+        self.coordinator = coordinator
         self.metadata = metadata
         self.dataService = dataService
     }
@@ -66,6 +78,12 @@ struct ViewerViewModel {
     
     func downloadPreview(_ metadata: Metadata) async {
         await dataService.downloadPreview(metadata: metadata)
+    }
+    
+    func downloadImage(metadata: Metadata) {
+        if !dataService.store.fileExists(metadata) {
+            coordinator?.download(metadata)
+        }
     }
     
     func loadImage(metadata: Metadata) async -> UIImage? {

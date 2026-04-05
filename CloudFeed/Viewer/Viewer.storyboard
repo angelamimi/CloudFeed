@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -27,6 +28,17 @@
                                     <constraint firstAttribute="height" constant="300" id="u4l-oU-PNv"/>
                                 </constraints>
                             </imageView>
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gUW-hi-eaX">
+                                <rect key="frame" x="317" y="224" width="60" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="RLJ-fn-846"/>
+                                    <constraint firstAttribute="height" constant="60" id="cdI-Kx-Hwm"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain">
+                                    <imageReference key="image" image="square.and.arrow.down" catalog="system" symbolScale="default"/>
+                                </buttonConfiguration>
+                            </button>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="kG3-WY-mSO">
                                 <rect key="frame" x="186.66666666666666" y="139" width="20" height="22"/>
                                 <constraints>
@@ -41,8 +53,10 @@
                             <constraint firstItem="gnc-Wf-rti" firstAttribute="leading" secondItem="ReG-96-Weq" secondAttribute="leading" identifier="Image leading to safe area leading" id="2t2-uN-rfx"/>
                             <constraint firstItem="kG3-WY-mSO" firstAttribute="centerX" secondItem="gnc-Wf-rti" secondAttribute="centerX" id="6BZ-M6-hsp"/>
                             <constraint firstItem="kG3-WY-mSO" firstAttribute="centerY" secondItem="gnc-Wf-rti" secondAttribute="centerY" id="9fh-LU-CAa"/>
+                            <constraint firstItem="gUW-hi-eaX" firstAttribute="bottom" secondItem="gnc-Wf-rti" secondAttribute="bottom" constant="-16" id="QdX-fA-hZ3"/>
                             <constraint firstItem="gnc-Wf-rti" firstAttribute="trailing" secondItem="ReG-96-Weq" secondAttribute="trailing" identifier="Image trailing to safe area trailing" id="fni-Al-I0J"/>
                             <constraint firstItem="gnc-Wf-rti" firstAttribute="top" secondItem="ReG-96-Weq" secondAttribute="top" identifier="Image view top same as superview top" id="qvw-9n-KQ1"/>
+                            <constraint firstItem="POo-Li-FDE" firstAttribute="trailing" secondItem="gUW-hi-eaX" secondAttribute="trailing" constant="16" id="sZh-1b-l3u"/>
                         </constraints>
                     </view>
                     <connections>
@@ -267,17 +281,18 @@
     </scenes>
     <resources>
         <image name="livephoto" catalog="system" width="128" height="124"/>
+        <image name="square.and.arrow.down" catalog="system" width="114" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="tertiaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29803921568627451" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

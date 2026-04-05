@@ -24,21 +24,46 @@ import UIKit
 @MainActor
 final class ViewerCoordinator {
     
+    private let navigationController: UINavigationController
     private let dataService: DataService
     
-    init(dataService: DataService) {
+    init(navigationController: UINavigationController, dataService: DataService) {
+        self.navigationController = navigationController
         self.dataService = dataService
     }
     
     func getViewerController(for index: Int, metadata: Metadata) -> ViewerController {
         
         let viewerMedia = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(identifier: "ViewerController") as! ViewerController
-        let viewModel = ViewerViewModel(dataService: dataService, metadata: metadata)
+        let viewModel = ViewerViewModel(coordinator: self, dataService: dataService, metadata: metadata)
         
         viewerMedia.index = index
         viewerMedia.metadata = metadata
         viewerMedia.viewModel = viewModel
 
         return viewerMedia
+    }
+}
+
+extension ViewerCoordinator: DownloadableCoordinator {
+    
+    func download(_ metadata: Metadata) {
+        let coordinator = DownloadCoordinator(navigationController: navigationController, dataService: dataService, delegate: self, metadata: metadata)
+        coordinator.start()
+    }
+}
+
+extension ViewerCoordinator: DownloadCoordinatorDelegate {
+    
+    func downloadComplete() {
+        
+        if let pager = navigationController.topViewController as? PagerController {
+            
+            pager.reload()
+            
+            DispatchQueue.main.async{ [weak self] in
+                self?.navigationController.dismiss(animated: false)
+            }
+        }
     }
 }
