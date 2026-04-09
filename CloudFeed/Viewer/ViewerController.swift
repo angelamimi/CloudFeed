@@ -228,6 +228,7 @@ class ViewerController: UIViewController {
         }
         
         toggleControlsVisibility()
+        removeDownloadButton()
     }
     
     func handlePresentationControllerDidDismiss() {
@@ -240,6 +241,7 @@ class ViewerController: UIViewController {
             //usability. making sure video controls are not covered by the title bar after dismissing details popover
             updateStatus(.fullscreen)
         } else {
+            removeDownloadButton()
             updateStatus(.title)
         }
     }
@@ -534,7 +536,8 @@ class ViewerController: UIViewController {
     
         let image = await viewModel.loadImage(metadata: metadata)
         
-        path = viewModel.getFilePath(metadata)
+        //path = viewModel.getFilePath(metadata)
+        path = viewModel.getCachePath(metadata)
         
         if path != nil && currentStatus() == .details {
             updateDetailsForPath(path!)
@@ -1170,7 +1173,7 @@ class ViewerController: UIViewController {
         
         if isPad() {
 
-            hideVerticalDetails(animate: false)
+            updateVerticalConstraintsHide()
             
             if imageView.transform.a == 1.0 {
                 panRecognizer?.isEnabled = false
@@ -1237,6 +1240,15 @@ class ViewerController: UIViewController {
         }
     }
     
+    func showDownloadButton() {
+        initDownloadButton()
+    }
+    
+    private func removeDownloadButton() {
+        downloadButton?.removeFromSuperview()
+        downloadButton = nil
+    }
+    
     private func isDownloadable() -> Bool {
         if metadata.video || metadata.svg || metadata.gif || viewModel.fileExists(metadata) {
             return false
@@ -1250,14 +1262,16 @@ class ViewerController: UIViewController {
         guard downloadButton == nil else { return }
         guard isDownloadable() else { return }
         
+        let pad = isPad()
+        
         downloadButton = UIButton.init(type: .system)
         view.addSubview(downloadButton!)
         
         downloadButton?.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            downloadButton!.widthAnchor.constraint(equalToConstant: 60),
-            downloadButton!.heightAnchor.constraint(equalToConstant: 60)
+            downloadButton!.widthAnchor.constraint(equalToConstant: pad ? 80 : 60),
+            downloadButton!.heightAnchor.constraint(equalToConstant: pad ? 80 : 60)
         ])
         
         initDownloadButtonConstraints()
@@ -1266,25 +1280,37 @@ class ViewerController: UIViewController {
         downloadButtonBottomConstraint?.isActive = true
         
         if #available(iOS 26.0, *) {
-            downloadButton?.configuration = .clearGlass()
+            downloadButton?.configuration = pad ? .prominentGlass() : .prominentClearGlass()
             downloadButton?.cornerConfiguration = .capsule()
+            if pad {
+                downloadButton?.tintColor = .systemGray5
+            }
         } else {
             var config = UIButton.Configuration.bordered()
             config.cornerStyle = .capsule
             downloadButton?.configuration = config
         }
         
-        downloadButton?.configuration?.image = UIImage(systemName: "square.and.arrow.down")?.withTintColor(.systemBackground, renderingMode: .alwaysOriginal)
+        downloadButton?.configuration?.image = UIImage(systemName: "square.and.arrow.down")?.withTintColor(pad ? .label : .white, renderingMode: .alwaysOriginal)
         downloadButton?.addTarget(self, action: #selector(downloadButtonTouched(_:)), for: .touchUpInside)
     }
     
     @objc func downloadButtonTouched(_ sender: UIButton) {
-        viewModel.downloadImage(metadata: metadata)
+        if isPad() && presentedViewController != nil {
+            presentedViewController?.dismiss(animated: true, completion: { [weak self] in
+                self?.viewModel.downloadImage(metadata: self!.metadata)
+            })
+        } else {
+            viewModel.downloadImage(metadata: metadata)
+        }
     }
     
     private func initDownloadButtonConstraints() {
         
-        if view.frame.width <= view.frame.height {
+        if isPad() {
+            downloadButtonRightConstraint = downloadButton!.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -16)
+            downloadButtonBottomConstraint = downloadButton!.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16)
+        } else if view.frame.width <= view.frame.height {
             downloadButtonRightConstraint = downloadButton!.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -16)
             downloadButtonBottomConstraint = downloadButton!.bottomAnchor.constraint(equalTo: detailView!.topAnchor, constant: -16)
         } else {
@@ -1472,17 +1498,14 @@ class ViewerController: UIViewController {
             }, completion: { [weak self] _ in
                 self?.detailView?.removeFromSuperview()
                 self?.detailView = nil
-                self?.downloadButton?.removeFromSuperview()
-                self?.downloadButton = nil
+                self?.removeDownloadButton()
             })
             
         } else {
             updateVerticalConstraintsHide()
             detailView?.removeFromSuperview()
             detailView = nil
-            
-            downloadButton?.removeFromSuperview()
-            downloadButton = nil
+            removeDownloadButton()
         }
     }
     

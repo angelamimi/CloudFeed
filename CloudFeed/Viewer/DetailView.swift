@@ -300,23 +300,27 @@ class DetailView: UIView {
         resetLabels()
         
         guard url != nil else {
-            populateImageSizeInfo(pixelProperties: [:], sizeProperties: [:])
-            populateLocationFromMetadata()
-            populateExifFromMetadata()
+            if let metadata = self.metadata {
+                populateImageSizeInfoFromMetadata(metadata)
+                populateLocationFromMetadata(metadata)
+                populateExifFromMetadata(metadata)
+            }
             return
         }
 
         guard let originalSource = CGImageSourceCreateWithURL(url! as CFURL, nil),
               let fileProperties = CGImageSourceCopyProperties(originalSource, nil),
               let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else {
-            populateLocationFromMetadata()
+            if let metadata = self.metadata {
+                populateLocationFromMetadata(metadata)
+            }
             return
         }
         
         let properties = NSMutableDictionary(dictionary: fileProperties)
         let imagePropertyDict = NSMutableDictionary(dictionary: imageProperties)
         
-        populateImageSizeInfo(pixelProperties: imagePropertyDict, sizeProperties: properties)
+        populateImageSizeInfoFromProperties(pixelProperties: imagePropertyDict, sizeProperties: properties)
         await populateImageLocationInfo(imageProperties: imagePropertyDict)
         
         var camera: String? = ""
@@ -329,22 +333,20 @@ class DetailView: UIView {
         }
     }
     
-    private func populateLocationFromMetadata() {
-        
-        if let latitude = metadata?.latitude, let longitude = metadata?.longitude {
-            Task.detached { [weak self] in
-                await self?.showLocation(latitudeValue: latitude, longitudeValue: longitude)
-            }
+    private func populateLocationFromMetadata(_ metadata: Metadata) {
+        Task.detached { [weak self] in
+            await self?.showLocation(latitudeValue: metadata.latitude, longitudeValue: metadata.longitude)
         }
     }
     
-    private func populateExifFromMetadata() {
+    private func populateExifFromMetadata(_ metadata: Metadata) {
         
-        if let exifArray = metadata?.exifPhotos {
+        if let exifArray = metadata.exifPhotos {
             var dict: [NSString:AnyObject] = [:]
             for exif in exifArray {
                 _ = exif.map { dict[$0.key as NSString] = $0.value as AnyObject }
             }
+            
             //exif data doesn't appear to be standard yet. Commented out for now.
             //populateImageExifInfo(dict, nil)
         }
@@ -353,7 +355,9 @@ class DetailView: UIView {
     private func populateImageLocationInfo(imageProperties: NSMutableDictionary) async {
         
         guard let gpsData = imageProperties[kCGImagePropertyGPSDictionary] as? [NSString: AnyObject] else {
-            populateLocationFromMetadata()
+            if let metadata = self.metadata {
+                populateLocationFromMetadata(metadata)
+            }
             return
         }
         
@@ -416,18 +420,30 @@ class DetailView: UIView {
         return label
     }
     
-    private func populateImageSizeInfo(pixelProperties: NSMutableDictionary, sizeProperties: NSMutableDictionary) {
-
+    private func populateImageSizeInfoFromMetadata(_ metadata: Metadata) {
+        populateImageSizeInfo(width: metadata.width, height: metadata.height, fileSize: metadata.size)
+    }
+    
+    private func populateImageSizeInfoFromProperties(pixelProperties: NSMutableDictionary, sizeProperties: NSMutableDictionary) {
+        
         var width: Double? = pixelProperties[kCGImagePropertyPixelWidth] as? Double
         var height: Double? = pixelProperties[kCGImagePropertyPixelHeight] as? Double
-        var formattedPixels: String?
-        var formattedMegaPixels: String?
-        var formattedFileSize: String?
         
         if width == nil || height == nil {
             width = metadata!.width
             height = metadata!.height
         }
+        
+        let fileSize = sizeProperties[kCGImagePropertyFileSize] as? Int64
+        
+        populateImageSizeInfo(width: width, height: height, fileSize: fileSize)
+    }
+    
+    private func populateImageSizeInfo(width: Double?, height: Double?, fileSize: Int64?) {
+
+        var formattedPixels: String?
+        var formattedMegaPixels: String?
+        var formattedFileSize: String?
         
         if width == nil || height == nil || width == 0 || height == 0 {
             //Self.logger.debug("No pixel info")
@@ -445,8 +461,8 @@ class DetailView: UIView {
             formattedMegaPixels = megaPixels < 1 ? String(format: "%.1f MP", megaPixels) : "\(Int(megaPixels)) MP"
         }
         
-        if let rawFileSize = sizeProperties[kCGImagePropertyFileSize], let fileSize = rawFileSize as? Int64 {
-            formattedFileSize = ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file)
+        if fileSize != nil {
+            formattedFileSize = ByteCountFormatter.string(fromByteCount: fileSize!, countStyle: .file)
         } else if metadata!.size > 0 {
             formattedFileSize = ByteCountFormatter.string(fromByteCount: metadata!.size, countStyle: .file)
         }

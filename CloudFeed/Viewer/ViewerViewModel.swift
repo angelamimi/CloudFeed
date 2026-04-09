@@ -157,6 +157,13 @@ struct ViewerViewModel {
         await dataService.download(metadata: metadata, progressHandler: { _, _ in })
     }
     
+    func getCachePath(_ metadata: Metadata) -> String? {
+        if dataService.store.fileExists(metadata) {
+            return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
+        }
+        return nil
+    }
+    
     func getFilePath(_ metadata: Metadata) -> String? {
         if dataService.store.fileExists(metadata) {
             return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)

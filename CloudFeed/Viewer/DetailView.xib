@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
         <capability name="Map view configurations" minToolsVersion="14.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -11,7 +11,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" restorationIdentifier="DetailView" id="iN0-l3-epB" customClass="DetailView" customModule="CloudFeed" customModuleProvider="target">
+        <view opaque="NO" contentMode="scaleToFill" restorationIdentifier="DetailView" id="iN0-l3-epB" customClass="DetailView" customModule="CloudFeed" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="478" height="487"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
@@ -37,7 +37,7 @@
                                 </label>
                             </subviews>
                         </stackView>
-                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="56X-aZ-KyM" userLabel="Camera Stack View">
+                        <stackView contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="56X-aZ-KyM" userLabel="Camera Stack View">
                             <rect key="frame" x="16" y="36" width="446" height="152"/>
                             <subviews>
                                 <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="YrH-Yc-3br" userLabel="Camera Make Model Stack View">
@@ -114,7 +114,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
-                                    <color key="backgroundColor" systemColor="systemGray6Color"/>
+                                    <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                     <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
                                 </stackView>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jdu-da-KsZ">
@@ -232,13 +232,14 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
-                                    <color key="backgroundColor" systemColor="systemGray6Color"/>
+                                    <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="7YU-hL-ox5"/>
                                     </constraints>
                                     <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
                                 </stackView>
                             </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </stackView>
                         <mapView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="1000" zoomEnabled="NO" scrollEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" showsPointsOfInterest="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4W4-ha-tvj">
                             <rect key="frame" x="16" y="196" width="446" height="128"/>
@@ -328,6 +329,9 @@
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
+        <systemColor name="secondarySystemBackgroundColor">
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
@@ -339,9 +343,6 @@
         </systemColor>
         <systemColor name="systemGray5Color">
             <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemGray6Color">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

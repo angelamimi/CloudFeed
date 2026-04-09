@@ -140,6 +140,11 @@ class PagerController: UIViewController {
         if let metadata = self.currentViewController?.metadata {
             setMenu(isFavorite: metadata.favorite)
         }
+        
+        if isPad() && status == .details && presentedViewController == nil {
+            presentDetailPopover()
+        }
+        
         currentViewController?.viewWillAppear(false)
     }
     
@@ -391,7 +396,7 @@ class PagerController: UIViewController {
         let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
         
         controller.delegate = self
-        controller.url = current.getUrl()
+        controller.url = viewModel.fileExists(current.metadata) ? current.getUrl() : nil
         controller.metadata = current.metadata
         controller.modalPresentationStyle = .popover
         controller.modalTransitionStyle = .crossDissolve
@@ -404,6 +409,7 @@ class PagerController: UIViewController {
             popover.sourceRect = CGRect(x: view.frame.width, y: 0, width: 1, height: 1)
             popover.permittedArrowDirections = []
             popover.passthroughViews = [view]
+            popover.backgroundColor = .secondarySystemBackground
 
             let sheet = popover.adaptiveSheetPresentationController
             sheet.largestUndimmedDetentIdentifier = .medium
@@ -415,6 +421,7 @@ class PagerController: UIViewController {
     
     @objc private func titleButtonTapped() {
         showInfo()
+        currentViewController?.showDownloadButton()
     }
     
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
@@ -428,6 +435,7 @@ class PagerController: UIViewController {
 
                 if isPad() && presentedViewController == nil {
                     presentDetailPopover()
+                    currentViewController?.showDownloadButton()
                 }
             }
             
@@ -528,6 +536,7 @@ class PagerController: UIViewController {
             if presentedViewController == nil {
                 presentDetailPopover()
             }
+            currentViewController?.showDownloadButton()
         }
         
         currentViewController?.showDetails(animate: true, reset: true, recenter: true)
@@ -634,13 +643,15 @@ extension PagerController: PagerViewModelDelegate {
            let currentId = currentViewController?.metadata.id {
 
             if currentId == metadata.id && presentedId != metadata.id {
-                
-                if let url = currentViewController?.getUrl() {
+
+                if viewModel.fileExists(metadata), let url = currentViewController?.getUrl() {
                     detail.populateDetails(metadata: metadata, url: url)
                 } else {
                     detail.populateDetails(metadata: metadata)
                 }
             }
+            
+            currentViewController?.showDownloadButton()
         }
     }
     
