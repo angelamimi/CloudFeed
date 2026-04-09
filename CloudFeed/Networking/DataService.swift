@@ -108,7 +108,11 @@ final class DataService: NSObject, Sendable {
         await clearDatabase(account: account, removeAccount: true)
         removeSession(account: account)
         store.setPassword(account, password: nil)
+        store.deletePasscode(account)
+        store.deleteFailedPasscodeCount(account)
+        store.deleteAppResetOnFailedAttempts(account)
         await store.clearCache()
+        clearWidgetData()
     }
     
     func addAccount(_ account: String, urlBase: String, user: String, password: String) async {
@@ -130,7 +134,6 @@ final class DataService: NSObject, Sendable {
     }
     
     func clearWidgetData() {
-        
         store.clearWidgetFavoriteData("")
         store.clearWidgetFavoriteData(WidgetFamily.systemSmall.description)
         store.clearWidgetFavoriteData(WidgetFamily.systemMedium.description)
