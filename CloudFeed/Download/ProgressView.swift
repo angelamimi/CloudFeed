@@ -59,7 +59,12 @@ class ProgressView: UIView {
     
     private func awake() {
         stackView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
-        stackView.layer.cornerRadius = 8
+        
+        if #available(iOS 26.0, *) {
+            stackView.cornerConfiguration = .corners(radius: .containerConcentric(minimum: 20))
+        } else {
+            stackView.layer.cornerRadius = 8
+        }
     }
     
     private func initSubviews() {
