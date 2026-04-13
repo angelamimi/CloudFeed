@@ -60,7 +60,7 @@ actor DatabaseManager: Sendable {
                 deleteMetadata(account!)
                 
                 if removeAccount {
-                    self.deleteAccount(account!)
+                    deleteAccount(account!)
                 }
             }
         } catch {

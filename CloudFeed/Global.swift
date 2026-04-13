@@ -100,6 +100,7 @@ final class Global: Sendable {
     //
     let pageSize: Int         = 200
     let limit: Int            = 200
+    let largeLimit: Int       = 10_000
     
     // MARK: - Title
     //

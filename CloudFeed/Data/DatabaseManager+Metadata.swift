@@ -539,10 +539,8 @@ extension DatabaseManager {
                     break
                 }
             }
-            
             return metadatas
         }
-        
         return []
     }
     

@@ -286,8 +286,6 @@ final class DataService: NSObject, Sendable {
                                                                 fromDate: from ?? Date.distantPast, toDate: to ?? Date.distantFuture,
                                                                 offsetDate: nil, offsetName: nil)
         
-        //Self.logger.debug("processFavorites() - savedFavorites count: \(savedFavorites.count) displayedMetadataIds count: \(displayedMetadataIds.count)")
-        
         //if displayed but doesn't exist in db, flag for delete
         for displayedMetadataId in displayedMetadataIds {
             if savedFavorites.firstIndex(where: { $0.id == displayedMetadataId }) == nil {
@@ -460,13 +458,12 @@ final class DataService: NSObject, Sendable {
         
         let metadatas: [Metadata]
 
-        if limit == 0 {
+        if limit == 0 || limit == Global.shared.largeLimit {
             metadatas = await databaseManager.fetchMetadata(favorite: false, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
         } else {
             metadatas = await databaseManager.paginateMetadata(favorite: false, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate, offsetDate: offsetDate, offsetName: offsetName)
         }
         
-        //Self.logger.debug("searchMedia() - count: \(metadatas.count) added: \(typeResult.added.count) updated: \(typeResult.updated.count) deleted: \(typeResult.deleted.count)")
         return (metadatas, typeResult.added, typeResult.updated, typeResult.deleted, false)
     }
     

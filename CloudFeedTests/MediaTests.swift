@@ -26,8 +26,8 @@ class MediaTests {
     }
     
     deinit {
-        MainActor.assumeIsolated {
-            cleanup()
+        MainActor.assumeIsolated { [weak self] in
+            self?.cleanup()
         }
     }
 

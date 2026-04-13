@@ -118,8 +118,8 @@ final class SettingsCoordinator {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.ProfileErrorMessage, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.settingsController?.navigationController?.popViewController(animated: true)
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
+            self?.settingsController?.navigationController?.popViewController(animated: true)
         }))
         
         settingsController?.navigationController?.present(alertController, animated: true)
@@ -175,8 +175,8 @@ final class SettingsCoordinator {
     
         let alertController = UIAlertController(title: "", message: Strings.PasscodeSaved, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.showPasscodeSettings(passcodeCount: 2)
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
+            self?.showPasscodeSettings(passcodeCount: 2)
         }))
         
         settingsController?.navigationController?.present(alertController, animated: true)
@@ -186,8 +186,8 @@ final class SettingsCoordinator {
     
         let alertController = UIAlertController(title: "", message: Strings.PasscodeDeleted, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.settingsController?.navigationController?.popToRootViewController(animated: true)
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
+            self?.settingsController?.navigationController?.popToRootViewController(animated: true)
         }))
         
         settingsController?.navigationController?.present(alertController, animated: true)

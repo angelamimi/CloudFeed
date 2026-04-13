@@ -94,8 +94,8 @@ extension MediaCoordinator {
     func showInvalidFilterError() {
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaInvalidFilter, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.navigationController.popViewController(animated: true)
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
+            self?.navigationController.popViewController(animated: true)
         }))
         
         navigationController.present(alertController, animated: true)
@@ -105,9 +105,9 @@ extension MediaCoordinator {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaErrorMessage, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: Strings.RetryAction, style: .default, handler: { _ in
+        alertController.addAction(UIAlertAction(title: Strings.RetryAction, style: .default, handler: { [weak self] _ in
             retry()
-            self.navigationController.popViewController(animated: true)
+            self?.navigationController.popViewController(animated: true)
         }))
         
         if navigationController.presentedViewController == nil { //passcode controller not visible
@@ -119,8 +119,8 @@ extension MediaCoordinator {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.FavUpdateErrorMessage, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.navigationController.popViewController(animated: true)
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
+            self?.navigationController.popViewController(animated: true)
         }))
         
         navigationController.present(alertController, animated: true)

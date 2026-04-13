@@ -47,8 +47,8 @@ class ProgressView: UIView {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        MainActor.assumeIsolated {
-            awake()
+        MainActor.assumeIsolated { [weak self] in
+            self?.initView()
         }
     }
     
@@ -57,7 +57,7 @@ class ProgressView: UIView {
         cancelLabel.text = cancel
     }
     
-    private func awake() {
+    private func initView() {
         stackView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
         
         if #available(iOS 26.0, *) {

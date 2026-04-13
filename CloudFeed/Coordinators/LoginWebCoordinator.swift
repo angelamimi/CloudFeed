@@ -54,7 +54,7 @@ final class LoginWebCoordinator : Coordinator {
         loginController.url = url
         loginController.viewModel = LoginViewModel(delegate: self, dataService: dataService, coordinator: self)
         
-        self.navigationController.pushViewController(loginController, animated: true)
+        navigationController.pushViewController(loginController, animated: true)
     }
 }
 
@@ -76,8 +76,8 @@ extension LoginWebCoordinator {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.UrlErrorMessage, preferredStyle: .alert)
 
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.navigationController.popViewController(animated: true)
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
+            self?.navigationController.popViewController(animated: true)
         }))
 
         navigationController.present(alertController, animated: true)
@@ -87,8 +87,8 @@ extension LoginWebCoordinator {
 
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.LoginFailed, preferredStyle: .alert)
 
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.navigationController.popViewController(animated: true)
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
+            self?.navigationController.popViewController(animated: true)
         }))
 
         navigationController.present(alertController, animated: true)

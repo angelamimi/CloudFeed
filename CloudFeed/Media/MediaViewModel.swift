@@ -238,10 +238,9 @@ final class MediaViewModel {
         
         fetchTask = Task { [weak self] in
             
-            //Self.logger.debug("sync() - toDate: \(toDate.formatted(date: .abbreviated, time: .standard))")
-            //Self.logger.debug("sync() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .standard))")
+            //Self.logger.debug("sync() - fromDate: \(fromDate.formatted(date: .abbreviated, time: .shortened)) toDate: \(toDate.formatted(date: .abbreviated, time: .shortened))")
             
-            let results = await self?.search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 10000)
+            let results = await self?.search(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: Global.shared.largeLimit)
             
             if Task.isCancelled { return }
             
@@ -399,7 +398,7 @@ final class MediaViewModel {
     private func syncDatasource(added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
         
         if added.count == 0 && updated.count == 0 && deleted.count == 0 {
-            self.delegate.dataSourceUpdated(refresh: false)
+            delegate.dataSourceUpdated(refresh: false)
             return
         }
         

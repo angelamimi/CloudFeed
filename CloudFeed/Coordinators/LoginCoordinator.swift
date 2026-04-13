@@ -66,8 +66,7 @@ class LoginCoordinator: Coordinator {
         alertController.addAction(UIAlertAction(title: Strings.NoAction, style: .default, handler: { _ in }))
                             
         alertController.addAction(UIAlertAction(title: Strings.LoginViewCertificate, style: .default, handler: { [weak self] _ in
-            guard let self else { return }
-            self.showCertificate(host: host, certificateDirectory: self.dataService.store.certificatesDirectory, navigationController: navController, delegate: self)
+            self?.showCertificate(host: host, certificateDirectory: self?.dataService.store.certificatesDirectory, navigationController: navController, delegate: self)
         }))
         
         navController.present(alertController, animated: true)

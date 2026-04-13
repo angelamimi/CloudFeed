@@ -248,7 +248,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                                                                account: account,
                                                                options: options,
                                                                taskHandler: { _ in })
-    
+            
             if result.error == .success, let files = result.files {
                 return (Array(files.map { Metadata.init(file: $0) }), false)
             } else {
@@ -475,23 +475,23 @@ extension NextcloudKitService: NextcloudKitDelegate {
     }
     
     func downloadProgress(_ progress: Float, totalBytes: Int64, totalBytesExpected: Int64, fileName: String, serverUrl: String, session: URLSession, task: URLSessionTask) {
-        //Self.logger.debug("downloadProgress")
+
     }
     
     func uploadProgress(_ progress: Float, totalBytes: Int64, totalBytesExpected: Int64, fileName: String, serverUrl: String, session: URLSession, task: URLSessionTask) {
-        //Self.logger.debug("uploadProgress")
+
     }
     
     func downloadingFinish(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        //Self.logger.debug("downloadingFinish")
+
     }
     
     func downloadComplete(fileName: String, serverUrl: String, etag: String?, date: Date?, dateLastModified: Date?, length: Int64, task: URLSessionTask, error: NKError) {
-        //Self.logger.debug("downloadComplete")
+
     }
     
     func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: Date?, size: Int64, task: URLSessionTask, error: NKError) {
-        //Self.logger.debug("uploadComplete")
+
     }
     
     func request<Value: Sendable>(_ request: Alamofire.DataRequest, didParseResponse response: Alamofire.AFDataResponse<Value>) {

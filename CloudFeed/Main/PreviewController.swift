@@ -93,10 +93,10 @@ class PreviewController: UIViewController {
     private func loadVideo() {
 
         Task { [weak self] in
-            guard let self else { return }
             
-            guard let videoURL = await self.viewModel.getVideoURL(metadata: self.metadata) else {
-                self.activityIndicator.stopAnimating()
+            guard let metadata = self?.metadata,
+                  let videoURL = await self?.viewModel.getVideoURL(metadata: metadata) else {
+                self?.activityIndicator.stopAnimating()
                 return
             }
 
@@ -109,24 +109,23 @@ class PreviewController: UIViewController {
             avpController.player = player
             avpController.showsPlaybackControls = false
 
-            self.setupVideoController(avpController: avpController, autoPlay: true)
+            self?.setupVideoController(avpController: avpController, autoPlay: true)
         }
     }
     
     private func loadLiveVideo() {
         
         Task { [weak self] in
-            guard let self = self else { return }
             
-            if let currentMetadata = self.metadata,
-               let videoMetadata = await self.viewModel.getMetadataLivePhoto(metadata: currentMetadata) {
+            if let currentMetadata = self?.metadata,
+               let videoMetadata = await self?.viewModel.getMetadataLivePhoto(metadata: currentMetadata) {
                 
-                if self.viewModel.dataService.store.fileExists(videoMetadata) {
-                    playLiveVideoFromMetadata(videoMetadata)
+                if self?.viewModel.dataService.store.fileExists(videoMetadata) == true {
+                    self?.playLiveVideoFromMetadata(videoMetadata)
                 } else {
-                    await self.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
-                    self.playLiveVideoFromMetadata(videoMetadata)
-                    self.activityIndicator.stopAnimating()
+                    await self?.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
+                    self?.playLiveVideoFromMetadata(videoMetadata)
+                    self?.activityIndicator.stopAnimating()
                 }
             }
         }
@@ -134,7 +133,7 @@ class PreviewController: UIViewController {
     
     private func playLiveVideoFromMetadata(_ metadata: Metadata) {
         
-        let urlVideo = self.getVideoURL(metadata: metadata)
+        let urlVideo = getVideoURL(metadata: metadata)
         
         if let url = urlVideo {
             playLivePhoto(url)
@@ -152,12 +151,12 @@ class PreviewController: UIViewController {
     
     private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
 
-        if self.children.count == 0 {
-            self.addChild(avpController)
+        if children.count == 0 {
+            addChild(avpController)
         }
         
-        if self.view.subviews.count == 1 {
-            self.view.addSubview(avpController.view)
+        if view.subviews.count == 1 {
+            view.addSubview(avpController.view)
         }
         
         avpController.didMove(toParent: self)
@@ -196,11 +195,11 @@ class PreviewController: UIViewController {
     private func loadImage(metadata: Metadata) {
 
         Task { [weak self] in
-            guard let self else { return }
             
-            await self.viewModel.downloadPreview(metadata)
+            await self?.viewModel.downloadPreview(metadata)
             
-            if let image = UIImage(contentsOfFile: self.viewModel.getPreviewPath(metadata)) {
+            if let previewPath = self?.viewModel.getPreviewPath(metadata),
+               let image = UIImage(contentsOfFile: previewPath) {
                 DispatchQueue.main.async { [weak self] in
                     self?.imageView.image = image
                     self?.showImage()
@@ -216,9 +215,8 @@ class PreviewController: UIViewController {
     private func loadImageFromMetadata(metadata: Metadata) {
         
         Task { [weak self] in
-            guard let self else { return }
             
-            guard let image = await viewModel.loadImage(metadata: metadata) else { return }
+            guard let image = await self?.viewModel.loadImage(metadata: metadata) else { return }
             
             DispatchQueue.main.async { [weak self] in
                 self?.imageView.image = image

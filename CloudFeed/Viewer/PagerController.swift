@@ -125,7 +125,7 @@ class PagerController: UIViewController {
         super.didMove(toParent: parent)
 
         if parent == nil {
-            if let metadata = self.currentViewController?.metadata {
+            if let metadata = currentViewController?.metadata {
                 coordinator.pagingEndedWith(metadata: metadata)
             }
         }
@@ -137,7 +137,7 @@ class PagerController: UIViewController {
     
     func reload() {
         
-        if let metadata = self.currentViewController?.metadata {
+        if let metadata = currentViewController?.metadata {
             setMenu(isFavorite: metadata.favorite)
         }
         
@@ -330,11 +330,8 @@ class PagerController: UIViewController {
     private func playLiveVideoFromMetadata(controller: ViewerController, metadata: Metadata) {
         
         DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
             
-            let urlVideo = self.getVideoURL(metadata: metadata)
-
-            if let url = urlVideo {
+            if let url = self?.getVideoURL(metadata: metadata) {
                 controller.playLivePhoto(url)
             }
         }
@@ -392,12 +389,19 @@ class PagerController: UIViewController {
         
         guard presentedViewController == nil else { return }
         guard let current = currentViewController else { return }
+        guard let metadata = current.metadata else { return }
 
         let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
         
+        var url: URL?
+        
+        if metadata.video || (metadata.image && viewModel.fileExists(metadata)) {
+            url = current.getUrl()
+        }
+        
         controller.delegate = self
-        controller.url = viewModel.fileExists(current.metadata) ? current.getUrl() : nil
-        controller.metadata = current.metadata
+        controller.url = url
+        controller.metadata = metadata
         controller.modalPresentationStyle = .popover
         controller.modalTransitionStyle = .crossDissolve
         controller.preferredContentSize = CGSize(width: 400, height: 200)
@@ -502,11 +506,11 @@ class PagerController: UIViewController {
     private func initDetailController(metadata: Metadata) -> DetailController {
         
         let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailController") as! DetailController
-        let mediaPath = viewModel.getFilePath(metadata)
+        let filePath = viewModel.getFilePath(metadata)
         let viewModel = DetailViewModel()
         
         viewModel.delegate = controller
-        viewModel.mediaPath = mediaPath
+        viewModel.filePath = filePath
         viewModel.metadata = metadata
         
         controller.viewModel = viewModel
@@ -570,7 +574,7 @@ extension PagerController: UIPopoverPresentationControllerDelegate {
 
 extension PagerController: ViewerDelegate {
     
-    func mediaLoaded(metadata: Metadata, url: URL) {
+    func mediaLoaded(metadata: Metadata, url: URL?) {
         if isPad() {
             if let details = presentedViewController as? DetailsController {
                 if let current = currentViewController?.metadata.id, current == metadata.id {
@@ -644,7 +648,7 @@ extension PagerController: PagerViewModelDelegate {
 
             if currentId == metadata.id && presentedId != metadata.id {
 
-                if viewModel.fileExists(metadata), let url = currentViewController?.getUrl() {
+                if metadata.video || viewModel.fileExists(metadata), let url = currentViewController?.getUrl() {
                     detail.populateDetails(metadata: metadata, url: url)
                 } else {
                     detail.populateDetails(metadata: metadata)
@@ -682,15 +686,14 @@ extension PagerController: UIGestureRecognizerDelegate {
             currentViewController.updateViewConstraints()
             
             Task { [weak self] in
-                guard let self = self else { return }
                 
-                if let videoMetadata = await self.viewModel.getMetadataLivePhoto(metadata: currentViewController.metadata) {
+                if let videoMetadata = await self?.viewModel.getMetadataLivePhoto(metadata: currentViewController.metadata) {
                     
-                    if self.viewModel.dataService.store.fileExists(videoMetadata) {
-                        self.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
+                    if self?.viewModel.dataService.store.fileExists(videoMetadata) == true {
+                        self?.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
                     } else {
-                        await self.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
-                        self.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
+                        await self?.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
+                        self?.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
                     }
                 }
             }

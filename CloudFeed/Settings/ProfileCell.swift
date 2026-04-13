@@ -32,18 +32,8 @@ class ProfileCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        MainActor.assumeIsolated {
-            
-            profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
-            profileImageView.layer.masksToBounds = true
-        
-            profileNameLabel.font = UIFont.preferredFont(forTextStyle: .body)
-            profileEmailLabel.font = UIFont.preferredFont(forTextStyle: .body)
-            
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                profileImageViewTopContraint.constant = 20
-                emailLabelBottomContraint.constant = 20
-            }
+        MainActor.assumeIsolated { [weak self] in
+            self?.initCell()
         }
     }
 
@@ -60,6 +50,20 @@ class ProfileCell: UITableViewCell {
     func updateProfile(_ email: String, fullName name: String) {
         profileNameLabel.text = name
         profileEmailLabel.text = email
+    }
+    
+    private func initCell() {
+        
+        profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
+        profileImageView.layer.masksToBounds = true
+    
+        profileNameLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        profileEmailLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            profileImageViewTopContraint.constant = 20
+            emailLabelBottomContraint.constant = 20
+        }
     }
 }
 

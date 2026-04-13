@@ -174,7 +174,6 @@ final class FavoritesViewModel {
                     offsetDate = metadata.date
                     /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
                      but might lose new results from files with dates in the same second */
-                    //Self.logger.debug("loadMore() - offsetDate: \(offsetDate!.formatted(date: .abbreviated, time: .standard))")
                 }
             }
         }
@@ -182,7 +181,6 @@ final class FavoritesViewModel {
         guard let offsetDate = offsetDate else { return }
         guard let offsetName = offsetName else { return }
         
-        //Self.logger.debug("loadMore() - offsetName: \(offsetName) offsetDate: \(offsetDate.formatted(date: .abbreviated, time: .standard))")
         sync(type: type, offsetDate: offsetDate, offsetName: offsetName, filterFromDate: filterFromDate, filterToDate: filterToDate)
     }
     
@@ -222,16 +220,16 @@ final class FavoritesViewModel {
         delegate.fetching()
                 
         fetchTask = Task { [weak self] in
-            guard let self else { return }
             
-            let error = await dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
+            let error = await self?.dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
             
             if Task.isCancelled { return }
             
-            handleFavoriteResult(error: error)
+            self?.handleFavoriteResult(error: error ?? true)
             
-            let resultMetadatas = await dataService.paginateFavoriteMetadata(type: type, fromDate: from, toDate: to, offsetDate: nil, offsetName: nil, currentUserAccount: Environment.current.currentUser)
-            await applyDatasourceChanges(metadatas: resultMetadatas, refresh: true)
+            if let resultMetadatas = await self?.dataService.paginateFavoriteMetadata(type: type, fromDate: from, toDate: to, offsetDate: nil, offsetName: nil, currentUserAccount: Environment.current.currentUser) {
+                await self?.applyDatasourceChanges(metadatas: resultMetadatas, refresh: true)
+            }
         }
     }
     
@@ -240,15 +238,14 @@ final class FavoritesViewModel {
         delegate.fetching()
                 
         fetchTask = Task { [weak self] in
-            guard let self else { return }
             
-            let error = await dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
+            let error = await self?.dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
             
             if Task.isCancelled { return }
             
-            handleFavoriteResult(error: error)
+            self?.handleFavoriteResult(error: error ?? true)
             
-            await processFavorites(type: type, from: from, to: to)
+            await self?.processFavorites(type: type, from: from, to: to)
         }
     }
     
@@ -265,7 +262,6 @@ final class FavoritesViewModel {
             let result = await dataService.toggleFavoriteMetadata(metadata)
             
             if result == nil {
-                //Self.logger.error("bulkEdit() - failed to save favorite ocid: \(metadata.ocId)")
                 error = true
             } else {
                 snapshot.deleteItems([result!.id])
@@ -346,16 +342,16 @@ final class FavoritesViewModel {
         delegate.fetching()
         
         Task { [weak self] in
-            guard let self else { return }
 
-            _ = await self.dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
+            _ = await self?.dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
 
-            let resultMetadatas = await self.dataService.paginateFavoriteMetadata(type: type,
-                                                                                  fromDate: filterFromDate ?? Date.distantPast,
-                                                                                  toDate: filterToDate ?? Date.distantFuture,
-                                                                                  offsetDate: offsetDate, offsetName: offsetName,
-                                                                                  currentUserAccount: Environment.current.currentUser)
-            await applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
+            if let resultMetadatas = await self?.dataService.paginateFavoriteMetadata(type: type,
+                                                                                      fromDate: filterFromDate ?? Date.distantPast,
+                                                                                      toDate: filterToDate ?? Date.distantFuture,
+                                                                                      offsetDate: offsetDate, offsetName: offsetName,
+                                                                                      currentUserAccount: Environment.current.currentUser) {
+                await self?.applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
+            }
         }
     }
     
@@ -461,7 +457,6 @@ final class FavoritesViewModel {
                 for result in result.add {
                     
                     if snapshot.itemIdentifiers.contains(result.id) {
-                        //Self.logger.debug("processFavorites() - \(result.fileNameView) exists. do not add again.")
                         continue
                     }
                     
@@ -531,8 +526,6 @@ final class FavoritesViewModel {
         if updates.count > 0 {
             snapshot.reconfigureItems(updates)
         }
-        
-        //Self.logger.debug("applyDatasourceChanges() - adds: \(adds.count) updates: \(updates.count)")
         
         delegate.fetchResultReceived(resultItemCount: metadatas.count)
 

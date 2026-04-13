@@ -57,15 +57,18 @@ class ProfileViewModel {
         guard let account = await dataService.getActiveAccount() else { return }
         
         Task { [weak self] in
-            guard let self else { return }
-            guard let currentUser = Environment.current.currentUser else { return }
             
-            let result = await dataService.getUserProfile(account: currentUser.account)
-            
-            await downloadAvatar(account: account, user: currentUser.user)
-            let image = await loadAvatar(account: account)
-            
-            delegate?.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail, profileImage: image, mediaPath: account.mediaPath)
+            if let currentUser = Environment.current.currentUser,
+               let result = await self?.dataService.getUserProfile(account: currentUser.account) {
+                
+                await self?.downloadAvatar(account: account, user: currentUser.user)
+                let image = await self?.loadAvatar(account: account)
+                
+                self?.delegate?.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail, profileImage: image, mediaPath: account.mediaPath)
+                
+            } else {
+                self?.delegate.profileResultReceived(profileName: "", profileEmail: "", profileImage: nil, mediaPath: "")
+            }
         }
     }
     

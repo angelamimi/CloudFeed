@@ -94,7 +94,7 @@ class PickerController: UIViewController {
         
         Task { [weak self] in
             
-            if self != nil && self!.serverUrl.isEmpty {
+            if self?.serverUrl.isEmpty == true {
                 
                 if let folderLocation = self?.viewModel?.getHomeServer(),
                    let metadata = await self?.getRootMetadata(folderLocation: folderLocation) {

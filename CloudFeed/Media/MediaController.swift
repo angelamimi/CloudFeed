@@ -343,7 +343,7 @@ extension MediaController: CollectionDelegate {
     
     func setTitle() {
         
-        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+        let visibleIndexes = collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
         guard let indexPath = visibleIndexes?.first else {
             setTitle("")
             return
@@ -447,10 +447,12 @@ extension MediaController: UICollectionViewDelegate {
         previewController.preferredContentSize = image.size
 
         let config = UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: { previewController }, actionProvider: { [weak self] _ in
-            guard let self else { return .init(children: []) }
-            return UIMenu(title: "",
-                          options: .displayInline,
-                          children: [self.favoriteMenuAction(metadata: metadata), self.shareMenuAction(metadata: metadata)])
+            if let favorite = self?.favoriteMenuAction(metadata: metadata),
+               let share = self?.shareMenuAction(metadata: metadata) {
+                return UIMenu(title: "", options: .displayInline, children: [favorite, share])
+            } else {
+                return .init(children: [])
+            }
         })
         
         return config
@@ -458,9 +460,10 @@ extension MediaController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
         
-        animator.addCompletion {
-            guard let indexPath = configuration.identifier as? IndexPath else { return }
-            self.openViewer(indexPath: indexPath)
+        animator.addCompletion { [weak self] in
+            if let indexPath = configuration.identifier as? IndexPath {
+                self?.openViewer(indexPath: indexPath)
+            }
         }
     }
 }

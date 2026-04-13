@@ -60,12 +60,14 @@ final class AppCoordinator: NSObject, Coordinator {
                 
                 if let activeAccount = await dataService.getActiveAccount() {
                     Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId)
+                } else {
+                    store.deleteAllChainStore() //no account. make sure keychain is clear
                 }
 
                 if Environment.current.currentUser != nil {
                     await self?.startMainCoordinator(unlock: false)
-                } else if self?.window != nil {
-                    let loginServerCoordinator = LoginServerCoordinator(window: self!.window, dataService: dataService)
+                } else if let window = self?.window {
+                    let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)
                     loginServerCoordinator.delegate = self
                     loginServerCoordinator.start()
                 }
@@ -179,8 +181,7 @@ final class AppCoordinator: NSObject, Coordinator {
         alertController.addAction(UIAlertAction(title: Strings.NoAction, style: .default, handler: { _ in }))
                             
         alertController.addAction(UIAlertAction(title: Strings.LoginViewCertificate, style: .default, handler: { [weak self] _ in
-            guard let self else { return }
-            self.showCertificate(host: host, certificateDirectory: self.dataService?.store.certificatesDirectory, navigationController: navigationController, delegate: self)
+            self?.showCertificate(host: host, certificateDirectory: self?.dataService?.store.certificatesDirectory, navigationController: navigationController, delegate: self)
         }))
         
         navigationController.present(alertController, animated: true)

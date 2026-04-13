@@ -28,10 +28,8 @@ class AvatarCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        MainActor.assumeIsolated {
-            
-            avatarImageView.layer.cornerRadius = avatarImageView.frame.size.width / 2
-            avatarImageView.layer.masksToBounds = true
+        MainActor.assumeIsolated { [weak self] in
+            self?.initCell()
         }
     }
     
@@ -43,5 +41,10 @@ class AvatarCell: UITableViewCell {
         } else {
             avatarImageView.image = image
         }
+    }
+    
+    private func initCell() {
+        avatarImageView.layer.cornerRadius = avatarImageView.frame.size.width / 2
+        avatarImageView.layer.masksToBounds = true
     }
 }

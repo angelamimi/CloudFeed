@@ -89,8 +89,8 @@ class DetailView: UIView {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        MainActor.assumeIsolated {
-            commonInit()
+        MainActor.assumeIsolated { [weak self] in
+            self?.initView()
         }
     }
     
@@ -116,7 +116,7 @@ class DetailView: UIView {
         }
     }
     
-    private func commonInit() {
+    private func initView() {
         
         initElements()
  
@@ -285,7 +285,10 @@ class DetailView: UIView {
     
     private func populateVideoDetails() {
 
-        guard url != nil else { return }
+        guard url != nil else {
+            populateLocationFromMetadata(metadata!)
+            return
+        }
         
         resetLabels()
         
@@ -299,21 +302,19 @@ class DetailView: UIView {
 
         resetLabels()
         
+        guard let metadata = self.metadata else { return }
+        
         guard url != nil else {
-            if let metadata = self.metadata {
-                populateImageSizeInfoFromMetadata(metadata)
-                populateLocationFromMetadata(metadata)
-                populateExifFromMetadata(metadata)
-            }
+            populateImageSizeInfoFromMetadata(metadata)
+            populateLocationFromMetadata(metadata)
+            populateExifFromMetadata(metadata)
             return
         }
 
         guard let originalSource = CGImageSourceCreateWithURL(url! as CFURL, nil),
               let fileProperties = CGImageSourceCopyProperties(originalSource, nil),
               let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else {
-            if let metadata = self.metadata {
-                populateLocationFromMetadata(metadata)
-            }
+            populateLocationFromMetadata(metadata)
             return
         }
         
@@ -355,8 +356,8 @@ class DetailView: UIView {
     private func populateImageLocationInfo(imageProperties: NSMutableDictionary) async {
         
         guard let gpsData = imageProperties[kCGImagePropertyGPSDictionary] as? [NSString: AnyObject] else {
-            if let metadata = self.metadata {
-                populateLocationFromMetadata(metadata)
+            if metadata != nil {
+                populateLocationFromMetadata(metadata!)
             }
             return
         }
@@ -446,7 +447,6 @@ class DetailView: UIView {
         var formattedFileSize: String?
         
         if width == nil || height == nil || width == 0 || height == 0 {
-            //Self.logger.debug("No pixel info")
             sizeLabel.text = Strings.DetailSizeNone
             sizeLabel.accessibilityValue = Strings.DetailSizeNone
         } else {
@@ -649,6 +649,8 @@ class DetailView: UIView {
         
         if rawSize == nil {
             rawSize = CGSize(width: metadata.width, height: metadata.height)
+        } else {
+            rawSize = CGSize(width: abs(rawSize!.width), height: abs(rawSize!.height))
         }
         
         if metadata.size > 0 {

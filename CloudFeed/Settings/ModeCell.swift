@@ -41,23 +41,8 @@ class ModeCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        MainActor.assumeIsolated {
-            darkLabel.text = Strings.SettingsLabelDark
-            lightLabel.text = Strings.SettingsLabelLight
-            
-            darkStackView.isAccessibilityElement = true
-            darkStackView.accessibilityTraits = [.button]
-            darkStackView.accessibilityLabel = Strings.SettingsLabelDark
-            
-            lightStackView.isAccessibilityElement = true
-            lightStackView.accessibilityTraits = [.button]
-            lightStackView.accessibilityLabel = Strings.SettingsLabelLight
-            
-            let lightTap = UITapGestureRecognizer(target: self, action: #selector(lightStackViewTapped))
-            lightStackView.addGestureRecognizer(lightTap)
-        
-            let darkTap = UITapGestureRecognizer(target: self, action: #selector(darkStackViewTapped))
-            darkStackView.addGestureRecognizer(darkTap)
+        MainActor.assumeIsolated { [weak self] in
+            self?.initCell()
         }
     }
     
@@ -91,5 +76,25 @@ class ModeCell: UITableViewCell {
     private func setLightChecked() {
         darkCheckImageView.image = UIImage(systemName: "circle")
         lightCheckImageView.image = UIImage(systemName: "checkmark.circle.fill")
+    }
+    
+    private func initCell() {
+        
+        darkLabel.text = Strings.SettingsLabelDark
+        lightLabel.text = Strings.SettingsLabelLight
+        
+        darkStackView.isAccessibilityElement = true
+        darkStackView.accessibilityTraits = [.button]
+        darkStackView.accessibilityLabel = Strings.SettingsLabelDark
+        
+        lightStackView.isAccessibilityElement = true
+        lightStackView.accessibilityTraits = [.button]
+        lightStackView.accessibilityLabel = Strings.SettingsLabelLight
+        
+        let lightTap = UITapGestureRecognizer(target: self, action: #selector(lightStackViewTapped))
+        lightStackView.addGestureRecognizer(lightTap)
+    
+        let darkTap = UITapGestureRecognizer(target: self, action: #selector(darkStackViewTapped))
+        darkStackView.addGestureRecognizer(darkTap)
     }
 }

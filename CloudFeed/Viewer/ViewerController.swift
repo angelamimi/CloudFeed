@@ -31,7 +31,7 @@ protocol ViewerDelegate: AnyObject {
     func doubleTapped()
     func videoError()
     func updateStatus(status: Global.ViewerStatus)
-    func mediaLoaded(metadata: Metadata, url: URL)
+    func mediaLoaded(metadata: Metadata, url: URL?)
 }
 
 class ViewerController: UIViewController {
@@ -361,37 +361,35 @@ class ViewerController: UIViewController {
         activityIndicator.startAnimating()
 
         Task { [weak self] in
-            guard let self else { return }
             
-            let videoURL = await self.viewModel.getVideoURL(metadata: self.metadata)
-            
-            guard videoURL != nil else {
+            guard let metadata = self?.metadata, let videoURL = await self?.viewModel.getVideoURL(metadata: metadata)
+            else {
                 //Unable to access Nextcloud. VLC doesn't report an error state if stopped because of
                 //a failed connection, so allowing to fail here as a check for access upon video reload.
                 //https://code.videolan.org/videolan/VLCKit/-/issues/720
-                self.delegate?.videoError()
+                self?.delegate?.videoError()
                 
-                self.activityIndicator.stopAnimating()
+                self?.activityIndicator.stopAnimating()
                 
-                if self.controlsView != nil && self.controlsView!.isDescendant(of: view) {
-                    self.controlsView?.enable() //make sure enabled so user can try again
-                    self.controlsView?.reset()
+                if self?.controlsView != nil , let view = self?.view, self?.controlsView!.isDescendant(of: view) == true {
+                    self?.controlsView?.enable() //make sure enabled so user can try again
+                    self?.controlsView?.reset()
                 }
                 
                 return
             }
-            self.detailView?.url = videoURL
-            self.path = videoURL?.absoluteString
-            self.videoURL = videoURL
+            self?.detailView?.url = videoURL
+            self?.path = videoURL.absoluteString
+            self?.videoURL = videoURL
             
-            if self.path != nil && self.currentStatus() == .details {
-                self.updateDetailsForPath(self.path!)
+            if let path = self?.path, self?.currentStatus() == .details {
+                self?.updateDetailsForPath(path)
             }
             
-            await self.showFrame(url: videoURL!)
+            await self?.showFrame(url: videoURL)
 
-            self.setupVideoControls()
-            self.activityIndicator.stopAnimating()
+            self?.setupVideoControls()
+            self?.activityIndicator.stopAnimating()
         }
     }
     
@@ -430,7 +428,7 @@ class ViewerController: UIViewController {
     
     private func setupVideoController(autoPlay: Bool) {
         
-        guard let url = self.videoURL else { return }
+        guard let url = videoURL else { return }
         
         activityIndicator.startAnimating()
         
@@ -520,7 +518,7 @@ class ViewerController: UIViewController {
         
         Task { [weak self] in
             
-            if self != nil, let metadata = await self!.viewModel.getMetadataFromOcId(self!.metadata.ocId) {
+            if let ocId = self?.metadata.ocId, let metadata = await self?.viewModel.getMetadataFromOcId(ocId) {
              
                 await MainActor.run { [weak self] in
                     self?.metadata = metadata
@@ -536,7 +534,6 @@ class ViewerController: UIViewController {
     
         let image = await viewModel.loadImage(metadata: metadata)
         
-        //path = viewModel.getFilePath(metadata)
         path = viewModel.getCachePath(metadata)
         
         if path != nil && currentStatus() == .details {
@@ -564,23 +561,19 @@ class ViewerController: UIViewController {
     
     private func updateDetailsForPath(_ path: String) {
 
-        let url: URL?
+        var url: URL? = nil
         
         if metadata.video {
             url = URL.init(string: path)
-        } else if metadata.image {
+        } else if metadata.image && viewModel.fileExists(metadata) {
             url = URL.init(filePath: path)
-        } else {
-            url = nil
         }
         
-        guard url != nil else { return }
-        
         if isPad() {
-            delegate?.mediaLoaded(metadata: metadata, url: url!)
+            delegate?.mediaLoaded(metadata: metadata, url: url)
         } else {
             detailView?.metadata = metadata
-            detailView?.url = url!
+            detailView?.url = url
             detailView?.populateDetails()
         }
     }
@@ -1137,11 +1130,12 @@ class ViewerController: UIViewController {
     private func initDetailController() -> DetailController {
         
         let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailController") as! DetailController
-        let mediaPath = viewModel.getFilePath(metadata)
+
+        let filePath = metadata.video || viewModel.fileExists(metadata) ? viewModel.getFilePath(metadata) : nil
         let viewModel = DetailViewModel()
         
         viewModel.delegate = controller
-        viewModel.mediaPath = mediaPath
+        viewModel.filePath = filePath
         viewModel.metadata = metadata
         
         controller.viewModel = viewModel
@@ -1160,7 +1154,9 @@ class ViewerController: UIViewController {
             sheet.detents = [.custom { _ in
                 return height
                }, .large()]
-            sheet.preferredCornerRadius = .zero
+            if #unavailable(iOS 26) {
+                sheet.preferredCornerRadius = .zero
+            }
         }
         
         present(controller, animated: true)
@@ -1296,9 +1292,9 @@ class ViewerController: UIViewController {
     }
     
     @objc func downloadButtonTouched(_ sender: UIButton) {
-        if isPad() && presentedViewController != nil {
+        if isPad(), presentedViewController != nil, let metadata = self.metadata {
             presentedViewController?.dismiss(animated: true, completion: { [weak self] in
-                self?.viewModel.downloadImage(metadata: self!.metadata)
+                self?.viewModel.downloadImage(metadata: metadata)
             })
         } else {
             viewModel.downloadImage(metadata: metadata)
@@ -1479,7 +1475,7 @@ class ViewerController: UIViewController {
         let allowTransform = ImageUtility.ratioWithinThreshold(imageView.image?.size ?? .zero)
         
         if UIAccessibility.isReduceMotionEnabled {
-            self.calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: view.frame.width, height: heightOffset))
+            calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: view.frame.width, height: heightOffset))
         } else {
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: { [weak self] in
                 self?.calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: self?.view.frame.width ?? 0, height: heightOffset))
@@ -1619,10 +1615,10 @@ class ViewerController: UIViewController {
     
     private func scrollDownHorizontalDetails() {
         
-        self.detailViewTopConstraint?.constant = -(view.frame.height)
+        detailViewTopConstraint?.constant = -(view.frame.height)
         
         if UIAccessibility.isReduceMotionEnabled {
-            self.view.layoutIfNeeded()
+            view.layoutIfNeeded()
         } else {
             UIView.animate(withDuration: 0.3, delay: 0.0, options: .curveLinear, animations: { [weak self] in
                 self?.view.layoutIfNeeded()
@@ -1711,7 +1707,7 @@ extension ViewerController: UIGestureRecognizerDelegate {
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
-        guard self.metadata.video else { return false }
+        guard metadata.video else { return false }
         
         if gestureRecognizer is UITapGestureRecognizer && otherGestureRecognizer is UITapGestureRecognizer
             && gestureRecognizer.state == .ended && otherGestureRecognizer.state == .ended {

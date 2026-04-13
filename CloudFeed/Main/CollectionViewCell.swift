@@ -38,8 +38,8 @@ class CollectionViewCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        MainActor.assumeIsolated {
-            self.initCell()
+        MainActor.assumeIsolated { [weak self] in
+            self?.initCell()
         }
     }
     

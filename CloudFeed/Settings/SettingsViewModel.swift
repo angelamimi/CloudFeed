@@ -34,7 +34,7 @@ final class SettingsViewModel: ProfileViewModel {
     weak var settingsDelegate: SettingsDelegate!
 
     init(delegate: SettingsDelegate, profileDelegate: ProfileDelegate, resetDelegate: ResetApplicationDelegate, dataService: DataService, coordinator: SettingsCoordinator) {
-        self.settingsDelegate = delegate
+        settingsDelegate = delegate
         super.init(delegate: profileDelegate, accountDelegate: delegate, resetDelegate: resetDelegate, dataService: dataService, coordinator: coordinator)
     }
     

@@ -89,7 +89,7 @@ class DetailsController: UIViewController {
         animateDetailView()
     }
     
-    func populateDetails(metadata: Metadata, url: URL) {
+    func populateDetails(metadata: Metadata, url: URL?) {
         
         self.metadata = metadata
         self.url = url

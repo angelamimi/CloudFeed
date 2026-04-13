@@ -290,21 +290,11 @@ class FavoritesController: CollectionController {
     
     private func getVisibleItemData() -> (toDate: Date?, name: String?) {
         
-        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-        let first = visibleIndexes?.first
-
-        if first == nil {
-            //Self.logger.debug("getVisibleItemData() - no visible items")
-        } else {
-
-            let firstMetadata = viewModel.getItemAtIndexPath(first!)
-
-            if firstMetadata == nil {
-                //Self.logger.debug("getVisibleItemData() - missing metadata")
-            } else {
-                //Self.logger.debug("getVisibleItemData() - \(firstMetadata!.date) \(firstMetadata!.fileNameView)")
-                return (firstMetadata!.date, firstMetadata!.fileNameView)
-            }
+        let visibleIndexes = collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+        
+        if let first = visibleIndexes?.first,
+           let firstMetadata = viewModel.getItemAtIndexPath(first) {
+            return (firstMetadata.date, firstMetadata.fileNameView)
         }
         
         return (nil, nil)
@@ -380,13 +370,10 @@ extension FavoritesController: CollectionDelegate {
     
     func setTitle() {
         
-        let visibleIndexes = self.collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-        guard let indexPath = visibleIndexes?.first else {
-            setTitle("")
-            return
-        }
-        
-        if let metadata = viewModel.getItemAtIndexPath(indexPath) {
+        let visibleIndexes = collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+
+        if let indexPath = visibleIndexes?.first,
+           let metadata = viewModel.getItemAtIndexPath(indexPath) {
             setTitle(getFormattedDate(metadata.date))
         } else {
             setTitle("")
@@ -561,8 +548,12 @@ extension FavoritesController: UICollectionViewDelegate {
         previewController.preferredContentSize = image.size
 
         let config = UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: { previewController }, actionProvider: { [weak self] _ in
-            guard let self else { return .init(children: []) }
-            return UIMenu(title: "", options: .displayInline, children: [self.favoriteMenuAction(indexPath: indexPath), self.shareMenuAction(metadata: metadata)])
+            if let favorite = self?.favoriteMenuAction(indexPath: indexPath),
+               let share = self?.shareMenuAction(metadata: metadata) {
+                return UIMenu(title: "", options: .displayInline, children: [favorite, share])
+            } else {
+                return .init(children: [])
+            }
         })
         
         return config

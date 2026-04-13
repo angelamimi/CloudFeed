@@ -97,8 +97,8 @@ extension FavoritesCoordinator {
     func showInvalidFilterError() {
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaInvalidFilter, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.navigationController.popViewController(animated: true)
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
+            self?.navigationController.popViewController(animated: true)
         }))
         
         navigationController.present(alertController, animated: true)
@@ -108,8 +108,8 @@ extension FavoritesCoordinator {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.FavErrorMessage, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.navigationController.popViewController(animated: true)
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
+            self?.navigationController.popViewController(animated: true)
         }))
         
         if navigationController.presentedViewController == nil { //passcode controller not visible
@@ -121,8 +121,8 @@ extension FavoritesCoordinator {
         
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.FavUpdateErrorMessage, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
-            self.navigationController.popViewController(animated: true)
+        alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
+            self?.navigationController.popViewController(animated: true)
         }))
         
         navigationController.present(alertController, animated: true)

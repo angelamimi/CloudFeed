@@ -29,7 +29,7 @@ protocol DetailDelegate: AnyObject {
 @MainActor
 final class DetailViewModel: NSObject {
     
-    var mediaPath: String?
+    var filePath: String?
     var metadata: Metadata?
     
     weak var delegate: DetailDelegate?
@@ -54,7 +54,7 @@ final class DetailViewModel: NSObject {
         
         appendGeneralDetails(metadata: metadata)
         
-        guard let path = mediaPath else { return }
+        guard let path = filePath else { return }
         guard metadata.image else { return }
         
         let imageSourceURL = URL(fileURLWithPath: path)
@@ -365,7 +365,7 @@ final class DetailViewModel: NSObject {
         
         if metadata.image {
             let detail = NSMutableDictionary()
-            if mediaPath == nil {
+            if filePath == nil {
                 detail[kCGImagePropertyPixelWidth] = metadata.width
                 detail[kCGImagePropertyPixelHeight] = metadata.height
                 
