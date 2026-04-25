@@ -66,6 +66,16 @@ class FilterController: UIViewController {
         removeFilterButton.addTarget(self, action: #selector(executeRemoveFilter), for: .touchUpInside)
         
         initDataSource()
+        
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
+            DispatchQueue.main.async { [weak self] in
+                self?.willEnterForegroundNotification()
+            }
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     override func viewDidLayoutSubviews() {
@@ -107,6 +117,14 @@ class FilterController: UIViewController {
     
     @objc private func executeRemoveFilter() {
         filterable?.removeFilter()
+    }
+    
+    private func willEnterForegroundNotification() {
+        if isViewLoaded && view.window != nil {
+            var snapshot = presetsDataSource.snapshot()
+            snapshot.reloadSections([0, 1])
+            presetsDataSource.apply(snapshot, animatingDifferences: false)
+        }
     }
 
     private func initDataSource() {
@@ -169,91 +187,35 @@ class FilterController: UIViewController {
     }
     
     private func populateCell(year: Int, cell: FilterYearCell) {
+        
         cell.yearButton.tag = year
-        cell.yearButton.addTarget(self, action: #selector(yearButtonTouched(_:)), for: .touchUpInside)
+        cell.delegate = self
         
         let selected = year == selectedYear
-        setButtonSelected(selected, cell.yearButton)
+        cell.setSelected(selected: selected)
         
         cell.setYear(year)
     }
     
     private func populateCell(month: Int, cell: FilterMonthCell) {
+        
         cell.monthButton.tag = month
-        cell.monthButton.addTarget(self, action: #selector(monthButtonTouched(_:)), for: .touchUpInside)
+        cell.delegate = self
         
         let selected = selectedMonths.contains(month)
-        setButtonSelected(selected, cell.monthButton)
-        
-        if month >= 0 && month <= 11 {
-            cell.setMonth(index: month, Calendar.current.monthSymbols[month])
-        }
-    }
-    
-    @objc func yearButtonTouched(_ sender: UIButton) {
-        
-        if sender.isSelected {
-            selectedYear = -1
-            setButtonSelected(false, sender)
-        } else {
-            //deselect old year
-            let snapshot = presetsDataSource.snapshot()
-            if let index = snapshot.indexOfItem(selectedYear) {
-                if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? FilterYearCell {
-                    setButtonSelected(false, cell.yearButton)
-                }
-            }
-            //select and set new year
-            setButtonSelected(true, sender)
-            selectedYear = sender.tag
-        }
-        
-        setDateRange()
-    }
-    
-    @objc func monthButtonTouched(_ sender: UIButton) {
+        cell.setSelected(selected: selected)
 
-        if sender.isSelected {
-            
-            let month = sender.tag
-            let sorted = selectedMonths.sorted()
-
-            if sorted.first == month || sorted.last == month {
-                selectedMonths.remove(at: selectedMonths.firstIndex(of: month)!)
-                setButtonSelected(false, sender)
-            } else {
-                
-                //deselect anything after the newly deselected month
-                for selectedMonth in sorted {
-                    if selectedMonth > month {
-                        selectedMonths.remove(at: selectedMonths.firstIndex(of: selectedMonth)!)
-                    }
-                }
-                
-                //reflect changes
-                reconfigureVisibleItems()
-            }
-            
-            setDateRange()
-            
-        } else {
-            setButtonSelected(true, sender)
-            selectedMonths.append(sender.tag)
-            setMonthRange()
-            setDateRange()
-            
-            //reflect changes
-            reconfigureVisibleItems()
+        if month >= 0 && month <= 11  {
+            cell.setMonth(index: month, month: Calendar.current.monthSymbols[month])
         }
     }
     
-    private func reconfigureVisibleItems() {
-        let refreshItems = collectionView.indexPathsForVisibleItems
-        let items = refreshItems.compactMap { presetsDataSource.itemIdentifier(for: $0) }
+    private func updateItems(_ indexPaths: [IndexPath]) {
+        let items = indexPaths.compactMap { presetsDataSource.itemIdentifier(for: $0) }
         var snapshot = presetsDataSource.snapshot()
         
         snapshot.reconfigureItems(items)
-        presetsDataSource.apply(snapshot)
+        presetsDataSource.apply(snapshot, animatingDifferences: false)
     }
     
     private func setDateRange() {
@@ -328,7 +290,9 @@ class FilterController: UIViewController {
         }
     }
     
-    private func setMonthRange() {
+    private func setMonthRange() -> [IndexPath] {
+        
+        var newlySelected: [IndexPath] = []
         
         if selectedMonths.count > 1 {
             
@@ -338,37 +302,76 @@ class FilterController: UIViewController {
 
                 for month in first...last {
                     
-                    if let cell = collectionView.cellForItem(at: IndexPath(item: month, section: 1)) as? FilterMonthCell {
-                        setButtonSelected(true, cell.monthButton)
-                    }
-                    
                     if !selectedMonths.contains(month) {
                         selectedMonths.append(month)
+                        newlySelected.append(IndexPath(item: month, section: 1))
                     }
                 }
             }
         }
+        
+        return newlySelected
     }
+}
+
+extension FilterController: YearCellDelegate {
     
-    private func setButtonSelected(_ selected: Bool, _ button: UIButton) {
+    func yearSelected(year: Int, selected: Bool) {
+        
+        var indexPaths: [IndexPath] = []
+        
+        if selectedYear != -1 {
+            let index = yearsData.firstIndex(of: selectedYear)!
+            indexPaths.append(IndexPath(item: index, section: 0))
+        }
+        
+        if year != -1 && year != selectedYear {
+            let index = yearsData.firstIndex(of: year)!
+            indexPaths.append(IndexPath(item: index, section: 0))
+        }
+        
+        selectedYear = selected ? -1 : year
+        
+        updateItems(indexPaths)
+        setDateRange()
+    }
+}
+
+extension FilterController: MonthCellDelegate {
+    
+    func monthSelected(month: Int, selected: Bool) {
+        
+        var indexPaths: [IndexPath] = []
+        
         if selected {
-            button.tintColor = .tintColor
-            button.isSelected = true
             
-            var config = UIButton.Configuration.plain()
-            config.background.strokeWidth = 2
-            config.background.strokeColor = .tintColor
+            let sorted = selectedMonths.sorted()
+
+            if sorted.first == month || sorted.last == month {
+                selectedMonths.remove(at: selectedMonths.firstIndex(of: month)!)
+                indexPaths.append(IndexPath(item: month, section: 1))
+            } else {
+                
+                //deselect anything after the newly deselected month
+                for selectedMonth in sorted {
+                    if selectedMonth > month {
+                        let index = selectedMonths.firstIndex(of: selectedMonth)
+                        selectedMonths.remove(at: index!)
+                        indexPaths.append(IndexPath(item: selectedMonth, section: 1))
+                    }
+                }
+            }
             
-            button.configuration = config
+            updateItems(indexPaths)
+            setDateRange()
             
         } else {
-            button.tintColor = .label
-            button.isSelected = false
-            
-            var config = UIButton.Configuration.gray()
-            config.background.strokeWidth = 0
-            
-            button.configuration = config
+
+            selectedMonths.append(month)
+            indexPaths.append(IndexPath(item: month, section: 1))
+            indexPaths.append(contentsOf: setMonthRange())
+            setDateRange()
+            updateItems(indexPaths)
         }
     }
 }

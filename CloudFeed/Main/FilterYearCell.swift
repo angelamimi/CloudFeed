@@ -21,19 +21,68 @@
 
 import UIKit
 
+@MainActor
+protocol YearCellDelegate: AnyObject {
+    func yearSelected(year: Int, selected: Bool)
+}
+
 class FilterYearCell: UICollectionViewCell {
     
     @IBOutlet weak var yearButton: UIButton!
+    
+    weak var delegate: YearCellDelegate?
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        MainActor.assumeIsolated { [weak self] in
+            self?.initCell()
+        }
+    }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         
         yearButton.isSelected = false
-        yearButton.tintColor = .label
-        yearButton.configuration = UIButton.Configuration.gray()
+        yearButton.configuration?.title = ""
+    }
+    
+    func setSelected(selected: Bool) {
+        yearButton.isSelected = selected
     }
     
     func setYear(_ year: Int) {
-        yearButton.setTitle(year.description, for: [])
+        yearButton.configuration?.title = year.description
+    }
+    
+    @objc func yearButtonTouched(_ sender: UIButton) {
+        delegate?.yearSelected(year: sender.tag, selected: sender.isSelected)
+    }
+    
+    private func initCell() {
+        
+        yearButton.configuration = .plain()
+        
+        yearButton.addTarget(self, action: #selector(yearButtonTouched(_:)), for: .touchUpInside)
+        
+        yearButton.configuration?.baseForegroundColor = traitCollection.userInterfaceStyle == .dark ? .white : .black
+        
+        yearButton.configurationUpdateHandler = { [weak self] button in
+
+            if button.isSelected {
+                button.configuration?.background.strokeWidth = 2
+                button.configuration?.background.strokeColor = .tintColor
+                button.configuration?.background.backgroundColor = .tintColor.withAlphaComponent(0.2)
+                button.configuration?.baseForegroundColor = .tintColor
+            } else {
+                button.configuration?.background.strokeWidth = 0
+                if #available(iOS 26, *) {
+                    button.configuration?.background.backgroundColor = .tertiarySystemFill.withAlphaComponent(0.3)
+                } else {
+                    button.configuration?.background.backgroundColor = .secondarySystemBackground
+                }
+                button.configuration?.baseForegroundColor = self?.traitCollection.userInterfaceStyle == .dark ? .white : .black //using .label here causes title to jump
+            }
+        }
     }
 }
