@@ -23,6 +23,7 @@ import UIKit
 import KeychainAccess
 import os.log
 
+
 struct ImageProviderData: Codable {
     var date: Date
     var widgetUrl: String
@@ -179,6 +180,14 @@ struct StoreUtility: Sendable {
     func setWidgetFavoriteLastImageData(data: ImageProviderData, family: String) {
         guard let encoded = try? JSONEncoder().encode(data) else { return }
         getUserDefaults()?.set(encoded, forKey: "Favorites_lastImageData_\(family)")
+    }
+    
+    func getWidgetFavoriteLastImageOcId() -> String? {
+        return getUserDefaults()?.value(forKey: "Favorites_lastImageOcId") as? String
+    }
+    
+    func setWidgetFavoriteLastImageOcId(ocId: String?) {
+        getUserDefaults()?.set(ocId, forKey: "Favorites_lastImageOcId")
     }
     
     func getWidgetFeedLastImageOcId() -> String? {

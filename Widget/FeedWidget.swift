@@ -69,12 +69,13 @@ struct FeedWidgetEntryView : View {
                 
                 VStack {
                     
-                    if widgetFamily != .systemSmall {
+                    if widgetFamily != .systemSmall || entry.message == nil {
                         
                         if let icon = UIImage(named: "Icon") {
                             Image(uiImage: icon)
                                 .resizable()
                                 .frame(width: 70, height: 70)
+                                .clipShape(Circle())
                         } else {
                             Image(systemName: "photo")
                                 .foregroundStyle(.secondary)
@@ -93,7 +94,6 @@ struct FeedWidgetEntryView : View {
                 }
             }
         }
-        //.widgetAccentable()
         .widgetURL(entry.url)
     }
 }

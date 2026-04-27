@@ -140,6 +140,7 @@ final class DataService: NSObject, Sendable {
         store.clearWidgetFavoriteData(WidgetFamily.systemLarge.description)
         store.clearWidgetFavoriteData(WidgetFamily.systemExtraLarge.description)
         store.setWidgetFavoriteLastImageDate(date: nil)
+        store.setWidgetFavoriteLastImageOcId(ocId: nil)
         
         store.clearWidgetFeedData("")
         store.clearWidgetFeedData(WidgetFamily.systemSmall.description)

@@ -32,10 +32,6 @@ final class FeedImageProvider: AppIntentTimelineProvider {
     typealias Entry = ImageDataEntry
     typealias Intent = ConfigurationAppIntent
     
-    init() {
-        clearFeedData()
-    }
-    
     func placeholder(in context: Context) -> ImageDataEntry {
         return ImageDataEntry(date: .now, showDate: false, image: nil, title: "", url: URL(string: Global.shared.widgetScheme + "://")!, message: NSLocalizedString("Widget.Feed.SignIn", comment: ""))
     }
@@ -51,17 +47,6 @@ final class FeedImageProvider: AppIntentTimelineProvider {
 }
 
 extension FeedImageProvider {
-    
-    private func clearFeedData() {
-        let store = StoreUtility()
-        store.clearWidgetFeedData("")
-        store.clearWidgetFeedData(WidgetFamily.systemSmall.description)
-        store.clearWidgetFeedData(WidgetFamily.systemMedium.description)
-        store.clearWidgetFeedData(WidgetFamily.systemLarge.description)
-        store.clearWidgetFeedData(WidgetFamily.systemExtraLarge.description)
-        store.setWidgetFeedLastImageOcId(ocId: nil)
-        store.setWidgetFeedLastImageDate(date: nil)
-    }
     
     private func getDatabaseManager(_ databaseUrl: URL?) -> DatabaseManager? {
         
@@ -92,18 +77,10 @@ extension FeedImageProvider {
         }
         
         let store = StoreUtility()
-        let dbUrl = store.databaseDirectory?.appending(path: Global.shared.database)
-        let databaseManager: DatabaseManager? = getDatabaseManager(dbUrl)
-        let password: String
         let scale = context.environmentVariants.displayScale?.max() ?? 1.0
+        let cached = store.getWidgetFeedLastImageData(familyOverride == nil ? context.family.description : familyOverride!)
         
-        guard let account = await databaseManager?.getActiveAccount() else {
-            let url = URL(string: Global.shared.widgetScheme + "://")!
-            let entry = ImageDataEntry(date: .now, showDate: false, image: nil, title: "", url: url, message: NSLocalizedString("Widget.Feed.SignIn", comment: ""))
-            return (entry: entry, reloadAtEnd: false)
-        }
-        
-        if let data = store.getWidgetFeedLastImageData(familyOverride == nil ? context.family.description : familyOverride!) {
+        if let data = cached {
             
             if .now >= Calendar.current.date(byAdding: .hour, value: 1, to: data.date)! {
                 //hour passed. allow remote fetch
@@ -114,6 +91,16 @@ extension FeedImageProvider {
                     return (entry: entry, reloadAtEnd: false)
                 }
             }
+        }
+        
+        let dbUrl = store.databaseDirectory?.appending(path: Global.shared.database)
+        let databaseManager: DatabaseManager? = getDatabaseManager(dbUrl)
+        let password: String
+        
+        guard let account = await databaseManager?.getActiveAccount() else {
+            let url = URL(string: Global.shared.widgetScheme + "://")!
+            let entry = ImageDataEntry(date: .now, showDate: false, image: nil, title: "", url: url, message: NSLocalizedString("Widget.Feed.SignIn", comment: ""))
+            return (entry: entry, reloadAtEnd: false)
         }
         
         password = store.getPassword(account.account)
@@ -203,18 +190,38 @@ extension FeedImageProvider {
             let previewExists = store.previewExists(metadata.ocId, metadata.etag)
             
             if let entry = await getImageDataEntryForMetatada(metadata, previewExists: previewExists, previewPath: previewPath, iconPath: iconPath, size: context.displaySize, showDate: configuration.showDate, title: title, url: url, account: account.account, scale: scale) {
-                 let data = ImageProviderData(date: .now, widgetUrl: url.description, imagePath: previewPath, imageTitle: title)
+                let data = ImageProviderData(date: .now, widgetUrl: url.description, imagePath: previewPath, imageTitle: title)
                 store.setWidgetFeedLastImageData(data: data, family: familyOverride == nil ? context.family.description : familyOverride!)
                 return (entry: entry, reloadAtEnd: false)
             } else {
-                //have metadata, but no image
+                //have metadata, but no image. show cached or empty
+                if cached != nil, let entry = await buildLastCachedEntry(data: cached!, context: context, showDate: configuration.showDate, scale: scale) {
+                    return (entry: entry, reloadAtEnd: true)
+                }
+
                 let entry = ImageDataEntry(date: .now, showDate: false, image: nil, title: title, url: url, message: nil)
-                return (entry: entry, reloadAtEnd: false)
+                return (entry: entry, reloadAtEnd: true)
             }
         } else {
             store.setWidgetFeedLastImageDate(date: nil)
+            
+            if cached != nil, let entry = await buildLastCachedEntry(data: cached!, context: context, showDate: configuration.showDate, scale: scale) {
+                return (entry: entry, reloadAtEnd: true)
+            }
+            
             return (entry: getEntry(), reloadAtEnd: true)
         }
+    }
+    
+    private func buildLastCachedEntry(data: ImageProviderData, context: Context, showDate: Bool, scale: CGFloat) async -> ImageDataEntry? {
+        
+        if let widgetUrl = URL(string: data.widgetUrl),
+           let preview = await getImage(data.imagePath, size: context.displaySize, scale: scale) {
+            let entry = ImageDataEntry(date: .now, showDate: showDate, image: preview, title: data.imageTitle, url: widgetUrl)
+            return entry
+        }
+        
+        return nil
     }
     
     private func getImageDataEntryForMetatada(_ metadata: Metadata, previewExists: Bool, previewPath: String, iconPath: String, size: CGSize, showDate: Bool, title: String, url: URL, account: String, scale: CGFloat) async -> ImageDataEntry? {
@@ -330,6 +337,17 @@ extension FeedImageProvider {
         }
         
         return nil
+    }
+    
+    private func clearFeedData() {
+        let store = StoreUtility()
+        store.clearWidgetFeedData("")
+        store.clearWidgetFeedData(WidgetFamily.systemSmall.description)
+        store.clearWidgetFeedData(WidgetFamily.systemMedium.description)
+        store.clearWidgetFeedData(WidgetFamily.systemLarge.description)
+        store.clearWidgetFeedData(WidgetFamily.systemExtraLarge.description)
+        store.setWidgetFeedLastImageOcId(ocId: nil)
+        store.setWidgetFeedLastImageDate(date: nil)
     }
 }
 
