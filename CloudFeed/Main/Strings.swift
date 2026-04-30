@@ -170,7 +170,15 @@ extension Strings {
     public static let FilterLabelDateFrom = NSLocalizedString("Filter.Label.DateFrom", comment: "")
     public static let FilterLabelDateTo = NSLocalizedString("Filter.Label.DateTo", comment: "")
     
-    //Controls Speed
+    //Video Controls
+    public static let ControlsSpeed = NSLocalizedString("Controls.Label.Speed", comment: "")
+    public static let ControlsCurrentTime = NSLocalizedString("Controls.Label.CurrentTime", comment: "")
+    public static let ControlsCurrentTimeHint = NSLocalizedString("Controls.Hint.CurrentTime", comment: "")
+    public static let ControlsRemainingTime = NSLocalizedString("Controls.Label.RemainingTime", comment: "")
+    public static let ControlsRemainingTimeHint = NSLocalizedString("Controls.Hint.RemainingTime", comment: "")
+    public static let ControlsTime = NSLocalizedString("Controls.Label.Time", comment: "")
+    public static let ControlsVolume = NSLocalizedString("Controls.Label.Volume", comment: "")
+    public static let ControlsAudioTrack = NSLocalizedString("Controls.Label.AudioTrack", comment: "")
     public static let ControlsSpeedRate025 = NSLocalizedString("Controls.SpeedRate.0.25", comment: "")
     public static let ControlsSpeedRate05 = NSLocalizedString("Controls.SpeedRate.0.5", comment: "")
     public static let ControlsSpeedRate075 = NSLocalizedString("Controls.SpeedRate.0.75", comment: "")

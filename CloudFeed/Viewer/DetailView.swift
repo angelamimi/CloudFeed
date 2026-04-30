@@ -133,7 +133,7 @@ class DetailView: UIView {
             contentStackViewBottomConstraint?.isActive = true
         }
         
-        metadataButton.setTitle(Strings.DetailAll, for: .normal)
+        metadataButton.configuration?.title = Strings.DetailAll
         metadataButton.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
 
         cameraStackView.clipsToBounds = true

@@ -53,8 +53,8 @@ class FilterController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        filterButton.setTitle(Strings.MediaFilter, for: .normal)
-        removeFilterButton.setTitle(Strings.MediaRemoveFilter, for: .normal)
+        filterButton.configuration?.title = Strings.MediaFilter
+        removeFilterButton.configuration?.title = Strings.MediaRemoveFilter
         
         dateSectionLabel.text = Strings.MediaFilterSectionDates
         presetsSectionLabel.text = Strings.MediaFilterSectionPresets

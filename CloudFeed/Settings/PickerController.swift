@@ -56,7 +56,7 @@ class PickerController: UIViewController {
             navigationItem.setRightBarButton(item, animated: true)
         }
         
-        selectButton.setTitle(Strings.SelectAction, for: .normal)
+        selectButton.configuration?.title = Strings.SelectAction
         selectButton.addTarget(self, action: #selector(selected), for: .touchUpInside)
         
         UIAccessibility.post(notification: .screenChanged, argument: navigationItem.rightBarButtonItem)

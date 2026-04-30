@@ -49,7 +49,7 @@ class LoginServerController: UIViewController {
     override func viewDidLoad() {
         
         serverURLLabel.text = Strings.LoginServerLabel
-        serverURLButton.setTitle(Strings.LoginServerButton, for: .normal)
+        serverURLButton.configuration?.title = Strings.LoginServerButton
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)

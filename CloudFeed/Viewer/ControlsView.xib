@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="landscape" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -13,7 +13,7 @@
             <connections>
                 <outlet property="audioTrackButton" destination="OYM-Gd-I7P" id="2G3-dv-RJM"/>
                 <outlet property="audioTrackView" destination="q2D-Dm-4a7" id="saO-EW-mVh"/>
-                <outlet property="audioViewLeadingConstraint" destination="Hsb-11-IK8" id="mKP-bF-Kxv"/>
+                <outlet property="audioViewLeadingConstraint" destination="zLJ-WQ-mKO" id="UCb-gX-r3k"/>
                 <outlet property="captionsButton" destination="JAq-bM-gDn" id="36X-Jy-Gxk"/>
                 <outlet property="captionsButtonWidthConstraint" destination="Xa8-94-aGK" id="dKc-wB-WjY"/>
                 <outlet property="controlsStackView" destination="Wmb-p0-zvf" id="2wW-Ed-Cfu"/>
@@ -24,17 +24,18 @@
                 <outlet property="horizontalTimeView" destination="u4w-Dq-iVA" id="aVo-A1-A27"/>
                 <outlet property="horizontalTimeViewHeightConstraint" destination="j9Y-ZP-086" id="tfa-r1-RU4"/>
                 <outlet property="playButton" destination="Kl1-HT-Qt7" id="TZU-zB-wih"/>
+                <outlet property="routeButton" destination="90T-1L-joY" id="a6y-SK-TfG"/>
+                <outlet property="routeView" destination="Vu6-Dx-Gnc" id="UUB-eD-0Bl"/>
                 <outlet property="skipBackButton" destination="SxX-p9-6Sb" id="fie-mN-Fbg"/>
                 <outlet property="skipForwardButton" destination="obn-Lo-YLJ" id="Z8V-ba-NAy"/>
                 <outlet property="speedButton" destination="Wyc-o3-XBg" id="7Tw-rW-tyh"/>
                 <outlet property="speedButtonWidthConstraint" destination="FGP-Wu-t7X" id="wz8-YY-D7h"/>
                 <outlet property="timeButton" destination="YCf-Gc-4iH" id="Nac-qb-zxl"/>
-                <outlet property="timeLabel" destination="TRG-FX-qcn" id="Tok-zW-6Nk"/>
                 <outlet property="timeSliderLeadingConstraint" destination="6Ao-xQ-iue" id="8oN-2k-39q"/>
                 <outlet property="timeSliderTrailingConstraint" destination="TdM-EE-vEk" id="k35-xu-fuh"/>
                 <outlet property="timeView" destination="bl4-yO-kwe" id="35Y-yd-F8P"/>
+                <outlet property="topStackView" destination="fru-9w-RdC" id="wfX-lS-iM9"/>
                 <outlet property="totalTimeButton" destination="ZMD-Vw-KCm" id="KEW-7c-4Pl"/>
-                <outlet property="totalTimeLabel" destination="heG-hn-bNN" id="tod-um-FaR"/>
                 <outlet property="verticalTimeSlider" destination="TQa-8z-Wo6" id="gy6-xX-oXH"/>
                 <outlet property="volumeButton" destination="meV-1j-cr0" id="a8L-fd-mwv"/>
                 <outlet property="volumeSlider" destination="WVT-e9-SFW" id="vKs-hr-8hC"/>
@@ -82,20 +83,6 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="05Y-Dk-tB3">
                                         <rect key="frame" x="16" y="130.66666666666666" width="492" height="30"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="headTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TRG-FX-qcn" userLabel="Time Label">
-                                                <rect key="frame" x="0.0" y="0.0" width="46" height="34.333333333333336"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="headTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="heG-hn-bNN" userLabel="Total Time Label">
-                                                <rect key="frame" x="0.0" y="0.0" width="46" height="34.333333333333336"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                                <nil key="textColor"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YCf-Gc-4iH">
                                                 <rect key="frame" x="0.0" y="0.0" width="70" height="30"/>
                                                 <color key="tintColor" systemColor="labelColor"/>
@@ -142,12 +129,6 @@
                                         </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
-                                        <variation key="default">
-                                            <mask key="subviews">
-                                                <exclude reference="TRG-FX-qcn"/>
-                                                <exclude reference="heG-hn-bNN"/>
-                                            </mask>
-                                        </variation>
                                         <variation key="heightClass=compact-widthClass=regular" distribution="fill"/>
                                         <variation key="heightClass=regular-widthClass=regular" distribution="fill"/>
                                     </stackView>
@@ -300,36 +281,66 @@
                     </constraints>
                     <blurEffect style="prominent"/>
                 </visualEffectView>
-                <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q2D-Dm-4a7" userLabel="Status Visual Effect View">
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="fru-9w-RdC" userLabel="Top Stack View">
                     <rect key="frame" x="59" y="67" width="50" height="50"/>
-                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="TeL-Uj-fXd">
-                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OYM-Gd-I7P">
+                    <subviews>
+                        <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vu6-Dx-Gnc" userLabel="Route Visual Effect View">
+                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="shS-W0-VGh">
                                 <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="90T-1L-joY" customClass="RouteView" customModule="CloudFeed" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="KSO-W8-Rfw"/>
+                                            <constraint firstAttribute="width" constant="50" id="UB9-6j-lCA"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="50" id="wEq-AD-aHJ"/>
-                                    <constraint firstAttribute="height" constant="50" id="x5e-GK-Whg"/>
+                                    <constraint firstItem="90T-1L-joY" firstAttribute="leading" secondItem="shS-W0-VGh" secondAttribute="leading" id="EIR-XT-CNo"/>
+                                    <constraint firstItem="90T-1L-joY" firstAttribute="top" secondItem="shS-W0-VGh" secondAttribute="top" id="Ylc-nD-swb"/>
                                 </constraints>
-                                <color key="tintColor" systemColor="labelColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="waveform" catalog="system">
-                                    <backgroundConfiguration key="background"/>
-                                </buttonConfiguration>
-                            </button>
-                        </subviews>
-                        <constraints>
-                            <constraint firstItem="OYM-Gd-I7P" firstAttribute="leading" secondItem="TeL-Uj-fXd" secondAttribute="leading" id="X2X-AZ-i9e"/>
-                            <constraint firstItem="OYM-Gd-I7P" firstAttribute="top" secondItem="TeL-Uj-fXd" secondAttribute="top" id="ab8-Ez-Md3"/>
-                        </constraints>
-                    </view>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="50" id="Bot-u2-ksD"/>
-                        <constraint firstAttribute="height" constant="50" id="dsn-YR-NU8"/>
-                    </constraints>
-                    <blurEffect style="prominent"/>
-                </visualEffectView>
+                            </view>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="50" id="VYM-ha-zJg"/>
+                                <constraint firstAttribute="width" constant="50" id="nEr-vF-loa"/>
+                            </constraints>
+                            <blurEffect style="prominent"/>
+                        </visualEffectView>
+                        <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q2D-Dm-4a7" userLabel="Status Visual Effect View">
+                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="TeL-Uj-fXd">
+                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OYM-Gd-I7P">
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="50" id="wEq-AD-aHJ"/>
+                                            <constraint firstAttribute="height" constant="50" id="x5e-GK-Whg"/>
+                                        </constraints>
+                                        <color key="tintColor" systemColor="labelColor"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" image="waveform" catalog="system">
+                                            <backgroundConfiguration key="background"/>
+                                        </buttonConfiguration>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="OYM-Gd-I7P" firstAttribute="leading" secondItem="TeL-Uj-fXd" secondAttribute="leading" id="DaH-uX-qcn"/>
+                                    <constraint firstItem="OYM-Gd-I7P" firstAttribute="top" secondItem="TeL-Uj-fXd" secondAttribute="top" id="gUO-8V-Uz7"/>
+                                </constraints>
+                            </view>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="50" id="Bot-u2-ksD"/>
+                                <constraint firstAttribute="height" constant="50" id="dsn-YR-NU8"/>
+                            </constraints>
+                            <blurEffect style="prominent"/>
+                        </visualEffectView>
+                    </subviews>
+                </stackView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <constraints>
@@ -340,12 +351,14 @@
                 <constraint firstItem="NBR-iP-9gV" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="8z1-X0-k3d"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="9tG-4w-mP1"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="bottom" secondItem="iN0-l3-epB" secondAttribute="bottom" id="Agk-Fg-nkc"/>
-                <constraint firstItem="q2D-Dm-4a7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="Hsb-11-IK8">
-                    <variation key="heightClass=compact" constant="0.0"/>
-                </constraint>
-                <constraint firstItem="q2D-Dm-4a7" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="Zvh-3y-G73"/>
+                <constraint firstItem="fru-9w-RdC" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="Kir-AX-bjw"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" priority="750" id="a5f-HK-ZzW"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="AXL-dv-8Qn" secondAttribute="trailing" priority="750" id="syX-KT-Ztl"/>
+                <constraint firstItem="fru-9w-RdC" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="8" id="zLJ-WQ-mKO">
+                    <variation key="heightClass=compact-widthClass=compact" constant="0.0"/>
+                    <variation key="heightClass=compact-widthClass=regular" constant="0.0"/>
+                    <variation key="heightClass=regular-widthClass=compact" constant="16"/>
+                </constraint>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <point key="canvasLocation" x="376.76056338028172" y="-429.00763358778624"/>

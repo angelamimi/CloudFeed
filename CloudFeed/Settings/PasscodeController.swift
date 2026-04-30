@@ -119,8 +119,8 @@ class PasscodeController: UIViewController {
         
         navigationItem.largeTitleDisplayMode = .never
         
-        deleteButton.setTitle(Strings.DeleteAction, for: .normal)
-        cancelButton.setTitle(Strings.CancelAction, for: .normal)
+        deleteButton.configuration?.title = Strings.DeleteAction
+        cancelButton.configuration?.title = Strings.CancelAction
 
         initConfigurations()
         initInstructions()
@@ -140,6 +140,10 @@ class PasscodeController: UIViewController {
         } else {
             containterView.isHidden = true
             view.backgroundColor = .systemGroupedBackground
+        }
+
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, _) in
+            self.setPasscodeViewBorderColor()
         }
     }
     

@@ -201,7 +201,7 @@ class PagerController: UIViewController {
             button.configuration?.titleLineBreakMode = .byTruncatingTail
             button.configuration?.titleAlignment = .center
             
-            button.setTitleColor(.label, for: .normal)
+            button.configuration?.baseForegroundColor = .label
             button.addTarget(self, action: #selector(titleButtonTapped), for: .touchUpInside)
             
             navigationItem.titleView = button

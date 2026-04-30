@@ -25,6 +25,94 @@
     "Configuration" : {
 
     },
+    "Controls.Hint.CurrentTime" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip to the beginning"
+          }
+        }
+      }
+    },
+    "Controls.Hint.RemainingTime" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip to the end"
+          }
+        }
+      }
+    },
+    "Controls.Label.AudioTrack" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audio Track"
+          }
+        }
+      }
+    },
+    "Controls.Label.CurrentTime" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current time"
+          }
+        }
+      }
+    },
+    "Controls.Label.RemainingTime" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remaining time"
+          }
+        }
+      }
+    },
+    "Controls.Label.Speed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Playback speed"
+          }
+        }
+      }
+    },
+    "Controls.Label.Time" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        }
+      }
+    },
+    "Controls.Label.Volume" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volume"
+          }
+        }
+      }
+    },
     "Controls.SpeedRate.0.5" : {
       "extractionState" : "manual",
       "localizations" : {

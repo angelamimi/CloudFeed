@@ -139,6 +139,7 @@
 		39E570742B5DE80A00548E02 /* FilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E570732B5DE80A00548E02 /* FilterController.swift */; };
 		39E593792D25C3CF00BA3C9A /* LoginPollController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E593782D25C3CC00BA3C9A /* LoginPollController.swift */; };
 		39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */; };
+		39EA902E2FA0094A0093D9EB /* RouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EA902D2FA0094A0093D9EB /* RouteView.swift */; };
 		39EED48A2B56F9C100475802 /* DatabaseManager+Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */; };
 		39F3F0BD2E9AC312006B1E66 /* Passcode.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39F3F0BC2E9AC312006B1E66 /* Passcode.storyboard */; };
 		39FA11A62D2AEA270054DFF6 /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 39FA11A52D2AEA270054DFF6 /* OpenSSL */; };
@@ -320,6 +321,7 @@
 		39E570732B5DE80A00548E02 /* FilterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterController.swift; sourceTree = "<group>"; };
 		39E593782D25C3CC00BA3C9A /* LoginPollController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPollController.swift; sourceTree = "<group>"; };
 		39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
+		39EA902D2FA0094A0093D9EB /* RouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteView.swift; sourceTree = "<group>"; };
 		39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Avatar.swift"; sourceTree = "<group>"; };
 		39F3F0BC2E9AC312006B1E66 /* Passcode.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Passcode.storyboard; sourceTree = "<group>"; };
 		39FE2FE82C8B85F000CE51AC /* ControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ControlsView.xib; sourceTree = "<group>"; };
@@ -433,6 +435,7 @@
 				397B5C392C52E9B200EC7923 /* DetailView.xib */,
 				397B5C3B2C52F4B800EC7923 /* DetailView.swift */,
 				393D18922C8C9B5100971014 /* ControlsView.swift */,
+				39EA902D2FA0094A0093D9EB /* RouteView.swift */,
 				39271D6329D9091600522DFD /* DetailCell.swift */,
 				39271D6129D908B100522DFD /* DetailController.swift */,
 				397B5C3D2C54625400EC7923 /* DetailsController.swift */,
@@ -881,6 +884,7 @@
 				39B03F0E29C53FD300704670 /* CollectionViewCell.swift in Sources */,
 				3927356B29BD1E820058796A /* AppDelegate.swift in Sources */,
 				39A83B062D4D7D850059C403 /* CertificateController.swift in Sources */,
+				39EA902E2FA0094A0093D9EB /* RouteView.swift in Sources */,
 				39C31E8E2A7994880045DF50 /* DataService.swift in Sources */,
 				39CC72D82DCA86BD007E22B7 /* DisplayController.swift in Sources */,
 				397B5C3C2C52F4B800EC7923 /* DetailView.swift in Sources */,
