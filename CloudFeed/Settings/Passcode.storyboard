@@ -111,6 +111,7 @@
                                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ICl-M4-V8H" userLabel="Middle Spacer View">
                                                 <rect key="frame" x="0.0" y="87" width="320" height="35"/>
                                                 <variation key="heightClass=regular" hidden="NO"/>
+                                                <variation key="heightClass=regular-widthClass=regular" hidden="YES"/>
                                             </view>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="a9p-gk-Hiu" userLabel="Keypad Stack View">
                                                 <rect key="frame" x="24" y="130" width="272" height="368"/>
@@ -330,9 +331,9 @@
                                             <mask key="constraints">
                                                 <exclude reference="g7M-re-unP"/>
                                                 <exclude reference="gbb-Qj-GXS"/>
-                                                <exclude reference="6Jl-Am-bpQ"/>
                                                 <exclude reference="bab-ay-jFR"/>
                                                 <exclude reference="XlC-1e-wLT"/>
+                                                <exclude reference="6Jl-Am-bpQ"/>
                                                 <exclude reference="4ho-4x-TfP"/>
                                                 <exclude reference="44T-fN-FAb"/>
                                             </mask>
@@ -452,7 +453,7 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
