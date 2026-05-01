@@ -59,13 +59,13 @@
                                 <rect key="frame" x="0.0" y="16" width="524" height="453"/>
                                 <subviews>
                                     <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bl4-yO-kwe">
-                                        <rect key="frame" x="16" y="0.0" width="492" height="50"/>
+                                        <rect key="frame" x="16" y="-16" width="492" height="16"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="E8k-MG-Td0">
-                                            <rect key="frame" x="0.0" y="0.0" width="492" height="50"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="492" height="16"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TQa-8z-Wo6" userLabel="Time Slider">
-                                                    <rect key="frame" x="16" y="8" width="460" height="34"/>
+                                                    <rect key="frame" x="16" y="8" width="460" height="0.0"/>
                                                     <color key="tintColor" systemColor="labelColor"/>
                                                 </slider>
                                             </subviews>
@@ -77,26 +77,26 @@
                                             </constraints>
                                         </view>
                                         <blurEffect style="regular"/>
-                                        <variation key="heightClass=compact-widthClass=regular" hidden="YES"/>
+                                        <variation key="heightClass=compact" hidden="YES"/>
                                         <variation key="heightClass=regular-widthClass=regular" hidden="YES"/>
                                     </visualEffectView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="05Y-Dk-tB3">
-                                        <rect key="frame" x="16" y="130.66666666666666" width="492" height="30"/>
+                                        <rect key="frame" x="16" y="0.0" width="492" height="30"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YCf-Gc-4iH">
-                                                <rect key="frame" x="0.0" y="0.0" width="70" height="30"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="90" height="30"/>
                                                 <color key="tintColor" systemColor="labelColor"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain" title="00:00"/>
                                             </button>
                                             <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="u4w-Dq-iVA">
-                                                <rect key="frame" x="78" y="0.0" width="32" height="30"/>
+                                                <rect key="frame" x="106" y="0.0" width="300" height="30"/>
                                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="fcc-NS-S0J">
-                                                    <rect key="frame" x="0.0" y="0.0" width="32" height="30"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="300" height="30"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="edg-E9-ls8">
-                                                            <rect key="frame" x="16" y="0.0" width="0.0" height="30"/>
+                                                            <rect key="frame" x="16" y="0.0" width="268" height="30"/>
                                                             <color key="tintColor" systemColor="labelColor"/>
                                                         </slider>
                                                     </subviews>
@@ -109,15 +109,9 @@
                                                 </view>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="30" id="j9Y-ZP-086"/>
-                                                    <constraint firstAttribute="width" priority="999" constant="300" id="nfT-7Y-D3D"/>
                                                 </constraints>
                                                 <blurEffect style="regular"/>
-                                                <variation key="default">
-                                                    <mask key="constraints">
-                                                        <exclude reference="nfT-7Y-D3D"/>
-                                                    </mask>
-                                                </variation>
-                                                <variation key="heightClass=compact-widthClass=regular" hidden="NO"/>
+                                                <variation key="heightClass=compact" hidden="NO"/>
                                                 <variation key="heightClass=regular-widthClass=regular" hidden="NO"/>
                                             </visualEffectView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZMD-Vw-KCm">
@@ -129,11 +123,12 @@
                                         </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
+                                        <variation key="heightClass=compact" distribution="fill"/>
                                         <variation key="heightClass=compact-widthClass=regular" distribution="fill"/>
                                         <variation key="heightClass=regular-widthClass=regular" distribution="fill"/>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="3Xu-iX-Osf">
-                                        <rect key="frame" x="16" y="241.33333333333331" width="492" height="60"/>
+                                        <rect key="frame" x="16" y="176" width="492" height="60"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JAq-bM-gDn" userLabel="Captions Button">
                                                 <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>

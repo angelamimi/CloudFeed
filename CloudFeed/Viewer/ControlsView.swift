@@ -138,6 +138,18 @@ class ControlsView: UIView {
         return nil
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        if #unavailable(iOS 26) {
+            audioViewLeadingConstraint.constant = 0
+            volumeViewTrailingConstraint.constant = 0
+        } else if UIDevice.current.userInterfaceIdiom == .pad {
+            audioViewLeadingConstraint.constant = 8
+            volumeViewTrailingConstraint.constant = 8
+        }
+    }
+    
     func reset() {
         setPosition(position: 0)
         setTime(time: "00:00")
@@ -683,14 +695,6 @@ class ControlsView: UIView {
         
         volumeButton.configuration?.background.backgroundColorTransformer = .init { _ in
             return .clear
-        }
-        
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            audioViewLeadingConstraint.constant = 8
-            volumeViewTrailingConstraint.constant = 8
-        } else if #unavailable(iOS 26) {
-            audioViewLeadingConstraint.constant = 0
-            volumeViewTrailingConstraint.constant = 0
         }
         
         if #available(iOS 26, *), glass {
