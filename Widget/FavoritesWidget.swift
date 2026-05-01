@@ -34,7 +34,7 @@ struct FavoritesWidgetEntryView : View {
         ZStack {
             
             if let image = entry.image {
-
+                
                 if entry.showDate {
                     Rectangle()
                         .fill(.clear)
@@ -45,12 +45,12 @@ struct FavoritesWidgetEntryView : View {
                     Image(uiImage: image)
                         .resizable()
                         .widgetAccentedRenderingMode(.accentedDesaturated)
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: ImageUtility.ratioWithinThreshold(image.size) ? .fill : .fit)
                         .clipped()
                 } else {
                     Image(uiImage: image)
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: ImageUtility.ratioWithinThreshold(image.size) ? .fill : .fit)
                         .clipped()
                 }
                 

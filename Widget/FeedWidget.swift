@@ -45,12 +45,12 @@ struct FeedWidgetEntryView : View {
                     Image(uiImage: image)
                         .resizable()
                         .widgetAccentedRenderingMode(.accentedDesaturated)
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: ImageUtility.ratioWithinThreshold(image.size) ? .fill : .fit)
                         .clipped()
                 } else {
                     Image(uiImage: image)
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: ImageUtility.ratioWithinThreshold(image.size) ? .fill : .fit)
                         .clipped()
                 }
                 
