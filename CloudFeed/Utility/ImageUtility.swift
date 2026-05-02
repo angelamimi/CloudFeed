@@ -79,12 +79,45 @@ final class ImageUtility: NSObject {
         return autoreleasepool { () -> UIImage? in
             let gif: UIImage?
             if let fileData = FileManager().contents(atPath: imagePath) {
-                gif = UIImage.gifImageWithData(fileData)
+                gif = buildGIFImage(with: fileData)
             } else {
                 gif = UIImage(contentsOfFile: imagePath)
             }
             
             return gif
+        }
+    }
+    
+    private static func buildGIFImage(with data: Data, repeatCount: Int = 0) -> UIImage? {
+        
+        guard let imageSource = CGImageSourceCreateWithData(data as CFData, nil) else {
+            return nil
+        }
+        
+        let frameCount = CGImageSourceGetCount(imageSource)
+        var frames: [UIImage] = []
+        
+        for i in 0..<frameCount {
+            if let cgImage = CGImageSourceCreateImageAtIndex(imageSource, i, nil) {
+                frames.append(UIImage(cgImage: cgImage))
+            }
+        }
+        
+        let totalDuration = (0..<frameCount).reduce(0.0) { duration, index in
+            guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, index, nil) as? [String: Any],
+                  let gifProperties = properties[kCGImagePropertyGIFDictionary as String] as? [String: Any],
+                  let frameDuration = gifProperties[kCGImagePropertyGIFDelayTime as String] as? NSNumber else {
+                return duration
+            }
+            
+            let durationValue = frameDuration.doubleValue
+            return duration + (durationValue < 0.1 ? 0.1 : durationValue)
+        }
+        
+        if frames.isEmpty {
+            return nil
+        } else {
+            return UIImage.animatedImage(with: frames, duration: totalDuration > 0 ? totalDuration : 0.1)
         }
     }
     

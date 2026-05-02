@@ -81,10 +81,6 @@ final class DetailViewModel: NSObject {
         guard let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else { return details }
         let imageDict = NSMutableDictionary(dictionary: imageProperties)
         
-        /*for (key, value) in imageDict {
-            print("\(key) \(value)")
-        }*/
-        
         if let width = imageDict[kCGImagePropertyPixelWidth], let height = imageDict[kCGImagePropertyPixelHeight] {
             details[kCGImagePropertyPixelWidth] = width
             details[kCGImagePropertyPixelHeight] = height
@@ -375,10 +371,6 @@ final class DetailViewModel: NSObject {
     }
     
     private func appendData(data: NSMutableDictionary) {
-        
-        /*for (key, value) in data {
-            print("key: \(key) value: \(value)")
-        }*/
         
         if let originalDateTime = data[kCGImagePropertyExifDateTimeOriginal] as? String {
                 
