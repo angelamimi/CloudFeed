@@ -35,6 +35,8 @@ class DetailView: UIView {
     @IBOutlet weak var contentStackView: UIStackView!
     @IBOutlet weak var contentStackViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var contentStackViewBottomConstraint: NSLayoutConstraint!
+    
+    @IBOutlet weak var metadataCollectionViewHeightConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var metadataButton: UIButton!
@@ -42,6 +44,7 @@ class DetailView: UIView {
     @IBOutlet weak var fillerView: UIView!
     
     @IBOutlet weak var metadataStackView: UIStackView!
+    @IBOutlet weak var metadataCollectionView: UICollectionView!
     
     @IBOutlet weak var fileDateLabel: UILabel!
     @IBOutlet weak var fileNameLabel: UILabel!
@@ -54,32 +57,14 @@ class DetailView: UIView {
     
     @IBOutlet weak var lensLabel: UILabel!
     @IBOutlet weak var sizeLabel: UILabel!
-
-    @IBOutlet weak var isoLabel: UILabel!
-    @IBOutlet weak var focalLengthLabel: UILabel!
-    @IBOutlet weak var exposureLabel: UILabel!
-    @IBOutlet weak var aperatureLabel: UILabel!
-    @IBOutlet weak var exposureTimeLabel: UILabel!
-    
-    @IBOutlet weak var fpsLabel: UILabel!
-    @IBOutlet weak var durationLabel: UILabel!
-    
-    @IBOutlet weak var isoLabelWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var exposureTimeLabelWidthConstraint: NSLayoutConstraint!
-    
-    @IBOutlet weak var fpsLabelWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var durationLabelWidthConstraint: NSLayoutConstraint!
-    
-    @IBOutlet weak var divider1Label: UILabel!
-    @IBOutlet weak var divider2Label: UILabel!
-    @IBOutlet weak var divider3Label: UILabel!
-    @IBOutlet weak var divider4Label: UILabel!
-    @IBOutlet weak var divider5Label: UILabel!
     
     var metadata: Metadata?
     var url: URL?
     
     weak var delegate: DetailViewDelegate?
+    
+    private var dataSource: UICollectionViewDiffableDataSource<Int, Int>!
+    private var exifTitles: [Int: ExifTitle] = [:]
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -106,10 +91,8 @@ class DetailView: UIView {
         populateMetadataDetails()
 
         if metadata!.video {
-            setVideoLabelVisibility()
             populateVideoDetails()
         } else {
-            setImageLabelVisibility()
             Task.detached { [weak self] in
                 await self?.populateImageDetails()
             }
@@ -151,22 +134,59 @@ class DetailView: UIView {
         fileDateLabel.accessibilityValue = Strings.DetailDateNone
 
         resetLabels()
-
-        isoLabel.isAccessibilityElement = false
-        focalLengthLabel.isAccessibilityElement = false
-        exposureLabel.isAccessibilityElement = false
-        aperatureLabel.isAccessibilityElement = false
-        exposureTimeLabel.isAccessibilityElement = false
-        fpsLabel.isAccessibilityElement = false
-        durationLabel.isAccessibilityElement = false
         
         mapView.layer.cornerRadius = 8
         mapView.delegate = self
         mapView.alpha = 0
         
-        metadataStackView.maximumContentSizeCategory = .accessibilityMedium
-        
+        initMetadataCollectionView()
+
         mapView.setCameraZoomRange(.init(maxCenterCoordinateDistance: 500), animated: false)
+    }
+    
+    private func initMetadataCollectionView() {
+        
+        let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, Int> { [weak self] (cell, indexPath, item) in
+            
+            var content = cell.defaultContentConfiguration()
+            let exifTitle = self?.exifTitles[item]
+            let separation = exifTitle?.title == "|"
+            
+            content.text = exifTitle?.title
+            content.textProperties.font = UIFont.preferredFont(forTextStyle: .footnote)
+            content.textProperties.color = separation ? .systemGray4 : .secondaryLabel
+            content.textProperties.alignment = .center
+            
+            if exifTitle?.accessibilityLabel == nil && exifTitle?.accessibilityValue == nil {
+                cell.isAccessibilityElement = false
+                cell.accessibilityElementsHidden = true
+            } else {
+                cell.isAccessibilityElement = true
+                cell.accessibilityElementsHidden = false
+                cell.accessibilityLabel = exifTitle?.accessibilityLabel
+                cell.accessibilityValue = exifTitle?.accessibilityValue
+            }
+            cell.contentConfiguration = content
+            cell.accessories = []
+            cell.layoutMargins = separation ? .zero : .init(top: 0, left: 4, bottom: 0, right: 4)
+            
+            var backgroundConfig = cell.defaultBackgroundConfiguration()
+            backgroundConfig.backgroundColor = .secondarySystemBackground
+            cell.backgroundConfiguration = backgroundConfig
+            
+            cell.contentView.layoutMargins = .zero
+        }
+        
+        dataSource = UICollectionViewDiffableDataSource<Int, Int>(collectionView: metadataCollectionView) { (collectionView: UICollectionView, indexPath: IndexPath, item: Int) -> UICollectionViewCell? in
+            return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: item)
+        }
+        
+        if let layout = metadataCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            layout.sectionInset = .zero
+        }
+
+        metadataCollectionView.dataSource = dataSource
+        metadataCollectionView.delegate = self
     }
     
     private func resetLabels() {
@@ -182,14 +202,6 @@ class DetailView: UIView {
         lensLabel.text = Strings.DetailLensNone
         lensLabel.accessibilityLabel = Strings.DetailLensDescription
         lensLabel.accessibilityValue = Strings.DetailLensNone
-        
-        isoLabel.text = "-"
-        focalLengthLabel.text = "-"
-        exposureLabel.text = "-"
-        aperatureLabel.text = "-"
-        exposureTimeLabel.text = "-"
-        fpsLabel.text = "-"
-        durationLabel.text = "-"
     }
     
     @objc private func showAllDetails() {
@@ -230,54 +242,6 @@ class DetailView: UIView {
         }
     }
     
-    private func setImageLabelVisibility() {
-        
-        isoLabel.isHidden = false
-        focalLengthLabel.isHidden = false
-        exposureLabel.isHidden = false
-        aperatureLabel.isHidden = false
-        exposureTimeLabel.isHidden = false
-        
-        fpsLabel.isHidden = true
-        durationLabel.isHidden = true
-        
-        fpsLabelWidthConstraint.constant = 0
-        durationLabelWidthConstraint.constant = 0
-        
-        divider1Label.isHidden = false
-        divider2Label.isHidden = false
-        divider3Label.isHidden = false
-        divider4Label.isHidden = false
-        
-        divider5Label.isHidden = true
-    }
-    
-    private func setVideoLabelVisibility() {
-        
-        isoLabel.isHidden = true
-        focalLengthLabel.isHidden = true
-        exposureLabel.isHidden = true
-        aperatureLabel.isHidden = true
-        exposureTimeLabel.isHidden = true
-        
-        isoLabelWidthConstraint.constant = 0
-        exposureTimeLabelWidthConstraint.constant = 0
-        
-        fpsLabel.isHidden = false
-        durationLabel.isHidden = false
-        
-        let half = (metadataStackView.frame.width / 2) - 48 //padding
-        fpsLabelWidthConstraint.constant = half
-        durationLabelWidthConstraint.constant = half
-        
-        divider1Label.isHidden = true
-        divider2Label.isHidden = true
-        divider3Label.isHidden = true
-        divider4Label.isHidden = true
-        
-        divider5Label.isHidden = false
-    }
-    
     func initDetails(metadata: Metadata, url: URL?) {
         self.metadata = metadata
         self.url = url
@@ -315,6 +279,7 @@ class DetailView: UIView {
               let fileProperties = CGImageSourceCopyProperties(originalSource, nil),
               let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else {
             populateLocationFromMetadata(metadata)
+            populateEmptyExif()
             return
         }
         
@@ -331,6 +296,8 @@ class DetailView: UIView {
         
         if let exif = imagePropertyDict[kCGImagePropertyExifDictionary] as? [NSString: AnyObject] {
             populateImageExifInfo(exif, camera)
+        } else {
+            populateEmptyExif()
         }
     }
     
@@ -340,7 +307,26 @@ class DetailView: UIView {
         }
     }
     
+    private func populateEmptyExif() {
+        
+        exifTitles.removeAll()
+        
+        exifTitles[0] = ExifTitle(title: "-", accessibilityLabel: Strings.DetailISO, accessibilityValue: Strings.DetailNoValue)
+        exifTitles[1] = ExifTitle(title: "|")
+        exifTitles[2] = ExifTitle(title: "-", accessibilityLabel: Strings.DetailFocalLength, accessibilityValue: Strings.DetailNoValue)
+        exifTitles[3] = ExifTitle(title: "|")
+        exifTitles[4] = ExifTitle(title: "-", accessibilityLabel: Strings.DetailExposure, accessibilityValue: Strings.DetailNoValue)
+        exifTitles[5] = ExifTitle(title: "|")
+        exifTitles[6] = ExifTitle(title: "-", accessibilityLabel: Strings.DetailAperture, accessibilityValue: Strings.DetailNoValue)
+        exifTitles[7] = ExifTitle(title: "|")
+        exifTitles[8] = ExifTitle(title: "-", accessibilityLabel: Strings.DetailExposureTime, accessibilityValue: Strings.DetailNoValue)
+        
+        bind()
+    }
+    
     private func populateExifFromMetadata(_ metadata: Metadata) {
+        
+        populateEmptyExif()
         
         if let exifArray = metadata.exifPhotos {
             var dict: [NSString:AnyObject] = [:]
@@ -351,6 +337,34 @@ class DetailView: UIView {
             //exif data doesn't appear to be standard yet. Commented out for now.
             //populateImageExifInfo(dict, nil)
         }
+    }
+    
+    private func bind() {
+        
+        var snapshot = dataSource.snapshot()
+        
+        if snapshot.numberOfSections == 0 {
+            snapshot.appendSections([0])
+            snapshot.appendItems(exifTitles.keys.sorted(), toSection: 0)
+        } else {
+            snapshot.deleteAllItems()
+            snapshot.appendSections([0])
+            snapshot.appendItems(exifTitles.keys.sorted(), toSection: 0)
+            snapshot.reloadSections([0])
+        }
+        
+        dataSource.apply(snapshot, animatingDifferences: false, completion: { [weak self] in
+            self?.resize()
+        })
+    }
+    
+    private func resize() {
+        let height = metadataCollectionView.collectionViewLayout.collectionViewContentSize.height
+        UIView.animate(withDuration: 0.2, animations: { [weak self] in
+            self?.metadataCollectionViewHeightConstraint.constant = height
+        }, completion: { [weak self] _ in
+            self?.delegate?.detailsLoaded()
+        })
     }
     
     private func populateImageLocationInfo(imageProperties: NSMutableDictionary) async {
@@ -515,6 +529,11 @@ class DetailView: UIView {
             lensText = Strings.DetailLensNone
         }
 
+        
+        let sizeCategory = traitCollection.preferredContentSizeCategory
+        
+        exifTitles.removeAll()
+        
         lensLabel.text = lensText
         lensLabel.accessibilityValue = lensText
         
@@ -522,34 +541,46 @@ class DetailView: UIView {
             if iso.isEmpty || iso.count == 0 {
 
             } else {
-                isoLabel.text = "ISO \(iso[0].description)"
-                isoLabel.isAccessibilityElement = true
-                isoLabel.accessibilityLabel = "ISO"
-                isoLabel.accessibilityValue = iso[0].description
+                let formattedISO = "\(Strings.DetailISO) \(iso[0].description)"
+                exifTitles[0] = ExifTitle(title: formattedISO, accessibilityLabel: Strings.DetailISO, accessibilityValue: iso[0].description)
+                exifTitles[1] = ExifTitle(title: "|")
             }
         }
         
         if let focalLength = exif[kCGImagePropertyExifFocalLenIn35mmFilm] as? Int {
+            
             let formattedFocalLength = "\(focalLength.description) mm"
-            focalLengthLabel.text = formattedFocalLength
-            focalLengthLabel.isAccessibilityElement = true
-            focalLengthLabel.accessibilityLabel = Strings.DetailFocalLength
-            focalLengthLabel.accessibilityValue = formattedFocalLength
+            
+            exifTitles[2] = ExifTitle(title: formattedFocalLength, accessibilityLabel: Strings.DetailFocalLength, accessibilityValue: formattedFocalLength)
+            
+            if sizeCategory <= .accessibilityLarge {
+                exifTitles[3] = ExifTitle(title: "|")
+            }
         }
         
         if let exposure = exif[kCGImagePropertyExifExposureBiasValue] as? Int {
-            exposureLabel.text = "\(exposure.description) ev"
-            exposureLabel.isAccessibilityElement = true
-            exposureLabel.accessibilityLabel = Strings.DetailExposure
-            exposureLabel.accessibilityValue = "\(exposure.description) e v"
+            
+            let formattedExposure = "\(exposure.description) ev"
+            let accessibilityValue = "\(exposure.description) e v"
+            
+            exifTitles[4] = ExifTitle(title: formattedExposure, accessibilityLabel: Strings.DetailExposure, accessibilityValue: accessibilityValue)
+            
+            if sizeCategory <= .extraExtraLarge || sizeCategory > .accessibilityLarge {
+                exifTitles[5] = ExifTitle(title: "|")
+            }
         }
         
         if let apertureValue = exif[kCGImagePropertyExifFNumber] as? Double {
+            
             let formattedApertureValue = apertureValue.formatted(FloatingPointFormatStyle().precision(.fractionLength(0...2)))
-            aperatureLabel.text = "ƒ\(formattedApertureValue)"
-            aperatureLabel.isAccessibilityElement = true
-            aperatureLabel.accessibilityLabel = Strings.DetailAperture
-            aperatureLabel.accessibilityValue = "f \(formattedApertureValue)"
+            let formattedApertureValueTitle = "ƒ\(formattedApertureValue)"
+            let accessibilityValue = "f \(formattedApertureValue)"
+            
+            exifTitles[6] = ExifTitle(title: formattedApertureValueTitle, accessibilityLabel: Strings.DetailAperture, accessibilityValue: accessibilityValue)
+            
+            if sizeCategory <= .accessibilityLarge {
+                exifTitles[7] = ExifTitle(title: "|")
+            }
         }
         
         if let exposureTimeValue = exif[kCGImagePropertyExifExposureTime] as? Double {
@@ -562,20 +593,61 @@ class DetailView: UIView {
                 formattedExposureTime = "1/" + String(format:"%.0f", 1/exposureTimeValue) + " s"
             }
             
-            exposureTimeLabel.text = formattedExposureTime
-            exposureTimeLabel.isAccessibilityElement = true
-            exposureTimeLabel.accessibilityLabel = Strings.DetailExposureTime
-            exposureTimeLabel.accessibilityValue = formattedExposureTime
+            exifTitles[8] = ExifTitle(title: formattedExposureTime, accessibilityLabel: Strings.DetailExposureTime, accessibilityValue: formattedExposureTime)
         }
+        
+        let isEmpty = exifTitles.isEmpty
+
+        if !exifTitles.keys.contains([0]) {
+            exifTitles[0] = ExifTitle(title: "-", accessibilityLabel: Strings.DetailISO, accessibilityValue: Strings.DetailNoValue)
+            exifTitles[1] = ExifTitle(title: "|")
+        }
+        if !exifTitles.keys.contains([2]) {
+            exifTitles[2] = ExifTitle(title: "-", accessibilityLabel: Strings.DetailFocalLength, accessibilityValue: Strings.DetailNoValue)
+            if isEmpty || sizeCategory <= .accessibilityLarge {
+                exifTitles[3] = ExifTitle(title: "|")
+            }
+        }
+        if !exifTitles.keys.contains([4]) {
+            exifTitles[4] = ExifTitle(title: "-", accessibilityLabel: Strings.DetailExposure, accessibilityValue: Strings.DetailNoValue)
+            if isEmpty || sizeCategory <= .extraExtraLarge || sizeCategory > .accessibilityLarge {
+                exifTitles[5] = ExifTitle(title: "|")
+            }
+        }
+        
+        if !exifTitles.keys.contains([6]) {
+            exifTitles[6] = ExifTitle(title: "-", accessibilityLabel: Strings.DetailAperture, accessibilityValue: Strings.DetailNoValue)
+            if isEmpty || sizeCategory <= .accessibilityLarge {
+                exifTitles[7] = ExifTitle(title: "|")
+            }
+        }
+        if !exifTitles.keys.contains([8]) {
+            exifTitles[8] = ExifTitle(title: "-", accessibilityLabel: Strings.DetailExposureTime, accessibilityValue: Strings.DetailNoValue)
+        }
+        
+        bind()
     }
     
     private func populateVideoDetail(metadata: Metadata, asset: AVAsset) {
+        
+        exifTitles.removeAll()
         
         Task { [weak self] in
         
             let duration = try? await asset.load(.duration)
             
-            self?.populateDisplayTime(duration?.seconds)
+            let seconds = duration?.seconds
+            
+            if seconds == nil || seconds! == 0 {
+                self?.exifTitles[0] = ExifTitle(title: "-")
+            } else {
+                let duration = Duration.seconds(seconds!)
+                let formatted = duration.formatted(.time(pattern: .hourMinuteSecond(padHourToLength: 1, fractionalSecondsLength: 0)))
+            
+                self?.exifTitles[0] = ExifTitle(title: formatted, accessibilityLabel: Strings.DetailVideoLength, accessibilityValue: formatted)
+            }
+            
+            self?.exifTitles[1] = ExifTitle(title: "|")
             
             if let videoTrack = try? await asset.loadTracks(withMediaType: .video).first {
                 
@@ -583,11 +655,17 @@ class DetailView: UIView {
                 
                 if frameRate != nil && frameRate! > 0 {
                     let displayFrameRate = Float(round(100 * frameRate!) / 100)
-                    self?.setFrameRateText("\(displayFrameRate) FPS")
+                    let formatted = "\(displayFrameRate) FPS"
+
+                    self?.exifTitles[2] = ExifTitle(title: formatted, accessibilityLabel: Strings.DetailVideoSpeed, accessibilityValue: formatted)
                 }
                 
                 await self?.populateVideoSize(metadata: metadata, videoTrack: videoTrack)
+            } else {
+                self?.exifTitles[2] = ExifTitle(title: "-")
             }
+
+            self?.bind()
         }
     }
     
@@ -698,24 +776,6 @@ class DetailView: UIView {
         }
     }
     
-    private func setFrameRateText(_ text: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.fpsLabel.text = text
-            self?.fpsLabel.isAccessibilityElement = true
-            self?.fpsLabel.accessibilityLabel = Strings.DetailVideoSpeed
-            self?.fpsLabel.accessibilityValue = text
-        }
-    }
-    
-    private func setDurationText(_ text: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.durationLabel.text = text
-            self?.durationLabel.isAccessibilityElement = true
-            self?.durationLabel.accessibilityLabel = Strings.DetailVideoLength
-            self?.durationLabel.accessibilityValue = text
-        }
-    }
-    
     private func setFileSizeText(_ text: String) {
         DispatchQueue.main.async { [weak self] in
             self?.sizeLabel.text = text
@@ -729,18 +789,6 @@ class DetailView: UIView {
     
     private func hasSize(_ size: CGSize?) -> Bool {
         return size != nil && size!.width > 0 && size!.height > 0
-    }
-    
-    private func populateDisplayTime(_ seconds: Double?) {
-        
-        if seconds == nil || seconds! == 0 {
-            //Self.logger.debug("getDisplayTime() - nothing to convert")
-        } else {
-            let duration = Duration.seconds(seconds!)
-            let formatted = duration.formatted(.time(pattern: .hourMinuteSecond(padHourToLength: 1, fractionalSecondsLength: 0)))
-        
-            setDurationText(formatted)
-        }
     }
     
     private func formatDate(_ date: Date) -> String {
@@ -820,6 +868,89 @@ class DetailView: UIView {
         mapView.setRegion(region, animated: false)
         mapView.addAnnotation(annotation)
     }
+    
+    private func getSizeForVideoAt(_ indexPath: IndexPath, _ collectionView: UICollectionView) -> CGSize {
+        
+        let sizeCategory = traitCollection.preferredContentSizeCategory
+        let dividerWidth: CGFloat = 4.0
+        var height: CGFloat = 30
+        
+        if sizeCategory > .extraExtraLarge {
+            if sizeCategory > .accessibilityLarge {
+                height = 60
+            } else {
+                height = 40
+            }
+        }
+        
+        guard indexPath.item < exifTitles.keys.count else { return CGSize(width: dividerWidth, height: height) }
+        
+        let keys = exifTitles.keys.sorted()
+        let key = keys[indexPath.item]
+
+        if !key.isMultiple(of: 2) {
+            return CGSize(width: dividerWidth, height: height)
+        }
+        
+        if collectionView.frame.width == 0 {
+            return .zero
+        } else {
+            let width: CGFloat = floor((collectionView.frame.width - dividerWidth) / 2)
+            let size = CGSize(width: width, height: height)
+            return size
+        }
+    }
+    
+    private func getSizeForImageAt(_ indexPath: IndexPath, _ collectionView: UICollectionView) -> CGSize {
+        
+        let sizeCategory = traitCollection.preferredContentSizeCategory
+        let dividerWidth: CGFloat = 4.0
+        var divisor: CGFloat = 5.0
+        var height: CGFloat = 30.0
+        var dividers: CGFloat = 0
+        
+        if hasData() && sizeCategory > .extraExtraLarge {
+            if sizeCategory > .accessibilityLarge {
+                height = 60
+                divisor = 2
+                dividers = dividerWidth
+            } else {
+                height = 40
+                divisor = 3
+                dividers = dividerWidth * 2
+            }
+        } else {
+            if sizeCategory > .extraExtraLarge {
+                height = sizeCategory > .accessibilityLarge ? 60 : 40
+            }
+            dividers = dividerWidth * 4
+        }
+        
+        guard indexPath.item < exifTitles.keys.count else { return  CGSize(width: dividerWidth, height: height) }
+        
+        let keys = exifTitles.keys.sorted()
+        let key = keys[indexPath.item]
+
+        if !key.isMultiple(of: 2) {
+            return CGSize(width: dividerWidth, height: height)
+        }
+        
+        if collectionView.frame.width == 0 {
+            return .zero
+        } else {
+            let width: CGFloat = floor((collectionView.frame.width - dividers) / divisor)
+            return CGSize(width: width, height: height)
+        }
+    }
+    
+    private func hasData() -> Bool {
+        if exifTitles[0]?.title == "-" && exifTitles[2]?.title == "-" && exifTitles[4]?.title == "-"
+            && exifTitles[6]?.title == "-" && exifTitles[8]?.title == "-" {
+            return false
+        } else {
+            return true
+        }
+    }
 }
 
 extension DetailView: MKMapViewDelegate {
@@ -836,5 +967,29 @@ extension DetailView: MKMapViewDelegate {
         }
         
         mapItem.openInMaps()
+    }
+}
+
+extension DetailView: UICollectionViewDelegateFlowLayout {
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if metadata?.video == true {
+            return getSizeForVideoAt(indexPath, collectionView)
+        } else {
+            return getSizeForImageAt(indexPath, collectionView)
+        }
+    }
+}
+
+private class ExifTitle {
+    
+    var title: String?
+    var accessibilityLabel: String?
+    var accessibilityValue: String?
+    
+    init(title: String? = nil, accessibilityLabel: String? = nil, accessibilityValue: String? = nil) {
+        self.title = title
+        self.accessibilityLabel = accessibilityLabel
+        self.accessibilityValue = accessibilityValue
     }
 }

@@ -159,14 +159,28 @@ class DetailsController: UIViewController {
         let height = detailView.height() + navigationStackView.frame.height + 16
         preferredContentSize = CGSize(width: 400, height: height)
     }
+    
+    private func handleDetailsLoaded() {
+        detailView.alpha = 1
+        detailView.layoutIfNeeded()
+     }
+    
+    private func setScrollViewSize() {
+        let size = CGSizeMake(view.frame.size.width, detailView.height())
+        if !scrollView.contentSize.equalTo(size) {
+            scrollView.contentSize = size
+        }
+    }
 }
 
 extension DetailsController : DetailViewDelegate {
     
     func detailsLoaded() {
         UIView.animate(withDuration: 0.2, animations: { [weak self] in
-            self?.detailView.alpha = 1
-            self?.detailView.layoutIfNeeded()
+            self?.handleDetailsLoaded()
+        }, completion: { [weak self] _ in
+            self?.setScrollViewSize()
+            self?.setPreferredSize()
         })
     }
     

@@ -1287,6 +1287,7 @@ class ViewerController: UIViewController {
             downloadButton?.configuration = config
         }
         
+        downloadButton?.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20)
         downloadButton?.configuration?.image = UIImage(systemName: "square.and.arrow.down")?.withTintColor(pad ? .label : .white, renderingMode: .alwaysOriginal)
         downloadButton?.addTarget(self, action: #selector(downloadButtonTouched(_:)), for: .touchUpInside)
     }
@@ -1415,15 +1416,15 @@ class ViewerController: UIViewController {
         if animate && !UIAccessibility.isReduceMotionEnabled {
 
             UIView.animate(withDuration: 0.2, delay: 0, options: .curveLinear, animations: { [weak self] in
-                self?.calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: self?.view.frame.width ?? 0, height: heightOffset))
+                self?.calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: self?.view.frame.width ?? 0, height: heightOffset), reset: reset)
             })
             
         } else {
-            calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: view.frame.width, height: heightOffset))
+            calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: view.frame.width, height: heightOffset), reset: reset)
         }
     }
     
-    private func calculateVerticalConstraintsShow(transformImage: Bool, size: CGSize) {
+    private func calculateVerticalConstraintsShow(transformImage: Bool, size: CGSize, reset: Bool = false) {
 
         guard let originalSize = imageView.image?.size else {
             updateVerticalConstraintsShow(heightOffset: size.height, size: size)
@@ -1465,6 +1466,9 @@ class ViewerController: UIViewController {
             imageViewTopConstraint.constant = top
             updateVerticalConstraintsShow(heightOffset: resizeSize.height, topOffset: top, size: size)
         } else {
+            if reset {
+                imageViewTopConstraint.constant = 0
+            }
             updateVerticalConstraintsShow(heightOffset: size.height, size: size)
         }
     }

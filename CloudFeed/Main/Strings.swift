@@ -250,6 +250,7 @@ extension Strings {
     public static let DetailShutterSpeed = NSLocalizedString("Detail.ShutterSpeed", comment: "")
     public static let DetailVideoSpeed = NSLocalizedString("Detail.VideoSpeed", comment: "")
     public static let DetailVideoLength = NSLocalizedString("Detail.VideoLength", comment: "")
+    public static let DetailNoValue = NSLocalizedString("Detail.NoValue", comment: "")
     
     public static let DetailOrientation = NSLocalizedString("Detail.Orientation", comment: "")
     public static let DetailOrientationUp = NSLocalizedString("Detail.Orientation.Up", comment: "")

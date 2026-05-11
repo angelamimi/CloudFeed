@@ -1430,6 +1430,17 @@
         }
       }
     },
+    "Detail.NoValue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "no value"
+          }
+        }
+      }
+    },
     "Detail.Orientation" : {
       "localizations" : {
         "en" : {

@@ -38,14 +38,14 @@
                             </subviews>
                         </stackView>
                         <stackView contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="56X-aZ-KyM" userLabel="Camera Stack View">
-                            <rect key="frame" x="16" y="36" width="446" height="152"/>
+                            <rect key="frame" x="16" y="36" width="446" height="132"/>
                             <subviews>
                                 <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="YrH-Yc-3br" userLabel="Camera Make Model Stack View">
                                     <rect key="frame" x="0.0" y="0.0" width="446" height="66"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="x9M-ZG-hZS" userLabel="Camera Label">
                                             <rect key="frame" x="8" y="33" width="0.0" height="0.0"/>
-                                            <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                            <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
@@ -58,7 +58,7 @@
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9B7-Dc-tdS" userLabel="Type Label">
                                                             <rect key="frame" x="4" y="2" width="42" height="46"/>
                                                             <edgeInsets key="layoutMargins" top="0.0" left="8" bottom="0.0" right="8"/>
-                                                            <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                            <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
@@ -103,13 +103,13 @@
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vku-zE-MVR" userLabel="Lens Label">
                                             <rect key="frame" x="8" y="8" width="430" height="0.0"/>
-                                            <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                            <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                             <color key="textColor" systemColor="secondaryLabelColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fhR-TL-HoQ" userLabel="Size Label">
                                             <rect key="frame" x="8" y="16" width="430" height="0.0"/>
-                                            <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                            <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                             <color key="textColor" systemColor="secondaryLabelColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
@@ -124,11 +124,24 @@
                                         <constraint firstAttribute="height" constant="1" id="nEZ-2u-L5l"/>
                                     </constraints>
                                 </view>
-                                <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Tff-op-Ovl" userLabel="Metadata Stack View">
-                                    <rect key="frame" x="0.0" y="92" width="446" height="60"/>
+                                <collectionView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="s9T-Cr-Iua">
+                                    <rect key="frame" x="0.0" y="92" width="446" height="40"/>
+                                    <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" relation="greaterThanOrEqual" priority="250" constant="30" id="CcI-jx-jti"/>
+                                    </constraints>
+                                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="YWr-bd-8mY">
+                                        <size key="itemSize" width="100" height="20"/>
+                                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                    </collectionViewFlowLayout>
+                                </collectionView>
+                                <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Tff-op-Ovl" userLabel="Metadata Stack View">
+                                    <rect key="frame" x="0.0" y="132" width="446" height="30"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" showsExpansionTextWhenTruncated="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gei-ae-rtk" userLabel="ISO Label">
-                                            <rect key="frame" x="16" y="0.0" width="50" height="60"/>
+                                            <rect key="frame" x="16" y="0.0" width="50" height="30"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="40" identifier="ISO label width" id="ljb-Ir-3bK"/>
                                             </constraints>
@@ -137,7 +150,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mld-Pp-6Do">
-                                            <rect key="frame" x="79" y="0.0" width="4" height="60"/>
+                                            <rect key="frame" x="79" y="0.0" width="4" height="30"/>
                                             <accessibility key="accessibilityConfiguration">
                                                 <accessibilityTraits key="traits" notEnabled="YES"/>
                                                 <bool key="isElement" value="NO"/>
@@ -147,13 +160,13 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" showsExpansionTextWhenTruncated="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oDb-7C-4cH" userLabel="Focal Length Label">
-                                            <rect key="frame" x="96.333333333333329" y="0.0" width="49.999999999999986" height="60"/>
+                                            <rect key="frame" x="96.333333333333329" y="0.0" width="49.999999999999986" height="30"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                             <color key="textColor" systemColor="secondaryLabelColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="o3V-Y9-p60">
-                                            <rect key="frame" x="159.33333333333334" y="0.0" width="4" height="60"/>
+                                            <rect key="frame" x="159.33333333333334" y="0.0" width="4" height="30"/>
                                             <accessibility key="accessibilityConfiguration">
                                                 <accessibilityTraits key="traits" notEnabled="YES"/>
                                                 <bool key="isElement" value="NO"/>
@@ -163,13 +176,13 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" showsExpansionTextWhenTruncated="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iAf-dD-zZ1" userLabel="Exposure Label">
-                                            <rect key="frame" x="176.33333333333334" y="0.0" width="50" height="60"/>
+                                            <rect key="frame" x="176.33333333333334" y="0.0" width="50" height="30"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                             <color key="textColor" systemColor="secondaryLabelColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cHd-XY-hab">
-                                            <rect key="frame" x="239.33333333333334" y="0.0" width="4" height="60"/>
+                                            <rect key="frame" x="239.33333333333334" y="0.0" width="4" height="30"/>
                                             <accessibility key="accessibilityConfiguration">
                                                 <accessibilityTraits key="traits" notEnabled="YES"/>
                                                 <bool key="isElement" value="NO"/>
@@ -179,13 +192,13 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" showsExpansionTextWhenTruncated="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vfn-Mg-pgJ" userLabel="Aperature Label">
-                                            <rect key="frame" x="256.66666666666669" y="0.0" width="50" height="60"/>
+                                            <rect key="frame" x="256.66666666666669" y="0.0" width="50" height="30"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                             <color key="textColor" systemColor="secondaryLabelColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="C2o-pO-xDs">
-                                            <rect key="frame" x="319.66666666666669" y="0.0" width="4" height="60"/>
+                                            <rect key="frame" x="319.66666666666669" y="0.0" width="4" height="30"/>
                                             <accessibility key="accessibilityConfiguration">
                                                 <accessibilityTraits key="traits" notEnabled="YES"/>
                                                 <bool key="isElement" value="NO"/>
@@ -195,7 +208,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" showsExpansionTextWhenTruncated="YES" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yFj-Vj-Hmw" userLabel="Exposure Time Label">
-                                            <rect key="frame" x="336.66666666666669" y="0.0" width="50" height="60"/>
+                                            <rect key="frame" x="336.66666666666669" y="0.0" width="50" height="30"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="40" identifier="Exposure time label width" id="Bj1-2i-Z49"/>
                                             </constraints>
@@ -204,7 +217,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2TD-ZB-yaQ" userLabel="FPS Label">
-                                            <rect key="frame" x="399.66666666666669" y="0.0" width="0.0" height="60"/>
+                                            <rect key="frame" x="399.66666666666669" y="0.0" width="0.0" height="30"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" priority="999" identifier="FPS label width" id="bbY-Np-OKD"/>
                                             </constraints>
@@ -213,7 +226,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="|" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nDL-GM-2wf">
-                                            <rect key="frame" x="413" y="0.0" width="4" height="60"/>
+                                            <rect key="frame" x="413" y="0.0" width="4" height="30"/>
                                             <accessibility key="accessibilityConfiguration">
                                                 <accessibilityTraits key="traits" notEnabled="YES"/>
                                                 <bool key="isElement" value="NO"/>
@@ -223,7 +236,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cPO-5m-foL" userLabel="Duration Label">
-                                            <rect key="frame" x="430" y="0.0" width="0.0" height="60"/>
+                                            <rect key="frame" x="430" y="0.0" width="0.0" height="30"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" priority="999" identifier="Duration label width" id="DQr-eG-noi"/>
                                             </constraints>
@@ -240,9 +253,19 @@
                                 </stackView>
                             </subviews>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstItem="s9T-Cr-Iua" firstAttribute="leading" secondItem="56X-aZ-KyM" secondAttribute="leading" id="hdb-gv-muq"/>
+                                <constraint firstItem="s9T-Cr-Iua" firstAttribute="width" secondItem="56X-aZ-KyM" secondAttribute="width" id="u6S-Xj-PtM"/>
+                                <constraint firstAttribute="trailing" secondItem="s9T-Cr-Iua" secondAttribute="trailing" id="x37-cp-3Fv"/>
+                            </constraints>
+                            <variation key="default">
+                                <mask key="constraints">
+                                    <exclude reference="u6S-Xj-PtM"/>
+                                </mask>
+                            </variation>
                         </stackView>
                         <mapView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="1000" zoomEnabled="NO" scrollEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" showsPointsOfInterest="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4W4-ha-tvj">
-                            <rect key="frame" x="16" y="196" width="446" height="128"/>
+                            <rect key="frame" x="16" y="176" width="446" height="128"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="128" id="1SP-JV-E90"/>
                             </constraints>
@@ -250,7 +273,7 @@
                             <standardMapConfiguration key="preferredConfiguration"/>
                         </mapView>
                         <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nJZ-9S-aFh" userLabel="Metadata Button">
-                            <rect key="frame" x="16" y="204" width="446" height="35"/>
+                            <rect key="frame" x="16" y="184" width="446" height="35"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="35" id="UoK-MV-H9H"/>
                             </constraints>
@@ -259,7 +282,7 @@
                             <buttonConfiguration key="configuration" style="gray"/>
                         </button>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2bm-Yb-Q5w" userLabel="Filler View">
-                            <rect key="frame" x="16" y="255" width="446" height="30"/>
+                            <rect key="frame" x="16" y="235" width="446" height="50"/>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         </view>
                     </subviews>
@@ -289,33 +312,19 @@
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
-                <outlet property="aperatureLabel" destination="Vfn-Mg-pgJ" id="nFq-ZK-vfD"/>
                 <outlet property="cameraLabel" destination="x9M-ZG-hZS" id="6bp-Uv-uJs"/>
                 <outlet property="cameraStackView" destination="56X-aZ-KyM" id="YSU-Yz-Dnd"/>
                 <outlet property="contentStackView" destination="Dqg-wy-mZm" id="Ad3-13-8Th"/>
                 <outlet property="contentStackViewBottomConstraint" destination="BzB-Zy-zvO" id="q2S-O0-bsN"/>
                 <outlet property="contentStackViewHeightConstraint" destination="mPv-SC-DY6" id="KVu-xr-ePX"/>
-                <outlet property="divider1Label" destination="Mld-Pp-6Do" id="exz-uy-hlB"/>
-                <outlet property="divider2Label" destination="o3V-Y9-p60" id="C20-ba-0S3"/>
-                <outlet property="divider3Label" destination="cHd-XY-hab" id="TBp-TG-EfJ"/>
-                <outlet property="divider4Label" destination="C2o-pO-xDs" id="sQN-Xw-jGe"/>
-                <outlet property="divider5Label" destination="nDL-GM-2wf" id="jGq-Nj-buQ"/>
-                <outlet property="durationLabel" destination="cPO-5m-foL" id="kPU-07-vHp"/>
-                <outlet property="durationLabelWidthConstraint" destination="DQr-eG-noi" id="lPg-6Q-rqZ"/>
-                <outlet property="exposureLabel" destination="iAf-dD-zZ1" id="w0r-zE-UMj"/>
-                <outlet property="exposureTimeLabel" destination="yFj-Vj-Hmw" id="Qul-V3-iwr"/>
-                <outlet property="exposureTimeLabelWidthConstraint" destination="Bj1-2i-Z49" id="Xb4-RF-jJn"/>
                 <outlet property="fileDateLabel" destination="HLA-7S-wTg" id="dcg-U4-TAA"/>
                 <outlet property="fileNameLabel" destination="y5V-cf-Wmp" id="7HN-wH-5k1"/>
                 <outlet property="fillerView" destination="2bm-Yb-Q5w" id="4o8-2w-EIk"/>
-                <outlet property="focalLengthLabel" destination="oDb-7C-4cH" id="RyX-84-4iZ"/>
-                <outlet property="fpsLabel" destination="2TD-ZB-yaQ" id="8jH-PQ-HU1"/>
-                <outlet property="fpsLabelWidthConstraint" destination="bbY-Np-OKD" id="7Pk-Fb-z2i"/>
-                <outlet property="isoLabel" destination="gei-ae-rtk" id="NIK-e2-nQH"/>
-                <outlet property="isoLabelWidthConstraint" destination="ljb-Ir-3bK" id="MyL-R4-ST9"/>
                 <outlet property="lensLabel" destination="Vku-zE-MVR" id="8pd-PC-QN1"/>
                 <outlet property="mapView" destination="4W4-ha-tvj" id="tOB-w8-JHC"/>
                 <outlet property="metadataButton" destination="nJZ-9S-aFh" id="GSc-6V-C6L"/>
+                <outlet property="metadataCollectionView" destination="s9T-Cr-Iua" id="DZ6-R1-ZD8"/>
+                <outlet property="metadataCollectionViewHeightConstraint" destination="CcI-jx-jti" id="vwO-qj-ZuE"/>
                 <outlet property="metadataStackView" destination="Tff-op-Ovl" id="0m1-A2-tjB"/>
                 <outlet property="sizeLabel" destination="fhR-TL-HoQ" id="dKK-nt-To5"/>
                 <outlet property="typeImageView" destination="uuI-wU-dJi" id="OyM-uh-tkU"/>
