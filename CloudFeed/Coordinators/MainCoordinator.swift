@@ -217,6 +217,7 @@ extension MainCoordinator {
         
         settingsSplitController.title = Strings.SettingsNavTitle
         settingsSplitController.delegate = self
+        settingsSplitController.primaryBackgroundStyle = .none
         
         let menuController = settingsSplitController.viewController(for: .primary) as! MenuController
         menuController.delegate = self

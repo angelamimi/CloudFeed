@@ -51,7 +51,7 @@ class PickerController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         
         if navigationItem.rightBarButtonItem == nil {
-            let item = UIBarButtonItem(title: Strings.CancelAction, image: nil, target: self, action: #selector(cancel))
+            let item = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel))
             item.tintColor = .label
             navigationItem.setRightBarButton(item, animated: true)
         }
