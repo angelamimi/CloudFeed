@@ -220,12 +220,12 @@ extension ProfileController: ProfileDelegate {
         viewModel?.applicationReset()
     }
     
-    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?, mediaPath: String) {
+    func profileResultReceived(profile: Profile?) {
         
-        self.profileName = profileName
-        self.profileEmail = profileEmail
-        self.profileImage = profileImage
-        self.mediaPath = mediaPath
+        self.profileName = profile?.name ?? ""
+        self.profileEmail = profile?.email ?? ""
+        self.profileImage = profile?.image
+        self.mediaPath = profile?.mediaPath ?? ""
         
         DispatchQueue.main.async { [weak self] in
             
@@ -234,7 +234,7 @@ extension ProfileController: ProfileDelegate {
             self?.tableView.reloadData()
             self?.stopActivityIndicator()
             
-            if profileName == "" && profileEmail == "" {
+            if self?.profileName == "" && self?.profileEmail == "" {
                 self?.viewModel?.showProfileLoadfailedError()
             }
         }

@@ -79,22 +79,22 @@ final class LoginViewModel: NSObject {
         await dataService?.deleteAccount(account)
         await dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
         
-        Task { @MainActor [weak self] in
-            
-            guard let tableAccount = await self?.dataService?.setActiveAccount(account) else {
-                self?.delegate?.loginError()
-                return
-            }
-            
-            Environment.current.setCurrentUser(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId)
-             
-            if let currentUser = Environment.current.currentUser {
-                await self?.dataService?.appendSession(account: currentUser.account, user: currentUser.user, userId: currentUser.userId, urlBase: currentUser.urlBase)
-                await self?.dataService?.updateAccount(account: currentUser.account)
-            }
-            
-            self?.delegate?.loginSuccess(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
+        guard let tableAccount = await dataService?.setActiveAccount(account) else {
+            delegate?.loginError()
+            return
         }
+
+        Environment.current.setCurrentUser(account: account, user: username, userId: tableAccount.userId)
+        
+        if let currentUser = Environment.current.currentUser {
+            await dataService?.appendSession(account: account, user: currentUser.user, userId: currentUser.userId, urlBase: tableAccount.urlBase)
+            await dataService?.updateAccount(account: account)
+        }
+        
+        let version = await dataService?.getServerVersion(account: account)
+        Environment.current.setCurrentServer(urlBase: urlBase, version: version ?? "")
+        
+        delegate?.loginSuccess(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
      }
     
     private func initSettings() async {

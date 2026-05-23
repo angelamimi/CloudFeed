@@ -37,7 +37,10 @@ class MediaTests {
         let toDate = Date.distantFuture
         let fromDate = Date.distantPast
         
-        let result = await dataService?.searchMedia(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, limit: 20, currentUserAccount: Environment.current.currentUser)
+        let result = await dataService?.searchMedia(type: type, toDate: toDate, fromDate: fromDate,
+                                                    offsetDate: nil, offsetName: nil, limit: 20,
+                                                    currentUserAccount: Environment.current.currentUser,
+                                                    currentServer: Environment.current.currentServer)
         
         try #require(result != nil)
 
@@ -161,16 +164,17 @@ class MediaTests {
         
         dataService = DataService(store: store, nextcloudService: nextCloudService!, databaseManager: databaseManager!)
         #expect(dataService != nil)
-
+        
         await dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
-
+        
         let tableAccount = await dataService?.setActiveAccount(account)
         #expect(tableAccount != nil)
         
         let activeAccount = await dataService?.getActiveAccount()
         #expect(activeAccount != nil)
         
-        Environment.current.setCurrentUser(account: activeAccount!.account, urlBase: activeAccount!.urlBase, user: activeAccount!.user, userId: activeAccount!.userId)
+        Environment.current.setCurrentUser(account: activeAccount!.account, user: activeAccount!.user, userId: activeAccount!.userId)
+        Environment.current.setCurrentServer(urlBase: activeAccount!.urlBase, version: "")
     }
     
     private func cleanup() {

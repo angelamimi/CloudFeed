@@ -25,7 +25,7 @@ import UIKit
 protocol ProfileDelegate: AnyObject {
     func beginSwitchingAccounts()
     func noAccountsFound()
-    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?, mediaPath: String)
+    func profileResultReceived(profile: Profile?)
 }
 
 @MainActor
@@ -56,19 +56,19 @@ class ProfileViewModel {
         
         guard let account = await dataService.getActiveAccount() else { return }
         
-        Task { [weak self] in
+        if let currentUser = Environment.current.currentUser {
             
-            if let currentUser = Environment.current.currentUser,
-               let result = await self?.dataService.getUserProfile(account: currentUser.account) {
-                
-                await self?.downloadAvatar(account: account, user: currentUser.user)
-                let image = await self?.loadAvatar(account: account)
-                
-                self?.delegate?.profileResultReceived(profileName: result.profileDisplayName, profileEmail: result.profileEmail, profileImage: image, mediaPath: account.mediaPath)
-                
-            } else {
-                self?.delegate.profileResultReceived(profileName: "", profileEmail: "", profileImage: nil, mediaPath: "")
-            }
+            let profileResult = await dataService.getUserProfile(account: currentUser.account)
+            
+            await self.downloadAvatar(account: account, user: currentUser.user)
+            let image = await loadAvatar(account: account)
+            
+            let profile = Profile.init(name: profileResult?.name, email: profileResult?.email, image: image, mediaPath: account.mediaPath, quotaUsed: profileResult?.quotaUsed, quotaTotal: profileResult?.quotaTotal)
+            
+            delegate?.profileResultReceived(profile: profile)
+            
+        } else {
+            delegate.profileResultReceived(profile: Profile.init(name: "", email: "", quotaUsed: nil, quotaTotal: nil))
         }
     }
     
@@ -140,11 +140,16 @@ class ProfileViewModel {
                 return
             }
             
-            Environment.current.setCurrentUser(account: account, urlBase: tableAccount.urlBase, user: tableAccount.user, userId: tableAccount.userId)
-             
+            Environment.current.setCurrentUser(account: account, user: tableAccount.user, userId: tableAccount.userId)
+            
             if let currentUser = Environment.current.currentUser {
-                await self?.dataService.appendSession(account: currentUser.account, user: currentUser.user, userId: currentUser.userId, urlBase: currentUser.urlBase)
+                
+                await self?.dataService.appendSession(account: currentUser.account, user: currentUser.user, userId: currentUser.userId, urlBase: tableAccount.urlBase)
                 await self?.dataService.updateAccount(account: currentUser.account)
+                
+                let version = await self?.dataService.getServerVersion(account: currentUser.account)
+                Environment.current.setCurrentServer(urlBase: tableAccount.urlBase, version: version ?? "")
+                
                 self?.dataService.clearWidgetData()
                 self?.accountDelegate.userChanged()
             }
@@ -161,7 +166,7 @@ class ProfileViewModel {
 
             await self?.dataService.reset()
             
-            Environment.current.currentUser = nil
+            Environment.current.clear()
             
             self?.resetDelegate.reset()
         }
@@ -178,7 +183,7 @@ class ProfileViewModel {
         let accounts = await dataService.getAccountsOrdered()
         
         if accounts.isEmpty {
-            Environment.current.currentUser = nil
+            Environment.current.clear()
             delegate.noAccountsFound()
         } else {
             changeAccount(account: accounts.first!.account)

@@ -205,13 +205,16 @@ final class FavoritesViewModel {
     
     func fetch(type: Global.FilterType, refresh: Bool) async {
         
-        let error = await dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
+        let error = await dataService.getFavorites(currentUserAccount: Environment.current.currentUser, currentServer: Environment.current.currentServer)
         
         if Task.isCancelled { return }
         
         handleFavoriteResult(error: error)
         
-        let resultMetadatas = await dataService.paginateFavoriteMetadata(type: type, fromDate: Date.distantPast, toDate: Date.distantFuture, offsetDate: nil, offsetName: nil, currentUserAccount: Environment.current.currentUser)
+        let resultMetadatas = await dataService.paginateFavoriteMetadata(type: type, fromDate: Date.distantPast, toDate: Date.distantFuture,
+                                                                         offsetDate: nil, offsetName: nil,
+                                                                         currentUserAccount: Environment.current.currentUser,
+                                                                         currentServer: Environment.current.currentServer)
         await applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
     }
     
@@ -221,13 +224,16 @@ final class FavoritesViewModel {
                 
         fetchTask = Task { [weak self] in
             
-            let error = await self?.dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
+            let error = await self?.dataService.getFavorites(currentUserAccount: Environment.current.currentUser, currentServer: Environment.current.currentServer)
             
             if Task.isCancelled { return }
             
             self?.handleFavoriteResult(error: error ?? true)
             
-            if let resultMetadatas = await self?.dataService.paginateFavoriteMetadata(type: type, fromDate: from, toDate: to, offsetDate: nil, offsetName: nil, currentUserAccount: Environment.current.currentUser) {
+            if let resultMetadatas = await self?.dataService.paginateFavoriteMetadata(type: type, fromDate: from, toDate: to,
+                                                                                      offsetDate: nil, offsetName: nil,
+                                                                                      currentUserAccount: Environment.current.currentUser,
+                                                                                      currentServer: Environment.current.currentServer) {
                 await self?.applyDatasourceChanges(metadatas: resultMetadatas, refresh: true)
             }
         }
@@ -239,7 +245,7 @@ final class FavoritesViewModel {
                 
         fetchTask = Task { [weak self] in
             
-            let error = await self?.dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
+            let error = await self?.dataService.getFavorites(currentUserAccount: Environment.current.currentUser, currentServer: Environment.current.currentServer)
             
             if Task.isCancelled { return }
             
@@ -341,15 +347,20 @@ final class FavoritesViewModel {
         
         delegate.fetching()
         
+        let userAccount = Environment.current.currentUser
+        let server = Environment.current.currentServer
+        
         Task { [weak self] in
 
-            _ = await self?.dataService.getFavorites(currentUserAccount: Environment.current.currentUser)
+            _ = await self?.dataService.getFavorites(currentUserAccount: userAccount, currentServer: server)
 
             if let resultMetadatas = await self?.dataService.paginateFavoriteMetadata(type: type,
                                                                                       fromDate: filterFromDate ?? Date.distantPast,
                                                                                       toDate: filterToDate ?? Date.distantFuture,
                                                                                       offsetDate: offsetDate, offsetName: offsetName,
-                                                                                      currentUserAccount: Environment.current.currentUser) {
+                                                                                      currentUserAccount: userAccount,
+                                                                                      currentServer: server) {
+                
                 await self?.applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
             }
         }
@@ -415,7 +426,13 @@ final class FavoritesViewModel {
         var snapshot = dataSource.snapshot()
         var displayed = snapshot.itemIdentifiers(inSection: 0)
         
-        guard let result = await dataService.processFavorites(displayedMetadataIds: displayed, displayedMetadatas: metadatas,  type: type, from: from, to: to, currentUserAccount: Environment.current.currentUser) else {
+        guard let result = await dataService.processFavorites(displayedMetadataIds: displayed,
+                                                              displayedMetadatas: metadatas,
+                                                              type: type,
+                                                              from: from,
+                                                              to: to,
+                                                              currentUserAccount: Environment.current.currentUser,
+                                                              currentServer: Environment.current.currentServer) else {
             delegate.dataSourceUpdated(refresh: false)
             return
         }

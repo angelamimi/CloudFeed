@@ -58,14 +58,28 @@ final class AppCoordinator: NSObject, Coordinator {
         
             Task { [weak self] in
                 
+                var urlBase: String? = nil
+                
                 if let activeAccount = await dataService.getActiveAccount() {
-                    Environment.current.setCurrentUser(account: activeAccount.account, urlBase: activeAccount.urlBase, user: activeAccount.user, userId: activeAccount.userId)
+                    Environment.current.setCurrentUser(account: activeAccount.account, user: activeAccount.user, userId: activeAccount.userId)
+                    urlBase = activeAccount.urlBase
                 } else {
                     store.deleteAllChainStore() //no account. make sure keychain is clear
                 }
 
-                if Environment.current.currentUser != nil {
+                if let userAccount = Environment.current.currentUser {
+                    
+                    for acc in await dataService.getAccountsOrdered() {
+                        await dataService.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
+                    }
+                    
+                    if urlBase != nil {
+                        let version = await dataService.getServerVersion(account: userAccount.account)
+                        Environment.current.setCurrentServer(urlBase: urlBase!, version: version ?? "")
+                    }
+                    
                     await self?.startMainCoordinator(unlock: false)
+                    
                 } else if let window = self?.window {
                     let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)
                     loginServerCoordinator.delegate = self
@@ -81,10 +95,6 @@ final class AppCoordinator: NSObject, Coordinator {
         
         if let style = dataService?.getDisplayStyle() {
             window.overrideUserInterfaceStyle = style
-        }
-        
-        for acc in await dataService!.getAccountsOrdered() {
-            await dataService?.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
         }
         
         if mainCoordinator == nil {

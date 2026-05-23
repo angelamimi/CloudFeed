@@ -84,11 +84,19 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return mockFavorites(fileName: "mock-favorites")
     }
     
-    func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String) {
-        return (profileDisplayName: "", profileEmail: "")
+    func getUserProfile(account: String) async -> Profile? {
+        return nil
     }
     
     func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [CloudFeed.Metadata], mediaFileCount: Int)? {
+        return nil
+    }
+    
+    func getCapabilitiesServerVersion(_ account: String) async -> String? {
+        return ""
+    }
+    
+    func getQuota(account: String, userId: String) async -> (quotaUsed: Int64, quotaTotal: Int64)? {
         return nil
     }
 }

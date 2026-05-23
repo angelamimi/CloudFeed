@@ -35,6 +35,11 @@ class SettingsController: UIViewController {
     
     private var cacheSizeDescription: String = ""
     
+    private var serverUsingSize: Int64?
+    private var serverTotalSize: Int64?
+    private var serverName: String?
+    private var serverVersion: String?
+    
     var mode: Global.SettingsMode = .all
     
     private static let logger = Logger(
@@ -58,7 +63,7 @@ class SettingsController: UIViewController {
         
         tableView.reloadData()
         
-        requestProfile()
+        requestData()
         calculateCacheSize()
     }
     
@@ -78,10 +83,10 @@ class SettingsController: UIViewController {
         tableView?.reloadData()
         
         if reload {
-            requestProfile()
+            requestData()
         }
         
-        viewModel.clearCache(notify: notify)
+        viewModel.clearCache(notify: notify, update: false)
     }
     
     func updateMode(_ mode: Global.SettingsMode) {
@@ -151,14 +156,24 @@ class SettingsController: UIViewController {
         view.isUserInteractionEnabled = true
     }
     
-    private func requestProfile() {
+    private func requestData() {
+        
         if Environment.current.currentUser == nil {
             viewModel.addAccount()
         } else {
+            setServerInfo()
             startActivityIndicator()
+            
             Task { [weak self] in
                 await self?.viewModel.requestProfile()
             }
+        }
+    }
+    
+    private func setServerInfo() {
+        if let server = Environment.current.currentServer {
+            serverName = URL(string: server.urlBase)?.host
+            serverVersion = server.version
         }
     }
     
@@ -250,20 +265,30 @@ class SettingsController: UIViewController {
         viewModel.changeAccount(account: account)
     }
     
-    private func handleProfileLoaded(profileName: String, profileEmail: String, profileImage: UIImage?) {
+    func handleProfileLoaded(profile: Profile?) {
         
-        self.profileImage = profileImage
-        self.profileName = profileName
-        self.profileEmail = profileEmail
+        self.profileName = profile?.name ?? ""
+        self.profileEmail = profile?.email ?? ""
+        self.profileImage = profile?.image
+        self.serverTotalSize = profile?.quotaTotal
+        self.serverUsingSize = profile?.quotaUsed
         
         DispatchQueue.main.async { [weak self] in
             
             guard self?.tableView.window != nil else { return }
+            guard let table = self?.tableView else { return }
             
-            self?.tableView.reloadRows(at: [IndexPath(item: 0, section: 0)], with: .automatic)
+            var paths: [IndexPath] = [IndexPath(item: 0, section: 0)]
+            
+            if table.numberOfSections > 3 && table.numberOfRows(inSection: 3) > 2 {
+                paths.append(IndexPath(item: 2, section: 3))
+            }
+            
+            self?.tableView.reloadRows(at: paths, with: .automatic)
+            
             self?.stopActivityIndicator()
             
-            if profileName == "" && profileEmail == "" {
+            if self?.profileName == "" && self?.profileEmail == "" {
                 self?.showProfileLoadfailedError()
             }
         }
@@ -297,7 +322,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             }
         case .data:
             if indexPath.section == 0 && indexPath.item == 0 {
-                viewModel.clearCache(notify: true)
+                viewModel.clearCache(notify: true, update: true)
             } else if indexPath.section == 0 && indexPath.item == 1 {
                 checkReset()
             }
@@ -314,7 +339,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 acknowledgements()
             } else if indexPath.section == 4 && indexPath.item == 0 {
                 startActivityIndicator()
-                viewModel.clearCache(notify: true)
+                viewModel.clearCache(notify: true, update: true)
             } else if indexPath.section == 4 && indexPath.item == 1 {
                 checkReset()
             }
@@ -375,7 +400,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 return 1
             }
         case .information:
-            return 2
+            return 3
         case .data:
             return 2
         case .all:
@@ -387,10 +412,13 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 } else {
                     return 1
                 }
-            } else {
+            } else if section == 3 {
+                return 3
+            } else if section == 4 {
                 return 2
             }
         }
+        return 0
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -414,6 +442,8 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 return configureAcknowledgementsCell(indexPath)
             } else if indexPath.section == 0 && indexPath.item == 1 {
                 return configureVersionCell(indexPath)
+            } else if indexPath.section == 0 && indexPath.item == 2 {
+                return configureServerCell(indexPath)
             }
         case .data:
             if indexPath.section == 0 && indexPath.item == 0 {
@@ -434,6 +464,8 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 return configureAcknowledgementsCell(indexPath)
             } else if indexPath.section == 3 && indexPath.item == 1 {
                 return configureVersionCell(indexPath)
+            } else if indexPath.section == 3 && indexPath.item == 2 {
+                return configureServerCell(indexPath)
             } else if indexPath.section == 4 && indexPath.item == 0 {
                 return configureCacheCell(indexPath)
             } else if indexPath.section == 4 && indexPath.item == 1 {
@@ -558,6 +590,97 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         return result.cell
     }
     
+    private func configureServerCell(_ indexPath: IndexPath) -> UITableViewCell {
+        
+        var result = buildSettingsCellContent(indexPath: indexPath)
+        
+        result.content.image = UIImage(systemName: "cloud")
+        result.content.textProperties.lineBreakMode = .byWordWrapping
+        
+        if let quota = buildQuotaString() {
+            result.content.text = quota
+        }
+        
+        if let serverNameVersion = getServerNameVersion() {
+            result.content.secondaryText = serverNameVersion
+        }
+        
+        result.content.secondaryTextProperties.lineBreakMode = .byCharWrapping
+        result.cell.tintColor = .label
+        result.cell.accessoryType = .none
+        result.cell.selectionStyle = .none
+        
+        result.cell.contentConfiguration = result.content
+        
+        return result.cell
+    }
+    
+    private func buildQuotaString() -> String? {
+        
+        let format = Strings.SettingsLabelQuota
+        
+        let hasQuotaUsed = serverUsingSize != nil
+        var hasQuotaTotal = false
+        var totalDescription = ""
+        
+        if let totalSize = serverTotalSize {
+            if totalSize == -1 {
+                totalDescription = 0.description
+            } else if totalSize == -2 {
+                totalDescription = Strings.SettingsLabelQuotaTotalUnknown
+            } else if totalSize == -3 {
+                totalDescription = Strings.SettingsLabelQuotaTotalUnlimited
+            } else if totalSize > 0 {
+                hasQuotaTotal = true
+            }
+        }
+        
+        if hasQuotaUsed && hasQuotaTotal {
+            
+            let using = self.serverUsingSize!
+            let total = self.serverTotalSize!
+            
+            let formatter: ByteCountFormatter = ByteCountFormatter()
+            formatter.countStyle = .binary
+                    
+            let formattedUsing = formatter.string(fromByteCount: using)
+            let formattedTotal = formatter.string(fromByteCount: total)
+            
+            let formatted = String.init(format: format, formattedUsing, formattedTotal)
+            return formatted
+            
+        } else if hasQuotaUsed {
+            
+            let using = self.serverUsingSize!
+            let formatter: ByteCountFormatter = ByteCountFormatter()
+            
+            formatter.countStyle = .binary
+                    
+            let formattedUsing = formatter.string(fromByteCount: using)
+            
+            let formatted = String.init(format: format, formattedUsing, totalDescription)
+            return formatted
+        }
+        
+        return nil
+    }
+    
+    private func getServerNameVersion() -> String? {
+        
+        let hasServerName = serverName?.isEmpty == false
+        let hasServerVersion = serverVersion?.isEmpty == false
+        
+        if hasServerName && hasServerVersion {
+            return "\(self.serverName ?? "") \(Strings.SettingsLabelServerVersion)\(self.serverVersion ?? "")"
+        } else if hasServerName {
+            return serverName
+        } else if hasServerVersion {
+            return nil //don't show just a version
+        } else {
+            return nil
+        }
+    }
+    
     private func configureCacheCell(_ indexPath: IndexPath) -> UITableViewCell {
         
         var result = buildSettingsCellContent(indexPath: indexPath)
@@ -593,16 +716,12 @@ extension SettingsController: ProfileDelegate {
     func beginSwitchingAccounts() {}
     func noAccountsFound() {}
     
-    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?, mediaPath: String) {
-        handleProfileLoaded(profileName: profileName, profileEmail: profileEmail, profileImage: profileImage)
+    func profileResultReceived(profile: Profile?) {
+        handleProfileLoaded(profile: profile)
     }
 }
 
 extension SettingsController: SettingsDelegate {
-    
-    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?) {
-        handleProfileLoaded(profileName: profileName, profileEmail: profileEmail, profileImage: profileImage)
-    }
     
     func userChangeError() {
         DispatchQueue.main.async { [weak self] in
@@ -621,6 +740,8 @@ extension SettingsController: SettingsDelegate {
     }
     
     func cacheCleared() {
+        
+        setServerInfo()
         
         calculateCacheSize()
         

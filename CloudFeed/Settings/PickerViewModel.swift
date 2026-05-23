@@ -33,8 +33,8 @@ class PickerViewModel {
     }
     
     func getHomeServer() -> String? {
-        if let user = Environment.current.currentUser {
-            return dataService.getHomeServer(urlBase: user.urlBase, userId: user.userId)
+        if let user = Environment.current.currentUser, let server = Environment.current.currentServer {
+            return dataService.getHomeServer(urlBase: server.urlBase, userId: user.userId)
         }
         return nil
     }

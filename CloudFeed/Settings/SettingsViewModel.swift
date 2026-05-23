@@ -25,7 +25,6 @@ import UIKit
 protocol SettingsDelegate: AccountDelegate {
     func cacheCleared()
     func cacheCalculated(cacheSize: Int64)
-    func profileResultReceived(profileName: String, profileEmail: String, profileImage: UIImage?)
 }
 
 @MainActor
@@ -42,11 +41,15 @@ final class SettingsViewModel: ProfileViewModel {
         return await dataService.getAccountsOrdered()
     }
     
+    func getAccount() async -> Account? {
+        return await dataService.getActiveAccount()
+    }
+    
     func userAccountChanged() {
         coordinator.clearUser()
     }
 
-    func clearCache(notify: Bool) {
+    func clearCache(notify: Bool, update: Bool) {
         
         Task { [weak self] in
             
@@ -57,6 +60,9 @@ final class SettingsViewModel: ProfileViewModel {
             await self?.dataService.store.clearCache()
             
             if notify {
+                if update {
+                    await self?.updateServer()
+                }
                 self?.coordinator.cacheCleared()
                 self?.settingsDelegate.cacheCleared()
             }
@@ -69,7 +75,7 @@ final class SettingsViewModel: ProfileViewModel {
             
             await self?.dataService.reset()
             
-            Environment.current.currentUser = nil
+            Environment.current.clear()
             
             self?.resetDelegate.reset()
         }
@@ -122,5 +128,12 @@ final class SettingsViewModel: ProfileViewModel {
     
     func showRemovePasscode() {
         coordinator.showRemovePasscode()
+    }
+    
+    private func updateServer() async {
+        if let userAccount = await getAccount(),
+           let version = await dataService.getServerVersion(account: userAccount.account) {
+            Environment.current.setCurrentServer(urlBase: userAccount.urlBase, version: version)
+        }
     }
 }

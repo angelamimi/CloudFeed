@@ -67,6 +67,7 @@ extension Strings {
     public static let SettingsItemResetApplication = NSLocalizedString("Settings.Item.ResetApplication", comment: "")
     public static let SettingsItemSystemStyle = NSLocalizedString("Settings.Label.SystemStyle", comment: "")
     public static let SettingsLabelVersion = NSLocalizedString("Settings.Label.Version", comment: "")
+    public static let SettingsLabelServerVersion = NSLocalizedString("Settings.Label.ServerVersion", comment: "")
     public static let SettingsLabelVersionUnknown = NSLocalizedString("Settings.Label.VersionUnknown", comment: "")
     public static let SettingsLabelCacheSize = NSLocalizedString("Settings.Label.CacheSize", comment: "")
     public static let SettingsLabelDark = NSLocalizedString("Settings.Label.Dark", comment: "")
@@ -78,6 +79,9 @@ extension Strings {
     public static let SettingsLabelNextcloud = NSLocalizedString("Settings.Label.Nextcloud", comment: "")
     public static let SettingsLabelMediaPath = NSLocalizedString("Settings.Label.MediaPath", comment: "")
     public static let SettingsLabelVideoControlsGlass = NSLocalizedString("Settings.Label.VideoControlsGlass", comment: "")
+    public static let SettingsLabelQuota = NSLocalizedString("Settings.Label.Quota", comment: "")
+    public static let SettingsLabelQuotaTotalUnknown = NSLocalizedString("Settings.Label.QuotaTotalUnknown", comment: "")
+    public static let SettingsLabelQuotaTotalUnlimited = NSLocalizedString("Settings.Label.QuotaTotalUnlimited", comment: "")
     public static let SettingsMenuAddAccount = NSLocalizedString("Settings.Menu.AddAccount", comment: "")
     
     //Profile

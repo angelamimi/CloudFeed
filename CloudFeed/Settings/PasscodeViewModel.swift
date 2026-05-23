@@ -111,7 +111,7 @@ class PasscodeViewModel {
             
             await self?.dataService.reset()
             
-            Environment.current.currentUser = nil
+            Environment.current.clear()
             
             self?.resetDelegate.reset()
         }

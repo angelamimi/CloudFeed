@@ -486,7 +486,10 @@ final class MediaViewModel {
         
         delegate.searching()
         
-        let result = await dataService.searchMedia(type: type, toDate: toDate, fromDate: fromDate, offsetDate: offsetDate, offsetName: offsetName, limit: limit, currentUserAccount: Environment.current.currentUser)
+        let result = await dataService.searchMedia(type: type, toDate: toDate, fromDate: fromDate,
+                                                   offsetDate: offsetDate, offsetName: offsetName, limit: limit,
+                                                   currentUserAccount: Environment.current.currentUser,
+                                                   currentServer: Environment.current.currentServer)
         
         //Self.logger.debug("search() - result metadatas count: \(result.metadatas.count) error?: \(result.error)")
         

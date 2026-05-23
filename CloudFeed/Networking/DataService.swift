@@ -126,7 +126,7 @@ final class DataService: NSObject, Sendable {
     
     func updateAccount(account: String) async {
         let profile = await getUserProfile(account: account)
-        await databaseManager.updateAccount(account: account, displayName: profile.profileDisplayName)
+        await databaseManager.updateAccount(account: account, displayName: profile?.name ?? "")
     }
     
     func updateAccountMediaPath(account: String, mediaPath: String) async {
@@ -248,11 +248,11 @@ final class DataService: NSObject, Sendable {
         return fileName
     }
     
-    func getFavorites(currentUserAccount: UserAccount?) async -> Bool {
+    func getFavorites(currentUserAccount: UserAccount?, currentServer: Server?) async -> Bool {
         
         guard let account = currentUserAccount?.account else { return false }
         guard let mediaPath = await getMediaPath() else { return false }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount) else { return false }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount, currentServer: currentServer) else { return false }
         
         let listingResult = await nextcloudService.listingFavorites(account: account)
         
@@ -263,20 +263,20 @@ final class DataService: NSObject, Sendable {
         return false
     }
     
-    func paginateFavoriteMetadata(type: Global.FilterType, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?, currentUserAccount: UserAccount?) async -> [Metadata] {
+    func paginateFavoriteMetadata(type: Global.FilterType, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?, currentUserAccount: UserAccount?, currentServer: Server?) async -> [Metadata] {
         
         guard let account = currentUserAccount?.account else { return [] }
         guard let mediaPath = await getMediaPath() else { return [] }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount) else { return [] }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount, currentServer: currentServer) else { return [] }
         
         return await databaseManager.paginateMetadata(favorite: true, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate, offsetDate: nil, offsetName: nil)
     }
     
-    func processFavorites(displayedMetadataIds: [Metadata.ID], displayedMetadatas: [Metadata.ID: Metadata], type: Global.FilterType, from: Date?, to: Date?, currentUserAccount: UserAccount?) async -> (delete: [Metadata.ID], add: [Metadata], update: [Metadata])? {
+    func processFavorites(displayedMetadataIds: [Metadata.ID], displayedMetadatas: [Metadata.ID: Metadata], type: Global.FilterType, from: Date?, to: Date?, currentUserAccount: UserAccount?, currentServer: Server?) async -> (delete: [Metadata.ID], add: [Metadata], update: [Metadata])? {
 
         guard let account = currentUserAccount?.account else { return nil }
         guard let mediaPath = await getMediaPath() else { return nil }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount) else { return nil }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount, currentServer: currentServer) else { return nil }
 
         var delete: [Metadata.ID] = []
         var add: [Metadata] = []
@@ -434,13 +434,13 @@ final class DataService: NSObject, Sendable {
     
     // MARK: -
     // MARK: Search
-    func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int, currentUserAccount: UserAccount?) async -> (metadatas: [Metadata], added: [Metadata], updated: [Metadata], deleted: [Metadata], error: Bool) {
+    func searchMedia(type: Global.FilterType, toDate: Date, fromDate: Date, offsetDate: Date?, offsetName: String?, limit: Int, currentUserAccount: UserAccount?, currentServer: Server?) async -> (metadatas: [Metadata], added: [Metadata], updated: [Metadata], deleted: [Metadata], error: Bool) {
         
         guard let account = currentUserAccount?.account else { return ([], [], [], [], true) }
         guard let userId = currentUserAccount?.userId else { return ([], [], [], [], true) }
-        guard let urlBase = currentUserAccount?.urlBase else { return ([], [], [], [], true) }
+        guard let urlBase = currentServer?.urlBase else { return ([], [], [], [], true) }
         guard let mediaPath = await getMediaPath() else { return ([], [], [], [], true) }
-        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount) else { return ([], [], [], [], true) }
+        guard let startServerUrl = getStartServerUrl(mediaPath: mediaPath, currentUserAccount: currentUserAccount, currentServer: currentServer) else { return ([], [], [], [], true) }
         
         let searchResult = await nextcloudService.searchMedia(account: account, userId: userId, urlBase: urlBase, mediaPath: mediaPath,
                                                               toDate: toDate, fromDate: fromDate, limit: limit)
@@ -497,11 +497,11 @@ final class DataService: NSObject, Sendable {
         return activeAccount.mediaPath
     }
     
-    private func getStartServerUrl(mediaPath: String?, currentUserAccount: UserAccount?) -> String? {
+    private func getStartServerUrl(mediaPath: String?, currentUserAccount: UserAccount?, currentServer: Server?) -> String? {
 
         guard mediaPath != nil else { return nil }
         
-        let urlBase = currentUserAccount?.urlBase
+        let urlBase = currentServer?.urlBase
         let userId = currentUserAccount?.userId
         
         guard urlBase != nil && userId != nil else { return nil }
@@ -514,8 +514,12 @@ final class DataService: NSObject, Sendable {
     
     // MARK: -
     // MARK: Profile
-    func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String) {
+    func getUserProfile(account: String) async -> Profile? {
         return await nextcloudService.getUserProfile(account: account)
+    }
+    
+    func getServerVersion(account: String) async -> String? {
+        return await nextcloudService.getCapabilitiesServerVersion(account)
     }
     
     

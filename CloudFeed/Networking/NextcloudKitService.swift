@@ -51,7 +51,37 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> Bool
     func listingFavorites(account: String) async -> (account: String, files: [Metadata]?)
     
-    func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String)
+    func getUserProfile(account: String) async -> Profile?
+    func getCapabilitiesServerVersion(_ account: String) async -> String?
+    func getQuota(account: String, userId: String) async -> (quotaUsed: Int64, quotaTotal: Int64)?
+}
+
+struct Profile {
+    
+    let name: String?
+    let email: String?
+    let image: UIImage?
+    let mediaPath: String?
+    let quotaUsed: Int64?
+    let quotaTotal: Int64?
+    
+    init(name: String?, email: String?, quotaUsed: Int64?, quotaTotal: Int64?) {
+        self.name = name
+        self.email = email
+        self.image = nil
+        self.mediaPath = nil
+        self.quotaUsed = quotaUsed
+        self.quotaTotal = quotaTotal
+    }
+    
+    init(name: String?, email: String?, image: UIImage?, mediaPath: String?, quotaUsed: Int64?, quotaTotal: Int64?) {
+        self.name = name
+        self.email = email
+        self.image = image
+        self.mediaPath = mediaPath
+        self.quotaUsed = quotaUsed
+        self.quotaTotal = quotaTotal
+    }
 }
 
 final class NextcloudKitService : NextcloudKitServiceProtocol {
@@ -127,6 +157,17 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
                 continuation.resume(returning: nil)
             }
         }
+    }
+    
+    func getCapabilitiesServerVersion(_ account: String) async -> String? {
+        
+        let resultsCapabilities = await NextcloudKit.shared.getCapabilitiesAsync(account: account) { _ in }
+        
+        guard resultsCapabilities.error == .success, let capabilities = resultsCapabilities.capabilities else {
+            return nil
+        }
+        
+        return capabilities.serverVersion
     }
     
     
@@ -362,20 +403,31 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
     
     // MARK: -
     // MARK: Profile
-    func getUserProfile(account: String) async -> (profileDisplayName: String, profileEmail: String) {
+    func getUserProfile(account: String) async -> Profile? {
         
         let options = NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)
-        
+
         return await withCheckedContinuation { continuation in
             NextcloudKit.shared.getUserProfile(account: account, options: options) { account, userProfile, data, error in
                 guard error == .success, let userProfile = userProfile else {
-                    // Ops the server has Unauthorized
                     Self.logger.error("[ERROR] The server has response with Unauthorized \(error.errorCode)")
-                    continuation.resume(returning: ("", ""))
+                    continuation.resume(returning: nil)
                     return
                 }
-                continuation.resume(returning: (userProfile.displayName, userProfile.email))
+                let profile = Profile.init(name: userProfile.displayName, email: userProfile.email, quotaUsed: userProfile.quotaUsed, quotaTotal: userProfile.quotaTotal)
+                continuation.resume(returning: profile)
             }
+        }
+    }
+    
+    func getQuota(account: String, userId: String) async -> (quotaUsed: Int64, quotaTotal: Int64)? {
+        
+        let resultUserProfile = await NextcloudKit.shared.getUserMetadataAsync(account: account, userId: userId, options: NKRequestOptions(queue: NextcloudKit.shared.nkCommonInstance.backgroundQueue)) { task in }
+        
+        if resultUserProfile.error == .success, let userProfile = resultUserProfile.userProfile {
+            return (quotaUsed: userProfile.quotaUsed, quotaTotal: userProfile.quotaTotal)
+        } else {
+            return nil
         }
     }
     
