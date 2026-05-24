@@ -111,7 +111,7 @@ class DetailView: UIView {
     private func initElements() {
         
         if UIDevice.current.userInterfaceIdiom == .pad {
-            //needed to get the actual height of detail view for popover. See layoutSubviews.
+            //needed to get the actual height of detail view for popover
             contentStackViewHeightConstraint?.isActive = false
             contentStackViewBottomConstraint?.isActive = true
         }

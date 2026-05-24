@@ -443,25 +443,18 @@ extension FavoritesController: FavoritesDelegate {
         
         if isEditing {
             if selectionMode == .favorite {
-                cell.favoriteMode(true)
-                cell.selectMode(false)
                 if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
-                    cell.favorited(true)
+                    cell.selected(true, removal: true)
                 } else {
-                    cell.favorited(false)
+                    cell.selected(false, removal: true)
                 }
             } else {
-                cell.favoriteMode(false)
-                cell.selectMode(true)
                 if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
-                    cell.selected(true)
+                    cell.selected(true, removal: false)
                 } else {
-                    cell.selected(false)
+                    cell.selected(false, removal: false)
                 }
             }
-        } else {
-            cell.favoriteMode(false)
-            cell.selectMode(false)
         }
     }
 }
@@ -512,11 +505,7 @@ extension FavoritesController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
-                if selectionMode == .favorite {
-                    cell.favorited(true)
-                } else {
-                    cell.selected(true)
-                }
+                cell.selected(true, removal: selectionMode == .favorite)
             }
         } else {
             collectionView.deselectItem(at: indexPath, animated: false)
@@ -527,11 +516,7 @@ extension FavoritesController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
-                if selectionMode == .favorite {
-                    cell.favorited(false)
-                } else {
-                    cell.selected(false)
-                }
+                cell.selected(false, removal: selectionMode == .favorite)
             }
         }
     }

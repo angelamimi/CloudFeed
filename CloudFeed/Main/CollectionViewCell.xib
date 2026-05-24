@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -22,24 +22,12 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </imageView>
-                    <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BR7-Jq-ndc">
-                        <rect key="frame" x="164" y="0.0" width="36" height="36"/>
-                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="dWK-rc-V0d">
-                            <rect key="frame" x="0.0" y="0.0" width="36" height="36"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        </view>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="36" id="SwX-VY-KhO"/>
-                            <constraint firstAttribute="height" constant="36" id="bGr-M7-7pl"/>
-                        </constraints>
-                        <blurEffect style="systemUltraThinMaterialDark"/>
-                    </visualEffectView>
-                    <imageView opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8gc-k4-qZ6" userLabel="imageFavorite">
-                        <rect key="frame" x="164" y="0.0" width="36" height="36"/>
+                    <imageView opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8gc-k4-qZ6" userLabel="imageSelected">
+                        <rect key="frame" x="164" y="0.0" width="36" height="38"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="36" id="FVx-pB-2WY"/>
+                            <constraint firstAttribute="height" constant="38" id="FVx-pB-2WY"/>
                             <constraint firstAttribute="width" constant="36" id="sGh-6L-9WY"/>
                         </constraints>
                     </imageView>
@@ -51,48 +39,28 @@
                             <constraint firstAttribute="height" constant="25" id="vo8-EC-V35"/>
                         </constraints>
                     </imageView>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ytd-C6-3Kd" userLabel="selectStatus">
-                        <rect key="frame" x="171" y="171" width="25" height="25"/>
-                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="25" id="Dri-HS-d2M"/>
-                            <constraint firstAttribute="width" constant="25" id="Pv9-Di-Eey"/>
-                        </constraints>
-                    </imageView>
                 </subviews>
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
             <constraints>
-                <constraint firstItem="BR7-Jq-ndc" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="3Gi-Aj-tft"/>
                 <constraint firstAttribute="bottom" secondItem="zHI-Yc-HJ5" secondAttribute="bottom" constant="4" id="AYz-wy-ux8"/>
-                <constraint firstAttribute="trailing" secondItem="ytd-C6-3Kd" secondAttribute="trailing" constant="4" id="CKD-oN-5Pe"/>
-                <constraint firstItem="BR7-Jq-ndc" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="CNN-4D-Nwk"/>
                 <constraint firstItem="zHI-Yc-HJ5" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="4" id="JcU-iH-ASf"/>
-                <constraint firstAttribute="bottom" secondItem="ytd-C6-3Kd" secondAttribute="bottom" constant="4" id="X4H-M0-0nb"/>
                 <constraint firstAttribute="trailing" secondItem="8gc-k4-qZ6" secondAttribute="trailing" id="XK2-8x-mNm"/>
-                <constraint firstAttribute="trailing" secondItem="BR7-Jq-ndc" secondAttribute="trailing" id="YBR-9b-XCD"/>
                 <constraint firstItem="8gc-k4-qZ6" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="uhG-le-9ZI"/>
             </constraints>
             <size key="customSize" width="201" height="177"/>
-            <variation key="default">
-                <mask key="constraints">
-                    <exclude reference="3Gi-Aj-tft"/>
-                </mask>
-            </variation>
             <connections>
-                <outlet property="imageFavorite" destination="8gc-k4-qZ6" id="tny-cw-iXQ"/>
-                <outlet property="imageFavoriteBackground" destination="BR7-Jq-ndc" id="XNo-KO-tUq"/>
+                <outlet property="imageSelected" destination="8gc-k4-qZ6" id="WEC-Nu-z9q"/>
                 <outlet property="imageStatus" destination="zHI-Yc-HJ5" id="QsQ-aP-YIl"/>
                 <outlet property="imageView" destination="9af-SE-hby" id="GwR-2u-Gs3"/>
-                <outlet property="selectStatus" destination="ytd-C6-3Kd" id="bcp-Xb-ja3"/>
             </connections>
             <point key="canvasLocation" x="232.82442748091603" y="65.140845070422543"/>
         </collectionViewCell>
     </objects>
     <resources>
         <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

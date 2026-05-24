@@ -26,9 +26,7 @@ class CollectionViewCell: UICollectionViewCell {
 
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var imageStatus: UIImageView!
-    @IBOutlet weak var imageFavorite: UIImageView!
-    @IBOutlet weak var imageFavoriteBackground: UIVisualEffectView!
-    @IBOutlet weak var selectStatus: UIImageView!
+    @IBOutlet weak var imageSelected: UIImageView!
     
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -63,48 +61,21 @@ class CollectionViewCell: UICollectionViewCell {
         imageStatus.image = UIImage(systemName: "livephoto")
     }
     
-    func showFavorite() {
-        imageFavorite.isHidden = false
-        imageFavoriteBackground.isHidden = false
-    }
-    
-    func selectMode(_ status: Bool) {
+    func selected(_ status: Bool, removal: Bool) {
+
         if status {
-            selectStatus.isHidden = false
+            let color: UIColor = removal ? .systemRed : UIColor.tintColor
+            let sysImage: String = removal ? "x.square" : "checkmark.square"
+            imageSelected.image = UIImage(systemName: sysImage)?.withTintColor(.white, renderingMode: .alwaysOriginal)
+            imageSelected.backgroundColor = color
+            imageSelected.tintColor = color
+            imageSelected.isHidden = false
+            layer.borderColor = color.cgColor
+            layer.borderWidth = 3
         } else {
-            selectStatus.isHidden = true
-        }
-    }
-    
-    func selected(_ status: Bool) {
-        if status {
-            selectStatus.image = UIImage(systemName: "checkmark.circle")
-            selectStatus.layer.cornerRadius = selectStatus.frame.width / 2
-            selectStatus.backgroundColor = .white
-            selectStatus.tintColor = .tintColor
-        } else {
-            selectStatus.image = UIImage(systemName: "circle")
-            selectStatus.backgroundColor = .clear
-            selectStatus.tintColor = .white
-        }
-    }
-    
-    func favoriteMode(_ status: Bool) {
-        if status {
-            imageFavorite.isHidden = false
-            imageFavoriteBackground.isHidden = false
-        } else {
-            imageFavorite.isHidden = true
-            imageFavoriteBackground.isHidden = true
-        }
-    }
-    
-    func favorited(_ status: Bool) {
-        
-        if status {
-            imageFavorite.image = UIImage(systemName: "star")?.withTintColor(.systemYellow, renderingMode: .alwaysOriginal)
-        } else {
-            imageFavorite.image = UIImage(systemName: "star.fill")?.withTintColor(.systemYellow, renderingMode: .alwaysOriginal)
+            imageSelected.image = nil
+            imageSelected.isHidden = true
+            layer.borderWidth = 0
         }
     }
     
@@ -142,16 +113,14 @@ class CollectionViewCell: UICollectionViewCell {
         
         imageStatus.image = nil
         imageView.image = nil
-        imageFavorite.image = nil
+        imageSelected.image = nil
         
         imageView.backgroundColor = .secondarySystemBackground
         
-        imageFavorite.isHidden = true
+        imageSelected.isHidden = true
         imageStatus.isHidden = true
         imageStatus.tintColor = .white
         
-        imageFavoriteBackground.isHidden = true
-        imageFavoriteBackground.layer.cornerRadius = 8
-        imageFavoriteBackground.clipsToBounds = true
+        layer.borderWidth = 0
     }
 }

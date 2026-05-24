@@ -403,14 +403,11 @@ extension MediaController: MediaDelegate {
     
     func selectCellUpdated(cell: CollectionViewCell, indexPath: IndexPath) {
         if isEditing {
-            cell.selectMode(true)
             if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
-                cell.selected(true)
+                cell.selected(true, removal: false)
             } else {
-                cell.selected(false)
+                cell.selected(false, removal: false)
             }
-        } else {
-            cell.selectMode(false)
         }
     }
 }
@@ -420,7 +417,7 @@ extension MediaController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
-                cell.selected(true)
+                cell.selected(true, removal: false)
             }
         } else {
             collectionView.deselectItem(at: indexPath, animated: false)
@@ -431,7 +428,7 @@ extension MediaController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
-                cell.selected(false)
+                cell.selected(false, removal: false)
             }
         }
     }

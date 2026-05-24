@@ -548,6 +548,10 @@ final class MediaViewModel {
             return
         }
         
+        if cell.isSelected == false {
+            cell.selected(false, removal: false)
+        }
+        
         cell.isAccessibilityElement = true
         cell.accessibilityTraits = [.image]
         
