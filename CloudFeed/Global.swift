@@ -60,6 +60,7 @@ final class Global: Sendable {
     //
     let fileCacheLimit: UInt = 500 //megabytes
     let cacheLimit           = 200
+    let sizeCacheLimit       = 300 * 1024 * 1024
     let queueLimit           = 5
     
     
@@ -72,6 +73,10 @@ final class Global: Sendable {
     //
     let layoutTypeSquare              = "layoutTypeSquare"
     let layoutTypeAspectRatio         = "layoutTypeAspectRatio"
+    let layoutCollectionGrid          = "layoutCollectionGrid"
+    let layoutCollectionSocial        = "layoutCollectionSocial"
+    let layoutSocialTypeCompact       = "layoutSocialTypeCompact"
+    let layoutSocialTypeExpanded      = "layoutSocialTypeExpanded"
     let layoutColumnCountDefaultPad   = 4
     let layoutColumnCountDefault      = 3
     

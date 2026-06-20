@@ -32,11 +32,13 @@ final class PagerCoordinator {
     private let navigationController: UINavigationController
     private let dataService: DataService
     private let delegate: PagerDelegate
+    private let cacheManager: CacheManager
     
-    init(navigationController: UINavigationController, dataService: DataService, delegate: PagerDelegate) {
+    init(navigationController: UINavigationController, dataService: DataService, delegate: PagerDelegate, cacheManager: CacheManager) {
         self.navigationController = navigationController
         self.dataService = dataService
         self.delegate = delegate
+        self.cacheManager = cacheManager
     }
     
     func start(currentIndex: Int, metadatas: [Metadata]) {
@@ -66,6 +68,24 @@ final class PagerCoordinator {
     func download(_ metadata: Metadata) {
         let coordinator = DownloadCoordinator(navigationController: navigationController, dataService: dataService, delegate: self, metadata: metadata)
         coordinator.start()
+    }
+    
+    func showComments(metadata: Metadata) {
+        
+        let controller = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "CommentsController") as CommentsController
+
+        if let sheet = controller.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersEdgeAttachedInCompactHeight = true
+            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+        }
+        
+        let viewModel = CommentsViewModel(dataService: dataService, delegate: controller, cacheManager: cacheManager, metadata: metadata)
+        
+        controller.viewModel = viewModel
+        controller.metadata = metadata
+        
+        navigationController.present(controller, animated: true)
     }
     
     func showFavoriteUpdateFailedError() {

@@ -48,14 +48,32 @@ extension MediaCoordinator {
         pickerCoordinator.start()
     }
     
-    func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
-        let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService, delegate: self)
+    func showViewerPager(cacheManager: CacheManager, currentIndex: Int, metadatas: [Metadata]) {
+        let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService, delegate: self, cacheManager: cacheManager)
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }
     
     func share(_ metadatas: [Metadata]) {
         let coordinator = ShareCoordinator(navigationController: navigationController, dataService: dataService, delegate: self, metadatas: metadatas)
         coordinator.start()
+    }
+    
+    func showComments(cacheManager: CacheManager, metadata: Metadata) {
+        
+        let controller = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "CommentsController") as CommentsController
+
+        if let sheet = controller.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersEdgeAttachedInCompactHeight = true
+            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+        }
+        
+        let viewModel = CommentsViewModel(dataService: dataService, delegate: controller, cacheManager: cacheManager, metadata: metadata)
+        
+        controller.viewModel = viewModel
+        controller.metadata = metadata
+        
+        navigationController.present(controller, animated: true)
     }
     
     func showFilter(filterable: Filterable, from: Date?, to: Date?) {

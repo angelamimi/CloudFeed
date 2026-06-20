@@ -154,6 +154,10 @@ extension Strings {
     public static let TitleImagesOnly = NSLocalizedString("Title.ImagesOnly", comment: "")
     public static let TitleMenu = NSLocalizedString("Title.Menu", comment: "")
     public static let TitleMediaFolder = NSLocalizedString("Title.MediaFolder", comment: "")
+    public static let TitleSocialMode = NSLocalizedString("Title.SocialMode", comment: "")
+    public static let TitleGridMode = NSLocalizedString("Title.GridMode", comment: "")
+    public static let TitleSocialModeExpand = NSLocalizedString("Title.SocialMode.Expand", comment: "")
+    public static let TitleSocialModeCompact = NSLocalizedString("Title.SocialMode.Compact", comment: "")
     
     //Sharing
     public static let ShareAction = NSLocalizedString("Share.Action", comment: "")
@@ -219,6 +223,18 @@ extension Strings {
     public static let PasscodeSaved = NSLocalizedString("Passcode.Saved", comment: "")
     public static let PasscodeDeleted = NSLocalizedString("Passcode.Deleted", comment: "")
     public static let PasscodeWait = NSLocalizedString("Passcode.Wait", comment: "")
+    
+    //Comments
+    public static let CommentsAction = NSLocalizedString("Comments.Action", comment: "")
+    public static let CommentsActionEdit = NSLocalizedString("Comments.Action.Edit", comment: "")
+    public static let CommentsActionDelete = NSLocalizedString("Comments.Action.Delete", comment: "")
+    public static let CommentsTitle = NSLocalizedString("Comments.Title", comment: "")
+    public static let CommentsEmpty = NSLocalizedString("Comments.Empty", comment: "")
+    public static let CommentsPlaceholder = NSLocalizedString("Comments.Placeholder", comment: "")
+    public static let CommentsErrorAdd = NSLocalizedString("Comments.Error.Add", comment: "")
+    public static let CommentsErrorUpdate = NSLocalizedString("Comments.Error.Update", comment: "")
+    public static let CommentsErrorDelete = NSLocalizedString("Comments.Error.Delete", comment: "")
+    public static let CommentsErrorLoad = NSLocalizedString("Comments.Error.Load", comment: "")
     
     //Image Detail and EXIF
     public static let DetailTitle = NSLocalizedString("Detail.Title", comment: "")

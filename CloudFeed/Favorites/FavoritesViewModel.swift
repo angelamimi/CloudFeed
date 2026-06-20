@@ -294,7 +294,7 @@ final class FavoritesViewModel {
     
     func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
         delegate.videoSelected()
-        coordinator.showViewerPager(currentIndex: currentIndex, metadatas: metadatas)
+        coordinator.showViewerPager(cacheManager: cacheManager, currentIndex: currentIndex, metadatas: metadatas)
     }
     
     func getPreviewController(metadata: Metadata) -> PreviewController {

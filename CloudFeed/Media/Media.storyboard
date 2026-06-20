@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="IDo-ia-P4t">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="IDo-ia-P4t">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -22,6 +22,10 @@
                                 <viewLayoutGuide key="safeArea" id="e0R-in-U75"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
+                            <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" directionalLockEnabled="YES" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="eij-9e-ewa">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="J2a-Pd-Ybs">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -57,8 +61,10 @@
                         <viewLayoutGuide key="safeArea" id="lJf-TF-9FZ"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="eij-9e-ewa" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="4mF-fW-cJC"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="bottom" secondItem="yeB-rd-53C" secondAttribute="bottom" id="7L8-ZO-fBv"/>
                             <constraint firstItem="5ls-AF-slB" firstAttribute="top" secondItem="lJf-TF-9FZ" secondAttribute="top" id="BJE-Jg-cBh"/>
+                            <constraint firstItem="eij-9e-ewa" firstAttribute="top" secondItem="uE1-0J-IbB" secondAttribute="top" id="BjK-Mt-TBA"/>
                             <constraint firstItem="J2a-Pd-Ybs" firstAttribute="bottom" secondItem="uE1-0J-IbB" secondAttribute="bottom" id="FLe-zc-NsL"/>
                             <constraint firstItem="5ls-AF-slB" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="HXq-B9-Qbp"/>
                             <constraint firstItem="J2a-Pd-Ybs" firstAttribute="top" secondItem="uE1-0J-IbB" secondAttribute="top" id="HzS-B3-Lnz"/>
@@ -66,9 +72,11 @@
                             <constraint firstItem="J2a-Pd-Ybs" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="MQm-AF-EML"/>
                             <constraint firstItem="yeB-rd-53C" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="Mq0-yK-2CC"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="5ls-AF-slB" secondAttribute="trailing" id="MxL-h2-rJL"/>
+                            <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="eij-9e-ewa" secondAttribute="trailing" id="NDh-nz-IYi"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="yeB-rd-53C" secondAttribute="trailing" id="QiM-CX-TMT"/>
                             <constraint firstItem="WRJ-D1-jeQ" firstAttribute="centerX" secondItem="uE1-0J-IbB" secondAttribute="centerX" id="V6L-cy-ksq"/>
                             <constraint firstItem="WRJ-D1-jeQ" firstAttribute="centerY" secondItem="uE1-0J-IbB" secondAttribute="centerY" id="bmT-x3-ucb"/>
+                            <constraint firstAttribute="bottom" secondItem="eij-9e-ewa" secondAttribute="bottom" id="rIk-uM-PBb"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="J2a-Pd-Ybs" secondAttribute="trailing" id="vJy-Kz-pmh"/>
                         </constraints>
                     </view>
@@ -78,6 +86,7 @@
                         <outlet property="collectionView" destination="J2a-Pd-Ybs" id="rzT-hd-cZr"/>
                         <outlet property="emptyView" destination="5ls-AF-slB" id="aLJ-Ad-Jea"/>
                         <outlet property="loadMoreIndicator" destination="yeB-rd-53C" id="BS1-c3-8a3"/>
+                        <outlet property="tableView" destination="eij-9e-ewa" id="sFX-AC-Bh0"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Xg4-Xk-39O" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

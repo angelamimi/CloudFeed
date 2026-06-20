@@ -77,6 +77,10 @@ final class PagerViewModel: NSObject {
             }
         }
     }
+    
+    func showComments(_ metadata: Metadata) {
+        pagerCoordinator?.showComments(metadata: metadata)
+    }
 
     func fileExists(_ metadata: Metadata) -> Bool {
         return dataService.store.fileExists(metadata)

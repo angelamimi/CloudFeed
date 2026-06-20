@@ -55,15 +55,22 @@ final class ImageUtility: NSObject {
     }
     
     @discardableResult
-    static func loadSVGPreview(metadata: Metadata, imagePath: String, previewPath: String) async -> UIImage? {
+    static func loadSVG(metadata: Metadata, imagePath: String, iconPath: String, previewPath: String) async -> UIImage? {
         
         guard metadata.svg else { return nil }
         guard let svgImage = SVGKImage(contentsOfFile: imagePath) else { return nil }
         
         if let image = svgImage.uiImage {
             
+            let icon = await image.byPreparingThumbnail(ofSize: .init(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon))
+            let preview = await image.byPreparingThumbnail(ofSize: .init(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
+            
+            if !FileManager().fileExists(atPath: iconPath) {
+                try? icon?.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: iconPath))
+            }
+            
             if !FileManager().fileExists(atPath: previewPath) {
-                try? image.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
+                try? preview?.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
             }
             
             return image
@@ -150,7 +157,7 @@ final class ImageUtility: NSObject {
         
         let ratio = width < height ? width / height : height / width
         
-        if ratio <= 0.25 {
+        if ratio <= 0.30 {
             return false
         } else {
             return true

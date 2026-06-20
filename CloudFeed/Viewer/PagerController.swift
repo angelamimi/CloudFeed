@@ -272,6 +272,10 @@ class PagerController: UIViewController {
                 self?.toggleFavoriteNetwork(isFavorite: true)
             }
         }
+        
+        let commentsAction = UIAction(title: Strings.CommentsAction, image: UIImage(systemName: "text.bubble")) { [weak self] action in
+            self?.showComments(currentMetadata)
+        }
 
         let shareAction = UIAction(title: Strings.ShareAction, image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
             self?.share([currentMetadata])
@@ -280,12 +284,12 @@ class PagerController: UIViewController {
         let menu: UIMenu
         
         if currentMetadata.video || currentMetadata.svg || currentMetadata.gif || viewModel.fileExists(currentMetadata) {
-            menu = UIMenu(children: [action, shareAction])
+            menu = UIMenu(children: [action, shareAction, commentsAction])
         } else {
             let fullAction = UIAction(title: Strings.DownloadAction, image: UIImage(systemName: "photo")) { [weak self] _ in
                 self?.downloadImage(currentMetadata)
             }
-            menu = UIMenu(children: [action, shareAction, fullAction])
+            menu = UIMenu(children: [action, shareAction, fullAction, commentsAction])
         }
         
         let menuButton = UIBarButtonItem.init(title: nil, image: UIImage(systemName: "ellipsis"), target: self, action: nil, menu: menu)
@@ -317,6 +321,10 @@ class PagerController: UIViewController {
     
     private func share(_ metadatas: [Metadata]) {
         viewModel.share(metadatas: metadatas)
+    }
+    
+    private func showComments(_ metadata: Metadata) {
+        viewModel.showComments(metadata)
     }
     
     private func getVideoURL(metadata: Metadata) -> URL? {

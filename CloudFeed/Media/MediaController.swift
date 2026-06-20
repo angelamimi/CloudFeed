@@ -36,19 +36,19 @@ class MediaController: CollectionController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        registerCell("MainCollectionViewCell")
-        
         title = Strings.MediaNavTitle
         
-        collectionView.delegate = self
+        collectionView?.delegate = self
+        tableView?.delegate = self
         
-        viewModel.initDataSource(collectionView: collectionView)
-        initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
-        initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
+        initView()
+        
+        initTitle(allowEdit: false, allowSelect: tableMode == false, layoutType: viewModel.getLayoutType())
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
+        tableCleanup()
         viewModel.cancel()
     }
     
@@ -102,19 +102,30 @@ class MediaController: CollectionController {
     public func clear() {
         
         viewModel?.clearCache()
-
-        scrollToTop(false)
-        viewModel?.resetDataSource()
-        setTitle("")
+        
+        if tableMode {
+            viewModel.resetDataSource()
+        } else {
+            scrollToTop(false)
+            viewModel?.resetDataSource()
+            setTitle("")
+        }
     }
     
     public func scrollToMetadata(metadata: Metadata) {
         
         if let indexPath = viewModel.getIndexPathForMetadata(metadata: metadata) {
             //only scroll to item if not visible already
-            if collectionView.indexPathsForVisibleItems.contains(indexPath) == false {
-                collectionView.scrollToItem(at: indexPath, at: .top, animated: false)
-                viewModel.pauseLoading = false
+            if tableMode {
+                if tableView.indexPathsForVisibleRows?.contains(indexPath) == false {
+                    tableView.scrollToRow(at: indexPath, at: .top, animated: false)
+                    viewModel.pauseLoading = false
+                }
+            } else {
+                if collectionView.indexPathsForVisibleItems.contains(indexPath) == false {
+                    collectionView.scrollToItem(at: indexPath, at: .top, animated: false)
+                    viewModel.pauseLoading = false
+                }
             }
         }
     }
@@ -122,6 +133,11 @@ class MediaController: CollectionController {
     func shareComplete() {
         reset()
         setTitle()
+    }
+    
+    override func menuTapped() {
+        super.menuTapped()
+        tableCleanup()
     }
     
     override func resetFilter() {
@@ -139,6 +155,9 @@ class MediaController: CollectionController {
     }
     
     override func updateMediaType(_ type: Global.FilterType) {
+        if tableMode {
+            tableCleanup()
+        }
         filterType = type
         clear()
         syncMedia()
@@ -163,6 +182,9 @@ class MediaController: CollectionController {
     }
     
     override func filter() {
+        if tableMode {
+            tableCleanup()
+        }
         viewModel.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
     }
     
@@ -183,6 +205,9 @@ class MediaController: CollectionController {
     }
     
     override func setMediaDirectory() {
+        if tableMode {
+            tableCleanup()
+        }
         viewModel.showPicker()
     }
     
@@ -197,16 +222,159 @@ class MediaController: CollectionController {
         setTitle()
     }
     
+    override func setMetadataVisibility(_ visible: Bool) {
+        let type = visible ? Global.shared.layoutSocialTypeExpanded : Global.shared.layoutSocialTypeCompact
+        viewModel.updateSocialType(type)
+        viewModel.metadataVisible = visible
+        viewModel.reload(reconfigure: false)
+    }
+    
+    override func switchToGrid() {
+        
+        tableCleanup()
+        
+        setTitle("")
+        viewModel.resetDataSource()
+        
+        viewModel.updateLCollectionType(Global.shared.layoutCollectionGrid)
+        tableMode = false
+        initView()
+        fetch()
+    }
+    
+    override func switchToSocial() {
+        setTitle("")
+        viewModel.resetDataSource()
+        
+        viewModel.updateLCollectionType(Global.shared.layoutCollectionSocial)
+        tableMode = true
+        
+        let type = viewModel.getSocialType()
+        compactMode = type == Global.shared.layoutSocialTypeCompact
+        
+        initView()
+        fetch()
+    }
+    
+    override func handleTableLongPress(sender: UITapGestureRecognizer) {
+        
+        if sender.state == .ended {
+            
+            let touchPoint = sender.location(in: tableView)
+            
+            if let indexPath = tableView.indexPathForRow(at: touchPoint),
+               let cell = tableView.cellForRow(at: indexPath) as? TableViewCell,
+               let metadata = viewModel.getItemAtIndexPath(indexPath) {
+                
+                DispatchQueue.main.async {
+                    if metadata.livePhoto {
+                        cell.stopLiveVideo()
+                    }
+                }
+            }
+                
+        } else if sender.state == .began {
+            
+            let touchPoint = sender.location(in: tableView)
+            
+            if let indexPath = tableView.indexPathForRow(at: touchPoint),
+               let cell = tableView.cellForRow(at: indexPath) as? TableViewCell,
+               let metadata = viewModel.getItemAtIndexPath(indexPath) {
+                
+                if metadata.livePhoto {
+                    handleLongPressLivePhoto(metadata, cell)
+                }
+            }
+        }
+    }
+    
+    private func handleLongPressLivePhoto(_ metadata: Metadata, _ cell: TableViewCell) {
+        
+        Task { [weak self] in
+            
+            if let videoMetadata = await self?.viewModel.getMetadataLivePhoto(metadata: metadata) {
+                
+                if self?.viewModel.fileExists(videoMetadata) == true {
+                    self?.playLiveVideo(videoMetadata, cell)
+                } else {
+                    await self?.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
+                    self?.playLiveVideo(videoMetadata, cell)
+                }
+            }
+        }
+    }
+    
+    private func playVideo(_ url: URL, _ cell: TableViewCell) {
+
+        DispatchQueue.main.async {
+            cell.playVideo(url)
+        }
+    }
+    
+    private func playLiveVideo(_ videoMetadata: Metadata, _ cell: TableViewCell) {
+        
+        DispatchQueue.main.async { [weak self] in
+            
+            var videoUrl: URL?
+            
+            if self?.viewModel.fileExists(videoMetadata) == true,
+               let path = self?.viewModel.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
+                videoUrl = URL(fileURLWithPath: path)
+            }
+            
+            if let url = videoUrl {
+                cell.playLiveVideo(url)
+            }
+        }
+    }
+    
+    private func fetch() {
+
+        viewModel.cancelLoads()
+        viewModel.clearCache()
+
+        syncMedia()
+    }
+    
+    private func initView() {
+        
+        tableMode = viewModel.getCollectionType() == Global.shared.layoutCollectionSocial
+        
+        viewModel.tableMode = tableMode
+        
+        if tableMode {
+            registerTableCell()
+            initTitle(allowEdit: false, allowSelect: false, layoutType: "")
+            collectionView.isHidden = true
+            viewModel.initDataSource(tableView: tableView)
+            initTableView()
+        } else {
+            registerCollectionCell("MainCollectionViewCell")
+            initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
+            tableView.isHidden = true
+            viewModel.initDataSource(collectionView: collectionView)
+            initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
+        }
+    }
+    
     private func refreshVisibleItems() {
-        let visibleIndexPaths = collectionView.indexPathsForVisibleItems
-        if visibleIndexPaths.count > 0 {
-            viewModel.refreshItems(visibleIndexPaths)
+        
+        let visibleIndexPaths: [IndexPath]?
+        
+        if tableMode {
+            visibleIndexPaths = tableView.indexPathsForVisibleRows
+        } else {
+            visibleIndexPaths = collectionView.indexPathsForVisibleItems
+        }
+        
+        if let indexPaths = visibleIndexPaths, indexPaths.count > 0 {
+            viewModel.refreshItems(indexPaths)
         }
     }
     
     private func syncMedia() {
 
-        if collectionView.isHidden == true && emptyView.isHidden == false {
+        if tableView?.isHidden == true && collectionView?.isHidden == true && emptyView.isHidden == false {
             emptyView.hide(animate: false) //hiding empty view during sync looks better
         }
         
@@ -299,13 +467,21 @@ class MediaController: CollectionController {
     
     private func reset() {
         
-        collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
-            self?.collectionView.deselectItem(at: $0, animated: false)
+        collectionView?.indexPathsForSelectedItems?.forEach { [weak self] in
+            self?.collectionView?.deselectItem(at: $0, animated: false)
         }
 
         isEditing = false
-        collectionView.allowsMultipleSelection = false
+        collectionView?.allowsMultipleSelection = false
         reloadSection()
+    }
+    
+    private func tableCleanup() {
+        for visibleCell in tableView.visibleCells {
+            if let cell = visibleCell as? TableViewCell {
+                cell.stopVideo()
+            }
+        }
     }
 }
 
@@ -343,6 +519,12 @@ extension MediaController: CollectionDelegate {
     
     func setTitle() {
         
+        if tableMode {
+            navigationItem.largeTitleDisplayMode = .never
+            navigationController?.navigationBar.prefersLargeTitles = false
+            return
+        }
+        
         let visibleIndexes = collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
         guard let indexPath = visibleIndexes?.first else {
             setTitle("")
@@ -371,7 +553,7 @@ extension MediaController: MediaDelegate {
     func videoSelected() {
         //Hack. iOS 26 and above. Setting background color to match viewer background when video is selected.
         //Background color is returned to system in appear
-        collectionView.backgroundColor = .black
+        collectionView?.backgroundColor = .black
     }
     
     func dataSourceUpdated(refresh: Bool) {
@@ -409,6 +591,38 @@ extension MediaController: MediaDelegate {
                 cell.selected(false, removal: false)
             }
         }
+    }
+    
+    func videoPlay(indexPath: IndexPath) {
+        
+        tableCleanup()
+        
+        Task { [weak self] in
+            
+            if let metadata = self?.viewModel.getItemAtIndexPath(indexPath),
+               let videoURL = await self?.viewModel.getVideoURL(metadata: metadata),
+               let cell = self?.tableView.cellForRow(at: indexPath) as? TableViewCell {
+                
+                self?.playVideo(videoURL, cell)
+            }
+        }
+    }
+}
+
+extension MediaController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if let current = cell as? TableViewCell {
+            current.stopVideo()
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        tableCleanup()
+        
+        tableView.deselectRow(at: indexPath, animated: false)
+        openViewer(indexPath: indexPath)
     }
 }
 
@@ -482,6 +696,7 @@ extension MediaController: Filterable {
             filterToDate = to
             filterFromDate = from
             
+            clear()
             viewModel.filter(type: filterType, toDate: to, fromDate: from)
             
             initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
@@ -489,7 +704,7 @@ extension MediaController: Filterable {
     }
     
     func removeFilter() {
-        
+                
         viewModel.dismissFilter()
         
         hideEmptyView()
@@ -498,10 +713,11 @@ extension MediaController: Filterable {
         filterFromDate = nil
         
         initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
+        
+        scrollToTop(false)
         setTitle("")
+        viewModel.resetDataSource()
         
         refresh()
-        
-        viewModel.resetDataSource()
     }
 }

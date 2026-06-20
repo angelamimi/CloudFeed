@@ -100,10 +100,11 @@ struct ViewerViewModel {
                 await dataService.download(metadata: metadata, progressHandler: { _, _ in })
             }
             
+            let iconPath = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
             let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
             
-            await ImageUtility.loadSVGPreview(metadata: metadata, imagePath: imagePath, previewPath: previewPath)
+            await ImageUtility.loadSVG(metadata: metadata, imagePath: imagePath, iconPath: iconPath, previewPath: previewPath)
             
         } else if metadata.gif {
             

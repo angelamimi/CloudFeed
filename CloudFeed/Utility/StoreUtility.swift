@@ -313,6 +313,36 @@ struct StoreUtility: Sendable {
         setPreferenceValue(key: "mediaLayoutType", value: type)
     }
     
+    func getMediaCollectionType() -> String {
+        
+        if let value = getPreferenceValue(key: "mediaCollectionType") as? String {
+            return value
+        } else {
+            let defaultType = Global.shared.layoutCollectionGrid
+            setMediaCollectionType(defaultType)
+            return defaultType
+        }
+    }
+    
+    func setMediaCollectionType(_ type: String) {
+        setPreferenceValue(key: "mediaCollectionType", value: type)
+    }
+    
+    func getMediaSocialType() -> String {
+        
+        if let value = getPreferenceValue(key: "mediaSocialType") as? String {
+            return value
+        } else {
+            let defaultType = Global.shared.layoutSocialTypeCompact
+            setMediaSocialType(defaultType)
+            return defaultType
+        }
+    }
+    
+    func setMediaSocialType(_ type: String) {
+        setPreferenceValue(key: "mediaSocialType", value: type)
+    }
+    
     func getFavoriteLayoutType() -> String! {
         
         if let value = getPreferenceValue(key: "favoriteLayoutType") as? String {
@@ -326,6 +356,36 @@ struct StoreUtility: Sendable {
     
     func setFavoriteLayoutType(_ type: String) {
         setPreferenceValue(key: "favoriteLayoutType", value: type)
+    }
+    
+    func getFavoriteCollectionType() -> String {
+        
+        if let value = getPreferenceValue(key: "favoriteCollectionType") as? String {
+            return value
+        } else {
+            let defaultType = Global.shared.layoutCollectionGrid
+            setFavoriteCollectionType(defaultType)
+            return defaultType
+        }
+    }
+    
+    func setFavoriteCollectionType(_ type: String) {
+        setPreferenceValue(key: "favoriteCollectionType", value: type)
+    }
+    
+    func getFavoriteSocialType() -> String {
+        
+        if let value = getPreferenceValue(key: "favoriteSocialType") as? String {
+            return value
+        } else {
+            let defaultType = Global.shared.layoutSocialTypeCompact
+            setFavoriteSocialType(defaultType)
+            return defaultType
+        }
+    }
+    
+    func setFavoriteSocialType(_ type: String) {
+        setPreferenceValue(key: "favoriteSocialType", value: type)
     }
     
     func getCacheDirectoryURL() -> URL? {
@@ -355,6 +415,18 @@ struct StoreUtility: Sendable {
         return filePath
     }
     
+    func getAvatarCachePath() -> String? {
+        
+        guard let cacheURL = getCacheDirectoryURL() else { return nil }
+        let avatarPath = cacheURL.appendingPathComponent("avatars").path
+        
+        if !FileManager.default.fileExists(atPath: avatarPath) {
+            try? FileManager.default.createDirectory(atPath: avatarPath, withIntermediateDirectories: true, attributes: nil)
+        }
+        
+        return avatarPath
+    }
+    
     private func getCachePathForOcId(_ ocId: String) -> String? {
         
         let path = "\(getFileCachePath() ?? "")/\(ocId)"
@@ -364,6 +436,12 @@ struct StoreUtility: Sendable {
         }
 
         return path
+    }
+    
+    func getAvatarPath(_ userId: String, _ urlBase: String) -> String {
+        let server = URL(string: urlBase)?.host() ?? "localhost"
+        let path = "\(getAvatarCachePath() ?? "")/\(userId)"
+        return "\(path)@\(server).png"
     }
     
     func getPreviewPath(_ ocId: String, _ etag: String) -> String {

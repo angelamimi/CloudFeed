@@ -218,6 +218,7 @@ final class MockMediaDelegate: MediaDelegate {
     func progressUpdated(_ progress: Double) {}
     func selectCellUpdated(cell: CloudFeed.CollectionViewCell, indexPath: IndexPath) {}
     func videoSelected() {}
+    func videoPlay(indexPath: IndexPath) {}
     
     func searchResultReceived(resultItemCount: Int?) {
         onSearchResultReceived(resultItemCount ?? -1)

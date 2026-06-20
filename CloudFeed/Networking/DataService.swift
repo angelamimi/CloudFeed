@@ -186,6 +186,23 @@ final class DataService: NSObject, Sendable {
     
     // MARK: -
     // MARK: Avatar
+    func downloadAvatar(userId: String, urlBase: String, account: String, screenScale: CGFloat) async {
+        
+        let fileNameLocalPath = store.getAvatarPath(userId, urlBase)
+        let fileName = URL(filePath: fileNameLocalPath).lastPathComponent
+        
+        var etag: String? = nil
+        if FileManager.default.fileExists(atPath: fileNameLocalPath) {
+            etag = await databaseManager.getAvatar(fileName: fileName)?.etag
+        }
+        
+        let avatarSize = Global.shared.avatarSizeBase * Int(screenScale)
+        let etagResult = await nextcloudService.downloadAvatar(account: account, userId: userId, fileNameLocalPath: fileNameLocalPath, etag: etag, avatarSize: avatarSize)
+
+        guard etagResult != nil else { return }
+        await databaseManager.addAvatar(fileName: fileName, etag: etagResult!)
+    }
+    
     func downloadAvatar(fileName: String, account: Account, screenScale: CGFloat) async {
         
         let fileNameLocalPath = store.getUserDirectory() + "/" + fileName
@@ -196,8 +213,7 @@ final class DataService: NSObject, Sendable {
         }
         
         let avatarSize = Global.shared.avatarSizeBase * Int(screenScale)
-        let etagResult = await nextcloudService.downloadAvatar(account: account.account, userId: account.userId, fileName: fileName,
-                                                               fileNameLocalPath: fileNameLocalPath, etag: etag, avatarSize: avatarSize)
+        let etagResult = await nextcloudService.downloadAvatar(account: account.account, userId: account.userId, fileNameLocalPath: fileNameLocalPath, etag: etag, avatarSize: avatarSize)
 
         guard etagResult != nil else { return }
         await databaseManager.addAvatar(fileName: fileName, etag: etagResult!)
@@ -385,16 +401,18 @@ final class DataService: NSObject, Sendable {
         
         guard metadata != nil else { return }
         
-        let path = store.getIconPath(metadata!.ocId, metadata!.etag)
+        let iconPath = store.getIconPath(metadata!.ocId, metadata!.etag)
+        let previewPath = store.getPreviewPath(metadata!.ocId, metadata!.etag)
 
-        if metadata!.video && !FileManager().fileExists(atPath: path) {
-
+        if metadata!.video && !FileManager().fileExists(atPath: iconPath) {
+            
             if let url = await getDirectDownload(metadata: metadata!) {
                 
-                let image = await ImageUtility.imageFromVideo(url: url, size: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon))
+                let preview = await ImageUtility.imageFromVideo(url: url, size: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
+                try? preview?.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
                 
-                //Save the preview image
-                try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
+                let icon = preview?.preparingThumbnail(of: .init(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon))
+                try? icon?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: iconPath))
             }
         }
     }
@@ -406,9 +424,10 @@ final class DataService: NSObject, Sendable {
         await download(metadata: metadata!, progressHandler: { _, _ in })
         
         let iconPath = store.getIconPath(metadata!.ocId, metadata!.etag)
+        let previewPath = store.getPreviewPath(metadata!.ocId, metadata!.etag)
         let imagePath = store.getCachePath(metadata!.ocId, metadata!.fileNameView)!
         
-        await ImageUtility.loadSVGPreview(metadata: metadata!, imagePath: imagePath, previewPath: iconPath)
+        await ImageUtility.loadSVG(metadata: metadata!, imagePath: imagePath, iconPath: iconPath, previewPath: previewPath)
     }
     
     func savePreview(metadata: Metadata) {
@@ -556,5 +575,24 @@ final class DataService: NSObject, Sendable {
     private func buildHomeServer(urlBase: String, userId: String) -> String {
         let homeServer = urlBase + Global.shared.davLocation + userId
         return homeServer
+    }
+    
+    
+    // MARK: -
+    // MARK: Comments
+    func getComments(fileId: String, account: String) async -> [FileComment]? {
+        return await nextcloudService.getComments(fileId: fileId, account: account)
+    }
+    
+    func addComment(fileId: String, account: String, message: String) async -> Bool {
+        return await nextcloudService.addComment(fileId: fileId, account: account, message: message)
+    }
+    
+    func updateComment(fileId: String, account: String, messageId: String, message: String) async -> Bool {
+        return await nextcloudService.updateComment(fileId: fileId, account: account, messageId: messageId, message: message)
+    }
+    
+    func deleteComment(fileId: String, account: String, messageId: String) async -> Bool {
+        return await nextcloudService.deleteComment(fileId: fileId, account: account, messageId: messageId)
     }
 }

@@ -37,6 +37,7 @@ final class CacheManager {
         
         cache = NSCache<NSString, UIImage>()
         cache.countLimit = Global.shared.cacheLimit
+        cache.totalCostLimit = Global.shared.sizeCacheLimit
         
         queue = OperationQueue()
         queue.name = "downloadQueue"
@@ -57,12 +58,27 @@ final class CacheManager {
         cache.setObject(image, forKey: (metadata.ocId + metadata.etag) as NSString)
     }
     
+    func cache(urlBase: String, userId: String, image: UIImage) {
+        let key = Metadata.buildAvatarFileName(urlBase: urlBase, userId: userId)
+        cache.setObject(image, forKey: key as NSString)
+    }
+    
     func cached(ocId: String, etag: String) -> UIImage? {
         return cache.object(forKey: ocId + etag as NSString)
     }
     
+    func cached(urlBase: String, userId: String) -> UIImage? {
+        let key = Metadata.buildAvatarFileName(urlBase: urlBase, userId: userId)
+        return cache.object(forKey: key as NSString)
+    }
+    
     func download(metadata: Metadata, delegate: DownloadPreviewOperationDelegate) {
         let operation = DownloadPreviewOperation(metadata, dataService: dataService, delegate: delegate)
+        queue.addOperation(operation)
+    }
+    
+    func download(objectId: String, userId: String, urlBase: String, account: String, delegate: DownloadAvatarOperationDelegate) {
+        let operation = DownloadAvatarOperation(objectId: objectId, userId: userId, urlBase: urlBase, account: account, dataService: dataService, delegate: delegate)
         queue.addOperation(operation)
     }
 }

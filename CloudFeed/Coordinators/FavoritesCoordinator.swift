@@ -42,11 +42,11 @@ extension FavoritesCoordinator {
         return previewController
     }
     
-    func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
+    func showViewerPager(cacheManager: CacheManager, currentIndex: Int, metadatas: [Metadata]) {
 
         navigationController.popToRootViewController(animated: false) //may be viewing from a widget tap, so could have controllers on the stack
         
-        let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService, delegate: self)
+        let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService, delegate: self, cacheManager: cacheManager)
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }
     

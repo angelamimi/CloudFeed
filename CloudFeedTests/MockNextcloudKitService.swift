@@ -68,7 +68,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
 
     }
     
-    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String? {
+    func downloadAvatar(account: String, userId: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String? {
         return nil
     }
     
@@ -98,6 +98,22 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
     
     func getQuota(account: String, userId: String) async -> (quotaUsed: Int64, quotaTotal: Int64)? {
         return nil
+    }
+    
+    func getComments(fileId: String, account: String) async -> [FileComment]? {
+        return nil
+    }
+    
+    func addComment(fileId: String, account: String, message: String) async -> Bool {
+        return false
+    }
+    
+    func updateComment(fileId: String, account: String, messageId: String, message: String) async -> Bool {
+        return false
+    }
+    
+    func deleteComment(fileId: String, account: String, messageId: String) async -> Bool {
+        return false
     }
 }
 

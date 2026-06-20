@@ -46,6 +46,8 @@ final class MetadataModel {
     var hasPreview: Bool = false
     var livePhotoFile = ""
     var name = ""
+    var ownerId = ""
+    var ownerDisplayName = ""
     var path = ""
     var serverUrl = ""
     var size: Int64 = 0
@@ -64,7 +66,8 @@ final class MetadataModel {
     
     init(ocId: String = "", account: String = "", classFile: String = "", contentType: String = "", creationDate: Date = Date(),
          date: Date = Date(), datePhotosOriginal: Date = Date(), etag: String = "", favorite: Bool, fileId: String = "",
-         fileName: String = "", fileNameView: String = "", hasPreview: Bool, livePhotoFile: String = "", name: String = "",
+         fileName: String = "", fileNameView: String = "", hasPreview: Bool, livePhotoFile: String = "",
+         ownerId: String = "", ownerDisplayName: String = "", name: String = "",
          path: String = "", serverUrl: String = "", size: Int64, uploadDate: Date = Date(), urlBase: String = "",
          user: String = "", userId: String = "", height: Double, width: Double, latitude: Double = 0, longitude: Double = 0, altitude: Double = 0) { /*,
          exifPhotos: [MetadataExifModel]?) {*/
@@ -83,6 +86,8 @@ final class MetadataModel {
         self.livePhotoFile = livePhotoFile
         self.name = name
         self.ocId = ocId
+        self.ownerId = ownerId
+        self.ownerDisplayName = ownerDisplayName
         self.path = path
         self.serverUrl = serverUrl
         self.size = size
@@ -111,6 +116,8 @@ final class MetadataModel {
         self.livePhotoFile = dto.livePhotoFile
         self.name = dto.name
         self.ocId = dto.ocId
+        self.ownerId = dto.ownerId
+        self.ownerDisplayName = dto.ownerDisplayName
         self.path = dto.path
         self.serverUrl = dto.serverUrl
         self.size = dto.size
@@ -185,6 +192,8 @@ struct Metadata: Sendable, Identifiable {
     var hasPreview: Bool
     var livePhotoFile: String
     var name: String
+    var ownerId: String
+    var ownerDisplayName: String
     var path: String
     var serverUrl: String
     var size: Int64
@@ -216,6 +225,8 @@ struct Metadata: Sendable, Identifiable {
         self.livePhotoFile = livePhotoFile
         self.name = ""
         self.ocId = ocId
+        self.ownerId = ""
+        self.ownerDisplayName = ""
         self.path = ""
         self.serverUrl = serverUrl
         self.size = 0
@@ -246,6 +257,8 @@ struct Metadata: Sendable, Identifiable {
         livePhotoFile = model.livePhotoFile
         name = model.name
         ocId = model.ocId
+        ownerId = model.ownerId
+        ownerDisplayName = model.ownerDisplayName
         path = model.path
         serverUrl = model.serverUrl
         size = model.size
@@ -291,6 +304,8 @@ struct Metadata: Sendable, Identifiable {
         livePhotoFile = file.livePhotoFile
         name = file.name
         ocId = file.ocId
+        ownerId = file.ownerId
+        ownerDisplayName = file.ownerDisplayName
         path = file.path
         serverUrl = file.serverUrl
         size = file.size
@@ -356,6 +371,12 @@ extension Metadata {
     
     var imageSize: CGSize {
         CGSize(width: width, height: height)
+    }
+    
+    static func buildAvatarFileName(urlBase: String, userId: String) -> String {
+        let url = (URL(string: urlBase)?.host) ?? "localhost"
+        let fileName = userId + "@" + url + ".png"
+        return fileName
     }
 }
 

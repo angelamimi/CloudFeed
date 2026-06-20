@@ -37,6 +37,8 @@ protocol CollectionDelegate: AnyObject {
 class CollectionController: UIViewController {
     
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var tableView: UITableView!
+    
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var loadMoreIndicator: UIActivityIndicatorView!
     @IBOutlet weak var emptyView: EmptyView!
@@ -46,6 +48,9 @@ class CollectionController: UIViewController {
     var filterFromDate: Date?
     var filterToDate: Date?
     var filterType: Global.FilterType = .all
+    
+    var tableMode: Bool = true
+    var compactMode: Bool = true
 
     var lastOffsetTime: TimeInterval = 0
     var lastOffset = CGPoint.zero
@@ -83,9 +88,9 @@ class CollectionController: UIViewController {
         navigationController?.isNavigationBarHidden = false
         navigationController?.navigationBar.prefersLargeTitles = true
         
-        if collectionView.backgroundColor == .black {
+        if collectionView?.backgroundColor == .black {
             UIView.animate { [weak self] in
-                self?.collectionView.backgroundColor = .systemBackground
+                self?.collectionView?.backgroundColor = .systemBackground
             }
         }
     }
@@ -119,12 +124,21 @@ class CollectionController: UIViewController {
     func updateMediaType(_ type: Global.FilterType) {}
     func setMediaDirectory() {}
     @objc func cancel() {}
-    
+    func setMetadataVisibility(_ visible: Bool) {}
     func showInfo() {}
+    func switchToGrid() {}
+    func switchToSocial() {}
+    @objc func handleTableLongPress(sender: UITapGestureRecognizer) {}
+    @objc func menuTapped() {}
     
-    func registerCell(_ cellIdentifier: String) {
+    func registerCollectionCell(_ cellIdentifier: String) {
         let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
         collectionView.register(nib, forCellWithReuseIdentifier: cellIdentifier)
+    }
+    
+    func registerTableCell() {
+        let nib = UINib(nibName: "TableViewCell", bundle: nil)
+        tableView.register(nib, forCellReuseIdentifier: "MainTableViewCell")
     }
     
     func setTitle(_ title: String) {
@@ -193,7 +207,7 @@ class CollectionController: UIViewController {
         layout.layoutType = layoutType
         collectionView.collectionViewLayout = layout
         
-        refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
+        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
         collectionView.refreshControl = refreshControl
         collectionView.isPrefetchingEnabled = false
         
@@ -202,7 +216,20 @@ class CollectionController: UIViewController {
         }
     }
     
+    func initTableView() {
+        tableView.refreshControl = refreshControl
+        
+        let longPress = UILongPressGestureRecognizer()
+        longPress.delaysTouchesBegan = true
+        longPress.minimumPressDuration = 0.3
+        longPress.addTarget(self, action: #selector(handleTableLongPress(sender:)))
+        
+        tableView.addGestureRecognizer(longPress)
+    }
+    
     func initTitle(allowEdit: Bool, allowSelect: Bool, layoutType: String) {
+        
+        navigationItem.title = ""
 
         let filterButtonImage: UIImage?
         
@@ -263,22 +290,24 @@ class CollectionController: UIViewController {
     
     func displayResults(refresh: Bool, emptyViewTitle: String, emptyViewDescription: String) {
         
-        let collectionCount = collectionView.numberOfItems(inSection: 0)
+        let collectionCount = collectionView?.numberOfItems(inSection: 0) ?? 0
+        let tableCount = tableView?.numberOfRows(inSection: 0) ?? 0
         
         activityIndicator.stopAnimating()
         loadMoreIndicator.stopAnimating()
         refreshControl.endRefreshing()
         
-        if collectionCount == 0 {
+        if collectionCount == 0 && tableCount == 0 {
             
             if isEditing {
                 //was in the middle of editing, but all favorites were removed outside of favorites screen. end edit mode
                 isEditing = false
-                collectionView.allowsMultipleSelection = false
+                collectionView?.allowsMultipleSelection = false
                 resetEdit()
             }
             
-            collectionView.isHidden = true
+            collectionView?.isHidden = true
+            tableView?.isHidden = true
             
             emptyView.updateText(title: emptyViewTitle, description: emptyViewDescription)
             
@@ -287,15 +316,21 @@ class CollectionController: UIViewController {
             
         } else {
             
-            collectionView.isHidden = false
+            if tableMode {
+                tableView?.isHidden = false
+                collectionView?.isHidden = true
+            } else {
+                collectionView?.isHidden = false
+                tableView?.isHidden = true
+            }
+            
             emptyView.hide()
             
             if !isEditing {
                 delegate?.setTitle()
             }
             
-            if refresh && (hasFilter() || (collectionCount > 0 && collectionView.indexPathsForVisibleItems.count == 0)) {
-                
+            if refresh {
                 //When scrolled far in a long list, then filtered, the user ends up at a scroll position that
                 //doesn't display the newly filtered list. Screen appears blank. Enabling scroll to top may need
                 //more conditions around it or will scroll to top when the user is interacting with the list.
@@ -304,20 +339,25 @@ class CollectionController: UIViewController {
         }
     }
     
-    @objc
-    private func refresh(_ sender: Any) {
+    @objc private func refresh() {
         delegate?.refresh()
     }
     
     func scrollToTop(_ animated: Bool = true) {
-
-        guard collectionView != nil else { return }
         
-        if collectionView.numberOfItems(inSection: 0) > 0 {
-            delegate?.scrollSpeedChanged(scrolling: true)
-            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: animated)
-            delegate?.scrollSpeedChanged(scrolling: false)
-            delegate?.setTitle()
+        if tableMode == true && tableView != nil {
+            if tableView.numberOfRows(inSection: 0) > 0 {
+                delegate?.scrollSpeedChanged(scrolling: true)
+                tableView.scrollToRow(at: IndexPath(item: 0, section: 0), at: .top, animated: animated)
+                delegate?.scrollSpeedChanged(scrolling: false)
+            }
+        } else if tableMode == false && collectionView != nil {
+            if collectionView.numberOfItems(inSection: 0) > 0 {
+                delegate?.scrollSpeedChanged(scrolling: true)
+                collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: animated)
+                delegate?.scrollSpeedChanged(scrolling: false)
+                delegate?.setTitle()
+            }
         }
     }
     
@@ -368,32 +408,80 @@ class CollectionController: UIViewController {
         return CGSize(width: width, height: height)
     }
     
+    private func compactTable() {
+        compactMode = true
+        let menu = initMenu(allowEdit: false, allowSelect: false, layoutType: "", filterType: filterType)
+        DispatchQueue.main.async { [weak self] in
+            self?.navigationItem.rightBarButtonItems?[0].menu = menu
+        }
+        setMetadataVisibility(false)
+    }
+    
+    private func expandTable() {
+        compactMode = false
+        let menu = initMenu(allowEdit: false, allowSelect: false, layoutType: "", filterType: filterType)
+        DispatchQueue.main.async { [weak self] in
+            self?.navigationItem.rightBarButtonItems?[0].menu = menu
+        }
+        setMetadataVisibility(true)
+    }
+    
     private func initMenu(allowEdit: Bool, allowSelect: Bool, layoutType: String, filterType: Global.FilterType) -> UIMenu {
         
-        let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { [weak self] action in
-            self?.zoomInGrid()
+        var zoomMenu: UIMenu
+        var collectionLayout: UIAction? = nil
+        
+        if tableMode {
+            
+            let compact = UIAction(title: Strings.TitleSocialModeCompact, image: UIImage(systemName: "rectangle.arrowtriangle.2.inward")) { [weak self] action in
+                self?.compactTable()
+            }
+            
+            let expand = UIAction(title: Strings.TitleSocialModeExpand, image: UIImage(systemName: "rectangle.arrowtriangle.2.outward")) { [weak self] action in
+                self?.expandTable()
+            }
+            
+            let grid = UIAction(title: Strings.TitleGridMode, image: UIImage(systemName: "square.grid.3x3")) { [weak self] action in
+                self?.switchToGrid()
+            }
+            
+            if compactMode {
+                zoomMenu = UIMenu(title: "", options: .displayInline, children: [expand, grid])
+            } else {
+                zoomMenu = UIMenu(title: "", options: .displayInline, children: [compact, grid])
+            }
+            
+        } else {
+           
+            let zoomIn = UIAction(title: Strings.TitleZoomIn, image: UIImage(systemName: "plus.magnifyingglass")) { [weak self] action in
+                self?.zoomInGrid()
+            }
+            
+            let zoomOut = UIAction(title: Strings.TitleZoomOut, image: UIImage(systemName: "minus.magnifyingglass")) { [weak self] action in
+                self?.zoomOutGrid()
+            }
+            
+            let social = UIAction(title: Strings.TitleSocialMode, image: UIImage(systemName: "rectangle")) { [weak self] action in
+                self?.switchToSocial()
+            }
+            
+            zoomMenu = UIMenu(title: "", options: .displayInline, children: [zoomIn, zoomOut, social])
         }
-        
-        let zoomOut = UIAction(title: Strings.TitleZoomOut, image: UIImage(systemName: "minus.magnifyingglass")) { [weak self] action in
-            self?.zoomOutGrid()
-        }
-        
-        let zoomMenu = UIMenu(title: "", options: .displayInline, children: [zoomIn, zoomOut])
-        
         
         let filter = UIAction(title: Strings.TitleFilter, image: UIImage(systemName: "calendar")) { [weak self] action in
             self?.filter()
         }
         
-        let layout: UIAction
-        
-        if layoutType == Global.shared.layoutTypeSquare {
-            layout = UIAction(title: Strings.TitleAspectRatioGrid, image: UIImage(systemName: "rectangle.grid.3x2")) { [weak self] action in
-                self?.updateLayout(Global.shared.layoutTypeAspectRatio)
-            }
-        } else {
-            layout = UIAction(title: Strings.TitleSquareGrid, image: UIImage(systemName: "square.grid.3x3")) { [weak self] action in
-                self?.updateLayout(Global.shared.layoutTypeSquare)
+        if tableMode == false {
+            
+            if layoutType == Global.shared.layoutTypeSquare {
+                collectionLayout = UIAction(title: Strings.TitleAspectRatioGrid, image: UIImage(systemName: "rectangle.grid.3x2")) { [weak self] action in
+                    self?.updateLayout(Global.shared.layoutTypeAspectRatio)
+                }
+            } else if layoutType == Global.shared.layoutTypeAspectRatio {
+                collectionLayout = UIAction(title: Strings.TitleSquareGrid, image: UIImage(systemName: "square.grid.3x3")) { [weak self] action in
+                    self?.updateLayout(Global.shared.layoutTypeSquare)
+                }
             }
         }
         
@@ -442,14 +530,26 @@ class CollectionController: UIViewController {
             }
         }
 
-        if editAction == nil && selectAction != nil {
-            return UIMenu(children: [zoomMenu, filter, layout, path, selectAction!, typeMenu])
-        } else if editAction != nil && selectAction == nil {
-            return UIMenu(children: [zoomMenu, filter, layout, path, editAction!, typeMenu])
-        } else if editAction != nil && selectAction != nil {
-            return UIMenu(children: [zoomMenu, filter, layout, path, editAction!, selectAction!, typeMenu])
+        if let layout = collectionLayout {
+            if editAction == nil && selectAction != nil {
+                return UIMenu(children: [zoomMenu, filter, layout, path, selectAction!, typeMenu])
+            } else if editAction != nil && selectAction == nil {
+                return UIMenu(children: [zoomMenu, filter, layout, path, editAction!, typeMenu])
+            } else if editAction != nil && selectAction != nil {
+                return UIMenu(children: [zoomMenu, filter, layout, path, editAction!, selectAction!, typeMenu])
+            } else {
+                return UIMenu(children: [zoomMenu, filter, layout, path, typeMenu])
+            }
         } else {
-            return UIMenu(children: [zoomMenu, filter, layout, path, typeMenu])
+            if editAction == nil && selectAction != nil {
+                return UIMenu(children: [zoomMenu, filter, path, selectAction!, typeMenu])
+            } else if editAction != nil && selectAction == nil {
+                return UIMenu(children: [zoomMenu, filter, path, editAction!, typeMenu])
+            } else if editAction != nil && selectAction != nil {
+                return UIMenu(children: [zoomMenu, filter, path, editAction!, selectAction!, typeMenu])
+            } else {
+                return UIMenu(children: [zoomMenu, filter, path, typeMenu])
+            }
         }
     }
 }
@@ -488,10 +588,18 @@ extension CollectionController : UIScrollViewDelegate {
         guard isEditing == false else { return }
         guard !isLoadingMore() && !isRefreshing() else { return }
 
-        let count = collectionView.numberOfItems(inSection: 0)
-        let containsLast = collectionView.indexPathsForVisibleItems.contains(IndexPath(item: count - 1, section: 0))
+        let count: Int
+        let containsLast: Bool?
         
-        if containsLast {
+        if tableMode {
+            count = tableView.numberOfRows(inSection: 0)
+            containsLast = tableView.indexPathsForVisibleRows?.contains(IndexPath(item: count - 1, section: 0))
+        } else {
+            count = collectionView.numberOfItems(inSection: 0)
+            containsLast = collectionView.indexPathsForVisibleItems.contains(IndexPath(item: count - 1, section: 0))
+        }
+        
+        if containsLast == true {
             activityIndicator.stopAnimating()
             loadMoreIndicator.startAnimating()
             delegate?.loadMore()
@@ -507,11 +615,13 @@ extension CollectionController : UIScrollViewDelegate {
         let diff = currentTime - lastOffsetTime
         
         if diff > 0.1 {
+            
+            let speedCheck = tableMode ? 5 : 1
             let distance = Float(currentOffset.y - lastOffset.y)
             let scrollSpeedNotAbs = Float((distance * 10.0) / 1000.0)
             let scrollSpeed = fabsf(scrollSpeedNotAbs)
-            
-            delegate?.scrollSpeedChanged(scrolling: scrollSpeed > 1)
+
+            delegate?.scrollSpeedChanged(scrolling: scrollSpeed > Float(speedCheck))
             
             lastOffset = currentOffset
             lastOffsetTime = currentTime

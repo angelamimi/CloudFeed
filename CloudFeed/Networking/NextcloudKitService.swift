@@ -43,7 +43,7 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [Metadata], mediaFileCount: Int)?
     func download(metadata: Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (_ metadata: Metadata, _ progress: Progress) -> Void) async
     func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etag: String) async
-    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String?
+    func downloadAvatar(account: String, userId: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String?
     func getDirectDownload(metadata: Metadata) async -> URL?
     
     func searchMedia(account: String, userId: String, urlBase: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [Metadata], error: Bool)
@@ -54,6 +54,11 @@ protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func getUserProfile(account: String) async -> Profile?
     func getCapabilitiesServerVersion(_ account: String) async -> String?
     func getQuota(account: String, userId: String) async -> (quotaUsed: Int64, quotaTotal: Int64)?
+    
+    func getComments(fileId: String, account: String) async -> [FileComment]?
+    func addComment(fileId: String, account: String, message: String) async -> Bool
+    func updateComment(fileId: String, account: String, messageId: String, message: String) async -> Bool
+    func deleteComment(fileId: String, account: String, messageId: String) async -> Bool
 }
 
 struct Profile {
@@ -81,6 +86,50 @@ struct Profile {
         self.mediaPath = mediaPath
         self.quotaUsed = quotaUsed
         self.quotaTotal = quotaTotal
+    }
+}
+
+struct FileComment: Sendable, Identifiable {
+    
+    var id: String {
+        return messageId
+    }
+
+    var account = ""
+    var actorDisplayName = ""
+    var actorId = ""
+    var actorType = ""
+    var creationDateTime: Date
+    var isUnread: Bool = false
+    var message = ""
+    var messageId = ""
+    var objectId = ""
+    var objectType = ""
+    var path = ""
+    var verb = ""
+
+    init(account: String = "", actorDisplayName: String = "", actorId: String = "", creationDateTime: Date = .now, message: String = "", messageId: String = "") {
+        self.account = account
+        self.actorDisplayName = actorDisplayName
+        self.actorId = actorId
+        self.creationDateTime = creationDateTime
+        self.message = message
+        self.messageId = messageId
+    }
+    
+    init(comment: NKComments, account: String) {
+        self.account = account
+        self.actorDisplayName = comment.actorDisplayName
+        self.actorId = comment.actorId
+        self.actorType = comment.actorType
+        self.creationDateTime = comment.creationDateTime
+        self.message = comment.message
+        self.messageId = comment.messageId
+        self.objectId = comment.objectId
+        self.objectType = comment.objectType
+        self.isUnread = comment.isUnread
+        self.path = comment.path
+        self.verb = comment.verb
     }
 }
 
@@ -223,7 +272,7 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
         }
     }
     
-    func downloadAvatar(account: String, userId: String, fileName: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String? {
+    func downloadAvatar(account: String, userId: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String? {
        
         let results = await NextcloudKit.shared.downloadAvatarAsync(user: userId,
                                                                     fileNameLocalPath: fileNameLocalPath,
@@ -430,6 +479,39 @@ final class NextcloudKitService : NextcloudKitServiceProtocol {
             return nil
         }
     }
+    
+    
+    // MARK: -
+    // MARK: Comments
+    func getComments(fileId: String, account: String) async -> [FileComment]? {
+        
+        let results = await NextcloudKit.shared.getCommentsAsync(fileId: fileId, account: account)
+        
+        if results.error == .success, let nkComments = results.items {
+            return Array(nkComments.map { FileComment.init(comment: $0, account: account) })
+        }
+        
+        return nil
+    }
+    
+    func addComment(fileId: String, account: String, message: String) async -> Bool {
+        
+        let result = await NextcloudKit.shared.putCommentsAsync(fileId: fileId, message: message, account: account)
+        return result.error != .success
+    }
+
+    func updateComment(fileId: String, account: String, messageId: String, message: String) async -> Bool {
+        
+        let result = await NextcloudKit.shared.updateCommentsAsync(fileId: fileId, messageId: messageId, message: message, account: account)
+        return result.error != .success
+    }
+    
+    func deleteComment(fileId: String, account: String, messageId: String) async -> Bool {
+        
+        let result = await NextcloudKit.shared.deleteCommentsAsync(fileId: fileId, messageId: messageId, account: account)
+        return result.error != .success
+    }
+    
     
     //Source: https://github.com/nextcloud/ios/blob/master/iOSClient/Networking/NCNetworking.swift
     private func checkTrustedChallenge(_ session: URLSession,

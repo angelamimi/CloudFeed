@@ -44,7 +44,9 @@ class FavoritesController: CollectionController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        registerCell("CollectionViewCell")
+        tableMode = false
+        
+        registerCollectionCell("CollectionViewCell")
         
         collectionView.delegate = self
         collectionView.allowsMultipleSelection = false
@@ -117,12 +119,10 @@ class FavoritesController: CollectionController {
     }
     
     public func clear() {
-
+        setTitle("")
         viewModel?.clearCache()
-
         scrollToTop(false)
         viewModel?.resetDataSource()
-        setTitle("")
     }
     
     public func scrollToMetadata(metadata: Metadata) {
