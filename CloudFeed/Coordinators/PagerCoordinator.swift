@@ -28,50 +28,50 @@ protocol PagerDelegate: AnyObject {
 
 @MainActor
 final class PagerCoordinator {
-    
+
     private let navigationController: UINavigationController
     private let dataService: DataService
     private let delegate: PagerDelegate
     private let cacheManager: CacheManager
-    
+
     init(navigationController: UINavigationController, dataService: DataService, delegate: PagerDelegate, cacheManager: CacheManager) {
         self.navigationController = navigationController
         self.dataService = dataService
         self.delegate = delegate
         self.cacheManager = cacheManager
     }
-    
+
     func start(currentIndex: Int, metadatas: [Metadata]) {
-        
+
         let viewerCoordinator = ViewerCoordinator(navigationController: navigationController, dataService: dataService)
-        
+
         if let viewerPager = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "PagerController") as? PagerController {
-            
+
             let viewModel = PagerViewModel(coordinator: viewerCoordinator, pagerCoordinator: self, dataService: dataService, delegate: viewerPager, viewerDelegate: viewerPager, currentIndex: currentIndex, metadatas: metadatas)
-            
+
             viewerPager.viewModel = viewModel
             viewerPager.coordinator = self
-            
+
             navigationController.pushViewController(viewerPager, animated: false)
         }
     }
-    
+
     func pagingEndedWith(metadata: Metadata) {
         delegate.pagingEndedWith(metadata: metadata)
     }
-    
+
     func share(_ metadatas: [Metadata]) {
         let coordinator = ShareCoordinator(navigationController: navigationController, dataService: dataService, delegate: nil, metadatas: metadatas)
         coordinator.start()
     }
-    
+
     func download(_ metadata: Metadata) {
         let coordinator = DownloadCoordinator(navigationController: navigationController, dataService: dataService, delegate: self, metadata: metadata)
         coordinator.start()
     }
-    
+
     func showComments(metadata: Metadata) {
-        
+
         let controller = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "CommentsController") as CommentsController
 
         if let sheet = controller.sheetPresentationController {
@@ -79,43 +79,43 @@ final class PagerCoordinator {
             sheet.prefersEdgeAttachedInCompactHeight = true
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
         }
-        
+
         let viewModel = CommentsViewModel(dataService: dataService, delegate: controller, cacheManager: cacheManager, metadata: metadata)
-        
+
         controller.viewModel = viewModel
         controller.metadata = metadata
-        
+
         navigationController.present(controller, animated: true)
     }
-    
+
     func showFavoriteUpdateFailedError() {
-        
+
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.FavUpdateErrorMessage, preferredStyle: .alert)
-        
+
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default))
-        
+
         navigationController.present(alertController, animated: true)
     }
-    
+
     func showVideoError() {
-        
+
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaVideoErrorMessage, preferredStyle: .alert)
-        
+
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default))
-        
+
         navigationController.present(alertController, animated: true)
     }
 }
 
 extension PagerCoordinator: DownloadCoordinatorDelegate {
-    
+
     func downloadComplete() {
-        
+
         if let pager = navigationController.topViewController as? PagerController {
-            
+
             pager.reload()
-            
-            DispatchQueue.main.async{ [weak self] in
+
+            DispatchQueue.main.async { [weak self] in
                 self?.navigationController.dismiss(animated: false)
             }
         }

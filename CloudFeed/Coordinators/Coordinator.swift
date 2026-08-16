@@ -23,43 +23,43 @@ import UIKit
 
 @MainActor
 protocol Coordinator: AnyObject {
-    
+
     func start()
     func navigate(to coordinator: Coordinator)
 }
 
 extension Coordinator {
-    
+
     func navigate(to coordinator: Coordinator) {
         coordinator.start()
     }
-    
+
     func showErrorPrompt(message: String, navigationController: UINavigationController) {
-        
+
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: message, preferredStyle: .alert)
-        
+
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
             navigationController.popViewController(animated: true)
         }))
-        
+
         navigationController.present(alertController, animated: true)
     }
-    
+
     func showCertificate(host: String, certificateDirectory: URL?, navigationController: UINavigationController?, delegate: CertificateDelegate?) {
-        
+
         guard let directory = certificateDirectory, navigationController != nil, delegate != nil else { return }
-        
-        let controller = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "CertificateController") as! CertificateController
-        
+
+        guard let controller = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(withIdentifier: "CertificateController") as? CertificateController else { return }
+
         controller.delegate = delegate
         controller.host = host
         controller.certificateDirectory = directory
-        
+
         if let sheet = controller.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
             sheet.prefersGrabberVisible = true
         }
-        
+
         navigationController?.present(controller, animated: true)
     }
 }

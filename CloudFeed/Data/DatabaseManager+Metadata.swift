@@ -28,10 +28,10 @@ import SwiftData
 
 @Model
 final class MetadataModel {
-    
+
     @Attribute(.unique)
     var ocId = ""
-    
+
     var account = ""
     var classFile = ""
     var contentType = ""
@@ -60,10 +60,10 @@ final class MetadataModel {
     var latitude: Double = 0
     var longitude: Double = 0
     var altitude: Double = 0
-    
-    @Relationship(deleteRule: .cascade, inverse: \MetadataExifModel.metadata)
-    var exifPhotos: [MetadataExifModel]? = []
-    
+
+    //@Relationship(deleteRule: .cascade, inverse: \MetadataExifModel.metadata)
+    //var exifPhotos: [MetadataExifModel]? = []
+
     init(ocId: String = "", account: String = "", classFile: String = "", contentType: String = "", creationDate: Date = Date(),
          date: Date = Date(), datePhotosOriginal: Date = Date(), etag: String = "", favorite: Bool, fileId: String = "",
          fileName: String = "", fileNameView: String = "", hasPreview: Bool, livePhotoFile: String = "",
@@ -99,7 +99,7 @@ final class MetadataModel {
         self.width = width
         //self.exifPhotos = exifPhotos
     }
-    
+
     init(dto: Metadata) {
         self.account = dto.account
         self.classFile = dto.classFile
@@ -130,19 +130,42 @@ final class MetadataModel {
         self.latitude = dto.latitude
         self.longitude = dto.longitude
         self.altitude = dto.altitude
-        
-        /*if let exifs = dto.exifPhotos {
-            self.exifPhotos = []
-            for exif in exifs {
-                for key in exif.keys {
-                    self.exifPhotos!.append(MetadataExifModel(key: key, value: exif[key]!, metadata: self))
-                }
-            }
-        }*/
     }
-    
-    static func buildExif(dto: Metadata, model: MetadataModel) {
-        
+
+    static func build(model: MetadataModel) -> Metadata {
+        return Metadata(ocId: model.ocId,
+                        account: model.account,
+                        contentType: model.contentType,
+                        creationDate: model.creationDate,
+                        date: model.date,
+                        datePhotosOriginal: model.datePhotosOriginal,
+                        etag: model.etag,
+                        favorite: model.favorite,
+                        fileId: model.fileId,
+                        fileName: model.fileName,
+                        fileNameView: model.fileNameView,
+                        hasPreview: model.hasPreview,
+                        livePhotoFile: model.livePhotoFile,
+                        name: model.name,
+                        ownerId: model.ownerId,
+                        ownerDisplayName: model.ownerDisplayName,
+                        path: model.path,
+                        serverUrl: model.serverUrl,
+                        size: model.size,
+                        classFile: model.classFile,
+                        uploadDate: model.uploadDate,
+                        urlBase: model.urlBase,
+                        user: model.user,
+                        userId: model.userId,
+                        width: model.width,
+                        height: model.height,
+                        latitude: model.latitude,
+                        longitude: model.longitude,
+                        altitude: model.altitude)
+    }
+
+    /*static func buildExif(dto: Metadata, model: MetadataModel) {
+
         var exifPhotos: [MetadataExifModel] = []
         if let exifs = dto.exifPhotos {
             for exif in exifs {
@@ -151,19 +174,19 @@ final class MetadataModel {
                 }
             }
         }
-        
+
         model.exifPhotos?.append(contentsOf: exifPhotos)
-    }
+    }*/
 }
 
 @Model
 final class MetadataExifModel {
     var key: String
     var value: String
-    
+
     @Relationship
     var metadata: MetadataModel?
-    
+
     init(key: String, value: String, metadata: MetadataModel?) {
         self.key = key
         self.value = value
@@ -171,12 +194,12 @@ final class MetadataExifModel {
     }
 }
 
-struct Metadata: Sendable, Identifiable {
-    
+nonisolated struct Metadata: Sendable, Identifiable {
+
     var id: String {
         return ocId
     }
-    
+
     var ocId: String
     var account: String
     var classFile: String
@@ -206,8 +229,8 @@ struct Metadata: Sendable, Identifiable {
     var latitude: Double
     var longitude: Double
     var altitude: Double
-    var exifPhotos: [[String:String]]?
-    
+    //var exifPhotos: [[String: String]]?
+
     init(ocId: String, account: String, classFile: String = "", date: Date = Date(), favorite: Bool = false, fileId: String = "",
          fileName: String, livePhotoFile: String = "", serverUrl: String = "") {
         self.account = account
@@ -220,7 +243,7 @@ struct Metadata: Sendable, Identifiable {
         self.favorite = favorite
         self.fileId = fileId
         self.fileName = fileName
-        self.fileNameView =  fileName
+        self.fileNameView = fileName
         self.hasPreview = false
         self.livePhotoFile = livePhotoFile
         self.name = ""
@@ -239,48 +262,70 @@ struct Metadata: Sendable, Identifiable {
         self.latitude = 0
         self.longitude = 0
         self.altitude = 0
-        self.exifPhotos = nil
+        //self.exifPhotos = nil
     }
-    
-    init(model: MetadataModel) {
-        account = model.account
-        contentType = model.contentType
-        creationDate = model.creationDate
-        date = model.date
-        datePhotosOriginal = model.datePhotosOriginal
-        etag = model.etag
-        favorite = model.favorite
-        fileId = model.fileId
-        fileName = model.fileName
-        fileNameView = model.fileNameView
-        hasPreview = model.hasPreview
-        livePhotoFile = model.livePhotoFile
-        name = model.name
-        ocId = model.ocId
-        ownerId = model.ownerId
-        ownerDisplayName = model.ownerDisplayName
-        path = model.path
-        serverUrl = model.serverUrl
-        size = model.size
-        classFile = model.classFile
-        uploadDate = model.uploadDate
-        urlBase = model.urlBase
-        user = model.user
-        userId = model.userId
-        width = model.width
-        height = model.height
-        latitude = model.latitude
-        longitude = model.longitude
-        altitude = model.altitude
-        
-        if let exifs = model.exifPhotos {
-            exifPhotos = [[:]]
-            for exif in exifs {
-                exifPhotos!.append([exif.key: exif.value])
-            }
-        }
+
+    init(ocId: String,
+         account: String,
+         contentType: String,
+         creationDate: Date,
+         date: Date,
+         datePhotosOriginal: Date,
+         etag: String,
+         favorite: Bool,
+         fileId: String,
+         fileName: String,
+         fileNameView: String,
+         hasPreview: Bool,
+         livePhotoFile: String,
+         name: String,
+         ownerId: String,
+         ownerDisplayName: String,
+         path: String,
+         serverUrl: String,
+         size: Int64,
+         classFile: String,
+         uploadDate: Date,
+         urlBase: String,
+         user: String,
+         userId: String,
+         width: Double,
+         height: Double,
+         latitude: Double,
+         longitude: Double,
+         altitude: Double) {
+        self.account = account
+        self.classFile = classFile
+        self.contentType = contentType
+        self.creationDate = creationDate
+        self.date = date
+        self.datePhotosOriginal = datePhotosOriginal
+        self.etag = etag
+        self.favorite = favorite
+        self.fileId = fileId
+        self.fileName = fileName
+        self.fileNameView = fileName
+        self.hasPreview = hasPreview
+        self.livePhotoFile = livePhotoFile
+        self.name = name
+        self.ocId = ocId
+        self.ownerId = ownerId
+        self.ownerDisplayName = ownerDisplayName
+        self.path = path
+        self.serverUrl = serverUrl
+        self.size = size
+        self.uploadDate = uploadDate
+        self.urlBase = urlBase
+        self.user = user
+        self.userId = userId
+        self.width = width
+        self.height = height
+        self.latitude = latitude
+        self.longitude = longitude
+        self.altitude = altitude
+        //self.exifPhotos = nil
     }
-    
+
     init(file: NKFile) {
         account = file.account
         contentType = file.contentType
@@ -323,8 +368,8 @@ struct Metadata: Sendable, Identifiable {
         latitude = file.latitude
         longitude = file.longitude
         altitude = file.altitude
-        
-        if file.exifPhotos.isEmpty == false {
+
+        /*if file.exifPhotos.isEmpty == false {
             exifPhotos = [[:]]
             for exif in file.exifPhotos {
                 for key in exif.keys {
@@ -333,47 +378,47 @@ struct Metadata: Sendable, Identifiable {
                     }
                 }
             }
-        }
+        }*/
     }
 }
 
 extension Metadata {
-    
-    var fileExtension: String { (fileNameView as NSString).pathExtension }
-    
-    var svg: Bool {
+
+    nonisolated var fileExtension: String { (fileNameView as NSString).pathExtension }
+
+    nonisolated var svg: Bool {
         fileExtension == "svg" || contentType == "image/svg+xml"
     }
-    
-    var gif: Bool {
+
+    nonisolated var gif: Bool {
         fileExtension == "gif" || contentType == "image/gif"
     }
-    
-    var png: Bool {
+
+    nonisolated var png: Bool {
         fileExtension == "png" || contentType == "image/png"
     }
-    
-    var transparent: Bool {
+
+    nonisolated var transparent: Bool {
         svg || gif || png
     }
-    
-    var livePhoto: Bool {
+
+    nonisolated var livePhoto: Bool {
         !livePhotoFile.isEmpty
     }
-    
-    var video: Bool {
+
+    nonisolated var video: Bool {
         return classFile == Global.FileType.video.rawValue
     }
-    
-    var image: Bool {
+
+    nonisolated var image: Bool {
         return classFile == Global.FileType.image.rawValue
     }
-    
-    var imageSize: CGSize {
+
+    nonisolated var imageSize: CGSize {
         CGSize(width: width, height: height)
     }
-    
-    static func buildAvatarFileName(urlBase: String, userId: String) -> String {
+
+    nonisolated static func buildAvatarFileName(urlBase: String, userId: String) -> String {
         let url = (URL(string: urlBase)?.host) ?? "localhost"
         let fileName = userId + "@" + url + ".png"
         return fileName
@@ -381,127 +426,149 @@ extension Metadata {
 }
 
 extension DatabaseManager {
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DatabaseManager.self) + String(describing: Metadata.self)
     )
-    
+
     func getMetadataFromOcId(_ ocId: String) -> Metadata? {
-        
+
         let predicate = #Predicate<MetadataModel> { metadata in
             metadata.ocId == ocId
         }
-        
+
         let fetchDescriptor = FetchDescriptor<MetadataModel>(predicate: predicate)
-        
+
         if let result = try? modelContext.fetch(fetchDescriptor), let metadata = result.first {
-            return Metadata.init(model: metadata)
+            return MetadataModel.build(model: metadata)
         }
-        
+
         return nil
     }
-    
-    func processMetadatas(_ metadatas: [Metadata], metadatasResult: [Metadata]) async -> (added: [Metadata], updated: [Metadata], deleted: [Metadata]) {
-        
-        var updatedOcIds: [String] = []
-        var addedOcIds: [String] = []
-        
-        var added: [Metadata] = []
-        var updated: [Metadata] = []
-        var deleted: [Metadata] = []
-        
-        do {
-            //delete
-            for metadataResult in metadatasResult {
-                if metadatas.firstIndex(where: { $0.ocId == metadataResult.ocId }) == nil {
-                    if let result = try getMetadataModel(metadataResult.ocId) {
-                        deleted.append(Metadata.init(model: result))
-                        modelContext.delete(result)
-                    }
-                }
-            }
 
-            //add and update
-            for metadata in metadatas {
-                
-                if let result = metadatasResult.first(where: { $0.ocId == metadata.ocId }) {
-                    
-                    if result.etag != metadata.etag || result.fileNameView != metadata.fileNameView
-                        || result.date != metadata.date || result.datePhotosOriginal != metadata.datePhotosOriginal
-                        || result.hasPreview != metadata.hasPreview || result.favorite != metadata.favorite {
-                        
-                        if let model = try getMetadataModel(metadata.ocId) {
-                            updatedOcIds.append(metadata.ocId)
-                            model.etag = metadata.etag
-                            model.fileNameView = metadata.fileNameView
-                            model.date = metadata.date
-                            model.datePhotosOriginal = metadata.datePhotosOriginal
-                            model.hasPreview = metadata.hasPreview
-                            model.favorite = metadata.favorite
-                        }
-                    }
-                } else {
-                    
-                    // add new
-                    if metadata.livePhoto && metadata.video {
-                        //don't include video part of live photo
-                    } else {
-                        addedOcIds.append(metadata.ocId)
-                    }
+    func syncMetadatas(local: [Metadata], remote: [Metadata], fromDate: Date?, toDate: Date?) {
 
-                    let model = MetadataModel(dto: metadata)
-                    modelContext.insert(model)
-                    
-                    MetadataModel.buildExif(dto: metadata, model: model)
-                    modelContext.insert(model)
-                }
-            }
-            
-            try modelContext.save()
-            
-            for ocId in addedOcIds {
-                if let result = try getMetadataModel(ocId) {
-                    added.append(Metadata.init(model: result))
-                }
-            }
-            
-            for ocId in updatedOcIds {
-                if let result = try getMetadataModel(ocId) {
-                    updated.append(Metadata.init(model: result))
-                }
-            }
-            
-            return (added, updated, deleted)
-            
-        } catch let error as NSError {
-            Self.logger.error("Metadata processing failed: \(error.localizedDescription)")
+        let remoteOcIds = Set(remote.map { $0.ocId })
+        let localOcIds = Set(local.map { $0.ocId })
+
+        let toDeleteOcIds = Array(localOcIds.subtracting(remoteOcIds))
+        let toAddOcIds = Array(remoteOcIds.subtracting(localOcIds))
+        let toUpdateOcIds = Array(remoteOcIds.intersection(localOcIds))
+
+        if toDeleteOcIds.isEmpty && toAddOcIds.isEmpty && toUpdateOcIds.isEmpty {
+            return
         }
-        
-        return ([], [], [])
+
+        syncMetadatasAdd(toAddOcIds: toAddOcIds, remote: remote)
+        syncMetadatasUpdate(toUpdateOcIds: toUpdateOcIds, local: local, remote: remote)
+        syncMetadatasDelete(toDeleteOcIds: toDeleteOcIds, local: local, fromDate: fromDate, toDate: toDate)
     }
-    
+
+    private func syncMetadatasAdd(toAddOcIds: [String], remote: [Metadata]) {
+
+        let toAdd = remote.filter { toAddOcIds.contains($0.ocId) }
+
+        if toAdd.count > 0 {
+            for metadata in toAdd {
+                let model = MetadataModel(dto: metadata)
+                modelContext.insert(model)
+            }
+
+            try? modelContext.save()
+        }
+    }
+
+    private func syncMetadatasUpdate(toUpdateOcIds: [String], local: [Metadata], remote: [Metadata]) {
+
+        for toUpdateOcId in toUpdateOcIds {
+
+            if let localMetadata = local.first(where: { $0.ocId == toUpdateOcId }),
+               let remoteMetadata = remote.first(where: { $0.ocId == toUpdateOcId }) {
+
+                if localMetadata.etag != remoteMetadata.etag
+                    || localMetadata.fileNameView != remoteMetadata.fileNameView
+                    || localMetadata.date != remoteMetadata.date
+                    || localMetadata.datePhotosOriginal != remoteMetadata.datePhotosOriginal
+                    || localMetadata.hasPreview != remoteMetadata.hasPreview
+                    || localMetadata.favorite != remoteMetadata.favorite {
+
+                    if let model = try? getMetadataModel(remoteMetadata.ocId) {
+
+                        model.etag = remoteMetadata.etag
+                        model.fileNameView = remoteMetadata.fileNameView
+                        model.date = remoteMetadata.date
+                        model.datePhotosOriginal = remoteMetadata.datePhotosOriginal
+                        model.hasPreview = remoteMetadata.hasPreview
+                        model.favorite = remoteMetadata.favorite
+                        model.size = remoteMetadata.size
+                        model.width = remoteMetadata.width
+                        model.height = remoteMetadata.height
+
+                        modelContext.insert(model)
+                    }
+                }
+            }
+        }
+
+        if modelContext.hasChanges {
+            try? modelContext.save()
+        }
+    }
+
+    private func syncMetadatasDelete(toDeleteOcIds: [String], local: [Metadata], fromDate: Date?, toDate: Date?) {
+
+        if toDeleteOcIds.count > 0 {
+
+            var deletes: [String] = []
+
+            if fromDate != nil && toDate != nil {
+                for toDeleteOcId in toDeleteOcIds {
+                    if local.contains(where: { $0.ocId == toDeleteOcId && $0.date >= fromDate! && $0.date <= toDate! }) {
+                        deletes.append(toDeleteOcId)
+                    }
+                }
+            } else {
+                deletes = toDeleteOcIds
+            }
+
+            if deletes.count > 0 {
+
+                let chunkSize = Global.shared.chunkSize
+
+                for start in stride(from: 0, to: deletes.count, by: chunkSize) {
+                    let chunk = Array(deletes[start..<min(start + chunkSize, deletes.count)])
+                    try? modelContext.delete(model: MetadataModel.self, where: #Predicate {
+                        chunk.contains($0.ocId)
+                    })
+                }
+
+                try? modelContext.save()
+            }
+        }
+    }
+
     func getMetadatas(account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [Metadata] {
-        
+
         let image = Global.FileType.image.rawValue
         let video = Global.FileType.video.rawValue
-        
+
         let predicate = #Predicate<MetadataModel> { metadata in
             metadata.account == account
             && metadata.serverUrl.starts(with: startServerUrl)
             && metadata.date >= fromDate && metadata.date <= toDate
             && (metadata.classFile == image || metadata.classFile == video)
         }
-        
+
         let fetchDescriptor = FetchDescriptor<MetadataModel>(predicate: predicate)
-        
+
         if let results = try? modelContext.fetch(fetchDescriptor) {
-            return results.map ({ Metadata.init(model: $0) })
+            return results.map({ MetadataModel.build(model: $0) })
         }
-        
+
         return []
     }
-    
+
     func getMetadataLivePhoto(metadata: Metadata) -> Metadata? {
 
         guard metadata.livePhoto else { return nil }
@@ -509,163 +576,187 @@ extension DatabaseManager {
         let account = metadata.account
         let serverUrl = metadata.serverUrl
         let fileId = metadata.livePhotoFile
-        
+
         let predicate = #Predicate<MetadataModel> { model in
             model.account == account
             && model.serverUrl == serverUrl
             && model.fileId == fileId
         }
-        
+
         let fetchDescriptor = FetchDescriptor<MetadataModel>(predicate: predicate)
-        
+
         if let result = try? modelContext.fetch(fetchDescriptor), let metadataResult = result.first {
-            return Metadata.init(model: metadataResult)
+            //return Metadata.init(model: metadataResult)
+            return MetadataModel.build(model: metadataResult)
         }
 
         return nil
     }
-    
-    func paginateMetadata(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date, toDate: Date, offsetDate: Date?, offsetName: String?) -> [Metadata] {
-        
-        let predicate = buildMediaPredicate(favorite: favorite, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
-        let sortBy = [SortDescriptor<MetadataModel>(\.date, order: .reverse),
-                      SortDescriptor<MetadataModel>(\.fileNameView, comparator: .localizedStandard, order: .reverse)]
-        
-        let fetchDescriptor = FetchDescriptor(predicate: predicate, sortBy: sortBy)
-        
-        if let results = try? modelContext.fetch(fetchDescriptor) {
 
-            if offsetName == nil || offsetDate == nil {
-                if results.count > 0 {
-                    return Array(results.prefix(Global.shared.pageSize).map { Metadata.init(model: $0) })
-                } else {
-                    return []
-                }
-            }
-            
-            var metadatas: [Metadata] = []
-            
-            for index in results.indices {
-                let metadata = results[index]
-                
-                if metadata.date as Date == offsetDate {
-                    if metadata.fileNameView.compare(offsetName!, options: [.numeric, .caseInsensitive, .diacriticInsensitive]) == .orderedAscending {
-                        metadatas.append(Metadata.init(model: metadata))
-                    }
-                } else if metadata.date < offsetDate! {
-                    metadatas.append(Metadata.init(model: metadata))
-                }
-                
-                if metadatas.count == Global.shared.pageSize {
-                    break
-                }
-            }
-            return metadatas
-        }
-        return []
-    }
-    
     func fetchMetadata(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> [Metadata] {
-        
+
         let predicate = buildMediaPredicate(favorite: favorite, type: type, account: account, startServerUrl: startServerUrl, fromDate: fromDate, toDate: toDate)
         let sortBy = [SortDescriptor<MetadataModel>(\.date, order: .reverse),
                       SortDescriptor<MetadataModel>(\.fileNameView, order: .reverse)]
-        
+
         let fetchDescriptor = FetchDescriptor<MetadataModel>(predicate: predicate, sortBy: sortBy)
-        
+
         if let results = try? modelContext.fetch(fetchDescriptor) {
-            return results.map ({ Metadata.init(model: $0) })
+           return results.map({ MetadataModel.build(model: $0) })
         }
-        
+
         return []
     }
-    
+
     func setMetadataFavorite(ocId: String, favorite: Bool) -> Metadata? {
-        
+
         let predicate = #Predicate<MetadataModel> { metadata in
             metadata.ocId == ocId
         }
-        
+
         let fetchDescriptor = FetchDescriptor<MetadataModel>(predicate: predicate)
-        
+
         if let result = try? modelContext.fetch(fetchDescriptor), let metadata = result.first {
             metadata.favorite = favorite
             try? modelContext.save()
             return getMetadataFromOcId(ocId)
         }
-        
+
         return nil
     }
-    
-    func updateMetadatasFavorite(account: String, startServerUrl: String, metadatas: [Metadata]) async {
-        
+
+    func syncFavorites(account: String, startServerUrl: String, metadatas: [Metadata]) async {
+
+        let remotes = metadatas.map { $0.ocId }
+
         let predicate = #Predicate<MetadataModel> { model in
             model.favorite == true
         }
-        
+
         let fetchDescriptor = FetchDescriptor<MetadataModel>(predicate: predicate)
-        
-        //clear all existing favorites
+
+        //fetch local favorites
         if let favorites = try? modelContext.fetch(fetchDescriptor) {
-            
-            for favorite in favorites {
-                favorite.favorite = false
+
+            if metadatas.count == 0 && favorites.count > 0 {
+                //nothing to do
+                return
             }
-            
-            try? modelContext.save()
-        }
-        
-        //set new favorites
-        for metadata in metadatas {
-            if let model = try? getMetadataModel(metadata.ocId) {
-                model.favorite = true
-            } else {
-                modelContext.insert(MetadataModel(dto: metadata))
+
+            if metadatas.count == 0 && favorites.count > 0 {
+                //nothing remote. have local. remove all favorites
+                for localMetadata in favorites {
+                    localMetadata.favorite = false
+                    modelContext.insert(localMetadata)
+                }
+                return
+            }
+
+            if metadatas.count > 0 && favorites.count == 0 {
+                //all remote. nothing local. add all
+                for metadata in metadatas {
+                    modelContext.insert(MetadataModel(dto: metadata))
+                }
+                return
+            }
+
+            //toggle what is not in the remote list
+            for localMetadata in favorites {
+                if localMetadata.favorite && !metadatas.contains(where: { $0.ocId == localMetadata.ocId }) {
+                    localMetadata.favorite = false
+                    modelContext.insert(localMetadata)
+                }
+            }
+
+            //insert what is not found locally
+            for metadata in metadatas {
+                if !favorites.contains(where: { $0.ocId == metadata.ocId }) {
+                    modelContext.insert(MetadataModel(dto: metadata))
+                }
             }
         }
 
-        try? modelContext.save()
+        if !remotes.isEmpty {
+
+            //toggle non-favorites that should be favorites
+            let chunkSize = Global.shared.chunkSize
+            var nonFavorites: [MetadataModel] = []
+
+            for start in stride(from: 0, to: remotes.count, by: chunkSize) {
+                let chunk = Array(remotes[start..<min(start + chunkSize, remotes.count)])
+
+                let nonFavoritePredicate = #Predicate<MetadataModel> { model in
+                    model.favorite == false && chunk.contains(model.ocId)
+                }
+
+                let nonFavoriteDescriptor = FetchDescriptor<MetadataModel>(predicate: nonFavoritePredicate)
+
+                if let result = try? modelContext.fetch(nonFavoriteDescriptor) {
+                    nonFavorites.append(contentsOf: result)
+                }
+            }
+
+            for nonFavorite in nonFavorites {
+                nonFavorite.favorite = true
+                modelContext.insert(nonFavorite)
+            }
+        }
+
+        if modelContext.hasChanges {
+            try? modelContext.save()
+        }
     }
-    
+
     func deleteMetadata(_ account: String) {
-        
+
         let predicate = #Predicate<MetadataModel> { model in
             model.account == account
         }
-        
+
         try? modelContext.delete(model: MetadataModel.self, where: predicate)
         try? modelContext.save()
     }
-    
-    private func buildMediaPredicate(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date, toDate: Date) -> Predicate<MetadataModel> {
-        
+
+    private func buildMediaPredicate(favorite: Bool, type: Global.FilterType, account: String, startServerUrl: String, fromDate: Date?, toDate: Date?) -> Predicate<MetadataModel> {
+
         let imageFileType = Global.FileType.image.rawValue
         let videoFileType = Global.FileType.video.rawValue
-        
+
         let favoritePredicate = #Predicate<MetadataModel> { metadata in
             (favorite == true && metadata.favorite == true) || favorite == false
         }
-        
-        let basePredicate = #Predicate<MetadataModel> { metadata in
-            metadata.account == account
-            && metadata.serverUrl.starts(with: startServerUrl)
-            && metadata.date >= fromDate
-            && metadata.date <= toDate
+
+        var basePredicate: Predicate<MetadataModel>
+
+        if fromDate == nil || toDate == nil {
+            basePredicate = #Predicate<MetadataModel> { metadata in
+                metadata.account == account
+                && metadata.serverUrl.starts(with: startServerUrl)
+            }
+        } else {
+            basePredicate = #Predicate<MetadataModel> { metadata in
+                metadata.account == account
+                && metadata.serverUrl.starts(with: startServerUrl)
+                && metadata.date >= fromDate!
+                && metadata.date <= toDate!
+            }
         }
-        
+
         let typePredicate: Predicate<MetadataModel>
-        
+
         switch type {
         case .all:
             typePredicate = #Predicate<MetadataModel> { metadata in
                 metadata.classFile == imageFileType || metadata.classFile == videoFileType
             }
-            
-            //filter out videos of the live photo file pair
+
+            //filter out videos of the live photo file pair. isEmpty does not eval correctly.
             let livePredicate = #Predicate<MetadataModel> { metadata in
-                (metadata.classFile == imageFileType && metadata.livePhotoFile != "") || metadata.livePhotoFile == ""
+                //(metadata.classFile == imageFileType && metadata.livePhotoFile.isEmpty == false) || metadata.livePhotoFile.isEmpty == true
+                //(metadata.classFile == imageFileType && !metadata.livePhotoFile.isEmpty) || metadata.livePhotoFile.isEmpty
+                (metadata.classFile == imageFileType && metadata.livePhotoFile != "") || metadata.livePhotoFile == "" //swiftlint:disable:this empty_string
             }
-            
+
             return #Predicate<MetadataModel> { metadata in
                 favoritePredicate.evaluate(metadata)
                 && basePredicate.evaluate(metadata)
@@ -676,7 +767,7 @@ extension DatabaseManager {
             typePredicate = #Predicate<MetadataModel> { metadata in
                 metadata.classFile == imageFileType
             }
-            
+
             return #Predicate<MetadataModel> { metadata in
                 favoritePredicate.evaluate(metadata)
                 && basePredicate.evaluate(metadata)
@@ -686,12 +777,14 @@ extension DatabaseManager {
             typePredicate = #Predicate<MetadataModel> { metadata in
                 metadata.classFile == videoFileType
             }
-            
-            //filter out videos of the live photo file pair
+
+            //filter out videos of the live photo file pair. isEmpty does not work here.
             let livePredicate = #Predicate<MetadataModel> { metadata in
-                metadata.livePhotoFile == ""
+                //metadata.livePhotoFile.isEmpty == true
+                //metadata.livePhotoFile.isEmpty
+                metadata.livePhotoFile == "" //swiftlint:disable:this empty_string
             }
-            
+
             return #Predicate<MetadataModel> { metadata in
                 favoritePredicate.evaluate(metadata)
                 && basePredicate.evaluate(metadata)
@@ -700,7 +793,7 @@ extension DatabaseManager {
             }
         }
     }
-    
+
     private func getMetadataModel(_ ocId: String) throws -> MetadataModel? {
         let predicate = #Predicate<MetadataModel> { metadataModel in
             metadataModel.ocId == ocId
@@ -708,7 +801,7 @@ extension DatabaseManager {
 
         let fetchDescriptor = FetchDescriptor<MetadataModel>(predicate: predicate)
         let results = try modelContext.fetch(fetchDescriptor)
-        
+
         return results.first
     }
 }

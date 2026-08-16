@@ -27,55 +27,55 @@ protocol ProgressDelegate: AnyObject {
 }
 
 class ProgressView: UIView {
-    
+
     @IBOutlet weak var stackView: UIStackView!
     @IBOutlet weak var downloadingLabel: UILabel!
     @IBOutlet weak var cancelLabel: UILabel!
     @IBOutlet weak var progressView: UIProgressView!
-    
+
     weak var delegate: ProgressDelegate?
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         initSubviews()
     }
-    
-    override func awakeFromNib() {
+
+    nonisolated override func awakeFromNib() {
         super.awakeFromNib()
 
         MainActor.assumeIsolated { [weak self] in
             self?.initView()
         }
     }
-    
+
     func setLabelText(downloading: String, cancel: String) {
         downloadingLabel.text = downloading
         cancelLabel.text = cancel
     }
-    
+
     private func initView() {
         stackView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
-        
+
         if #available(iOS 26.0, *) {
             stackView.cornerConfiguration = .corners(radius: .containerConcentric(minimum: 20))
         } else {
             stackView.layer.cornerRadius = 8
         }
     }
-    
+
     private func initSubviews() {
-        
+
         let nib = UINib(nibName: "ProgressView", bundle: Bundle(for: type(of: self)))
-        let container = nib.instantiate(withOwner: self, options: nil).first as! UIView
-        
+        guard let container = nib.instantiate(withOwner: self, options: nil).first as? UIView else { return }
+
         addSubview(container)
-        
+
         container.translatesAutoresizingMaskIntoConstraints = false
-        
+
         NSLayoutConstraint.activate([
             container.topAnchor.constraint(equalTo: topAnchor),
             container.leftAnchor.constraint(equalTo: leftAnchor),
@@ -83,12 +83,12 @@ class ProgressView: UIView {
             container.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
-    
+
     @objc
     func tapped() {
         delegate?.progressCancelled()
     }
-    
+
     func setProgress(_ progress: Float) {
         progressView.progress = progress
     }

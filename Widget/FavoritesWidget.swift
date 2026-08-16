@@ -23,24 +23,24 @@ import WidgetKit
 import SwiftUI
 import SwiftData
 
-struct FavoritesWidgetEntryView : View {
-    
+struct FavoritesWidgetEntryView: View {
+
     @Environment(\.widgetFamily) var widgetFamily
-    
+
     var entry: FavoritesImageProvider.Entry
 
     var body: some View {
-        
+
         ZStack {
-            
+
             if let image = entry.image {
-                
+
                 if entry.showDate {
                     Rectangle()
                         .fill(.clear)
                         .layoutPriority(1)
                 }
-                
+
                 if #available(iOS 18.0, *) {
                     Image(uiImage: image)
                         .resizable()
@@ -53,7 +53,7 @@ struct FavoritesWidgetEntryView : View {
                         .aspectRatio(contentMode: ImageUtility.ratioWithinThreshold(image.size) ? .fill : .fit)
                         .clipped()
                 }
-                
+
                 if entry.showDate {
                     VStack {
                         Spacer()
@@ -66,11 +66,11 @@ struct FavoritesWidgetEntryView : View {
                     }
                 }
             } else {
-                
+
                 VStack {
-                    
+
                     if widgetFamily != .systemSmall || entry.message == nil {
-                        
+
                         if let icon = UIImage(named: "Icon") {
                             Image(uiImage: icon)
                                 .resizable()
@@ -81,7 +81,7 @@ struct FavoritesWidgetEntryView : View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    
+
                     if let message = entry.message {
                         Text(message)
                             .font(.subheadline)

@@ -7,16 +7,16 @@
 
 import UIKit
 
-class AsyncOperation: Operation, @unchecked Sendable {
-    
+nonisolated class AsyncOperation: Operation, @unchecked Sendable {
+
     private let lockQueue = DispatchQueue(label: "asyncOperation", attributes: .concurrent)
     private var _isExecuting: Bool = false
     private var _isFinished: Bool = false
-    
+
     override var isAsynchronous: Bool {
         return true
     }
-    
+
     override private(set) var isExecuting: Bool {
         get {
             return lockQueue.sync { () -> Bool in
@@ -31,7 +31,7 @@ class AsyncOperation: Operation, @unchecked Sendable {
             didChangeValue(forKey: "isExecuting")
         }
     }
-    
+
     override private(set) var isFinished: Bool {
         get {
             return lockQueue.sync { () -> Bool in
@@ -48,15 +48,15 @@ class AsyncOperation: Operation, @unchecked Sendable {
     }
 
     override func start() {
-        
+
         guard !isCancelled else {
             finish()
             return
         }
-        
+
         isFinished = false
         isExecuting = true
-        
+
         main()
     }
 
@@ -64,15 +64,12 @@ class AsyncOperation: Operation, @unchecked Sendable {
         isExecuting = false
         isFinished = true
     }
-    
+
     override func cancel() {
         super.cancel()
-        
+
         if isExecuting {
             finish()
         }
     }
 }
-
-
-

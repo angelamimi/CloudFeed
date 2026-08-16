@@ -22,16 +22,16 @@
 import UIKit
 
 class ProfileCell: UITableViewCell {
-    
+
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var profileImageViewTopContraint: NSLayoutConstraint!
     @IBOutlet weak var emailLabelBottomContraint: NSLayoutConstraint!
     @IBOutlet weak var profileEmailLabel: UILabel!
     @IBOutlet weak var profileNameLabel: UILabel!
 
-    override func awakeFromNib() {
+    nonisolated override func awakeFromNib() {
         super.awakeFromNib()
-        
+
         MainActor.assumeIsolated { [weak self] in
             self?.initCell()
         }
@@ -46,24 +46,20 @@ class ProfileCell: UITableViewCell {
             profileImageView.image = image
         }
     }
-    
+
     func updateProfile(_ email: String, fullName name: String) {
         profileNameLabel.text = name
         profileEmailLabel.text = email
     }
-    
+
     private func initCell() {
-        
+
         profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
         profileImageView.layer.masksToBounds = true
-    
-        profileNameLabel.font = UIFont.preferredFont(forTextStyle: .body)
-        profileEmailLabel.font = UIFont.preferredFont(forTextStyle: .body)
-        
+
         if UIDevice.current.userInterfaceIdiom == .pad {
             profileImageViewTopContraint.constant = 20
             emailLabelBottomContraint.constant = 20
         }
     }
 }
-

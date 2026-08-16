@@ -30,39 +30,39 @@ protocol LoginDelegate: AnyObject, Sendable {
 
 @MainActor
 final class LoginViewModel: NSObject {
-    
+
     weak var delegate: LoginDelegate?
     weak var dataService: DataService?
     let coordinator: LoginWebCoordinator
-    
+
     private static let logger = Logger(
             subsystem: Bundle.main.bundleIdentifier!,
             category: String(describing: LoginViewModel.self)
         )
-    
+
     init(delegate: LoginDelegate, dataService: DataService, coordinator: LoginWebCoordinator) {
         self.delegate = delegate
         self.dataService = dataService
         self.coordinator = coordinator
     }
-    
+
     func showInvalidURLPrompt() {
         coordinator.showInvalidURLPrompt()
     }
-    
+
     func showLoginFailedPrompt() {
         coordinator.showFailedLoginPrompt()
     }
 
     func loginPoll(token: String, endpoint: String) async {
-        
+
         if let result = await dataService?.loginPoll(token: token, endpoint: endpoint) {
             await login(server: result.urlBase, username: result.user, password: result.appPassword)
         }
     }
-    
+
     func login(server: String, username: String, password: String) async {
-        
+
         var urlBase = server
 
         if urlBase.last == "/" {
@@ -78,27 +78,27 @@ final class LoginViewModel: NSObject {
         // Add new account
         await dataService?.deleteAccount(account)
         await dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
-        
+
         guard let tableAccount = await dataService?.setActiveAccount(account) else {
             delegate?.loginError()
             return
         }
 
         Environment.current.setCurrentUser(account: account, user: username, userId: tableAccount.userId)
-        
+
         if let currentUser = Environment.current.currentUser {
             await dataService?.appendSession(account: account, user: currentUser.user, userId: currentUser.userId, urlBase: tableAccount.urlBase)
             await dataService?.updateAccount(account: account)
         }
-        
+
         let version = await dataService?.getServerVersion(account: account)
         Environment.current.setCurrentServer(urlBase: urlBase, version: version ?? "")
-        
+
         delegate?.loginSuccess(account: account, urlBase: urlBase, user: username, userId: tableAccount.userId, password: password)
      }
-    
+
     private func initSettings() async {
-        
+
         URLCache.shared.memoryCapacity = 0
         URLCache.shared.diskCapacity = 0
 

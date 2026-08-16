@@ -25,10 +25,10 @@ import Intents
 import NextcloudKit
 
 struct ImageDataEntry: TimelineEntry {
-    
+
     let date: Date
     let showDate: Bool
-    
+
     var image: UIImage?
     var title: String
     var url: URL

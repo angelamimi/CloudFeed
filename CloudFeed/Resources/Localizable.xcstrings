@@ -3366,13 +3366,13 @@
         }
       }
     },
-    "Settings.Label.VideoControlsGlass" : {
+    "Settings.Label.VideoControlsStyle" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Glass Bubbles"
+            "value" : "Translucent Background"
           }
         }
       }

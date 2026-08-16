@@ -24,196 +24,165 @@ import NextcloudKit
 import UIKit
 
 final class MockNextcloudKitService: NextcloudKitServiceProtocol {
-    
+
     func removeSession(account: String) {
-        
+
     }
 
     func getLoginFlowV2(url: String, serverVersion: Int) async -> (token: String, endpoint: String, login: String)? {
         return nil
     }
-    
+
     func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?) {
         return (32, nil)
     }
-    
+
     func setup() {
-        
+
     }
-    
+
     func appendSession(account: String, urlBase: String, user: String, userId: String, password: String, userAgent: String, groupIdentifier: String) {
-        
+
     }
-    
+
     func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)? {
         return nil
     }
-    
+
     func getLoginFlowV2(url: String) async -> (token: String, endpoint: String, login: String, serverVersion: Int)? {
         return nil
     }
 
     func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String) {
     }
-    
+
     func getDirectDownload(metadata: CloudFeed.Metadata) async -> URL? {
         return nil
     }
-    
-    func download(metadata: CloudFeed.Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (CloudFeed.Metadata, Progress) -> Void) async {
-        
+
+    func download(account: String, metadata: CloudFeed.Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @escaping (CloudFeed.Metadata, Progress) -> Void) async {
+
     }
-    
+
     func downloadPreview(account: String, fileId fileNamePath: String, previewPath: String, iconPath: String, etag: String) async {
 
     }
-    
+
     func downloadAvatar(account: String, userId: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String? {
         return nil
     }
-    
-    func searchMedia(account: String, userId: String, urlBase: String, mediaPath: String, toDate: Date, fromDate: Date, limit: Int) async -> (files: [CloudFeed.Metadata], error: Bool) {
-        return mockSearchMedia(fileName: "mock-search")
+
+    func search(account: String, userId: String, urlBase: String, mediaPath: String, fromDate: Date, toDate: Date,
+                update: @escaping @concurrent @Sendable ([CloudFeed.Metadata], Date?, Date?, Date?, Date?) async -> Void,
+                finish: @escaping @concurrent @Sendable (Bool) async -> Void) async {
+
     }
     
-    func setFavorite(fileName: String, favorite: Bool, ocId: String, account: String) async -> Bool {
+    func setFavorite(fileName: String, favorite: Bool, account: String) async -> Bool {
         return true
     }
-    
+
     func listingFavorites(account: String) async -> (account: String, files: [CloudFeed.Metadata]?) {
         return mockFavorites(fileName: "mock-favorites")
     }
-    
+
     func getUserProfile(account: String) async -> Profile? {
         return nil
     }
-    
+
     func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [CloudFeed.Metadata], mediaFileCount: Int)? {
         return nil
     }
-    
+
     func getCapabilitiesServerVersion(_ account: String) async -> String? {
         return ""
     }
-    
+
     func getQuota(account: String, userId: String) async -> (quotaUsed: Int64, quotaTotal: Int64)? {
         return nil
     }
-    
+
     func getComments(fileId: String, account: String) async -> [FileComment]? {
         return nil
     }
-    
+
     func addComment(fileId: String, account: String, message: String) async -> Bool {
         return false
     }
-    
+
     func updateComment(fileId: String, account: String, messageId: String, message: String) async -> Bool {
         return false
     }
-    
+
     func deleteComment(fileId: String, account: String, messageId: String) async -> Bool {
         return false
     }
 }
 
 extension MockNextcloudKitService {
-    
+
     func mockFavorites(fileName: String) -> (account: String, files: [CloudFeed.Metadata]?) {
-        
+
         let resultFiles = parseMetadata(fileName: fileName)
         return (account: "testuser1 https://cloud.test1.com", resultFiles)
     }
-    
+
     func mockSearchMedia(fileName: String) -> (files: [CloudFeed.Metadata], error: Bool) {
         let resultFiles = parseMetadata(fileName: fileName)
         return (resultFiles, false)
     }
-    
+
     func parseMetadata(fileName: String) -> [CloudFeed.Metadata] {
-        
+
         let filesJSON = readMocks(fileName: fileName)
         var resultFiles: [CloudFeed.Metadata] = []
-        
+
         for fileJSON in filesJSON {
-            
-            let file = MetadataModel.init(favorite: fileJSON["favorite"] as! String == "true" ? true : false,
-                                          hasPreview: false,
-                                          size: 0,
-                                          height: 0,
-                                          width: 0)
-            
-            file.account = fileJSON["account"] as! String
-            file.contentType = fileJSON["contentType"] as! String
-            file.favorite = fileJSON["favorite"] as! String == "true" ? true : false
-            file.fileName = fileJSON["fileName"] as! String
-            file.ocId = fileJSON["ocId"] as! String
-            file.path = fileJSON["path"] as! String
-            file.serverUrl = fileJSON["serverUrl"] as! String
-            file.classFile = fileJSON["classFile"] as! String
-            file.livePhotoFile = fileJSON["livePhotoFile"] as! String? ?? ""
-            
+
+            let file = MetadataModel(favorite: fileJSON["favorite"] as? String == "true" ? true : false,
+                                     hasPreview: false,
+                                     size: 0,
+                                     height: 0,
+                                     width: 0)
+
+            file.account = fileJSON["account"] as? String ?? ""
+            file.contentType = fileJSON["contentType"] as? String ?? ""
+            file.favorite = fileJSON["favorite"] as? String == "true" ? true : false
+            file.fileName = fileJSON["fileName"] as? String ?? ""
+            file.ocId = fileJSON["ocId"] as? String ?? ""
+            file.path = fileJSON["path"] as? String ?? ""
+            file.serverUrl = fileJSON["serverUrl"] as? String ?? ""
+            file.classFile = fileJSON["classFile"] as? String ?? ""
+            file.livePhotoFile = fileJSON["livePhotoFile"] as? String ?? ""
+
             if fileJSON["date"] is String {
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
-                let date = dateFormatter.date(from: fileJSON["date"] as! String)
+                let date = dateFormatter.date(from: fileJSON["date"] as? String ?? "")
                 file.date = date!
                 file.datePhotosOriginal = date!
             }
-            
-            resultFiles.append(CloudFeed.Metadata.init(model: file))
+
+            resultFiles.append(CloudFeed.MetadataModel.build(model: file))
         }
 
         return resultFiles
     }
-    
-    /* 'NKFile' initializer is inaccessible due to 'internal' protection level
-    func parseMetadata(fileName: String) -> [CloudFeed.Metadata] {
-        
-        let filesJSON = readMocks(fileName: fileName)
-        var resultFiles: [CloudFeed.Metadata] = []
-        
-        for fileJSON in filesJSON {
 
-            let file = NKFile()
-            
-            file.account = fileJSON["account"] as! String
-            file.contentType = fileJSON["contentType"] as! String
-            file.favorite = fileJSON["favorite"] as! String == "true" ? true : false
-            file.fileName = fileJSON["fileName"] as! String
-            file.ocId = fileJSON["ocId"] as! String
-            file.path = fileJSON["path"] as! String
-            file.serverUrl = fileJSON["serverUrl"] as! String
-            file.classFile = fileJSON["classFile"] as! String
-            file.livePhotoFile = fileJSON["livePhotoFile"] as! String? ?? ""
-            
-            if fileJSON["date"] is String {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd hh:mm:ss"
-                let date = dateFormatter.date(from: fileJSON["date"] as! String)
-                file.date = date!
-            }
-            
-            resultFiles.append(CloudFeed.Metadata.init(file: file))
-        }
-        
-        return resultFiles
-    }*/
-    
     func readMocks(fileName: String) -> [NSDictionary] {
-        
+
         guard let url = Bundle(for: MockNextcloudKitService.self).url(forResource: fileName, withExtension: "json") else {
             fatalError(fileName + " not found")
         }
-        
+
         guard let rawData = try? Data(contentsOf: url) else {
             fatalError("Failed to load data from " + fileName)
         }
-        
+
         guard let data = try? JSONSerialization.jsonObject(with: rawData, options: .allowFragments) as? [NSDictionary] else {
             fatalError("Failed to decode data from " + fileName)
         }
-        
+
         return data
     }
 }

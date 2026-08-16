@@ -23,26 +23,26 @@ import UIKit
 
 @MainActor
 class DisplayViewModel {
-    
+
     let dataService: DataService
-    
+
     init(dataService: DataService) {
         self.dataService = dataService
     }
-    
+
     func getStyle() -> UIUserInterfaceStyle? {
         return dataService.getDisplayStyle()
     }
-    
+
     func setStyle(style: UIUserInterfaceStyle?) {
         dataService.saveDisplayStyle(style: style)
     }
-    
-    func getVideoControlsGlass() -> Bool? {
-        return dataService.getVideoControlsStyleGlass()
+
+    func getVideoControlsStyleBackground() -> Bool? {
+        return dataService.getVideoControlsStyleBackground()
     }
-    
-    func setVideoControlsGlass(isGlass: Bool) {
-        dataService.saveVideoControlsStyleGlass(isGlass: isGlass)
+
+    func setVideoControlsStyleBackground(hasBackground: Bool) {
+        dataService.saveVideoControlsStyleBackground(hasBackground: hasBackground)
     }
 }

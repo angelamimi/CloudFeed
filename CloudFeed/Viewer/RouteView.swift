@@ -23,9 +23,9 @@ import AVKit
 import UIKit
 
 class RouteView: UIView {
-    
+
     var routePicker: AVRoutePickerView!
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -37,21 +37,21 @@ class RouteView: UIView {
     }
 
     private func setup() {
-        
+
         routePicker = AVRoutePickerView()
 
         addSubview(routePicker)
-        
+
         routePicker.translatesAutoresizingMaskIntoConstraints = false
-        
+
         NSLayoutConstraint.activate([
-            routePicker.topAnchor.constraint(equalTo: topAnchor),
+            routePicker.topAnchor.constraint(equalTo: topAnchor, constant: 2),
             routePicker.leftAnchor.constraint(equalTo: leftAnchor),
             routePicker.widthAnchor.constraint(equalToConstant: 50),
             routePicker.heightAnchor.constraint(equalToConstant: 50)
         ])
-        
-        routePicker.tintColor = .label
+
+        routePicker.tintColor = .white
         routePicker.activeTintColor = .tintColor
         routePicker.prioritizesVideoDevices = true
     }

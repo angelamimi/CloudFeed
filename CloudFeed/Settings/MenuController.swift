@@ -31,18 +31,18 @@ protocol MenuDelegate: AnyObject {
 }
 
 class MenuController: UIViewController {
-    
+
     @IBOutlet weak var tableView: UITableView!
-    
+
     var delegate: MenuDelegate?
-    
+
     override func viewDidLoad() {
-        
+
         tableView.dataSource = self
         tableView.delegate = self
-        
+
         navigationItem.title = Strings.SettingsNavTitle
-        
+
         if #unavailable(iOS 26) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithTransparentBackground()
@@ -53,7 +53,7 @@ class MenuController: UIViewController {
             navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
         }
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         if tableView.indexPathForSelectedRow == nil {
             selectProfile()
@@ -61,12 +61,12 @@ class MenuController: UIViewController {
             select(indexPath: tableView.indexPathForSelectedRow!) //resizing back into split screen from single view
         }
     }
-    
+
     func selectProfile() {
         tableView.selectRow(at: IndexPath(item: 0, section: 0), animated: true, scrollPosition: .top)
         delegate?.selectProfile()
     }
-    
+
     private func select(indexPath: IndexPath) {
         if indexPath.section == 0 && indexPath.item == 0 {
             delegate?.selectProfile()
@@ -83,25 +83,25 @@ class MenuController: UIViewController {
 }
 
 extension MenuController: UITableViewDataSource, UITableViewDelegate {
-    
+
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return nil
     }
-    
+
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return .leastNormalMagnitude
     }
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         select(indexPath: indexPath)
     }
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 5
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
+
         let cell = UITableViewCell()
         cell.selectionStyle = .default
         cell.backgroundColor = .secondarySystemGroupedBackground
@@ -113,7 +113,7 @@ extension MenuController: UITableViewDataSource, UITableViewDelegate {
         config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
         config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: 0)
         config.imageProperties.tintColor = .label
-        
+
         if indexPath.section == 0 && indexPath.item == 0 {
             config.text = Strings.ProfileNavTitle
             config.image = UIImage(systemName: "person")
@@ -130,9 +130,9 @@ extension MenuController: UITableViewDataSource, UITableViewDelegate {
             config.text = Strings.SettingsSectionData
             config.image = UIImage(systemName: "note.text")
         }
-        
+
         cell.contentConfiguration = config
-        
+
         return cell
     }
 }

@@ -23,11 +23,11 @@ import UIKit
 
 @MainActor
 final class MediaCoordinator {
-    
+
     weak var navigationController: UINavigationController!
 
     private let dataService: DataService
-    
+
     init(navigationController: UINavigationController, dataService: DataService) {
         self.navigationController = navigationController
         self.dataService = dataService
@@ -35,31 +35,31 @@ final class MediaCoordinator {
 }
 
 extension MediaCoordinator {
-    
+
     func getPreviewController(metadata: Metadata) -> PreviewController {
         let previewController = PreviewController(metadata: metadata)
         previewController.viewModel = ViewerViewModel(dataService: dataService, metadata: metadata)
         return previewController
     }
-    
+
     func showPicker() {
         let pickerCoordinator = PickerCoordinator(navigationController: navigationController, dataService: dataService)
         pickerCoordinator.delegate = self
         pickerCoordinator.start()
     }
-    
+
     func showViewerPager(cacheManager: CacheManager, currentIndex: Int, metadatas: [Metadata]) {
         let pagerCoordinator = PagerCoordinator(navigationController: navigationController, dataService: dataService, delegate: self, cacheManager: cacheManager)
         pagerCoordinator.start(currentIndex: currentIndex, metadatas: metadatas)
     }
-    
+
     func share(_ metadatas: [Metadata]) {
         let coordinator = ShareCoordinator(navigationController: navigationController, dataService: dataService, delegate: self, metadatas: metadatas)
         coordinator.start()
     }
-    
+
     func showComments(cacheManager: CacheManager, metadata: Metadata) {
-        
+
         let controller = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "CommentsController") as CommentsController
 
         if let sheet = controller.sheetPresentationController {
@@ -67,30 +67,30 @@ extension MediaCoordinator {
             sheet.prefersEdgeAttachedInCompactHeight = true
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
         }
-        
+
         let viewModel = CommentsViewModel(dataService: dataService, delegate: controller, cacheManager: cacheManager, metadata: metadata)
-        
+
         controller.viewModel = viewModel
         controller.metadata = metadata
-        
+
         navigationController.present(controller, animated: true)
     }
-    
+
     func showFilter(filterable: Filterable, from: Date?, to: Date?) {
-        
+
         let filterController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "FilterController") as FilterController
         let pad = UIDevice.current.userInterfaceIdiom == .pad
-        
+
         filterController.modalPresentationStyle = pad ? .popover : .formSheet
         filterController.preferredContentSize = CGSize(width: 400, height: 500)
-        
+
         if pad {
             //for some reason formSheet is not presented in the center. added this to force centering along with popover modalPresentationStyle
             filterController.popoverPresentationController?.permittedArrowDirections = []
             filterController.popoverPresentationController?.sourceView = navigationController.view
             filterController.popoverPresentationController?.sourceRect = CGRect(origin: CGPoint( x: navigationController.view.bounds.midX, y: navigationController.view.bounds.midY), size: .zero)
         }
-        
+
         if let sheet = filterController.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
@@ -98,78 +98,77 @@ extension MediaCoordinator {
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
             sheet.prefersGrabberVisible = true
         }
-        
+
         navigationController.present(filterController, animated: true)
-        
+
         filterController.setFilterable(filterable: filterable)
         filterController.initDateFilter(from: from, to: to)
     }
-    
+
     func dismissFilter() {
         navigationController.dismiss(animated: true)
     }
-    
+
     func showInvalidFilterError() {
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaInvalidFilter, preferredStyle: .alert)
-        
+
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
             self?.navigationController.popViewController(animated: true)
         }))
-        
+
         navigationController.present(alertController, animated: true)
     }
-    
+
     func showLoadFailedError(retry: @escaping () -> Void) {
-        
+
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MediaErrorMessage, preferredStyle: .alert)
-        
+
         alertController.addAction(UIAlertAction(title: Strings.RetryAction, style: .default, handler: { [weak self] _ in
             retry()
             self?.navigationController.popViewController(animated: true)
         }))
-        
+
+        alertController.addAction(UIAlertAction(title: Strings.CancelAction, style: .cancel))
+
         if navigationController.presentedViewController == nil { //passcode controller not visible
             navigationController.present(alertController, animated: true)
         }
     }
-    
+
     func showFavoriteUpdateFailedError() {
-        
+
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.FavUpdateErrorMessage, preferredStyle: .alert)
-        
+
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
             self?.navigationController.popViewController(animated: true)
         }))
-        
+
         navigationController.present(alertController, animated: true)
     }
 }
 
 extension MediaCoordinator: ShareDelegate {
-    
+
     func shareComplete() {
-        if navigationController.children[0] is MediaController {
-            let mediaController = navigationController.children[0] as! MediaController
+        if let mediaController = navigationController.children[0] as? MediaController {
             mediaController.shareComplete()
         }
     }
 }
 
 extension MediaCoordinator: PagerDelegate {
-    
+
     func pagingEndedWith(metadata: Metadata) {
-        if navigationController.children[0] is MediaController {
-            let mediaController = navigationController.children[0] as! MediaController
+        if let mediaController = navigationController.children[0] as? MediaController {
             mediaController.scrollToMetadata(metadata: metadata)
         }
     }
 }
 
 extension MediaCoordinator: PickerCoordinatorDelegate {
-    
+
     func mediaPathChanged() {
-        if navigationController.children[0] is MediaController {
-            let mediaController = navigationController.children[0] as! MediaController
+        if let mediaController = navigationController.children[0] as? MediaController {
             mediaController.mediaPathChanged()
         }
     }

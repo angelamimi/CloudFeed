@@ -33,7 +33,7 @@ final class AccountModel {
     var user = ""
     var userId = ""
     var mediaPath = ""
-    
+
     init(account: String = "",
          active: Bool,
          displayName: String = "",
@@ -41,7 +41,7 @@ final class AccountModel {
          user: String = "",
          userId: String = "",
          mediaPath: String = "") {
-        
+
         self.account = account
         self.active = active
         self.displayName = displayName
@@ -52,8 +52,8 @@ final class AccountModel {
     }
 }
 
-struct Account: Sendable {
-    
+nonisolated struct Account: Sendable {
+
     var account: String
     var active: Bool
     var displayName: String
@@ -61,51 +61,51 @@ struct Account: Sendable {
     var user: String
     var userId: String
     var mediaPath: String
-    
-    init(_ account: AccountModel) {
-        self.account = account.account
-        self.active = account.active
-        self.displayName = account.displayName
-        self.urlBase = account.urlBase
-        self.user = account.user
-        self.userId = account.userId
-        self.mediaPath = account.mediaPath
+
+    nonisolated static func build(_ model: AccountModel) -> Account {
+        return Account(account: model.account,
+                       active: model.active,
+                       displayName: model.displayName,
+                       urlBase: model.urlBase,
+                       user: model.user,
+                       userId: model.userId,
+                       mediaPath: model.mediaPath)
     }
 }
 
 extension DatabaseManager {
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DatabaseManager.self) + String(describing: Account.self)
     )
-    
+
     func addAccount(_ account: String, urlBase: String, user: String, userId: String) {
         modelContext.insert(AccountModel(account: account, active: false, urlBase: urlBase, user: user, userId: userId))
     }
-    
+
     func setActiveAccount(_ account: String) -> Account? {
-        
+
         do {
             if let accountModel = getAccountModel(account) {
-                
+
                 //make current active account inactive
                 let activeAccount = getActiveAccountModel()
                 activeAccount?.active = false
-                
+
                 //make new account active
                 accountModel.active = true
                 try modelContext.save()
-                return Account.init(accountModel)
+                return Account.build(accountModel)
             }
         } catch let error as NSError {
             Self.logger.error("Failed to set active account: \(error.localizedDescription)")
             return nil
         }
-        
+
         return nil
     }
-    
+
     func getAccountCount() -> Int {
         let fetchDescriptor = FetchDescriptor<AccountModel>()
         if let count = try? modelContext.fetchCount(fetchDescriptor) {
@@ -114,53 +114,53 @@ extension DatabaseManager {
             return 0
         }
     }
-    
+
     func getActiveAccount() -> Account? {
-        
+
         if let account = getActiveAccountModel() {
-            return Account.init(account)
+            return Account.build(account)
         }
-        
+
         return nil
     }
-    
+
     func getAccountsOrdered() -> [Account] {
-        
-        ///can't sort on a boolean field, so split the fetches on active value
-        
+
+        //can't sort on a boolean field. split the fetches on active value
+
         let sortBy = [SortDescriptor<AccountModel>(\.displayName, order: .forward),
                       SortDescriptor<AccountModel>(\.user, order: .forward)]
-        
+
         let activePredicate = #Predicate<AccountModel> { account in
             account.active == true
         }
-        
+
         let inactivePredicate = #Predicate<AccountModel> { account in
             account.active == false
         }
-        
+
         let activeFetchDescriptor = FetchDescriptor<AccountModel>(predicate: activePredicate, sortBy: sortBy)
         let inactiveFetchDescriptor = FetchDescriptor<AccountModel>(predicate: inactivePredicate, sortBy: sortBy)
-        
+
         do {
             let activeResults = try modelContext.fetch(activeFetchDescriptor)
             let inactiveResults = try modelContext.fetch(inactiveFetchDescriptor)
-            
-            return Array(activeResults.map { Account.init($0) }) + Array(inactiveResults.map { Account.init($0) })
-            
+
+            return Array(activeResults.map { Account.build($0) }) + Array(inactiveResults.map { Account.build($0) })
+
         } catch let error as NSError {
             Self.logger.error("Fetch failed: \(error.localizedDescription)")
         }
-        
+
         return []
     }
-    
+
     func deleteAccount(_ account: String) {
         if let accountModel = getAccountModel(account) {
             modelContext.delete(accountModel)
         }
     }
-    
+
     func updateAccount(account: String, displayName: String) {
         do {
             if let accountModel = getAccountModel(account) {
@@ -171,7 +171,7 @@ extension DatabaseManager {
             Self.logger.error("Failed to update account: \(error.localizedDescription)")
         }
     }
-    
+
     func updateAccountMediaPath(account: String, mediaPath: String) {
         do {
             if let accountModel = getAccountModel(account) {
@@ -182,29 +182,29 @@ extension DatabaseManager {
             Self.logger.error("Failed to update account: \(error.localizedDescription)")
         }
     }
-    
+
     private func getAccountModel(_ account: String) -> AccountModel? {
         let predicate = #Predicate<AccountModel> { accountModel in
             accountModel.account == account
         }
-        
+
         let fetchDescriptor = FetchDescriptor<AccountModel>(predicate: predicate)
         let results = try? modelContext.fetch(fetchDescriptor)
-        
+
         return results?.first
     }
-    
+
     private func getActiveAccountModel() -> AccountModel? {
         let predicate = #Predicate<AccountModel> { account in
             account.active == true
         }
-        
+
         let fetchDescriptor = FetchDescriptor<AccountModel>(predicate: predicate)
-        
+
         if let result = try? modelContext.fetch(fetchDescriptor) {
             return result.first
         }
-        
+
         return nil
     }
 }

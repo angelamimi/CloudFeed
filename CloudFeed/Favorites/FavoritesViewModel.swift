@@ -35,238 +35,285 @@ protocol FavoritesDelegate: AnyObject {
 
 @MainActor
 final class FavoritesViewModel {
-    
+
     var pauseLoading: Bool = false
 
     private var dataSource: UICollectionViewDiffableDataSource<Int, Metadata.ID>!
-    
+
+    private let dataSourceQueue = DispatchQueue(label: "fav.datasource.queue")
+
     private let dataService: DataService
     private let coordinator: FavoritesCoordinator
     private weak var delegate: FavoritesDelegate!
-    
+
     private let cacheManager: CacheManager
-    
+
     private var metadatas: [Metadata.ID: Metadata] = [:]
     private var systemIconIds: [Metadata.ID] = []
-    
-    private var fetchTask: Task<Void, Never>? {
+
+    private var syncTask: Task<Void, Never>? {
         willSet {
-            fetchTask?.cancel()
+            syncTask?.cancel()
         }
     }
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: FavoritesViewModel.self)
     )
-    
+
     init(delegate: FavoritesDelegate, dataService: DataService, cacheManager: CacheManager, coordinator: FavoritesCoordinator) {
         self.delegate = delegate
         self.dataService = dataService
         self.cacheManager = cacheManager
         self.coordinator = coordinator
     }
-    
+
     func initDataSource(collectionView: UICollectionView) {
 
         dataSource = UICollectionViewDiffableDataSource<Int, Metadata.ID>(collectionView: collectionView) { [weak self] (collectionView: UICollectionView, indexPath: IndexPath, metadataId: Metadata.ID) -> UICollectionViewCell? in
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as? CollectionViewCell else { fatalError("Cannot create new cell") }
-            self?.populateCell(metadataId: metadataId, cell: cell, indexPath: indexPath)
-            return cell
+            return self?.initCell(metadataId: metadataId, cell: cell, indexPath: indexPath)
         }
 
         var snapshot = dataSource.snapshot()
         snapshot.appendSections([0])
         dataSource.applySnapshotUsingReloadData(snapshot)
     }
-    
+
     func share(metadatas: [Metadata]) {
         coordinator.share(metadatas)
     }
-    
+
     func getItemAtIndexPath(_ indexPath: IndexPath) -> Metadata? {
         if let id = dataSource.itemIdentifier(for: indexPath) {
             return metadatas[id]
         }
         return nil
     }
-    
+
     func currentItemCount() -> Int {
         let snapshot = dataSource.snapshot()
         return snapshot.numberOfItems(inSection: 0)
     }
-    
+
+    func cancel() {
+        cancelLoads()
+        syncTask?.cancel()
+    }
+
     func getItems() -> [Metadata] {
         let snapshot = dataSource.snapshot()
         var items: [Metadata] = []
-        
+
         for id in snapshot.itemIdentifiers(inSection: 0) {
             if let metadata = metadatas[id] {
                 items.append(metadata)
             }
         }
-        
+
         return items
     }
-    
+
     func getMetadataFromOcId(_ ocId: String) async -> Metadata? {
         return await dataService.getMetadataFromOcId(ocId)
     }
-    
+
     func getLayoutType() -> String {
         return dataService.store.getFavoriteLayoutType()
     }
-    
+
     func updateLayoutType(_ type: String) {
         dataService.store.setFavoriteLayoutType(type)
     }
-    
+
     func getColumnCount() -> Int {
         return dataService.store.getFavoriteColumnCount(UIDevice.current.userInterfaceIdiom)
     }
-    
+
     func saveColumnCount(_ columnCount: Int) {
         dataService.store.setFavoriteColumnCount(columnCount)
     }
-    
+
     func cancelLoads() {
         cacheManager.cancelAll()
     }
-    
+
     func clearCache() {
         systemIconIds = []
         cacheManager.clear()
     }
-    
+
     func cleanupFileCache() {
-        Task { [weak self] in
+        Task.detached { [weak self] in
             await self?.dataService.store.cleanupFileCache()
         }
     }
-    
+
     func getIndexPathForMetadata(metadata: Metadata) -> IndexPath? {
         return dataSource.indexPath(for: metadata.id)
     }
-    
+
     func resetDataSource() {
-        
+
         guard dataSource != nil else { return }
-        
+
         metadatas.removeAll()
-        
-        var snapshot = dataSource.snapshot()
-        snapshot.deleteAllItems()
-        snapshot.appendSections([0])
-        dataSource!.applySnapshotUsingReloadData(snapshot)
+
+        dataSourceQueue.async { [weak self] in
+            DispatchQueue.main.async { [weak self] in
+                if var snapshot = self?.dataSource.snapshot() {
+                    snapshot.deleteAllItems()
+                    snapshot.appendSections([0])
+                    self?.dataSource.applySnapshotUsingReloadData(snapshot)
+                }
+            }
+        }
     }
-    
-    func loadMore(type: Global.FilterType, filterFromDate: Date?, filterToDate: Date?) {
 
-        var offsetDate: Date?
-        var offsetName: String?
+    func reload() {
 
-        let snapshot = dataSource.snapshot()
-        
-        if (snapshot.numberOfItems(inSection: 0) > 0) {
-            if let id = snapshot.itemIdentifiers(inSection: 0).last {
-                if let metadata = metadatas[id] {
-                    offsetName = metadata.fileNameView
-                    offsetDate = metadata.date
-                    /*  intentionally overlapping results. could shift the date here by a second to exclude previous results,
-                     but might lose new results from files with dates in the same second */
+        var snapshot = dataSource.snapshot()
+        guard snapshot.numberOfSections > 0 else { return }
+
+        snapshot.reconfigureItems(snapshot.itemIdentifiers(inSection: 0))
+
+        apply(snapshot: snapshot, animate: false, notify: false, refresh: false)
+    }
+
+    func filter(type: Global.FilterType, from: Date, to: Date) {
+        sync(type: type, from: from, to: to, refresh: true)
+    }
+
+    func sync(type: Global.FilterType, from: Date, to: Date, refresh: Bool) {
+
+        guard let currentUser = Environment.current.currentUser,
+              let currentServer = Environment.current.currentServer else { return }
+
+        delegate.fetching()
+
+        syncTask = Task.detached { [weak self] in
+            await self?.sync(type: type, from: from, to: to, refresh: refresh, user: currentUser, server: currentServer)
+        }
+    }
+
+    @concurrent
+    func sync(type: Global.FilterType, from: Date, to: Date, refresh: Bool, user: UserAccount, server: Server) async {
+
+        let error = await dataService.syncFavorites(currentUserAccount: user, currentServer: server)
+
+        if Task.isCancelled { return }
+
+        await MainActor.run { [weak self] in
+            self?.handleFavoriteResult(error: error)
+        }
+
+        let results = await dataService.fetchFavorites(type: type, fromDate: from, toDate: to, currentUserAccount: user, currentServer: server)
+
+        await MainActor.run { [weak self] in
+            self?.delegate.fetchResultReceived(resultItemCount: results.count)
+        }
+
+        let local = await Array(self.metadatas.values)
+        let syncResult = syncFavorites(locals: local, remotes: results)
+
+        await MainActor.run { [weak self] in
+            self?.applyDatasourceChanges(add: syncResult.add, update: syncResult.update, delete: syncResult.delete, refresh: refresh)
+        }
+    }
+
+    nonisolated func syncFavorites(locals: [Metadata], remotes: [Metadata]) -> (add: [Metadata], update: [Metadata], delete: [Metadata.ID]) {
+
+        var deletes: [Metadata.ID] = []
+        var adds: [Metadata] = []
+        var updates: [Metadata] = []
+
+        for local in locals {
+            if let remote = remotes.first(where: { local.ocId == $0.ocId }) {
+                if remote.etag != local.etag || remote.fileName != local.fileName {
+                    updates.append(remote)
+                }
+            } else {
+                deletes.append(local.ocId)
+            }
+        }
+
+        for remote in remotes {
+            if !locals.contains(where: { remote.ocId == $0.ocId }) {
+                adds.append(remote)
+            }
+        }
+
+        return (add: adds, update: updates, delete: deletes)
+    }
+
+    private func applyDatasourceChanges(add: [Metadata], update: [Metadata], delete: [Metadata.ID], refresh: Bool) {
+
+        guard !add.isEmpty || !update.isEmpty || !delete.isEmpty else {
+            delegate.dataSourceUpdated(refresh: refresh)
+            return
+        }
+
+        var snapshot = dataSource.snapshot()
+
+        for toUpdate in update {
+            self.metadatas[toUpdate.id]?.etag = toUpdate.etag
+            self.metadatas[toUpdate.id]?.fileName = toUpdate.fileName
+            self.metadatas[toUpdate.id]?.fileNameView = toUpdate.fileNameView
+            self.metadatas[toUpdate.id]?.date = toUpdate.date
+            self.metadatas[toUpdate.id]?.datePhotosOriginal = toUpdate.datePhotosOriginal
+            self.metadatas[toUpdate.id]?.hasPreview = toUpdate.hasPreview
+            self.metadatas[toUpdate.id]?.size = toUpdate.size
+            self.metadatas[toUpdate.id]?.width = toUpdate.width
+            self.metadatas[toUpdate.id]?.height = toUpdate.height
+
+            snapshot.reconfigureItems([toUpdate.id])
+        }
+
+        for toDelete in delete {
+            self.metadatas.removeValue(forKey: toDelete)
+            if snapshot.itemIdentifiers(inSection: 0).contains(toDelete) {
+                snapshot.deleteItems([toDelete])
+            }
+        }
+
+        if snapshot.numberOfItems(inSection: 0) == 0 {
+            for toAdd in add {
+                self.metadatas[toAdd.id] = toAdd
+                snapshot.appendItems([toAdd.id])
+            }
+        } else {
+            let sorted = self.metadatas.values.sorted(by: { $0.date > $1.date })
+            for toAdd in add {
+                self.metadatas[toAdd.id] = toAdd
+                if let next = sorted.first(where: { toAdd.date >= $0.date && toAdd.ocId != $0.ocId }) {
+                    if snapshot.sectionIdentifier(containingItem: next.id) == nil {
+
+                    } else {
+                        self.metadatas[toAdd.id] = toAdd
+                        snapshot.insertItems([toAdd.id], beforeItem: next.id)
+                    }
+                } else {
+                    snapshot.appendItems([toAdd.id])
                 }
             }
         }
 
-        guard let offsetDate = offsetDate else { return }
-        guard let offsetName = offsetName else { return }
-        
-        sync(type: type, offsetDate: offsetDate, offsetName: offsetName, filterFromDate: filterFromDate, filterToDate: filterToDate)
+        apply(snapshot: snapshot, animate: false, notify: true, refresh: refresh)
     }
-    
-    func reload() {
 
-        var snapshot = dataSource.snapshot()        
-        guard snapshot.numberOfSections > 0 else { return }
-
-        snapshot.reconfigureItems(snapshot.itemIdentifiers(inSection: 0))
-        
-        dataSource.apply(snapshot, animatingDifferences: true)
-    }
-    
-    func fetch(type: Global.FilterType, refresh: Bool) {
-
-        delegate.fetching()
-                
-        fetchTask = Task { [weak self] in
-            await self?.fetch(type: type, refresh: refresh)
-        }
-    }
-    
-    func fetch(type: Global.FilterType, refresh: Bool) async {
-        
-        let error = await dataService.getFavorites(currentUserAccount: Environment.current.currentUser, currentServer: Environment.current.currentServer)
-        
-        if Task.isCancelled { return }
-        
-        handleFavoriteResult(error: error)
-        
-        let resultMetadatas = await dataService.paginateFavoriteMetadata(type: type, fromDate: Date.distantPast, toDate: Date.distantFuture,
-                                                                         offsetDate: nil, offsetName: nil,
-                                                                         currentUserAccount: Environment.current.currentUser,
-                                                                         currentServer: Environment.current.currentServer)
-        await applyDatasourceChanges(metadatas: resultMetadatas, refresh: refresh)
-    }
-    
-    func filter(type: Global.FilterType, from: Date, to: Date) {
-        
-        delegate.fetching()
-                
-        fetchTask = Task { [weak self] in
-            
-            let error = await self?.dataService.getFavorites(currentUserAccount: Environment.current.currentUser, currentServer: Environment.current.currentServer)
-            
-            if Task.isCancelled { return }
-            
-            self?.handleFavoriteResult(error: error ?? true)
-            
-            if let resultMetadatas = await self?.dataService.paginateFavoriteMetadata(type: type, fromDate: from, toDate: to,
-                                                                                      offsetDate: nil, offsetName: nil,
-                                                                                      currentUserAccount: Environment.current.currentUser,
-                                                                                      currentServer: Environment.current.currentServer) {
-                await self?.applyDatasourceChanges(metadatas: resultMetadatas, refresh: true)
-            }
-        }
-    }
-    
-    func syncFavs(type: Global.FilterType, from: Date?, to: Date?) {
-
-        delegate.fetching()
-                
-        fetchTask = Task { [weak self] in
-            
-            let error = await self?.dataService.getFavorites(currentUserAccount: Environment.current.currentUser, currentServer: Environment.current.currentServer)
-            
-            if Task.isCancelled { return }
-            
-            self?.handleFavoriteResult(error: error ?? true)
-            
-            await self?.processFavorites(type: type, from: from, to: to)
-        }
-    }
-    
     func bulkEdit(indexPaths: [IndexPath]) async {
-        
+
         var snapshot = dataSource.snapshot()
         var error = false
-        
+
         for indexPath in indexPaths {
-            
+
             guard let id = dataSource.itemIdentifier(for: indexPath) else { continue }
             guard let metadata = metadatas[id] else { continue }
-            
+
             let result = await dataService.toggleFavoriteMetadata(metadata)
-            
+
             if result == nil {
                 error = true
             } else {
@@ -274,306 +321,201 @@ final class FavoritesViewModel {
                 metadatas.removeValue(forKey: result!.id)
             }
         }
-        
-        snapshot.reloadSections([0])
-        
+
         DispatchQueue.main.async { [weak self] in
-            self?.dataSource.apply(snapshot, animatingDifferences: true)
-            self?.delegate.bulkEditFinished(error: error)
+            self?.apply(snapshot: snapshot, animate: true, notify: false, refresh: false, bulk: true, bulkError: error)
         }
     }
-    
+
     func refreshItems(_ refreshItems: [IndexPath]) {
 
         let items = refreshItems.compactMap { dataSource.itemIdentifier(for: $0) }
-        
+
         var snapshot = dataSource.snapshot()
         snapshot.reconfigureItems(items)
-        dataSource.apply(snapshot)
+
+        apply(snapshot: snapshot, animate: false, notify: false, refresh: false)
     }
-    
+
     func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
         delegate.videoSelected()
         coordinator.showViewerPager(cacheManager: cacheManager, currentIndex: currentIndex, metadatas: metadatas)
     }
-    
+
     func getPreviewController(metadata: Metadata) -> PreviewController {
         return coordinator.getPreviewController(metadata: metadata)
     }
-    
+
     func showFilter(filterable: Filterable, from: Date?, to: Date?) {
         coordinator.showFilter(filterable: filterable, from: from, to: to)
     }
-    
+
     func dismissFilter() {
         coordinator.dismissFilter()
     }
-    
+
     func showInvalidFilterError() {
         coordinator.showInvalidFilterError()
     }
-    
+
     func showLoadfailedError() {
         coordinator.showLoadfailedError()
     }
-    
+
     func showFavoriteUpdateFailedError() {
         coordinator.showFavoriteUpdateFailedError()
     }
-    
+
     func showPicker() {
         coordinator.showPicker()
     }
-    
+
     func share(indexPaths: [IndexPath]) {
         var selectedMetadatas: [Metadata] = []
         for indexPath in indexPaths {
             guard let id = dataSource.itemIdentifier(for: indexPath) else { continue }
             guard let metadata = metadatas[id] else { continue }
-            
+
             selectedMetadatas.append(metadata)
         }
-        
+
         coordinator.share(selectedMetadatas)
     }
-    
+
     private func handleFavoriteResult(error: Bool) {
         if error {
             delegate.fetchResultReceived(resultItemCount: nil)
         }
     }
-    
-    private func sync(type: Global.FilterType, offsetDate: Date, offsetName: String, filterFromDate: Date?, filterToDate: Date?) {
-        
-        delegate.fetching()
-        
-        let userAccount = Environment.current.currentUser
-        let server = Environment.current.currentServer
-        
-        Task { [weak self] in
 
-            _ = await self?.dataService.getFavorites(currentUserAccount: userAccount, currentServer: server)
+    private func initCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath) -> CollectionViewCell {
 
-            if let resultMetadatas = await self?.dataService.paginateFavoriteMetadata(type: type,
-                                                                                      fromDate: filterFromDate ?? Date.distantPast,
-                                                                                      toDate: filterToDate ?? Date.distantFuture,
-                                                                                      offsetDate: offsetDate, offsetName: offsetName,
-                                                                                      currentUserAccount: userAccount,
-                                                                                      currentServer: server) {
-                
-                await self?.applyDatasourceChanges(metadatas: resultMetadatas, refresh: false)
+        guard let metadata = self.metadatas[metadataId],
+              let account = Environment.current.currentUser?.account else {
+            cell.isAccessibilityElement = false
+            return cell
+        }
+
+        let cached = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag)
+
+        populateCell(account: account, metadata: metadata, cached: cached, cell: cell, indexPath: indexPath)
+
+        return cell
+    }
+
+    nonisolated private func populateCell(account: String, metadata: Metadata, cached: UIImage?, cell: CollectionViewCell, indexPath: IndexPath) {
+
+        DispatchQueue.main.async {
+
+            if cell.isSelected == false {
+                cell.selected(false, removal: false)
+            }
+
+            cell.isAccessibilityElement = true
+            cell.accessibilityTraits = [.image]
+
+            if metadata.classFile == NKTypeClassFile.video.rawValue {
+                cell.showVideoIcon()
+                cell.accessibilityLabel = Strings.MediaVideo
+            } else if metadata.livePhoto {
+                cell.showLivePhotoIcon()
+                cell.accessibilityLabel = Strings.MediaLivePhoto
+            } else {
+                cell.resetStatusIcon()
+                cell.accessibilityLabel = Strings.MediaPhoto
             }
         }
-    }
-    
-    private func populateCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath) {
-        
-        guard let metadata = metadatas[metadataId] else {
-            cell.isAccessibilityElement = false
-            return
-        }
-        
-        if cell.isSelected == false {
-            cell.selected(false, removal: false)
-        }
-        
-        cell.isAccessibilityElement = true
-        cell.accessibilityTraits = [.image]
-        
-        if metadata.classFile == NKTypeClassFile.video.rawValue {
-            cell.showVideoIcon()
-            cell.accessibilityLabel = Strings.MediaVideo
-        } else if metadata.livePhoto {
-            cell.showLivePhotoIcon()
-            cell.accessibilityLabel = Strings.MediaLivePhoto
-        } else {
-            cell.resetStatusIcon()
-            cell.accessibilityLabel = Strings.MediaPhoto
-        }
-        
-        if let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) {
-            cell.setImage(cachedImage)
+
+        if cached != nil {
+            DispatchQueue.main.async {
+                cell.setImage(cached)
+            }
         } else {
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
-            
-            if FileManager.default.fileExists(atPath: path) {
-                
-                autoreleasepool {
-                    
-                    let image = UIImage(contentsOfFile: path)
-                    cell.setImage(image)
-                    
-                    if image != nil {
-                        cacheManager.cache(metadata: metadata, image: image!)
-                    }
-                }
-            } else {
-                if systemIconIds.contains(metadata.id) {
-                    cell.imageStatus.tintColor = .systemGray2
-                    if !metadata.video && !metadata.livePhoto {
-                        cell.imageStatus.isHidden = false
-                        cell.imageStatus.image = UIImage(systemName: "photo")
-                    }
-                } else {
-                    if !pauseLoading {
-                        cacheManager.download(metadata: metadata, delegate: self)
-                    }
-                }
-            }
-        }
-        
-        delegate.editCellUpdated(cell: cell, indexPath: indexPath)
-    }
-    
-    private func processFavorites(type: Global.FilterType, from: Date?, to: Date?) async {
-        
-        var snapshot = dataSource.snapshot()
-        var displayed = snapshot.itemIdentifiers(inSection: 0)
-        
-        guard let result = await dataService.processFavorites(displayedMetadataIds: displayed,
-                                                              displayedMetadatas: metadatas,
-                                                              type: type,
-                                                              from: from,
-                                                              to: to,
-                                                              currentUserAccount: Environment.current.currentUser,
-                                                              currentServer: Environment.current.currentServer) else {
-            delegate.dataSourceUpdated(refresh: false)
-            return
-        }
-        
-        guard result.delete.count > 0 || result.add.count > 0 || result.update.count > 0 else {
-            delegate.dataSourceUpdated(refresh: false)
-            return
-        }
-        
-        if result.delete.count > 0 {
-            snapshot.deleteItems(result.delete)
-            
-            for deleted in result.delete {
-                metadatas.removeValue(forKey: deleted)
-            }
-        }
-        
-        for update in result.update {
-            if snapshot.itemIdentifiers.contains(update.id) {
-                snapshot.reconfigureItems([update.id])
-                metadatas[update.id] = update
-            }
-        }
-        
-        if result.add.count > 0 {
-            
-            if snapshot.numberOfItems == 0 {
-                for add in result.add {
-                    if !snapshot.itemIdentifiers.contains(add.id) {
-                        snapshot.appendItems([add.id])
-                        metadatas[add.id] = add
-                    }
-                }
-            } else {
-                
-                displayed = snapshot.itemIdentifiers(inSection: 0)
-                
-                //find where each item to be added fits in the visible collection by date and possibly name
-                for result in result.add {
-                    
-                    if snapshot.itemIdentifiers.contains(result.id) {
-                        continue
-                    }
-                    
-                    metadatas[result.id] = result
-                    
-                    for visibleItem in displayed {
-                        
-                        let visibleMetadata = metadatas[visibleItem]
-                        
-                        if visibleMetadata == nil {
-                            break
-                        }
-                        
-                        let resultTime = result.date.timeIntervalSinceReferenceDate
-                        let visibleTime = visibleMetadata!.date.timeIntervalSinceReferenceDate
-                        
-                        if resultTime > visibleTime {
-                            snapshot.insertItems([result.id], beforeItem: visibleItem)
-                            break
-                        } else if resultTime == visibleTime {
-                            if result.fileNameView > visibleMetadata!.fileNameView {
-                                snapshot.insertItems([result.id], beforeItem: visibleItem)
-                                break
-                            }
-                        }
-                    }
 
-                    if snapshot.itemIdentifiers.contains(result.id) == false {
-                        snapshot.appendItems([result.id])
+            if FileManager.default.fileExists(atPath: path) {
+
+                let image = UIImage(contentsOfFile: path)
+
+                DispatchQueue.main.async { [weak self] in
+
+                    cell.imageStatus.tintColor = .white
+                    cell.setImage(image)
+
+                    if image != nil {
+                        self?.cacheManager.cache(metadata: metadata, image: image!)
+                    }
+                }
+            } else {
+                DispatchQueue.main.async { [weak self] in
+
+                    if self?.systemIconIds.contains(metadata.id) == true {
+                        cell.imageStatus.tintColor = .systemGray2
+                        if !metadata.video && !metadata.livePhoto {
+                            cell.imageStatus.isHidden = false
+                            cell.imageStatus.image = UIImage(systemName: "photo")
+                        }
+                    } else {
+                        if self?.pauseLoading == false {
+                            self?.cacheManager.download(account: account, metadata: metadata, delegate: self!)
+                        }
                     }
                 }
             }
         }
-        
-        dataSource.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
-            self?.delegate.dataSourceUpdated(refresh: false)
-        })
-    }
-    
-    private func applyDatasourceChanges(metadatas: [Metadata], refresh: Bool) async {
-        
-        var adds : [Metadata.ID] = []
-        var updates : [Metadata.ID] = []
-        var snapshot = dataSource.snapshot()
-        
-        if refresh {
-            snapshot.deleteAllItems()
-            snapshot.appendSections([0])
-            
-            self.metadatas.removeAll()
-        }
-        
-        for metadata in metadatas {
-            if snapshot.indexOfItem(metadata.id) == nil {
-                adds.append(metadata.id)
-            } else {
-                updates.append(metadata.id)
-            }
-            
-            self.metadatas[metadata.id] = metadata
-        }
-        
-        if adds.count > 0 {
-            snapshot.appendItems(adds, toSection: 0)
-        }
-        
-        if updates.count > 0 {
-            snapshot.reconfigureItems(updates)
-        }
-        
-        delegate.fetchResultReceived(resultItemCount: metadatas.count)
 
         DispatchQueue.main.async { [weak self] in
-            self?.dataSource.apply(snapshot, animatingDifferences: true)
-            self?.delegate.dataSourceUpdated(refresh: refresh)
+            self?.delegate.editCellUpdated(cell: cell, indexPath: indexPath)
         }
+    }
+
+    private func apply(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool, refresh: Bool, bulk: Bool = false, bulkError: Bool = false) {
+
+        dataSourceQueue.async { [weak self] in
+            DispatchQueue.main.async { [weak self] in
+                if bulk {
+                    self?.dataSource.apply(snapshot, animatingDifferences: animate, completion: { [weak self] in
+                        self?.delegate.bulkEditFinished(error: bulkError)
+                    })
+                } else if notify {
+                    self?.dataSource.apply(snapshot, animatingDifferences: animate, completion: { [weak self] in
+                        self?.delegate.dataSourceUpdated(refresh: refresh)
+                    })
+                } else {
+                    self?.dataSource.apply(snapshot, animatingDifferences: animate)
+                }
+            }
+        }
+    }
+
+    private func compare(_ oldMetadata: Metadata?, _ new: Metadata) -> Bool {
+
+        if let old = oldMetadata {
+            return old.etag != new.etag || old.fileNameView != new.fileNameView
+        }
+
+        return false
     }
 }
 
 extension FavoritesViewModel: DownloadPreviewOperationDelegate {
-    
+
     func previewDownloaded(metadata: Metadata) {
+
         var snapshot = dataSource.snapshot()
         let displayed = snapshot.itemIdentifiers(inSection: 0)
-        
+
         if displayed.contains(metadata.id) {
-            
+
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
-            
+
             if FileManager().fileExists(atPath: path) {
                 snapshot.reconfigureItems([metadata.id])
-                dataSource.apply(snapshot)
+                apply(snapshot: snapshot, animate: false, notify: false, refresh: false)
             } else {
                 systemIconIds.append(metadata.id)
                 snapshot.reconfigureItems([metadata.id])
-                dataSource.apply(snapshot)
+                apply(snapshot: snapshot, animate: false, notify: false, refresh: false)
             }
         }
     }

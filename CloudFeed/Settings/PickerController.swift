@@ -28,40 +28,40 @@ protocol PickerDelegate: AnyObject {
 }
 
 class PickerController: UIViewController {
-    
+
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var selectButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
+
     var viewModel: PickerViewModel?
     weak var delegate: PickerDelegate?
-    
+
     private var metadatas: [Metadata]?
     private var mediaFileCount: Int?
-    
+
     var serverUrl: String = ""
     var metadata: Metadata?
-    
+
     override func viewDidLoad() {
-        
+
         tableView.delegate = self
         tableView.dataSource = self
-        
+
         navigationController?.setNavigationBarHidden(false, animated: false)
         navigationController?.navigationBar.prefersLargeTitles = true
-        
+
         if navigationItem.rightBarButtonItem == nil {
             let item = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel))
             item.tintColor = .label
             navigationItem.setRightBarButton(item, animated: true)
         }
-        
+
         selectButton.configuration?.title = Strings.SelectAction
         selectButton.addTarget(self, action: #selector(selected), for: .touchUpInside)
-        
+
         UIAccessibility.post(notification: .screenChanged, argument: navigationItem.rightBarButtonItem)
     }
-    
+
     @objc func selected() {
         if let account = Environment.current.currentUser?.account {
             Task { [weak self] in
@@ -70,18 +70,18 @@ class PickerController: UIViewController {
             }
         }
     }
-    
+
     @objc func cancel() {
         delegate?.cancel()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
-        
+
         activityIndicator.startAnimating()
-        
+
         showFolderData()
     }
-    
+
     private func getRootMetadata(folderLocation: String) async -> Metadata? {
         if let results = await viewModel?.readFolder(folderLocation, "", depth: "0"),
            let metadata = results.metadatas.first {
@@ -89,35 +89,35 @@ class PickerController: UIViewController {
         }
         return nil
     }
-    
+
     private func showFolderData() {
-        
+
         Task { [weak self] in
-            
+
             if self?.serverUrl.isEmpty == true {
-                
+
                 if let folderLocation = self?.viewModel?.getHomeServer(),
                    let metadata = await self?.getRootMetadata(folderLocation: folderLocation) {
-                    
+
                     let results = await self?.viewModel?.readFolder(folderLocation, metadata.fileId, depth: "1")
-                    
+
                     self?.navigationItem.title = Strings.SettingsLabelNextcloud
                     self?.metadata = metadata
                     self?.serverUrl = folderLocation
                     self?.metadatas = results?.metadatas ?? []
                     self?.mediaFileCount = results?.mediaFileCount ?? 0
-                    
+
                     self?.tableView.reloadData()
                 }
             } else {
                 if let folderLocation = self?.serverUrl {
-                    
+
                     if folderLocation == self?.viewModel?.getHomeServer() {
                         self?.navigationItem.title = Strings.SettingsLabelNextcloud
                     } else {
                         self?.navigationItem.title = self?.metadata?.fileNameView ?? ""
                     }
-                    
+
                     if let fileId = self?.metadata?.fileId {
                         let results = await self?.viewModel?.readFolder(folderLocation, fileId, depth: "1")
                         self?.metadatas = results?.metadatas ?? []
@@ -126,7 +126,7 @@ class PickerController: UIViewController {
                     }
                 }
             }
-            
+
             DispatchQueue.main.async { [weak self] in
                 self?.activityIndicator.stopAnimating()
             }
@@ -135,72 +135,72 @@ class PickerController: UIViewController {
 }
 
 extension PickerController: UITableViewDelegate {
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+
         guard let metadata = metadatas?[indexPath.item] else { return }
-        
+
         var newServerUrl: String
-        
+
         if serverUrl.last == "/" {
             newServerUrl = serverUrl + metadata.fileNameView
         } else {
             newServerUrl = serverUrl + "/" + metadata.fileNameView
         }
-        
+
         viewModel?.open(newServerUrl, metadata)
     }
 }
 
 extension PickerController: UITableViewDataSource {
-    
+
     func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        
+
         var mediaFileCountDescription: String
         var foldersDescription: String
         let fileCount = mediaFileCount ?? 0
         let folderCount = metadatas?.count ?? 0
-        
+
         let formatter = NumberFormatter()
-        
+
         formatter.numberStyle = .decimal
         formatter.locale = .current
-        
+
         if fileCount == 1 {
             mediaFileCountDescription = "\(formatter.string(for: fileCount) ?? "") \(Strings.SettingsLabelFile)"
         } else {
             mediaFileCountDescription = "\(formatter.string(for: fileCount) ?? "") \(Strings.SettingsLabelFiles)"
         }
-        
+
         if folderCount == 1 {
             foldersDescription = "\(formatter.string(for: folderCount) ?? "") \(Strings.SettingsLabelFolder)"
         } else {
             foldersDescription = "\(formatter.string(for: folderCount) ?? "") \(Strings.SettingsLabelFolders)"
         }
-        
+
         return "\(mediaFileCountDescription) \(foldersDescription)"
     }
-    
+
     func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
         if let footerView = view as? UITableViewHeaderFooterView {
             footerView.textLabel?.textAlignment = .center
         }
     }
-    
+
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 80
     }
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return metadatas?.count ?? 0
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
+
         let cell = UITableViewCell()
-        
+
         guard let metadata = metadatas?[indexPath.item] else { return cell }
-        
+
         var config = UIListContentConfiguration.cell()
 
         config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
@@ -209,15 +209,15 @@ extension PickerController: UITableViewDataSource {
         config.secondaryTextProperties.adjustsFontForContentSizeCategory = true
         config.image = UIImage(systemName: "folder")
         config.text = metadata.fileNameView
-        
+
         let formatter = DateFormatter()
         formatter.timeStyle = .none
         formatter.dateStyle = .medium
-        
+
         config.secondaryText = formatter.string(from: metadata.date)
-        
+
         cell.contentConfiguration = config
-        
+
         return cell
     }
 }

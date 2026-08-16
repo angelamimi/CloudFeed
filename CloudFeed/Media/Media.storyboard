@@ -47,22 +47,11 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
-                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="WRJ-D1-jeQ">
-                                <rect key="frame" x="178" y="407.66666666666669" width="37" height="37"/>
-                            </activityIndicatorView>
-                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="yeB-rd-53C">
-                                <rect key="frame" x="0.0" y="734" width="393" height="50"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="LGN-VQ-6uJ"/>
-                                </constraints>
-                                <color key="color" systemColor="labelColor"/>
-                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="lJf-TF-9FZ"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="eij-9e-ewa" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="4mF-fW-cJC"/>
-                            <constraint firstItem="lJf-TF-9FZ" firstAttribute="bottom" secondItem="yeB-rd-53C" secondAttribute="bottom" id="7L8-ZO-fBv"/>
                             <constraint firstItem="5ls-AF-slB" firstAttribute="top" secondItem="lJf-TF-9FZ" secondAttribute="top" id="BJE-Jg-cBh"/>
                             <constraint firstItem="eij-9e-ewa" firstAttribute="top" secondItem="uE1-0J-IbB" secondAttribute="top" id="BjK-Mt-TBA"/>
                             <constraint firstItem="J2a-Pd-Ybs" firstAttribute="bottom" secondItem="uE1-0J-IbB" secondAttribute="bottom" id="FLe-zc-NsL"/>
@@ -70,22 +59,16 @@
                             <constraint firstItem="J2a-Pd-Ybs" firstAttribute="top" secondItem="uE1-0J-IbB" secondAttribute="top" id="HzS-B3-Lnz"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="bottom" secondItem="5ls-AF-slB" secondAttribute="bottom" id="IJq-V7-9zj"/>
                             <constraint firstItem="J2a-Pd-Ybs" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="MQm-AF-EML"/>
-                            <constraint firstItem="yeB-rd-53C" firstAttribute="leading" secondItem="lJf-TF-9FZ" secondAttribute="leading" id="Mq0-yK-2CC"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="5ls-AF-slB" secondAttribute="trailing" id="MxL-h2-rJL"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="eij-9e-ewa" secondAttribute="trailing" id="NDh-nz-IYi"/>
-                            <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="yeB-rd-53C" secondAttribute="trailing" id="QiM-CX-TMT"/>
-                            <constraint firstItem="WRJ-D1-jeQ" firstAttribute="centerX" secondItem="uE1-0J-IbB" secondAttribute="centerX" id="V6L-cy-ksq"/>
-                            <constraint firstItem="WRJ-D1-jeQ" firstAttribute="centerY" secondItem="uE1-0J-IbB" secondAttribute="centerY" id="bmT-x3-ucb"/>
                             <constraint firstAttribute="bottom" secondItem="eij-9e-ewa" secondAttribute="bottom" id="rIk-uM-PBb"/>
                             <constraint firstItem="lJf-TF-9FZ" firstAttribute="trailing" secondItem="J2a-Pd-Ybs" secondAttribute="trailing" id="vJy-Kz-pmh"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="GDV-EV-RdU"/>
                     <connections>
-                        <outlet property="activityIndicator" destination="WRJ-D1-jeQ" id="tYT-a3-hSH"/>
                         <outlet property="collectionView" destination="J2a-Pd-Ybs" id="rzT-hd-cZr"/>
                         <outlet property="emptyView" destination="5ls-AF-slB" id="aLJ-Ad-Jea"/>
-                        <outlet property="loadMoreIndicator" destination="yeB-rd-53C" id="BS1-c3-8a3"/>
                         <outlet property="tableView" destination="eij-9e-ewa" id="sFX-AC-Bh0"/>
                     </connections>
                 </viewController>
@@ -115,9 +98,6 @@
     </scenes>
     <resources>
         <image name="photo.fill" catalog="system" width="128" height="93"/>
-        <systemColor name="labelColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

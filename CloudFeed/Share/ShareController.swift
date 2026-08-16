@@ -22,27 +22,27 @@
 import UIKit
 
 class ShareController: UIViewController {
-    
+
     @IBOutlet weak var progressView: ProgressView!
-    
+
     var viewModel: ShareViewModel?
     var metadatas: [Metadata] = []
-    
+
     override func viewDidLoad() {
-        
+
         progressView.delegate = self
         progressView.setLabelText(downloading: Strings.ShareMessageDownloading, cancel: Strings.ShareMessageCancel)
-        
+
         viewModel?.share(metadatas)
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         view.backgroundColor = UIColor.black.withAlphaComponent(0.2)
     }
 }
 
 extension ShareController: DownloadDelegate {
-    
+
     func progressUpdated(_ progress: Double) {
         if view.subviews.last is ProgressView {
             let currentProgress = progressView.progressView.progress
@@ -52,7 +52,7 @@ extension ShareController: DownloadDelegate {
 }
 
 extension ShareController: ProgressDelegate {
-    
+
     func progressCancelled() {
         viewModel?.cancelDownloads()
         dismiss(animated: true)

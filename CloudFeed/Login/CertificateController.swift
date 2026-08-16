@@ -22,23 +22,23 @@
 import os.log
 import UIKit
 
-protocol CertificateDelegate {
+protocol CertificateDelegate: AnyObject {
     func certificateDisplayError()
 }
 
 class CertificateController: UIViewController {
 
     @IBOutlet weak var textView: UITextView!
-    
+
     var host: String!
     var certificateDirectory: URL!
-    
+
     var delegate: CertificateDelegate?
-    
+
     override func viewDidLoad() {
-        
+
         let path = certificateDirectory.path + "/" + host + ".txt"
-        
+
         if FileManager.default.fileExists(atPath: path) {
             do {
                 let text = try String(contentsOfFile: path, encoding: .utf8)

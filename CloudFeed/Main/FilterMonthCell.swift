@@ -27,48 +27,48 @@ protocol MonthCellDelegate: AnyObject {
 }
 
 class FilterMonthCell: UICollectionViewCell {
-    
+
     @IBOutlet weak var monthButton: UIButton!
-    
+
     weak var delegate: MonthCellDelegate?
-    
-    override func awakeFromNib() {
+
+    nonisolated override func awakeFromNib() {
         super.awakeFromNib()
-        
+
         MainActor.assumeIsolated { [weak self] in
             self?.initCell()
         }
     }
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
 
         monthButton.isSelected = false
         monthButton.configuration?.title = ""
     }
-    
+
     func setSelected(selected: Bool) {
         monthButton.isSelected = selected
     }
-    
+
     func setMonth(index: Int, month: String) {
         monthButton.configuration?.title = month
     }
-    
+
     @objc func monthButtonTouched(_ sender: UIButton) {
         delegate?.monthSelected(month: sender.tag, selected: sender.isSelected)
     }
-    
+
     private func initCell() {
-        
+
         monthButton.configuration = .plain()
-        
+
         monthButton.addTarget(self, action: #selector(monthButtonTouched(_:)), for: .touchUpInside)
-        
+
         monthButton.configuration?.baseForegroundColor = traitCollection.userInterfaceStyle == .dark ? .white : .black
-        
+
         monthButton.configurationUpdateHandler = { [weak self] button in
-            
+
             if button.isSelected {
                 button.configuration?.background.strokeWidth = 2
                 button.configuration?.background.strokeColor = .tintColor

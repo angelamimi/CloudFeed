@@ -23,33 +23,33 @@ import UIKit
 
 @MainActor
 class PickerViewModel {
-    
+
     private let coordinator: PickerCoordinator
     private let dataService: DataService
-    
+
     init(coordinator: PickerCoordinator, dataService: DataService) {
         self.coordinator = coordinator
         self.dataService = dataService
     }
-    
+
     func getHomeServer() -> String? {
         if let user = Environment.current.currentUser, let server = Environment.current.currentServer {
             return dataService.getHomeServer(urlBase: server.urlBase, userId: user.userId)
         }
         return nil
     }
-    
+
     func readFolder(_ serverUrl: String, _ currentDirectoryId: String, depth: String) async -> (metadatas: [Metadata], mediaFileCount: Int)? {
         guard let account = Environment.current.currentUser?.account else { return nil }
         let result = await dataService.readFolder(account: account, serverUrl: serverUrl, depth: depth)
         let folders = result?.metadatas.filter { $0.fileId != currentDirectoryId }
         return (metadatas: folders ?? [], mediaFileCount: result?.mediaFileCount ?? 0)
     }
-    
+
     func open(_ serverUrl: String, _ metadata: Metadata) {
         coordinator.open(serverUrl, metadata)
     }
-    
+
     func updateAccountMediaPath(account: String, serverUrl: String) async {
         let homeServer = getHomeServer() ?? ""
         let mediaPath = serverUrl.replacingOccurrences(of: homeServer, with: "")

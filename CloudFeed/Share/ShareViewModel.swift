@@ -23,43 +23,45 @@ import UIKit
 
 @MainActor
 class ShareViewModel: NSObject {
-    
+
     private let dataService: DataService
     private let coordinator: ShareCoordinator
-    
+
     private let downloadManager: DownloadManager
 
     private var shares: [Metadata] = []
     private let queue = DispatchQueue(label: "shareDownloadQueue")
     private var downloadCount: Int = 0
     private var downloads = [String: Download]()
-    
+
     weak var delegate: DownloadDelegate?
-    
+
     init(dataService: DataService, delegate: DownloadDelegate, coordinator: ShareCoordinator) {
         self.dataService = dataService
         self.delegate = delegate
         self.coordinator = coordinator
-        
+
         downloadManager = DownloadManager(dataService: dataService)
     }
-    
+
     func cancelDownloads() {
         downloadManager.cancelAll()
         coordinator.shareComplete()
     }
-    
+
     func share(_ metadatas: [Metadata]) {
-        
+
+        guard let account = Environment.current.currentUser?.account else { return }
+
         shares.removeAll()
         shares.append(contentsOf: metadatas)
-        
+
         var toDownload: [Metadata] = []
-        
+
         queue.sync {
             downloadCount = 0
         }
-        
+
         for metadata in metadatas {
             if dataService.store.fileExists(metadata) {
                 downloadComplete() //triggers update to progress view
@@ -68,7 +70,7 @@ class ShareViewModel: NSObject {
                 downloads[metadata.ocId] = Download(completed: 0, total: 0)
             }
         }
-        
+
         if toDownload.count == 0 {
             downloadsComplete()
         } else {
@@ -77,20 +79,20 @@ class ShareViewModel: NSObject {
             }
 
             for metadata in toDownload {
-                downloadManager.download(metadata: metadata, delegate: self)
+                downloadManager.download(account: account, metadata: metadata, delegate: self)
             }
         }
     }
-    
+
     private func downloadComplete() {
         let progress = 1.0 / Double(shares.count)
         delegate?.progressUpdated(progress)
     }
-    
+
     private func downloadsComplete() {
 
         var urls: [URL] = []
-        
+
         for metadata in shares {
             if dataService.store.fileExists(metadata) {
                 if let path = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView) {
@@ -99,7 +101,7 @@ class ShareViewModel: NSObject {
                 }
             }
         }
-        
+
         shares.removeAll()
 
         coordinator.shareComplete()
@@ -108,7 +110,7 @@ class ShareViewModel: NSObject {
 }
 
 extension ShareViewModel: DownloadOperationDelegate {
-    
+
     func progress(metadata: Metadata, progress: Progress) {
 
         if let download = downloads[metadata.ocId] {
@@ -122,7 +124,7 @@ extension ShareViewModel: DownloadOperationDelegate {
                 progressToAdd = Double(diff) / Double(shares.count)
                 download.completed = progress.completedUnitCount
             }
-            
+
             delegate?.progressUpdated(progressToAdd)
         }
     }
@@ -136,4 +138,3 @@ extension ShareViewModel: DownloadOperationDelegate {
         }
     }
 }
-

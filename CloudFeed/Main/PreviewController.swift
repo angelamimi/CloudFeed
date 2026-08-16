@@ -25,39 +25,41 @@ import os.log
 import UIKit
 
 class PreviewController: UIViewController {
-    
+
     private var imageView = UIImageView()
     private var activityIndicator = UIActivityIndicatorView(style: .large)
     private var metadata: Metadata!
-    
+
     var viewModel: ViewerViewModel!
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: PreviewController.self)
     )
-    
+
     init(metadata: Metadata) {
         super.init(nibName: nil, bundle: nil)
-        
+
         self.metadata = metadata
-        
+
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFit
         imageView.backgroundColor = .clear
+
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.color = .label
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
-        
-        activityIndicator.hidesWhenStopped = true
+
         activityIndicator.startAnimating()
-        
+
         view.addSubview(activityIndicator)
-        
+
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
@@ -65,9 +67,9 @@ class PreviewController: UIViewController {
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
-        
+
         activityIndicator.startAnimating()
 
         if metadata.video {
@@ -78,22 +80,22 @@ class PreviewController: UIViewController {
             viewImage(metadata: metadata)
         }
     }
-    
+
     func playLivePhoto(_ url: URL) {
 
         let player = AVPlayer(url: url)
         let avpController = AVPlayerViewController()
-        
+
         avpController.player = player
-        
+
         setupVideoController(avpController: avpController, autoPlay: true)
         activityIndicator.stopAnimating()
     }
-    
+
     private func loadVideo() {
 
         Task { [weak self] in
-            
+
             guard let metadata = self?.metadata,
                   let videoURL = await self?.viewModel.getVideoURL(metadata: metadata) else {
                 self?.activityIndicator.stopAnimating()
@@ -105,78 +107,85 @@ class PreviewController: UIViewController {
 
             player.playImmediately(atRate: 1.0)
             player.automaticallyWaitsToMinimizeStalling = false
-            
+
             avpController.player = player
             avpController.showsPlaybackControls = false
 
             self?.setupVideoController(avpController: avpController, autoPlay: true)
         }
     }
-    
+
     private func loadLiveVideo() {
-        
-        Task { [weak self] in
-            
-            if let currentMetadata = self?.metadata,
-               let videoMetadata = await self?.viewModel.getMetadataLivePhoto(metadata: currentMetadata) {
-                
-                if self?.viewModel.dataService.store.fileExists(videoMetadata) == true {
-                    self?.playLiveVideoFromMetadata(videoMetadata)
+
+        guard let currentMetadata = metadata else { return }
+        guard let account = Environment.current.currentUser?.account else { return }
+
+        Task.detached { [weak self] in
+
+            if let videoMetadata = await self?.viewModel.getMetadataLivePhoto(metadata: currentMetadata) {
+
+                if await self?.viewModel.dataService.store.fileExists(videoMetadata) == true {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.playLiveVideoFromMetadata(videoMetadata)
+                    }
                 } else {
-                    await self?.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
-                    self?.playLiveVideoFromMetadata(videoMetadata)
-                    self?.activityIndicator.stopAnimating()
+                    await self?.viewModel.downloadLivePhotoVideo(account: account, metadata: videoMetadata)
+
+                    DispatchQueue.main.async { [weak self] in
+                        self?.playLiveVideoFromMetadata(videoMetadata)
+                        self?.activityIndicator.stopAnimating()
+                    }
                 }
             }
         }
     }
-    
+
     private func playLiveVideoFromMetadata(_ metadata: Metadata) {
-        
+
         let urlVideo = getVideoURL(metadata: metadata)
-        
+
         if let url = urlVideo {
             playLivePhoto(url)
         }
     }
-    
+
     private func getVideoURL(metadata: Metadata) -> URL? {
-        
+
         if viewModel.dataService.store.fileExists(metadata) {
             return URL(fileURLWithPath: viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!)
         }
 
         return nil
     }
-    
+
     private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
 
         if children.count == 0 {
             addChild(avpController)
         }
-        
+
         if view.subviews.count == 1 {
             view.addSubview(avpController.view)
         }
-        
+
         avpController.didMove(toParent: self)
-        
+
         avpController.view.backgroundColor = .clear
-        
+
         avpController.view.frame.size.height = view.frame.height
         avpController.view.frame.size.width = view.frame.width
-        
+
         avpController.videoGravity = .resizeAspect
         avpController.allowsPictureInPicturePlayback = false
         avpController.showsPlaybackControls = false
-        
+
         if autoPlay {
             avpController.player?.play()
         }
     }
-    
+
     private func viewImage(metadata: Metadata) {
-        
+
         if metadata.svg || metadata.gif {
             loadImageFromMetadata(metadata: metadata)
             return
@@ -191,13 +200,13 @@ class PreviewController: UIViewController {
             loadImage(metadata: metadata)
         }
     }
-    
+
     private func loadImage(metadata: Metadata) {
 
         Task { [weak self] in
-            
+
             await self?.viewModel.downloadPreview(metadata)
-            
+
             if let previewPath = self?.viewModel.getPreviewPath(metadata),
                let image = UIImage(contentsOfFile: previewPath) {
                 DispatchQueue.main.async { [weak self] in
@@ -211,22 +220,24 @@ class PreviewController: UIViewController {
             }
         }
     }
-    
+
     private func loadImageFromMetadata(metadata: Metadata) {
-        
+
+        guard let account = Environment.current.currentUser?.account else { return }
+
         Task { [weak self] in
-            
-            guard let image = await self?.viewModel.loadImage(metadata: metadata) else { return }
-            
+
+            guard let image = await self?.viewModel.loadImage(account: account, metadata: metadata) else { return }
+
             DispatchQueue.main.async { [weak self] in
                 self?.imageView.image = image
                 self?.showImage()
             }
         }
     }
-    
+
     private func showImage() {
-        
+
         view.addSubview(imageView)
 
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -235,9 +246,9 @@ class PreviewController: UIViewController {
             imageView.leftAnchor.constraint(equalTo: view.leftAnchor),
             imageView.rightAnchor.constraint(equalTo: view.rightAnchor),
             imageView.topAnchor.constraint(equalTo: view.topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
+
         activityIndicator.stopAnimating()
     }
 }

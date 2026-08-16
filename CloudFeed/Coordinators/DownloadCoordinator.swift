@@ -28,36 +28,38 @@ protocol DownloadCoordinatorDelegate: AnyObject {
 
 @MainActor
 final class DownloadCoordinator: NSObject {
-    
+
     weak var navigationController: UINavigationController!
     weak var delegate: DownloadCoordinatorDelegate?
-    
+
     private let metadata: Metadata
     private let dataService: DataService
-    
+
     init(navigationController: UINavigationController, dataService: DataService, delegate: DownloadCoordinatorDelegate?, metadata: Metadata) {
         self.navigationController = navigationController
         self.dataService = dataService
         self.delegate = delegate
         self.metadata = metadata
     }
-    
+
     func start() {
-        let controller = UIStoryboard(name: "Download", bundle: nil).instantiateViewController(identifier: "DownloadController") as! DownloadController
-        
-        controller.viewModel = DownloadViewModel(dataService: dataService, delegate: controller, coordinator: self)
-        controller.metadata = metadata
-        
-        controller.view.accessibilityViewIsModal = true
-        controller.isModalInPresentation = true
-        controller.modalPresentationStyle = .overFullScreen
-        
-        navigationController.present(controller, animated: true)
+
+        if let controller = UIStoryboard(name: "Download", bundle: nil).instantiateViewController(identifier: "DownloadController") as? DownloadController {
+
+            controller.viewModel = DownloadViewModel(dataService: dataService, delegate: controller, coordinator: self)
+            controller.metadata = metadata
+
+            controller.view.accessibilityViewIsModal = true
+            controller.isModalInPresentation = true
+            controller.modalPresentationStyle = .overFullScreen
+
+            navigationController.present(controller, animated: true)
+        }
     }
 }
 
 extension DownloadCoordinator {
-    
+
     func downloadComplete() {
         delegate?.downloadComplete()
     }

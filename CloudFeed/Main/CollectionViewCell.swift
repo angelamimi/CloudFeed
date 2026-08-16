@@ -27,40 +27,40 @@ class CollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var imageStatus: UIImageView!
     @IBOutlet weak var imageSelected: UIImageView!
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: CollectionViewCell.self)
     )
-    
-    override func awakeFromNib() {
+
+    nonisolated override func awakeFromNib() {
         super.awakeFromNib()
-        
+
         MainActor.assumeIsolated { [weak self] in
             self?.initCell()
         }
     }
-    
+
     override func prepareForReuse() {
         initCell()
     }
-    
+
     func resetStatusIcon() {
         imageStatus.tintColor = .white
         imageStatus.isHidden = true
         imageStatus.image = nil
     }
-    
+
     func showVideoIcon() {
         imageStatus.isHidden = false
         imageStatus.image = UIImage(systemName: "play.fill")
     }
-    
+
     func showLivePhotoIcon() {
         imageStatus.isHidden = false
         imageStatus.image = UIImage(systemName: "livephoto")
     }
-    
+
     func selected(_ status: Bool, removal: Bool) {
 
         if status {
@@ -78,11 +78,11 @@ class CollectionViewCell: UICollectionViewCell {
             layer.borderWidth = 0
         }
     }
-    
+
     func setImage(_ image: UIImage?) {
-        
+
         DispatchQueue.main.async { [weak self] in
-            
+
             guard image != nil else {
                 self?.imageView.image = nil
                 self?.imageView.backgroundColor = .secondarySystemBackground
@@ -90,7 +90,7 @@ class CollectionViewCell: UICollectionViewCell {
             }
 
             let backgroundColor: UIColor
-            
+
             if ImageUtility.ratioWithinThreshold(self?.imageView.image?.size ?? .zero) == true {
                 self?.imageView.contentMode = .scaleAspectFill
                 backgroundColor = .secondarySystemBackground
@@ -108,19 +108,19 @@ class CollectionViewCell: UICollectionViewCell {
             }
         }
     }
-    
+
     private func initCell() {
-        
+
         imageStatus.image = nil
         imageView.image = nil
         imageSelected.image = nil
-        
+
         imageView.backgroundColor = .secondarySystemBackground
-        
+
         imageSelected.isHidden = true
         imageStatus.isHidden = true
         imageStatus.tintColor = .white
-        
+
         layer.borderWidth = 0
     }
 }

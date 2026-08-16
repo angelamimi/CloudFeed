@@ -26,49 +26,49 @@ protocol LoginServerCoordinatorDelegate: AnyObject {
     func loginSuccess()
 }
 
-final class LoginServerCoordinator : LoginCoordinator {
-    
+final class LoginServerCoordinator: LoginCoordinator {
+
     private let window: UIWindow
     var delegate: LoginServerCoordinatorDelegate?
-    
+
     init(window: UIWindow, dataService: DataService) {
-        
-        let navigationController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController() as! UINavigationController
-        
+
+        let navigationController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController() as? UINavigationController
+
         self.window = window
-        
-        super.init(navigationController: navigationController, dataService: dataService)
+
+        super.init(navigationController: navigationController ?? UINavigationController(), dataService: dataService)
     }
-    
+
     override func start() {
 
-        let loginServerController = navigationController.viewControllers[0] as! LoginServerController
-        
-        loginServerController.viewModel = LoginServerViewModel(dataService: dataService, coordinator: self)
+        let loginServerController = navigationController.viewControllers[0] as? LoginServerController
+
+        loginServerController?.viewModel = LoginServerViewModel(dataService: dataService, coordinator: self)
 
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
     }
-    
+
     override func navigateToWebLogin(token: String, endpoint: String, login: String, url: String) {
         let coordinator = LoginWebCoordinator(delegate: self, navigationController: navigationController, dataService: dataService, token: token, endpoint: endpoint, login: login, url: url)
         coordinator.start()
     }
-    
+
     func handleLoginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
 
         navigationController.setViewControllers([], animated: false)
-        
+
         delegate?.loginSuccess()
     }
 }
 
 extension LoginServerCoordinator: LoginDelegate {
-    
+
     func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
         handleLoginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
     }
-    
+
     func loginError() {
         showInitFailedPrompt()
     }

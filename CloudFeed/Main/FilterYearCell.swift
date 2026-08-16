@@ -27,46 +27,46 @@ protocol YearCellDelegate: AnyObject {
 }
 
 class FilterYearCell: UICollectionViewCell {
-    
+
     @IBOutlet weak var yearButton: UIButton!
-    
+
     weak var delegate: YearCellDelegate?
-    
-    override func awakeFromNib() {
+
+    nonisolated override func awakeFromNib() {
         super.awakeFromNib()
-        
+
         MainActor.assumeIsolated { [weak self] in
             self?.initCell()
         }
     }
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
-        
+
         yearButton.isSelected = false
         yearButton.configuration?.title = ""
     }
-    
+
     func setSelected(selected: Bool) {
         yearButton.isSelected = selected
     }
-    
+
     func setYear(_ year: Int) {
         yearButton.configuration?.title = year.description
     }
-    
+
     @objc func yearButtonTouched(_ sender: UIButton) {
         delegate?.yearSelected(year: sender.tag, selected: sender.isSelected)
     }
-    
+
     private func initCell() {
-        
+
         yearButton.configuration = .plain()
-        
+
         yearButton.addTarget(self, action: #selector(yearButtonTouched(_:)), for: .touchUpInside)
-        
+
         yearButton.configuration?.baseForegroundColor = traitCollection.userInterfaceStyle == .dark ? .white : .black
-        
+
         yearButton.configurationUpdateHandler = { [weak self] button in
 
             if button.isSelected {

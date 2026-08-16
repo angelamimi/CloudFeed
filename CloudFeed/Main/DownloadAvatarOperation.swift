@@ -27,8 +27,8 @@ protocol DownloadAvatarOperationDelegate: AnyObject {
     func avatarDownloaded(id: String)
 }
 
-class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
-    
+nonisolated class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
+
     private var task: Task<Void, Never>?
     private var objectId: String //associated object. could be a commentId or metadataId
     private var userId: String
@@ -36,12 +36,12 @@ class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
     private var account: String
     private weak var dataService: DataService?
     private weak var delegate: DownloadAvatarOperationDelegate?
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DownloadAvatarOperation.self)
     )
-    
+
     init(objectId: String, userId: String, urlBase: String, account: String, dataService: DataService, delegate: DownloadAvatarOperationDelegate) {
         self.objectId = objectId
         self.userId = userId
@@ -50,7 +50,7 @@ class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
         self.dataService = dataService
         self.delegate = delegate
     }
-    
+
     override func main() {
 
         task = Task { [weak self] in
@@ -59,32 +59,30 @@ class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
                 self?.finish()
                 return
             }
-            
+
             await self?.download()
-            
+
             if self?.isCancelled ?? true {
                 self?.finish()
                 return
             }
-            
+
             if let objId = self?.objectId {
                 await self?.delegate?.avatarDownloaded(id: objId)
             }
-            
+
             self?.finish()
         }
     }
-    
+
     override func cancel() {
         super.cancel()
-        
+
         task?.cancel()
         task = nil
     }
-    
+
     private func download() async {
         await dataService?.downloadAvatar(userId: userId, urlBase: urlBase, account: account, screenScale: 1.0)
     }
 }
-
-

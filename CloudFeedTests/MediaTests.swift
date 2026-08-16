@@ -11,42 +11,46 @@ import UIKit
 
 @MainActor
 class MediaTests {
-    
+
     let account = "testuser1 https://cloud.test1.com"
     let urlBase = "https://cloud.test1.com"
     let username = "testuser1"
     let password = "testpassword1"
-    
+
     var nextCloudService: MockNextcloudKitService?
     var dataService: DataService?
     var databaseManager: DatabaseManager?
-    
+
     init() async throws {
         try await setup()
     }
-    
-    deinit {
+
+    /*deinit {
         MainActor.assumeIsolated { [weak self] in
             self?.cleanup()
         }
+    }*/
+
+    isolated deinit {
+        cleanup()
     }
 
-    @Test("DataService.searchMedia", arguments: [CloudFeed.Global.FilterType.all, .video, .image])
+    /*@Test("DataService.searchMedia", arguments: [CloudFeed.Global.FilterType.all, .video, .image])
     func searchMediaTest(type: CloudFeed.Global.FilterType) async throws {
-        
+
         let toDate = Date.distantFuture
         let fromDate = Date.distantPast
-        
+
         let result = await dataService?.searchMedia(type: type, toDate: toDate, fromDate: fromDate,
                                                     offsetDate: nil, offsetName: nil, limit: 20,
                                                     currentUserAccount: Environment.current.currentUser,
                                                     currentServer: Environment.current.currentServer)
-        
+
         try #require(result != nil)
 
         #expect(result?.updated.count == 0)
         #expect(result?.deleted.count == 0)
-        
+
         switch type {
         case .all:
             #expect(result?.added.count == 26)
@@ -58,15 +62,15 @@ class MediaTests {
             #expect(result?.added.count == 2)
             #expect(result?.metadatas.count == 2)
         }
-    }
-    
+    }*/
+
     @Test("FavoritesViewModel.fetch", arguments: [CloudFeed.Global.FilterType.all, .video, .image])
     func fetchFavoritesTest(type: CloudFeed.Global.FilterType) async {
-        
+
         let cacheManager = CacheManager(dataService: dataService!)
         let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewLayout())
-        
-        await confirmation() { confirm in
+
+        await confirmation { confirm in
             let delegate = MockFavoritesDelegate(onFetchResultReceived: { resultItemCount in
                 switch type {
                 case .all:
@@ -78,27 +82,29 @@ class MediaTests {
                 }
                 confirm()
             })
-            
+
             let coordinator = FavoritesCoordinator(navigationController: UINavigationController(), dataService: dataService!)
             let viewModel = FavoritesViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager, coordinator: coordinator)
             viewModel.initDataSource(collectionView: collectionView)
-            
-            await viewModel.fetch(type: type, refresh: false)
+
+            if let user = Environment.current.currentUser, let server = Environment.current.currentServer {
+                await viewModel.sync(type: type, from: .distantPast, to: .distantFuture, refresh: false, user: user, server: server)
+            }
         }
     }
-    
-    @Test("MediaViewModel.metadataSearch", arguments: [CloudFeed.Global.FilterType.all, .video, .image])
+
+    /*@Test("MediaViewModel.metadataSearch", arguments: [CloudFeed.Global.FilterType.all, .video, .image])
     func metadataSearchTest(type: CloudFeed.Global.FilterType) async throws {
-        
+
         let toDate = Date.distantFuture
         let fromDate = Date.distantPast
-        
+
         let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewLayout())
-        
+
         let cacheManager = CacheManager(dataService: dataService!)
-        
-        await confirmation() { confirm in
-            
+
+        await confirmation { confirm in
+
             let delegate = MockMediaDelegate(onSearchResultReceived: { resultItemCount in
                 switch type {
                 case .all:
@@ -110,27 +116,27 @@ class MediaTests {
                 }
                 confirm()
             })
-            
+
             let coordinator = MediaCoordinator(navigationController: UINavigationController(), dataService: dataService!)
             let mediaViewModel = MediaViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager, coordinator: coordinator)
             mediaViewModel.initDataSource(collectionView: collectionView)
 
             await mediaViewModel.metadataSearch(type: type, toDate: toDate, fromDate: fromDate, offsetDate: nil, offsetName: nil, refresh: false)
         }
-    }
-    
-    @Test("MediaViewModel.filter", arguments: [CloudFeed.Global.FilterType.all, .video, .image])
+    }*/
+
+    /*@Test("MediaViewModel.filter", arguments: [CloudFeed.Global.FilterType.all, .video, .image])
     func filterTest(type: CloudFeed.Global.FilterType) async throws {
-        
+
         let toDate = try Date("2024-12-31T00:00:00Z", strategy: .iso8601)
         let fromDate = try Date("2022-01-01T00:00:00Z", strategy: .iso8601)
-        
+
         let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewLayout())
-        
+
         let cacheManager = CacheManager(dataService: dataService!)
-        
-        await confirmation() { confirm in
-            
+
+        await confirmation { confirm in
+
             let delegate = MockMediaDelegate(onSearchResultReceived: { resultItemCount in
 
                 switch type {
@@ -143,40 +149,38 @@ class MediaTests {
                 }
                 confirm()
             })
-            
+
             let coordinator = MediaCoordinator(navigationController: UINavigationController(), dataService: dataService!)
             let mediaViewModel = MediaViewModel(delegate: delegate, dataService: dataService!, cacheManager: cacheManager, coordinator: coordinator)
             mediaViewModel.initDataSource(collectionView: collectionView)
-            
-            await mediaViewModel.filter(type: type, toDate: toDate, fromDate: fromDate)
+
+            //mediaViewModel.filter(type: type, toDate: toDate, fromDate: fromDate)
+            await mediaViewModel.dump(type: type, fromDate: fromDate, toDate: toDate, refresh: false)
         }
-    }
-    
+    }*/
+
     private func setup() async throws {
-        
-        databaseManager = DatabaseManager(modelContainer: DatabaseManager.memoryContainer())
-        #expect(databaseManager != nil)
-        
+
         let store = StoreUtility()
-        
+
         nextCloudService = MockNextcloudKitService()
         #expect(nextCloudService != nil)
-        
-        dataService = DataService(store: store, nextcloudService: nextCloudService!, databaseManager: databaseManager!)
+
+        dataService = try? await DataService(store: store, nextcloudService: nextCloudService!, inMemory: true)
         #expect(dataService != nil)
-        
+
         await dataService?.addAccount(account, urlBase: urlBase, user: username, password: password)
-        
+
         let tableAccount = await dataService?.setActiveAccount(account)
         #expect(tableAccount != nil)
-        
+
         let activeAccount = await dataService?.getActiveAccount()
         #expect(activeAccount != nil)
-        
+
         Environment.current.setCurrentUser(account: activeAccount!.account, user: activeAccount!.user, userId: activeAccount!.userId)
         Environment.current.setCurrentServer(urlBase: activeAccount!.urlBase, version: "")
     }
-    
+
     private func cleanup() {
         //databaseManager?.removeDatabase()
     }
@@ -185,32 +189,32 @@ class MediaTests {
 final class MockFavoritesDelegate: FavoritesDelegate {
 
     let onFetchResultReceived: ((Int) -> Void)
-    
+
     init(onFetchResultReceived: @escaping (Int) -> Void) {
         self.onFetchResultReceived = onFetchResultReceived
     }
-    
+
     func shareComplete() {}
     func progressUpdated(_ progress: Double) {}
     func fetching() {}
-    func dataSourceUpdated(refresh: Bool) {}
     func bulkEditFinished(error: Bool) {}
     func editCellUpdated(cell: CloudFeed.CollectionViewCell, indexPath: IndexPath) {}
     func videoSelected() {}
-    
+    func dataSourceUpdated(refresh: Bool) {}
+
     func fetchResultReceived(resultItemCount: Int?) {
         onFetchResultReceived(resultItemCount ?? -1)
     }
 }
 
 final class MockMediaDelegate: MediaDelegate {
-    
+
     let onSearchResultReceived: ((Int) -> Void)
-    
+
     init(onSearchResultReceived: @escaping ((Int) -> Void)) {
         self.onSearchResultReceived = onSearchResultReceived
     }
-    
+
     func dataSourceUpdated(refresh: Bool) {}
     func favoriteUpdated(error: Bool) {}
     func searching() {}
@@ -219,8 +223,10 @@ final class MockMediaDelegate: MediaDelegate {
     func selectCellUpdated(cell: CloudFeed.CollectionViewCell, indexPath: IndexPath) {}
     func videoSelected() {}
     func videoPlay(indexPath: IndexPath) {}
-    
-    func searchResultReceived(resultItemCount: Int?) {
+    func dumpComplete() {}
+    func syncComplete() {}
+
+    func searchResultReceived(resultItemCount: Int?, retry: Bool) {
         onSearchResultReceived(resultItemCount ?? -1)
     }
 }

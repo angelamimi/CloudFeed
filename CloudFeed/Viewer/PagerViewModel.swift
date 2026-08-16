@@ -34,14 +34,14 @@ final class PagerViewModel: NSObject {
     private weak var pagerCoordinator: PagerCoordinator?
     private let coordinator: ViewerCoordinator
     let dataService: DataService
-    
+
     private var currentIndex: Int
     private var metadatas: [Metadata]
-    
+
     internal var nextIndex: Int?
     weak var delegate: PagerViewModelDelegate?
     weak var viewerDelegate: ViewerDelegate?
-    
+
     init(coordinator: ViewerCoordinator, pagerCoordinator: PagerCoordinator, dataService: DataService, delegate: PagerViewModelDelegate, viewerDelegate: ViewerDelegate, currentIndex: Int = 0, metadatas: [Metadata]) {
         self.coordinator = coordinator
         self.currentIndex = currentIndex
@@ -51,22 +51,21 @@ final class PagerViewModel: NSObject {
         self.delegate = delegate
         self.dataService = dataService
     }
-    
+
     func currentMetadata() -> Metadata {
         return metadatas[currentIndex]
     }
-    
-    func initViewer() -> ViewerController {
+
+    func initViewer() -> ViewerController? {
         let metadata = currentMetadata()
-        let viewerMedia = initViewer(index: currentIndex, metadata: metadata)
-        return viewerMedia
+        return initViewer(index: currentIndex, metadata: metadata)
     }
-    
+
     func toggleFavorite(isFavorite: Bool) {
-        
+
         let currentIndex = self.currentIndex
         let metadata = metadatas[currentIndex]
-        
+
         Task { [weak self] in
 
             if let result = await self?.dataService.toggleFavoriteMetadata(metadata) {
@@ -77,7 +76,7 @@ final class PagerViewModel: NSObject {
             }
         }
     }
-    
+
     func showComments(_ metadata: Metadata) {
         pagerCoordinator?.showComments(metadata: metadata)
     }
@@ -85,24 +84,25 @@ final class PagerViewModel: NSObject {
     func fileExists(_ metadata: Metadata) -> Bool {
         return dataService.store.fileExists(metadata)
     }
-    
+
     func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
         return await dataService.getMetadataLivePhoto(metadata: metadata)
     }
-    
+
     func downloadLivePhotoVideo(metadata: Metadata) async {
-        await dataService.download(metadata: metadata, progressHandler: { _, _ in })
+        guard let account = Environment.current.currentUser?.account else { return }
+        await dataService.download(account: account, metadata: metadata, progressHandler: { _, _ in })
     }
-    
+
     func getFilePath(_ metadata: Metadata) -> String? {
         guard dataService.store.fileExists(metadata) else { return nil }
         return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
     }
-    
+
     func share(metadatas: [Metadata]) {
         pagerCoordinator?.share(metadatas)
     }
-    
+
     func downloadImage(metadata: Metadata) {
         if !dataService.store.fileExists(metadata) {
             pagerCoordinator?.download(metadata)
@@ -111,29 +111,29 @@ final class PagerViewModel: NSObject {
 }
 
 extension PagerViewModel {
-    
-    private func initViewer(index: Int, metadata: Metadata) -> ViewerController {
-        
-        let controller = coordinator.getViewerController(for: index, metadata: metadata)
+
+    private func initViewer(index: Int, metadata: Metadata) -> ViewerController? {
+
+        guard let controller = coordinator.getViewerController(for: index, metadata: metadata) else { return nil }
 
         controller.delegate = viewerDelegate
-        
+
         if metadata.image && dataService.store.fileExists(metadata) {
             controller.path = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
         }
-        
+
         return controller
     }
 }
 
 extension PagerViewModel: UIPageViewControllerDataSource {
-    
+
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         if currentIndex == 0 { return nil }
         let viewerMedia = initViewer(index: currentIndex - 1, metadata: metadatas[currentIndex - 1])
         return viewerMedia
     }
-    
+
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard currentIndex < metadatas.count - 1 else { return nil }
         let viewerMedia = initViewer(index: currentIndex + 1, metadata: metadatas[currentIndex + 1])
@@ -147,11 +147,11 @@ extension PagerViewModel: UIPageViewControllerDelegate {
         guard let nextViewController = pendingViewControllers.first as? ViewerController else { return }
         nextIndex = nextViewController.index
     }
-    
+
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         if completed && nextIndex != nil {
             currentIndex = nextIndex!
-            
+
             if currentIndex >= 0 && currentIndex < metadatas.count {
                 delegate?.finishedPaging(metadata: metadatas[currentIndex])
             }

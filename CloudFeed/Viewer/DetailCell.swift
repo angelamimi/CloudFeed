@@ -22,14 +22,10 @@
 import UIKit
 
 class DetailCell: UITableViewCell {
-    
-    @IBOutlet weak var titleLabel : UILabel?
-    @IBOutlet weak var detailLabel : UILabel?
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-    }
-    
+    @IBOutlet weak var titleLabel: UILabel?
+    @IBOutlet weak var detailLabel: UILabel?
+
     override func prepareForReuse() {
         titleLabel?.text = ""
         detailLabel?.text = ""

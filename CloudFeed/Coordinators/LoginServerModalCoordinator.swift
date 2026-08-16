@@ -26,28 +26,29 @@ protocol UserDelegate: AnyObject {
     func currentUserChanged()
 }
 
-final class LoginServerModalCoordinator : LoginCoordinator {
-    
+final class LoginServerModalCoordinator: LoginCoordinator {
+
     var delegate: UserDelegate?
-    
+
     override func start() {
-        
+
         let loginNavigationController = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController() as? UINavigationController
         let loginServerController = loginNavigationController?.viewControllers[0] as? LoginServerController
-        
+
         loginServerController?.viewModel = LoginServerViewModel(dataService: dataService, coordinator: self)
 
         loginNavigationController?.modalPresentationStyle = .fullScreen
-        
+
         navigationController.present(loginNavigationController!, animated: true)
     }
-    
+
     override func navigateToWebLogin(token: String, endpoint: String, login: String, url: String) {
-        let loginNavigationController = navigationController.presentedViewController as! UINavigationController
-        let coordinator = LoginWebCoordinator(delegate: self, navigationController: loginNavigationController, dataService: dataService, token: token, endpoint: endpoint, login: login, url: url)
-        coordinator.start()
+        if let loginNavigationController = navigationController.presentedViewController as? UINavigationController {
+            let coordinator = LoginWebCoordinator(delegate: self, navigationController: loginNavigationController, dataService: dataService, token: token, endpoint: endpoint, login: login, url: url)
+            coordinator.start()
+        }
     }
-    
+
     func handleLoginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
         delegate?.currentUserChanged()
         navigationController.dismiss(animated: true)
@@ -55,11 +56,11 @@ final class LoginServerModalCoordinator : LoginCoordinator {
 }
 
 extension LoginServerModalCoordinator: LoginDelegate {
-    
+
     func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
         handleLoginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
     }
-    
+
     func loginError() {
         showInitFailedPrompt()
     }

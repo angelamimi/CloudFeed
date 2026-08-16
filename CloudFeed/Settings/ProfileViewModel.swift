@@ -43,7 +43,7 @@ class ProfileViewModel {
     weak var accountDelegate: AccountDelegate!
     let coordinator: SettingsCoordinator
     let resetDelegate: ResetApplicationDelegate
-    
+
     init(delegate: ProfileDelegate, accountDelegate: AccountDelegate, resetDelegate: ResetApplicationDelegate, dataService: DataService, coordinator: SettingsCoordinator) {
         self.delegate = delegate
         self.accountDelegate = accountDelegate
@@ -51,49 +51,49 @@ class ProfileViewModel {
         self.dataService = dataService
         self.coordinator = coordinator
     }
-    
+
     func requestProfile() async {
-        
+
         guard let account = await dataService.getActiveAccount() else { return }
-        
+
         if let currentUser = Environment.current.currentUser {
-            
+
             let profileResult = await dataService.getUserProfile(account: currentUser.account)
-            
+
             await self.downloadAvatar(account: account, user: currentUser.user)
             let image = await loadAvatar(account: account)
-            
-            let profile = Profile.init(name: profileResult?.name, email: profileResult?.email, image: image, mediaPath: account.mediaPath, quotaUsed: profileResult?.quotaUsed, quotaTotal: profileResult?.quotaTotal)
-            
+
+            let profile = Profile(name: profileResult?.name, email: profileResult?.email, image: image, mediaPath: account.mediaPath, quotaUsed: profileResult?.quotaUsed, quotaTotal: profileResult?.quotaTotal)
+
             delegate?.profileResultReceived(profile: profile)
-            
+
         } else {
-            delegate.profileResultReceived(profile: Profile.init(name: "", email: "", quotaUsed: nil, quotaTotal: nil))
+            delegate.profileResultReceived(profile: Profile(name: "", email: "", quotaUsed: nil, quotaTotal: nil))
         }
     }
-    
+
     func downloadAvatar(account: Account, user: String) async {
-        
+
         let userBaseUrl = buildUserBaseUrl(account)
         let fileName = userBaseUrl + "-" + user + ".png"
-        
+
         await dataService.downloadAvatar(fileName: fileName, account: account, screenScale: UIScreen.main.scale)
     }
-    
+
     private func buildUserBaseUrl(_ account: Account) -> String {
         return account.user + "-" + (URL(string: account.urlBase)?.host ?? "")
     }
-    
+
     func loadAvatar(account: Account) async -> UIImage? {
 
         let userBaseUrl = buildUserBaseUrl(account)
         let image = loadUserImage(for: account.userId, userBaseUrl: userBaseUrl)
-        
+
         return image
     }
-    
+
     private func loadUserImage(for user: String, userBaseUrl: String) -> UIImage? {
-        
+
         let fileName = userBaseUrl + "-" + user + ".png"
         let localFilePath = dataService.store.getUserDirectory() + "/" + fileName
 
@@ -103,85 +103,85 @@ class ProfileViewModel {
             return nil
         }
     }
-    
+
     func showPicker() {
         coordinator.showPicker()
     }
-    
+
     func checkRemoveAccount() {
         coordinator.checkRemoveAccount { [weak self] in
             self?.removeAccount()
         }
     }
-    
+
     func lockCheck() {
         if let account = Environment.current.currentUser?.account,
            (dataService.store.getPasscode(account)) != nil {
             coordinator.showPasscode(modal: true)
         }
     }
-    
+
     func removeAccount() {
-        
+
         delegate?.beginSwitchingAccounts()
-        
+
         Task { [weak self] in
             await self?.removeCurrentAccount()
             await self?.activateNextAccount()
         }
     }
-    
+
     func changeAccount(account: String) {
-        
+
         Task { [weak self] in
-            
+
             guard let tableAccount = await self?.dataService.setActiveAccount(account) else {
                 self?.accountDelegate.userChangeError()
                 return
             }
-            
+
             Environment.current.setCurrentUser(account: account, user: tableAccount.user, userId: tableAccount.userId)
-            
+
             if let currentUser = Environment.current.currentUser {
-                
+
                 await self?.dataService.appendSession(account: currentUser.account, user: currentUser.user, userId: currentUser.userId, urlBase: tableAccount.urlBase)
                 await self?.dataService.updateAccount(account: currentUser.account)
-                
+
                 let version = await self?.dataService.getServerVersion(account: currentUser.account)
                 Environment.current.setCurrentServer(urlBase: tableAccount.urlBase, version: version ?? "")
-                
+
                 self?.dataService.clearWidgetData()
                 self?.accountDelegate.userChanged()
             }
         }
     }
-    
+
     func showProfileLoadfailedError() {
         coordinator.showProfileLoadfailedError()
     }
-    
+
     func applicationReset() {
-        
+
         Task { [weak self] in
 
             await self?.dataService.reset()
-            
+
             Environment.current.clear()
-            
+
             self?.resetDelegate.reset()
         }
     }
-    
+
     private func removeCurrentAccount() async {
         if let account = Environment.current.currentUser?.account {
             await dataService.removeAccount(account)
         }
     }
-    
+
     private func activateNextAccount() async {
-        
+
         let accounts = await dataService.getAccountsOrdered()
-        
+
         if accounts.isEmpty {
             Environment.current.clear()
             delegate.noAccountsFound()

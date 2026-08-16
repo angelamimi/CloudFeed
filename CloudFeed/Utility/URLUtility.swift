@@ -22,14 +22,14 @@
 import UIKit
 
 final class URLUtility: NSObject {
-    
+
     static func processActionURL(url: URL) -> (action: String, ocId: String, account: String)? {
-        
+
         let action = url.host()
-        var ocId: String? = nil
-        var etag: String? = nil
-        var account: String? = nil
-        
+        var ocId: String?
+        var etag: String?
+        var account: String?
+
         URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.forEach {
             ///cloudfeed://viewFavorite?ocid=&etag=&account=
             if $0.name == "ocid" && $0.value != nil {
@@ -40,14 +40,14 @@ final class URLUtility: NSObject {
                 account = $0.value!
             }
         }
-        
+
         if action != nil && ocId != nil && etag != nil && account != nil {
             if action == Global.WidgetAction.viewFavorite.rawValue
                 || action == Global.WidgetAction.viewImage.rawValue {
                 return (action: action!, ocId: ocId!, account: account!)
             }
         }
-        
+
         return nil
     }
 }

@@ -21,59 +21,60 @@
 
 import UIKit
 
-final class LoginWebCoordinator : Coordinator {
-    
+final class LoginWebCoordinator: Coordinator {
+
     private let delegate: LoginDelegate
     private weak var navigationController: UINavigationController!
     private let dataService: DataService
-    
+
     private let token: String
     private let endpoint: String
     private let login: String
     private let url: String
-    
+
     init(delegate: LoginDelegate, navigationController: UINavigationController, dataService: DataService, token: String, endpoint: String, login: String, url: String) {
-        
+
         self.delegate = delegate
         self.navigationController = navigationController
         self.dataService = dataService
-        
+
         self.token = token
         self.endpoint = endpoint
         self.login = login
         self.url = url
     }
-    
+
     func start() {
-        
-        let loginController = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(identifier: "LoginWebController") as! LoginWebController
-        
-        loginController.token = token
-        loginController.endpoint = endpoint
-        loginController.login = login
-        loginController.url = url
-        loginController.viewModel = LoginViewModel(delegate: self, dataService: dataService, coordinator: self)
-        
-        navigationController.pushViewController(loginController, animated: true)
+
+        if let loginController = UIStoryboard(name: "Login", bundle: nil).instantiateViewController(identifier: "LoginWebController") as? LoginWebController {
+
+            loginController.token = token
+            loginController.endpoint = endpoint
+            loginController.login = login
+            loginController.url = url
+            loginController.viewModel = LoginViewModel(delegate: self, dataService: dataService, coordinator: self)
+
+            navigationController.pushViewController(loginController, animated: true)
+        }
     }
 }
 
 extension LoginWebCoordinator: LoginDelegate {
-    
+
     func loginSuccess(account: String, urlBase: String, user: String, userId: String, password: String) {
         dataService.clearWidgetData()
         delegate.loginSuccess(account: account, urlBase: urlBase, user: user, userId: userId, password: password)
     }
-    
+
     func loginError() {
         delegate.loginError()
     }
 }
 
 extension LoginWebCoordinator {
-    
+
     func showInvalidURLPrompt() {
-        
+
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.UrlErrorMessage, preferredStyle: .alert)
 
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { [weak self] _ in
@@ -82,7 +83,7 @@ extension LoginWebCoordinator {
 
         navigationController.present(alertController, animated: true)
     }
-    
+
     func showFailedLoginPrompt() {
 
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.LoginFailed, preferredStyle: .alert)

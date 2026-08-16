@@ -28,17 +28,17 @@ protocol PickerCoordinatorDelegate: AnyObject {
 
 @MainActor
 final class PickerCoordinator {
-    
+
     private let navigationController: UINavigationController
     private let dataService: DataService
-    
+
     weak var delegate: PickerCoordinatorDelegate?
-    
+
     init(navigationController: UINavigationController, dataService: DataService) {
         self.navigationController = navigationController
         self.dataService = dataService
     }
-    
+
     func start(_ serverUrl: String? = nil) {
         let pickerNavigationController = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(identifier: "PickerNavController") as UINavigationController
         if let picker = pickerNavigationController.viewControllers[0] as? PickerController {
@@ -47,7 +47,7 @@ final class PickerCoordinator {
             navigationController.present(pickerNavigationController, animated: true)
         }
     }
-    
+
     func open(_ serverUrl: String, _ metadata: Metadata) {
         let picker = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(identifier: "PickerController") as PickerController
         picker.viewModel = PickerViewModel(coordinator: self, dataService: dataService)
@@ -59,11 +59,11 @@ final class PickerCoordinator {
 }
 
 extension PickerCoordinator: PickerDelegate {
-    
+
     func cancel() {
         navigationController.dismiss(animated: true)
     }
-    
+
     func select() {
         navigationController.dismiss(animated: true, completion: { [weak self] in
             self?.delegate?.mediaPathChanged()

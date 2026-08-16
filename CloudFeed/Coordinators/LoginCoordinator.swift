@@ -22,58 +22,58 @@
 import UIKit
 
 class LoginCoordinator: Coordinator {
-    
+
     let navigationController: UINavigationController
     let dataService: DataService
-    
+
     init(navigationController: UINavigationController, dataService: DataService) {
         self.navigationController = navigationController
         self.dataService = dataService
     }
-    
+
     func start() {
-        
+
     }
-    
+
     func navigateToWebLogin(token: String, endpoint: String, login: String, url: String) {
 
     }
-    
+
     func showInvalidURLPrompt() {
         let navController = getNavigationController()
         showErrorPrompt(message: Strings.UrlErrorMessage, navigationController: navController)
     }
-    
+
     func showUnsupportedVersionErrorPrompt() {
         let navController = getNavigationController()
         showErrorPrompt(message: Strings.LoginUnsupportedVersionErrorMessage, navigationController: navController)
     }
-    
+
     func showServerConnectionErrorPrompt() {
         let navController = getNavigationController()
         showErrorPrompt(message: Strings.LoginServerConnectionErrorMessage, navigationController: navController)
     }
-    
+
     func showUntrustedWarningPrompt(host: String) {
 
         let navController = getNavigationController()
         let alertController = UIAlertController(title: Strings.LoginUntrustedServer, message: Strings.LoginUntrustedServerContinue, preferredStyle: .alert)
-        
+
         alertController.addAction(UIAlertAction(title: Strings.YesAction, style: .default, handler: { [weak self] _ in
             self?.dataService.writeCertificate(host: host)
         }))
-        
+
         alertController.addAction(UIAlertAction(title: Strings.NoAction, style: .default, handler: { _ in }))
-                            
+
         alertController.addAction(UIAlertAction(title: Strings.LoginViewCertificate, style: .default, handler: { [weak self] _ in
             self?.showCertificate(host: host, certificateDirectory: self?.dataService.store.certificatesDirectory, navigationController: navController, delegate: self)
         }))
-        
+
         navController.present(alertController, animated: true)
     }
-    
+
     func showInitFailedPrompt() {
-        
+
         let navController = getNavigationController()
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.InitErrorMessage, preferredStyle: .alert)
 
@@ -83,14 +83,14 @@ class LoginCoordinator: Coordinator {
 
         navController.present(alertController, animated: true)
     }
-    
+
     private func showCertificateDisplayError() {
         let navController = getNavigationController()
         navController.presentedViewController?.dismiss(animated: true, completion: { [weak self] in
             self?.showErrorPrompt(message: Strings.LoginViewCertificateError, navigationController: navController)
         })
     }
-    
+
     private func getNavigationController() -> UINavigationController {
         if let navController = navigationController.presentedViewController as? UINavigationController {
             return navController
@@ -101,7 +101,7 @@ class LoginCoordinator: Coordinator {
 }
 
 extension LoginCoordinator: CertificateDelegate {
-    
+
     nonisolated func certificateDisplayError() {
         DispatchQueue.main.async { [weak self] in
             self?.showCertificateDisplayError()

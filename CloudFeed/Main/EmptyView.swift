@@ -23,47 +23,47 @@ import os.log
 import UIKit
 
 class EmptyView: UIView {
-    
-    internal var view : UIView!
-    
-    @IBOutlet weak var titleLabel : UILabel!
-    @IBOutlet weak var descriptionLabel : UILabel!
-    @IBOutlet weak var emptyImage : UIImageView!
-    
+
+    internal var view: UIView!
+
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var descriptionLabel: UILabel!
+    @IBOutlet weak var emptyImage: UIImageView!
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: EmptyView.self)
     )
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         initView()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         initView()
     }
-    
+
     func display(image: UIImage?, title: String, description: String) {
         emptyImage.image = image
         titleLabel.text = title
         descriptionLabel.text = description
     }
-    
+
     func hide(animate: Bool = true) {
         setVisibility(isHidden: true, animate: animate)
     }
-    
+
     func show() {
         setVisibility(isHidden: false, animate: true)
     }
-    
+
     func updateText(title: String, description: String) {
         titleLabel.text = title
         descriptionLabel.text = description
     }
-    
+
     private func setVisibility(isHidden: Bool, animate: Bool) {
         if animate {
             if isHidden == false {
@@ -79,23 +79,23 @@ class EmptyView: UIView {
             alpha = isHidden ? 0 : 1
         }
     }
-    
+
     private func initView() {
-        
+
         view = loadViewFromNib()
-        
+
         view.frame = bounds
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         alpha = 0
-        
+
         addSubview(view)
     }
-    
+
     private func loadViewFromNib() -> UIView {
         let bundle = Bundle(for: type(of: self))
         let nib = UINib(nibName: "EmptyView", bundle: bundle)
-        let view = nib.instantiate(withOwner: self, options: nil).first as! UIView
- 
-        return view
+        let view = nib.instantiate(withOwner: self, options: nil).first as? UIView
+
+        return view ?? UIView()
     }
 }

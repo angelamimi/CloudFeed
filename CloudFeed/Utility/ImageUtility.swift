@@ -23,66 +23,66 @@ import AVFoundation
 import SVGKit
 import UIKit
 
-final class ImageUtility: NSObject {
-    
-    static func saveImageAtPaths(data: Data, previewPath: String, iconPath: String) {
-        
-        autoreleasepool {
-            guard let image = UIImage(data: data) else { return }
-            saveImageAtPaths(image: image, previewPath: previewPath, iconPath: iconPath)
-        }
+nonisolated final class ImageUtility: NSObject {
+
+    static func saveImageAtPaths(data: Data, previewPath: String, iconPath: String) async {
+        guard let image = UIImage(data: data) else { return }
+        await saveImageAtPaths(image: image, previewPath: previewPath, iconPath: iconPath)
     }
-    
-    static func saveImageAtPaths(image: UIImage, previewPath: String, iconPath: String) {
-            
-        if let previewImage = image.preparingThumbnail(of: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)),
+
+    static func saveImageAtPaths(image: UIImage, previewPath: String, iconPath: String) async {
+
+        let previewSize = CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)
+        let iconSize = CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon)
+
+        if let previewImage = await image.byPreparingThumbnail(ofSize: previewSize), //image.preparingThumbnail(of: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)),
            let data = previewImage.jpegData(compressionQuality: 1.0) {
             do {
                 try data.write(to: URL(fileURLWithPath: previewPath))
             } catch {
-                
+
             }
         }
-        
-        if let iconImage = image.preparingThumbnail(of: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon)),
+
+        if let iconImage = await image.byPreparingThumbnail(ofSize: iconSize), //image.preparingThumbnail(of: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon)),
            let data = iconImage.jpegData(compressionQuality: 0.7) {
             do {
                 try data.write(to: URL(fileURLWithPath: iconPath))
             } catch {
-                
+
             }
         }
     }
-    
+
     @discardableResult
     static func loadSVG(metadata: Metadata, imagePath: String, iconPath: String, previewPath: String) async -> UIImage? {
-        
+
         guard metadata.svg else { return nil }
         guard let svgImage = SVGKImage(contentsOfFile: imagePath) else { return nil }
-        
+
         if let image = svgImage.uiImage {
-            
+
             let icon = await image.byPreparingThumbnail(ofSize: .init(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon))
             let preview = await image.byPreparingThumbnail(ofSize: .init(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
-            
+
             if !FileManager().fileExists(atPath: iconPath) {
                 try? icon?.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: iconPath))
             }
-            
+
             if !FileManager().fileExists(atPath: previewPath) {
                 try? preview?.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
             }
-            
+
             return image
         }
-        
+
         return nil
     }
-    
+
     static func loadGIF(metadata: Metadata, imagePath: String) async -> UIImage? {
-        
+
         guard metadata.gif else { return nil }
-        
+
         return autoreleasepool { () -> UIImage? in
             let gif: UIImage?
             if let fileData = FileManager().contents(atPath: imagePath) {
@@ -90,55 +90,55 @@ final class ImageUtility: NSObject {
             } else {
                 gif = UIImage(contentsOfFile: imagePath)
             }
-            
+
             return gif
         }
     }
-    
+
     private static func buildGIFImage(with data: Data, repeatCount: Int = 0) -> UIImage? {
-        
+
         guard let imageSource = CGImageSourceCreateWithData(data as CFData, nil) else {
             return nil
         }
-        
+
         let frameCount = CGImageSourceGetCount(imageSource)
         var frames: [UIImage] = []
-        
+
         for i in 0..<frameCount {
             if let cgImage = CGImageSourceCreateImageAtIndex(imageSource, i, nil) {
                 frames.append(UIImage(cgImage: cgImage))
             }
         }
-        
+
         let totalDuration = (0..<frameCount).reduce(0.0) { duration, index in
             guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, index, nil) as? [String: Any],
                   let gifProperties = properties[kCGImagePropertyGIFDictionary as String] as? [String: Any],
                   let frameDuration = gifProperties[kCGImagePropertyGIFDelayTime as String] as? NSNumber else {
                 return duration
             }
-            
+
             let durationValue = frameDuration.doubleValue
             return duration + (durationValue < 0.1 ? 0.1 : durationValue)
         }
-        
+
         if frames.isEmpty {
             return nil
         } else {
             return UIImage.animatedImage(with: frames, duration: totalDuration > 0 ? totalDuration : 0.1)
         }
     }
-    
+
     static func imageFromVideo(url: URL, size: CGSize) async -> UIImage? {
-        
+
         let asset = AVURLAsset(url: url)
         let generator = AVAssetImageGenerator(asset: asset)
         let time = CMTimeMake(value: 2, timescale: 1)
-        
+
         generator.appliesPreferredTrackTransform = true
         generator.maximumSize = size
 
         let cgImage = try? await generator.image(at: time).image
-        
+
         if cgImage == nil {
             return nil
         } else {
@@ -147,35 +147,35 @@ final class ImageUtility: NSObject {
             }
         }
     }
-    
+
     static func ratioWithinThreshold(_ size: CGSize) -> Bool {
-        
+
         let width = Double(size.width)
         let height = Double(size.height)
-        
+
         guard width > 0 && height > 0 else { return true }
-        
+
         let ratio = width < height ? width / height : height / width
-        
+
         if ratio <= 0.30 {
             return false
         } else {
             return true
         }
     }
-    
+
     static func getImageForSize(_ path: String, size: CGSize, scale: CGFloat) async -> UIImage? {
-        
+
         let image: UIImage?
         let preview = UIImage(contentsOfFile: path)
         let scaledSize = CGSize(width: size.width * scale, height: size.height * scale)
-        
+
         if preview?.size.width ?? 0 > scaledSize.width || preview?.size.height ?? 0 > scaledSize.height {
             image = await preview?.byPreparingThumbnail(ofSize: scaledSize)
         } else {
             image = preview
         }
-        
+
         return image
     }
 }

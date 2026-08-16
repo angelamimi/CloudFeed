@@ -23,30 +23,29 @@ import UIKit
 import os.log
 
 final class DownloadManager {
-    
+
     private weak var dataService: DataService!
     private let queue: OperationQueue
-        
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DownloadManager.self))
-    
+
     init(dataService: DataService) {
         self.dataService = dataService
-        
+
         queue = OperationQueue()
         queue.name = "downloadManagerQueue"
         queue.maxConcurrentOperationCount = 5
         queue.qualityOfService = .background
     }
-    
+
     func cancelAll() {
         queue.cancelAllOperations()
     }
-    
-    func download(metadata: Metadata, delegate: DownloadOperationDelegate) {
-        let operation = DownloadOperation(metadata, dataService: dataService, delegate: delegate)
+
+    func download(account: String, metadata: Metadata, delegate: DownloadOperationDelegate) {
+        let operation = DownloadOperation(account, metadata, dataService: dataService, delegate: delegate)
         queue.addOperation(operation)
     }
 }
-

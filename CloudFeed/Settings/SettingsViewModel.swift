@@ -29,36 +29,36 @@ protocol SettingsDelegate: AccountDelegate {
 
 @MainActor
 final class SettingsViewModel: ProfileViewModel {
-    
+
     weak var settingsDelegate: SettingsDelegate!
 
     init(delegate: SettingsDelegate, profileDelegate: ProfileDelegate, resetDelegate: ResetApplicationDelegate, dataService: DataService, coordinator: SettingsCoordinator) {
         settingsDelegate = delegate
         super.init(delegate: profileDelegate, accountDelegate: delegate, resetDelegate: resetDelegate, dataService: dataService, coordinator: coordinator)
     }
-    
+
     func getAccounts() async -> [Account] {
         return await dataService.getAccountsOrdered()
     }
-    
+
     func getAccount() async -> Account? {
         return await dataService.getActiveAccount()
     }
-    
+
     func userAccountChanged() {
         coordinator.clearUser()
     }
 
     func clearCache(notify: Bool, update: Bool) {
-        
+
         Task { [weak self] in
-            
+
             if let account = Environment.current.currentUser?.account {
                 await self?.dataService.clearDatabase(account: account, removeAccount: false)
             }
-            
+
             await self?.dataService.store.clearCache()
-            
+
             if notify {
                 if update {
                     await self?.updateServer()
@@ -68,19 +68,19 @@ final class SettingsViewModel: ProfileViewModel {
             }
         }
     }
-    
+
     func reset() {
 
         Task { [weak self] in
-            
+
             await self?.dataService.reset()
-            
+
             Environment.current.clear()
-            
+
             self?.resetDelegate.reset()
         }
     }
-    
+
     func hasPasscode() -> Bool {
         if let account = Environment.current.currentUser?.account,
            let passcode = dataService.store.getPasscode(account) {
@@ -88,48 +88,48 @@ final class SettingsViewModel: ProfileViewModel {
         }
         return false
     }
-    
+
     func calculateCacheSize() {
 
         let dir = dataService.store.cacheDirectory
-        
+
         Task { [weak self] in
             if let totalSize = await self?.dataService.store.getDirectorySize(directory: dir) {
                 self?.settingsDelegate.cacheCalculated(cacheSize: totalSize)
             }
         }
     }
-    
+
     func showAcknowledgements() {
         coordinator.showAcknowledgements()
     }
-    
+
     func checkReset() {
         coordinator.checkReset { [weak self] in
             self?.reset()
         }
     }
-    
+
     func addAccount() {
         coordinator.launchAddAccount()
     }
-    
+
     func showProfile() {
         coordinator.showProfile()
     }
-    
+
     func showDisplay() {
         coordinator.showDisplay()
     }
-    
+
     func showPrivacy() {
         coordinator.showPasscode()
     }
-    
+
     func showRemovePasscode() {
         coordinator.showRemovePasscode()
     }
-    
+
     private func updateServer() async {
         if let userAccount = await getAccount(),
            let version = await dataService.getServerVersion(account: userAccount.account) {

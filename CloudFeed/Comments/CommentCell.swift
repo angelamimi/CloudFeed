@@ -28,24 +28,24 @@ protocol CommentCellDelegate: AnyObject {
 }
 
 class CommentCell: UITableViewCell {
-    
+
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var commentLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var menuButton: UIButton!
-    
+
     weak var delegate: CommentCellDelegate?
-    
+
     var commentId: String?
-    
-    override func awakeFromNib() {
+
+    nonisolated override func awakeFromNib() {
         super.awakeFromNib()
-        
+
         MainActor.assumeIsolated { [weak self] in
             self?.initCell()
         }
     }
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
 
@@ -53,22 +53,22 @@ class CommentCell: UITableViewCell {
         delegate = nil
         menuButton.isHidden = true
     }
-    
+
     private func initCell() {
-        
+
         focusEffect = UIFocusHaloEffect()
-        
+
         profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
         profileImageView.layer.masksToBounds = true
-        
+
         let deleteAction = UIAction(title: Strings.CommentsActionDelete, image: UIImage(systemName: "trash"), handler: { [weak self] _ in
             self?.delegate?.deleteComment(commentId: self?.commentId ?? "")
         })
-        
+
         let editAction = UIAction(title: Strings.CommentsActionEdit, image: UIImage(systemName: "pencil"), handler: { [weak self] _ in
             self?.delegate?.editComment(commentId: self?.commentId ?? "", comment: self?.commentLabel.text ?? "")
         })
-        
+
         menuButton.showsMenuAsPrimaryAction = true
         menuButton.menu = UIMenu(children: [editAction, deleteAction])
     }

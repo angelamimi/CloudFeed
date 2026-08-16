@@ -24,52 +24,51 @@ import UIKit
 
 @MainActor
 final class LoginServerViewModel: NSObject {
-    
+
     let dataService: DataService
     let coordinator: LoginCoordinator
-    
+
     init(dataService: DataService, coordinator: LoginCoordinator) {
         self.dataService = dataService
         self.coordinator = coordinator
     }
-    
+
     func showInvalidURLPrompt() {
         coordinator.showInvalidURLPrompt()
     }
-    
+
     func showUnsupportedVersionErrorPrompt() {
         coordinator.showUnsupportedVersionErrorPrompt()
     }
-    
+
     func showUntrustedWarningPrompt(host: String) {
         coordinator.showUntrustedWarningPrompt(host: host)
     }
-    
+
     func showServerConnectionErrorPrompt() {
         coordinator.showServerConnectionErrorPrompt()
     }
-    
+
     func navigateToWebLogin(token: String, endpoint: String, login: String, url: String) {
         coordinator.navigateToWebLogin(token: token, endpoint: endpoint, login: login, url: url)
     }
-    
+
     func beginLoginFlow(url: String) async -> (token: String, endpoint: String, login: String, supported: Bool, errorCode: Int?)? {
-        
+
         let result = await dataService.checkServerStatus(url: url)
-        
+
         if let serverVersion = result.serverVersion {
-            
+
             if serverVersion < Global.shared.minimumServerVersion {
                 return (token: "", endpoint: "", login: "", supported: false, errorCode: nil)
             } else if let loginResult = await dataService.getLoginFlowV2(url: url, serverVersion: serverVersion) {
                 return (token: loginResult.token, endpoint: loginResult.endpoint, login: loginResult.login, supported: true, errorCode: nil)
             }
-            
+
         } else if let errorCode = result.errorCode {
             return (token: "", endpoint: "", login: "", supported: true, errorCode: errorCode)
         }
-        
+
         return nil
     }
 }
-

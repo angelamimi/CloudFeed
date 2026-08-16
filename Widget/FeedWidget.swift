@@ -23,16 +23,16 @@ import WidgetKit
 import SwiftUI
 import SwiftData
 
-struct FeedWidgetEntryView : View {
-    
+struct FeedWidgetEntryView: View {
+
     @Environment(\.widgetFamily) var widgetFamily
-    
+
     var entry: FeedImageProvider.Entry
 
     var body: some View {
-        
+
         ZStack {
-            
+
             if let image = entry.image {
 
                 if entry.showDate {
@@ -40,7 +40,7 @@ struct FeedWidgetEntryView : View {
                         .fill(.clear)
                         .layoutPriority(1)
                 }
-                
+
                 if #available(iOS 18.0, *) {
                     Image(uiImage: image)
                         .resizable()
@@ -53,7 +53,7 @@ struct FeedWidgetEntryView : View {
                         .aspectRatio(contentMode: ImageUtility.ratioWithinThreshold(image.size) ? .fill : .fit)
                         .clipped()
                 }
-                
+
                 if entry.showDate {
                     VStack {
                         Spacer()
@@ -66,11 +66,11 @@ struct FeedWidgetEntryView : View {
                     }
                 }
             } else {
-                
+
                 VStack {
-                    
+
                     if widgetFamily != .systemSmall || entry.message == nil {
-                        
+
                         if let icon = UIImage(named: "Icon") {
                             Image(uiImage: icon)
                                 .resizable()
@@ -81,7 +81,7 @@ struct FeedWidgetEntryView : View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    
+
                     if let message = entry.message {
                         Text(message)
                             .font(.subheadline)
@@ -123,4 +123,3 @@ struct FeedWidget: Widget {
     ImageDataEntry(date: .now, showDate: true, image: nil, title: "test title 2", url: URL(string: Global.shared.widgetScheme + "://")!)
     ImageDataEntry(date: .now, showDate: true, image: nil, title: "test title 3", url: URL(string: Global.shared.widgetScheme + "://")!)
 }
-

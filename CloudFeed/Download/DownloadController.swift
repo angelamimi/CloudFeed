@@ -22,29 +22,29 @@
 import UIKit
 
 class DownloadController: UIViewController {
-    
+
     @IBOutlet weak var progressView: ProgressView!
-    
+
     var viewModel: DownloadViewModel?
     var metadata: Metadata?
-    
+
     override func viewDidLoad() {
-        
+
         progressView.delegate = self
         progressView.setLabelText(downloading: Strings.DownloadMessageDownloading, cancel: Strings.DownloadMessageCancel)
-        
+
         if let downloadMetadata = metadata {
             viewModel?.download(downloadMetadata)
         }
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         view.backgroundColor = UIColor.black.withAlphaComponent(0.2)
     }
 }
 
 extension DownloadController: DownloadDelegate {
-    
+
     func progressUpdated(_ progress: Double) {
         if view.subviews.last is ProgressView {
             let currentProgress = progressView.progressView.progress
@@ -54,10 +54,9 @@ extension DownloadController: DownloadDelegate {
 }
 
 extension DownloadController: ProgressDelegate {
-    
+
     func progressCancelled() {
         viewModel?.cancelDownloads()
         dismiss(animated: true)
     }
 }
-

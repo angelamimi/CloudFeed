@@ -28,44 +28,46 @@ protocol ShareDelegate: AnyObject {
 
 @MainActor
 final class ShareCoordinator: NSObject {
-    
+
     weak var navigationController: UINavigationController!
     weak var delegate: ShareDelegate?
-    
+
     private let metadatas: [Metadata]
     private let dataService: DataService
-    
+
     init(navigationController: UINavigationController, dataService: DataService, delegate: ShareDelegate?, metadatas: [Metadata]) {
         self.navigationController = navigationController
         self.dataService = dataService
         self.delegate = delegate
         self.metadatas = metadatas
     }
-    
+
     func start() {
-        let controller = UIStoryboard(name: "Share", bundle: nil).instantiateViewController(identifier: "ShareController") as! ShareController
-        
-        controller.viewModel = ShareViewModel(dataService: dataService, delegate: controller, coordinator: self)
-        controller.metadatas = metadatas
-        
-        controller.view.accessibilityViewIsModal = true
-        controller.isModalInPresentation = true
-        controller.modalPresentationStyle = .overFullScreen
-        
-        navigationController.present(controller, animated: true)
+
+        if let controller = UIStoryboard(name: "Share", bundle: nil).instantiateViewController(identifier: "ShareController") as? ShareController {
+
+            controller.viewModel = ShareViewModel(dataService: dataService, delegate: controller, coordinator: self)
+            controller.metadatas = metadatas
+
+            controller.view.accessibilityViewIsModal = true
+            controller.isModalInPresentation = true
+            controller.modalPresentationStyle = .overFullScreen
+
+            navigationController.present(controller, animated: true)
+        }
     }
 }
 
 extension ShareCoordinator {
-    
+
     func shareComplete() {
         delegate?.shareComplete()
     }
-    
+
     func share(_ urls: [URL]) {
-        
+
         let activity = UIActivityViewController(activityItems: urls, applicationActivities: nil)
-        
+
         if UIDevice.current.userInterfaceIdiom == .pad {
             if let window = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows }).first(where: { $0.isKeyWindow }),
                let view = window.rootViewController?.view,
@@ -76,7 +78,7 @@ extension ShareCoordinator {
             }
         }
 
-        DispatchQueue.main.async{ [weak self] in
+        DispatchQueue.main.async { [weak self] in
             self?.navigationController.dismiss(animated: false, completion: { [weak self] in
                 self?.navigationController.present(activity, animated: true)
             })

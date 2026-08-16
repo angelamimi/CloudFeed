@@ -25,69 +25,70 @@ import MediaPlayer
 import os.log
 
 class PagerController: UIViewController {
-    
+
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var statusContainerView: UIVisualEffectView!
-    
+
     var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
     var status: Global.ViewerStatus = .title
-    
+
     override var prefersStatusBarHidden: Bool {
         return hideStatusBar
     }
-    
+
     override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
         return .slide
     }
-    
+
     weak var pageViewController: UIPageViewController? {
         return children[0] as? UIPageViewController
     }
-    
+
     weak var currentViewController: ViewerController? {
         return pageViewController?.viewControllers?[0] as? ViewerController
     }
-    
+
     private var hideStatusBar: Bool = false {
         didSet {
             setNeedsStatusBarAppearanceUpdate()
         }
     }
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: PagerController.self)
     )
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         tabBarController?.tabBar.isHidden = true
-        
+
         pageViewController?.delegate = viewModel
         pageViewController?.dataSource = viewModel
-        
+
         initGestureRecognizers()
-        
+
         let metadata = viewModel.currentMetadata()
-        let viewerMedia = viewModel.initViewer()
-        
-        pageViewController?.setViewControllers([viewerMedia], direction: .forward, animated: true, completion: nil)
-        
+
+        if let viewerMedia = viewModel.initViewer() {
+            pageViewController?.setViewControllers([viewerMedia], direction: .forward, animated: true, completion: nil)
+        }
+
         initNavigation(metadata: metadata)
         initStatusView()
         setMenu(isFavorite: metadata.favorite)
-        
+
         initObservers()
-        
+
         setTypeContainerView()
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         if UIDevice.current.userInterfaceIdiom == .pad,
            #available(iOS 18.0, *),
@@ -95,7 +96,7 @@ class PagerController: UIViewController {
             tab.setTabBarHidden(true, animated: !UIAccessibility.isReduceMotionEnabled)
         }
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         if UIDevice.current.userInterfaceIdiom == .pad,
            #available(iOS 18.0, *),
@@ -103,7 +104,7 @@ class PagerController: UIViewController {
             tab.setTabBarHidden(false, animated: !UIAccessibility.isReduceMotionEnabled)
         }
     }
-    
+
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
@@ -120,7 +121,7 @@ class PagerController: UIViewController {
             hideTitle()
         }
     }
-    
+
     override func didMove(toParent parent: UIViewController?) {
         super.didMove(toParent: parent)
 
@@ -130,41 +131,41 @@ class PagerController: UIViewController {
             }
         }
     }
-    
+
     func isTitleVisible() -> Bool {
         return !(navigationController?.isNavigationBarHidden ?? true)
     }
-    
+
     func reload() {
-        
+
         if let metadata = currentViewController?.metadata {
             setMenu(isFavorite: metadata.favorite)
         }
-        
+
         if isPad() && status == .details && presentedViewController == nil {
             presentDetailPopover()
         }
-        
+
         currentViewController?.viewWillAppear(false)
     }
-    
+
     private func initObservers() {
-        
-        registerForTraitChanges([UITraitHorizontalSizeClass.self, UITraitVerticalSizeClass.self]) { (self: Self, previousTraitCollection: UITraitCollection) in
+
+        registerForTraitChanges([UITraitHorizontalSizeClass.self, UITraitVerticalSizeClass.self]) { (self: Self, _) in
             self.onTraitChange()
         }
-        
+
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
             DispatchQueue.main.async { [weak self] in
                 self?.willEnterForegroundNotification()
             }
         }
     }
-    
+
     private func initNavigation(metadata: Metadata) {
-        
+
         navigationController?.navigationBar.tintColor = .label
-        
+
         if #unavailable(iOS 26) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithTransparentBackground()
@@ -173,7 +174,7 @@ class PagerController: UIViewController {
             navigationItem.scrollEdgeAppearance = appearance
             navigationController?.navigationBar.preservesSuperviewLayoutMargins = true
             navigationController?.navigationBar.prefersLargeTitles = true
-            
+
             navigationItem.title = getFileName(metadata)
             navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
         } else {
@@ -181,38 +182,38 @@ class PagerController: UIViewController {
             initButtonTitle(metadata: metadata)
         }
     }
-    
+
     private func initButtonTitle(metadata: Metadata) {
-        
+
         if #available(iOS 26, *) {
-            
-            let button = UIButton.init(type: .custom)
+
+            let button = UIButton(type: .custom)
             button.configuration = .glass()
-            
+
             var container = AttributeContainer()
             container.font = UIFont.boldSystemFont(ofSize: 20)
 
             button.configuration?.attributedTitle = AttributedString(metadata.date.formatted(date: .abbreviated, time: .omitted), attributes: container)
-            
+
             var subtitleContainer = AttributeContainer()
             subtitleContainer.font = UIFont.systemFont(ofSize: 16)
 
             button.configuration?.attributedSubtitle = AttributedString(metadata.date.formatted(date: .omitted, time: .shortened), attributes: subtitleContainer)
             button.configuration?.titleLineBreakMode = .byTruncatingTail
             button.configuration?.titleAlignment = .center
-            
+
             button.configuration?.baseForegroundColor = .label
             button.addTarget(self, action: #selector(titleButtonTapped), for: .touchUpInside)
-            
+
             navigationItem.titleView = button
         }
     }
-    
+
     private func initStatusView() {
-        
+
         statusContainerView.isHidden = true
         statusContainerView.alpha = 0
-        
+
         if #available(iOS 26, *) {
             statusContainerView.effect = UIGlassEffect(style: .regular)
             statusContainerView.cornerConfiguration = .capsule()
@@ -220,40 +221,40 @@ class PagerController: UIViewController {
             statusContainerView.layer.cornerRadius = 14
             statusContainerView.layer.masksToBounds = true
         }
-        
+
         statusLabel.text = Strings.LiveTitle
         statusLabel.accessibilityLabel = Strings.ViewerLabelLivePhoto
     }
-    
+
     private func initGestureRecognizers() {
-        
+
         if let pageView = pageViewController?.view {
-            
+
             let longPress = UILongPressGestureRecognizer()
             longPress.delaysTouchesBegan = true
             longPress.minimumPressDuration = 0.3
             longPress.delegate = self
             longPress.addTarget(self, action: #selector(handleLongPress(gestureRecognizer:)))
-            
+
             pageView.addGestureRecognizer(longPress)
         }
-        
+
         let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
         swipeUpRecognizer.direction = .up
-        
+
         let swipeDownRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
         swipeDownRecognizer.direction = .down
-        
+
         view.addGestureRecognizer(swipeUpRecognizer)
         view.addGestureRecognizer(swipeDownRecognizer)
     }
-    
+
     private func willEnterForegroundNotification() {
         if isViewLoaded && view.window != nil {
             currentViewController?.willEnterForeground()
         }
     }
-    
+
     private func onTraitChange() {
         currentViewController?.handleTraitChange()
     }
@@ -262,109 +263,102 @@ class PagerController: UIViewController {
 
         guard let currentMetadata = currentViewController?.metadata else { return }
         var action: UIAction
-        
-        if (isFavorite) {
-            action = UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.slash")) { [weak self] action in
+
+        if isFavorite {
+            action = UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.slash")) { [weak self] _ in
                 self?.toggleFavoriteNetwork(isFavorite: false)
             }
         } else {
-            action = UIAction(title: Strings.FavAdd, image: UIImage(systemName: "star")) { [weak self] action in
+            action = UIAction(title: Strings.FavAdd, image: UIImage(systemName: "star")) { [weak self] _ in
                 self?.toggleFavoriteNetwork(isFavorite: true)
             }
         }
-        
-        let commentsAction = UIAction(title: Strings.CommentsAction, image: UIImage(systemName: "text.bubble")) { [weak self] action in
+
+        let commentsAction = UIAction(title: Strings.CommentsAction, image: UIImage(systemName: "text.bubble")) { [weak self] _ in
             self?.showComments(currentMetadata)
         }
 
         let shareAction = UIAction(title: Strings.ShareAction, image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
             self?.share([currentMetadata])
         }
-        
+
         let menu: UIMenu
-        
-        if currentMetadata.video || currentMetadata.svg || currentMetadata.gif || viewModel.fileExists(currentMetadata) {
-            menu = UIMenu(children: [action, shareAction, commentsAction])
-        } else {
-            let fullAction = UIAction(title: Strings.DownloadAction, image: UIImage(systemName: "photo")) { [weak self] _ in
-                self?.downloadImage(currentMetadata)
-            }
-            menu = UIMenu(children: [action, shareAction, fullAction, commentsAction])
-        }
-        
-        let menuButton = UIBarButtonItem.init(title: nil, image: UIImage(systemName: "ellipsis"), target: self, action: nil, menu: menu)
+
+        menu = UIMenu(children: [action, shareAction, commentsAction])
+
+        let menuButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "ellipsis"), target: self, action: nil, menu: menu)
         menuButton.tintColor = .label
-        
+
         if #available(iOS 26, *) {
             DispatchQueue.main.async { [weak self] in
                 self?.navigationItem.rightBarButtonItems = [menuButton]
             }
         } else {
-            let detailsButton = UIBarButtonItem.init(title: nil, image: UIImage(systemName: "info.circle"), target: self, action: #selector(showInfo))
-            
+            let detailsButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "info.circle"), target: self, action: #selector(showInfo))
+
             detailsButton.tintColor = .label
-            
+
             DispatchQueue.main.async { [weak self] in
                 self?.navigationItem.leftBarButtonItems = []
                 self?.navigationItem.rightBarButtonItems = [menuButton, detailsButton]
             }
         }
     }
-    
+
     private func downloadImage(_ metadata: Metadata) {
         viewModel.downloadImage(metadata: metadata)
     }
-    
+
     private func toggleFavoriteNetwork(isFavorite: Bool) {
         viewModel.toggleFavorite(isFavorite: isFavorite)
     }
-    
+
     private func share(_ metadatas: [Metadata]) {
         viewModel.share(metadatas: metadatas)
     }
-    
+
     private func showComments(_ metadata: Metadata) {
         viewModel.showComments(metadata)
     }
-    
+
     private func getVideoURL(metadata: Metadata) -> URL? {
-        
+
         if viewModel.dataService.store.fileExists(metadata) {
             return URL(fileURLWithPath: viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!)
         }
         return nil
     }
-    
+
     private func playLiveVideoFromMetadata(controller: ViewerController, metadata: Metadata) {
-        
+
         DispatchQueue.main.async { [weak self] in
-            
+
             if let url = self?.getVideoURL(metadata: metadata) {
                 controller.playLivePhoto(url)
             }
         }
     }
-    
+
     private func showTitle() {
         hideStatusBar = false
         navigationController?.setNavigationBarHidden(false, animated: false)
         navigationController?.navigationBar.sizeToFit() //ensure large title is visible
         setTypeContainerView()
     }
-    
+
     private func hideTitle() {
         hideStatusBar = true
         navigationController?.setNavigationBarHidden(true, animated: false)
         hideType()
     }
-    
+
     private func showType() {
         statusContainerView?.isHidden = false
         UIView.animate(withDuration: 0.2, animations: { [weak self] in
             self?.statusContainerView?.alpha = 1
         })
     }
-    
+
     private func hideType() {
         UIView.animate(withDuration: 0.2, animations: { [weak self] in
             self?.statusContainerView?.alpha = 0
@@ -372,7 +366,7 @@ class PagerController: UIViewController {
             self?.statusContainerView?.isHidden = true
         })
     }
-    
+
     private func setTypeContainerView() {
         if let metadata = currentViewController?.metadata, metadata.livePhoto == true, status == .title {
             showType()
@@ -380,11 +374,11 @@ class PagerController: UIViewController {
             hideType()
         }
     }
-    
+
     private func getFileName(_ metadata: Metadata) -> String {
         return (metadata.fileNameView as NSString).deletingPathExtension
     }
-    
+
     private func isPad() -> Bool {
         if UIDevice.current.userInterfaceIdiom == .pad {
             let isCompact = traitCollection.horizontalSizeClass == .compact
@@ -392,28 +386,28 @@ class PagerController: UIViewController {
         }
         return false
     }
-    
+
     private func presentDetailPopover() {
-        
+
         guard presentedViewController == nil else { return }
         guard let current = currentViewController else { return }
         guard let metadata = current.metadata else { return }
 
-        let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as! DetailsController
-        
+        guard let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailsController") as? DetailsController else { return }
+
         var url: URL?
-        
+
         if metadata.video || (metadata.image && viewModel.fileExists(metadata)) {
             url = current.getUrl()
         }
-        
+
         controller.delegate = self
         controller.url = url
         controller.metadata = metadata
         controller.modalPresentationStyle = .popover
         controller.modalTransitionStyle = .crossDissolve
         controller.preferredContentSize = CGSize(width: 400, height: 200)
-        
+
         if let popover = controller.popoverPresentationController {
 
             popover.delegate = self
@@ -430,36 +424,34 @@ class PagerController: UIViewController {
 
         present(controller, animated: true)
     }
-    
+
     @objc private func titleButtonTapped() {
         showInfo()
-        currentViewController?.showDownloadButton()
     }
-    
+
     @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
-        
+
         if swipeGesture.direction == .up {
-            
+
             if currentViewController?.handleSwipeUp() ?? false {
-                
+
                 updateStatus(status: .details)
                 hideType()
 
                 if isPad() && presentedViewController == nil {
                     presentDetailPopover()
-                    currentViewController?.showDownloadButton()
                 }
             }
-            
+
         } else {
-            
+
             if isPad() {
-                
+
                 let previousStatus = status
-                
+
                 updateStatus(status: .title)
                 presentedViewController?.dismiss(animated: true)
-                
+
                 if previousStatus != .fullscreen && previousStatus != .title {
                     currentViewController?.handlePadSwipeDown()
                 }
@@ -471,61 +463,62 @@ class PagerController: UIViewController {
                     view.backgroundColor = .systemBackground
                 }
             }
-            
+
             setTypeContainerView()
         }
     }
-    
+
     private func switchToAllDetails(metadata: Metadata) {
-        
+
         guard presentedViewController != nil else { return }
-        
+
         presentedViewController?.dismiss(animated: true, completion: {
             DispatchQueue.main.async { [weak self] in
                 self?.presentAllDetailsPopover(metadata: metadata)
             }
         })
     }
-    
-    private func presentAllDetailsPopover(metadata: Metadata) {
-        
-        let controller = initDetailController(metadata: metadata)
-        
-        controller.modalPresentationStyle = .popover
-        controller.preferredContentSize = CGSize(width: view.frame.width / 2.5, height: view.frame.height / 2.5)
-        
-        if let popover = controller.popoverPresentationController {
 
-            popover.delegate = self
-            popover.sourceView = view
-            popover.sourceRect = CGRect(x: view.frame.width, y: 0, width: 1, height: 1)
-            popover.permittedArrowDirections = []
-            
-            let sheet = popover.adaptiveSheetPresentationController
-            sheet.largestUndimmedDetentIdentifier = .medium
-            sheet.detents = [.medium()]
-        }
-        
-        if presentedViewController == nil {
-            present(controller, animated: true)
+    private func presentAllDetailsPopover(metadata: Metadata) {
+
+        if let controller = initDetailController(metadata: metadata) {
+
+            controller.modalPresentationStyle = .popover
+            controller.preferredContentSize = CGSize(width: view.frame.width / 2.5, height: view.frame.height / 2.5)
+
+            if let popover = controller.popoverPresentationController {
+
+                popover.delegate = self
+                popover.sourceView = view
+                popover.sourceRect = CGRect(x: view.frame.width, y: 0, width: 1, height: 1)
+                popover.permittedArrowDirections = []
+
+                let sheet = popover.adaptiveSheetPresentationController
+                sheet.largestUndimmedDetentIdentifier = .medium
+                sheet.detents = [.medium()]
+            }
+
+            if presentedViewController == nil {
+                present(controller, animated: true)
+            }
         }
     }
-    
-    private func initDetailController(metadata: Metadata) -> DetailController {
-        
-        let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailController") as! DetailController
+
+    private func initDetailController(metadata: Metadata) -> DetailController? {
+
+        let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailController") as? DetailController
         let filePath = viewModel.getFilePath(metadata)
         let viewModel = DetailViewModel()
-        
+
         viewModel.delegate = controller
         viewModel.filePath = filePath
         viewModel.metadata = metadata
-        
-        controller.viewModel = viewModel
-        
+
+        controller?.viewModel = viewModel
+
         return controller
     }
-    
+
     private func setShowTitleMode() {
         hideStatusBar = false
         status = .title
@@ -533,34 +526,33 @@ class PagerController: UIViewController {
         setTypeContainerView()
         setBackground()
     }
-    
+
     private func setBackground() {
-        view.backgroundColor =  currentViewController?.isZoomed() == true ? .black : .systemBackground
+        view.backgroundColor = currentViewController?.isZoomed() == true ? .black : .systemBackground
     }
-    
+
     @objc private func showInfo() {
-        
+
         hideType()
         hideStatusBar = true
-        
+
         if isPad() {
             currentViewController?.center = nil
             if presentedViewController == nil {
                 presentDetailPopover()
             }
-            currentViewController?.showDownloadButton()
         }
-        
+
         currentViewController?.showDetails(animate: true, reset: true, recenter: true)
     }
 }
 
 extension PagerController: DetailsControllerDelegate {
-    
+
     func showAllMetadataDetails(metadata: Metadata) {
         switchToAllDetails(metadata: metadata)
     }
-    
+
     func dismissingDetails() {
         currentViewController?.handlePresentationControllerDidDismiss()
         setBackground()
@@ -568,11 +560,11 @@ extension PagerController: DetailsControllerDelegate {
 }
 
 extension PagerController: UIPopoverPresentationControllerDelegate {
-    
+
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         currentViewController?.handlePresentationControllerDidDismiss()
     }
-    
+
     func popoverPresentationController(_ popoverPresentationController: UIPopoverPresentationController, willRepositionPopoverTo rect: UnsafeMutablePointer<CGRect>, in view: AutoreleasingUnsafeMutablePointer<UIView>) {
         let oldRect = rect.pointee
         let newOrigin = CGPoint(x: view.pointee.bounds.maxX - (oldRect.width / 2), y: 16)
@@ -581,7 +573,7 @@ extension PagerController: UIPopoverPresentationControllerDelegate {
 }
 
 extension PagerController: ViewerDelegate {
-    
+
     func mediaLoaded(metadata: Metadata, url: URL?) {
         if isPad() {
             if let details = presentedViewController as? DetailsController {
@@ -591,15 +583,15 @@ extension PagerController: ViewerDelegate {
             }
         }
     }
-    
+
     func videoError() {
         coordinator.showVideoError()
     }
 
     func updateStatus(status: Global.ViewerStatus) {
-        
+
         self.status = status
-        
+
         if status == .title {
             showTitle()
             view.backgroundColor = .systemBackground
@@ -608,9 +600,9 @@ extension PagerController: ViewerDelegate {
             view.backgroundColor = .black
         }
     }
-    
+
     func singleTapped() {
-        
+
         if status == .details {
             setShowTitleMode()
         } else if status == .fullscreen {
@@ -625,7 +617,7 @@ extension PagerController: ViewerDelegate {
             view.backgroundColor = .black
         }
     }
-    
+
     func doubleTapped() {
         setBackground()
     }
@@ -634,11 +626,11 @@ extension PagerController: ViewerDelegate {
 extension PagerController: PagerViewModelDelegate {
 
     func finishedPaging(metadata: Metadata) {
-        
+
         DispatchQueue.main.async { [weak self] in
-            
+
             self?.setTypeContainerView()
-            
+
             if #unavailable(iOS 26) {
                 self?.navigationItem.title = self?.getFileName(metadata)
                 self?.navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
@@ -647,9 +639,9 @@ extension PagerController: PagerViewModelDelegate {
                 self?.initButtonTitle(metadata: metadata)
             }
         }
-        
+
         setMenu(isFavorite: metadata.favorite)
-        
+
         if let detail = presentedViewController as? DetailsController,
            let presentedId = detail.metadata?.id,
            let currentId = currentViewController?.metadata.id {
@@ -662,15 +654,13 @@ extension PagerController: PagerViewModelDelegate {
                     detail.populateDetails(metadata: metadata)
                 }
             }
-            
-            currentViewController?.showDownloadButton()
         }
     }
-    
+
     func finishedUpdatingFavorite(isFavorite: Bool) {
         setMenu(isFavorite: isFavorite)
     }
-    
+
     func saveFavoriteError() {
         DispatchQueue.main.async { [weak self] in
             self?.coordinator.showFavoriteUpdateFailedError()
@@ -679,24 +669,24 @@ extension PagerController: PagerViewModelDelegate {
 }
 
 extension PagerController: UIGestureRecognizerDelegate {
-    
+
     @objc private func handleLongPress(gestureRecognizer: UITapGestureRecognizer) {
 
         guard status != .details else { return }
         guard let currentViewController = currentViewController else { return }
-        
+
         if !currentViewController.metadata.livePhoto { return }
-        
+
         if gestureRecognizer.state == .began {
-            
+
             hideType()
-            
+
             currentViewController.updateViewConstraints()
-            
+
             Task { [weak self] in
-                
+
                 if let videoMetadata = await self?.viewModel.getMetadataLivePhoto(metadata: currentViewController.metadata) {
-                    
+
                     if self?.viewModel.dataService.store.fileExists(videoMetadata) == true {
                         self?.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
                     } else {

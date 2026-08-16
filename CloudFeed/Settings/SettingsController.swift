@@ -23,7 +23,7 @@ import os.log
 import UIKit
 
 class SettingsController: UIViewController {
-    
+
     var viewModel: SettingsViewModel!
 
     @IBOutlet weak var tableView: UITableView!
@@ -32,69 +32,69 @@ class SettingsController: UIViewController {
     private var profileName: String = ""
     private var profileEmail: String = ""
     private var profileImage: UIImage?
-    
+
     private var cacheSizeDescription: String = ""
-    
+
     private var serverUsingSize: Int64?
     private var serverTotalSize: Int64?
     private var serverName: String?
     private var serverVersion: String?
-    
+
     var mode: Global.SettingsMode = .all
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: SettingsController.self)
     )
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         tableView.delegate = self
         tableView.dataSource = self
-        
+
         tableView.rowHeight = UITableView.automaticDimension
-        
+
         initTitle()
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+
         tableView.reloadData()
-        
+
         requestData()
         calculateCacheSize()
     }
-    
+
     func setCompactNavigation() {
         mode = .all
         navigationItem.hidesBackButton = true
         navigationItem.title = Strings.SettingsNavTitle
-        
+
         initNavigationItem()
     }
 
     func clear(notify: Bool, reload: Bool) {
-        
+
         profileName = ""
         profileEmail = ""
         profileImage = nil
         tableView?.reloadData()
-        
+
         if reload {
             requestData()
         }
-        
+
         viewModel.clearCache(notify: notify, update: false)
     }
-    
+
     func updateMode(_ mode: Global.SettingsMode) {
-        
+
         self.mode = mode
-        
+
         var title = ""
-        
+
         switch mode {
         case .account: title = Strings.ProfileNavTitleView
         case .data: title = Strings.SettingsSectionData
@@ -104,14 +104,14 @@ class SettingsController: UIViewController {
         default:
             title = ""
         }
-        
+
         navigationItem.title = title
-        
+
         initNavigationItem()
-        
+
         tableView.reloadData()
     }
-    
+
     private func initNavigationItem() {
         if (mode == .account || mode == .all) && navigationItem.rightBarButtonItem == nil {
             let item = UIBarButtonItem(image: .init(systemName: "ellipsis.circle"), menu: buildAccountsMenu())
@@ -121,11 +121,11 @@ class SettingsController: UIViewController {
             navigationItem.rightBarButtonItem = nil
         }
     }
-    
+
     private func initTitle() {
-        
+
         navigationItem.title = Strings.SettingsNavTitle
-        
+
         if #unavailable(iOS 26) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithTransparentBackground()
@@ -134,100 +134,128 @@ class SettingsController: UIViewController {
             navigationController?.navigationBar.compactAppearance = appearance
             navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
         }
-        
+
         if mode == .all {
             navigationController?.navigationBar.prefersLargeTitles = true
         }
-        
+
         navigationController?.navigationBar.preservesSuperviewLayoutMargins = true
-        
+
         let item = UIBarButtonItem(image: .init(systemName: "ellipsis.circle"), menu: buildAccountsMenu())
         item.tintColor = .label
         navigationItem.setRightBarButton(item, animated: true)
     }
-    
+
+    private func showActivityIndicator() {
+
+        var indicator: UIActivityIndicatorView?
+
+        if navigationItem.rightBarButtonItems?.count == 1 {
+            let activityIndicatorView = UIActivityIndicatorView(style: .medium)
+            activityIndicatorView.hidesWhenStopped = true
+            activityIndicatorView.startAnimating()
+
+            let spinner = UIBarButtonItem(customView: activityIndicatorView)
+            navigationItem.rightBarButtonItems?.append(spinner)
+        }
+
+        if navigationItem.rightBarButtonItems?.count == 2 {
+            indicator = navigationItem.rightBarButtonItems?[1].customView as? UIActivityIndicatorView
+        }
+
+        indicator?.isHidden = false
+        indicator?.startAnimating()
+    }
+
+    private func hideActivityIndicator() {
+        if navigationItem.rightBarButtonItems?.count == 2 {
+            navigationItem.rightBarButtonItems?.removeLast()
+        }
+    }
+
     private func startActivityIndicator() {
         activityIndicator.startAnimating()
         view.isUserInteractionEnabled = false
     }
-    
+
     private func stopActivityIndicator() {
         activityIndicator.stopAnimating()
         view.isUserInteractionEnabled = true
     }
-    
+
     private func requestData() {
-        
+
         if Environment.current.currentUser == nil {
             viewModel.addAccount()
         } else {
             setServerInfo()
-            startActivityIndicator()
-            
+            //startActivityIndicator()
+            showActivityIndicator()
+
             Task { [weak self] in
                 await self?.viewModel.requestProfile()
             }
         }
     }
-    
+
     private func setServerInfo() {
         if let server = Environment.current.currentServer {
             serverName = URL(string: server.urlBase)?.host
             serverVersion = server.version
         }
     }
-    
+
     private func acknowledgements() {
         viewModel.showAcknowledgements()
     }
-    
+
     private func checkReset() {
         viewModel.checkReset()
     }
-    
+
     private func calculateCacheSize() {
         viewModel.calculateCacheSize()
     }
-    
+
     private func showProfileLoadfailedError() {
         viewModel.showProfileLoadfailedError()
     }
-    
+
     private func buildAccountsMenu() -> UIMenu {
-        
-        let accountActions = UIDeferredMenuElement.uncached ({ [weak self] completion in
+
+        let accountActions = UIDeferredMenuElement.uncached({ [weak self] completion in
             Task { [weak self] in
                 let items = await self?.buildAccountMenuItems()
                 completion(items == nil ? [] : items!)
             }
         })
-        
+
         var addAccountItems: [UIMenuElement] = []
 
-        let addAccountAction = UIAction(title: Strings.SettingsMenuAddAccount, image: UIImage(systemName: "person.crop.circle.badge.plus"), state: .off) { [weak self] action in
+        let addAccountAction = UIAction(title: Strings.SettingsMenuAddAccount, image: UIImage(systemName: "person.crop.circle.badge.plus"), state: .off) { [weak self] _ in
             self?.addAccount()
         }
-        
+
         addAccountItems.append(addAccountAction)
-        
+
         let addAccountSubmenu = UIMenu(title: "", options: [.displayInline], children: addAccountItems)
 
         return UIMenu(children: [accountActions] + [addAccountSubmenu])
     }
-    
+
     private func buildAccountMenuItems() async -> [UIAction] {
-        
+
         let accounts = await viewModel.getAccounts()
         var accountActions: [UIAction] = []
-        
+
         for account in accounts {
-            
+
             await viewModel.downloadAvatar(account: account, user: account.user)
-            
+
             let image = await roundAvatar(account: account)
             let name = account.displayName
             let host = URL(string: account.urlBase)?.host ?? ""
-            
+
             let action = UIAction(title: name, subtitle: host, image: image, state: account.active ? .on : .off) { [weak self] _ in
                 if !account.active {
                     self?.changeAccount(account: account.account)
@@ -236,12 +264,12 @@ class SettingsController: UIViewController {
 
             accountActions.append(action)
         }
-        
+
         return accountActions
     }
-    
+
     private func roundAvatar(account: Account) async -> UIImage? {
-        
+
         if var image = await viewModel.loadAvatar(account: account) {
 
             let rect = CGRect(x: 0, y: 0, width: 30, height: 30)
@@ -250,57 +278,50 @@ class SettingsController: UIViewController {
             image.draw(in: rect)
             image = UIGraphicsGetImageFromCurrentImageContext() ?? image
             UIGraphicsEndImageContext()
-             
+
             return image
         }
-        
+
         return nil
     }
-    
+
     private func addAccount() {
         viewModel.addAccount()
     }
-    
+
     private func changeAccount(account: String) {
         viewModel.changeAccount(account: account)
     }
-    
+
     func handleProfileLoaded(profile: Profile?) {
-        
+
         self.profileName = profile?.name ?? ""
         self.profileEmail = profile?.email ?? ""
         self.profileImage = profile?.image
         self.serverTotalSize = profile?.quotaTotal
         self.serverUsingSize = profile?.quotaUsed
-        
+
         DispatchQueue.main.async { [weak self] in
-            
+
             guard self?.tableView.window != nil else { return }
-            guard let table = self?.tableView else { return }
-            
-            var paths: [IndexPath] = [IndexPath(item: 0, section: 0)]
-            
-            if table.numberOfSections > 3 && table.numberOfRows(inSection: 3) > 2 {
-                paths.append(IndexPath(item: 2, section: 3))
-            }
-            
-            self?.tableView.reloadRows(at: paths, with: .automatic)
-            
-            self?.stopActivityIndicator()
-            
-            if self?.profileName == "" && self?.profileEmail == "" {
+
+            self?.tableView.reloadData()
+
+            self?.hideActivityIndicator()
+
+            if self?.profileName.isEmpty == true && self?.profileEmail.isEmpty == true {
                 self?.showProfileLoadfailedError()
             }
         }
     }
 }
 
-extension SettingsController : UITableViewDelegate, UITableViewDataSource {
-    
+extension SettingsController: UITableViewDelegate, UITableViewDataSource {
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+
         tableView.deselectRow(at: indexPath, animated: true)
-        
+
         switch mode {
         case .account:
             if indexPath.section == 0 && indexPath.item == 0 {
@@ -338,16 +359,17 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             } else if indexPath.section == 3 && indexPath.item == 0 {
                 acknowledgements()
             } else if indexPath.section == 4 && indexPath.item == 0 {
-                startActivityIndicator()
+                //startActivityIndicator()
+                showActivityIndicator()
                 viewModel.clearCache(notify: true, update: true)
             } else if indexPath.section == 4 && indexPath.item == 1 {
                 checkReset()
             }
         }
     }
-    
+
     func numberOfSections(in tableView: UITableView) -> Int {
-        
+
         switch mode {
         case .account:
             return 1
@@ -363,7 +385,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             return 5
         }
     }
-    
+
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if mode == .all {
             if section == 1 {
@@ -378,15 +400,15 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         }
         return ""
     }
-    
+
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if mode == .all {
             return UITableView.automaticDimension
         } else {
-            return 8 
+            return 8
         }
     }
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch mode {
         case .account:
@@ -400,7 +422,7 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 return 1
             }
         case .information:
-            return 3
+            return serverUsingSize == nil ? 2 : 3
         case .data:
             return 2
         case .all:
@@ -413,19 +435,20 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                     return 1
                 }
             } else if section == 3 {
-                return 3
+                return serverUsingSize == nil ? 2 : 3
             } else if section == 4 {
                 return 2
             }
         }
         return 0
     }
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
         switch mode {
         case .account:
             return configureProfileCell(indexPath)
@@ -474,55 +497,55 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         }
         return UITableViewCell()
     }
-    
+
     private func buildSettingsCellContent(indexPath: IndexPath) -> (cell: UITableViewCell, content: UIListContentConfiguration) {
-        
+
         let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsCell", for: indexPath)
 
         var content = cell.defaultContentConfiguration()
-        
+
         content.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
         content.textProperties.lineBreakMode = .byWordWrapping
-        
+
         content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: 0)
 
         return (cell, content)
     }
-    
+
     private func configureProfileCell(_ indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileCell", for: indexPath) as! ProfileCell
-        
+
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileCell", for: indexPath) as? ProfileCell else { return UITableViewCell() }
+
         cell.updateProfileImage(profileImage)
         cell.updateProfile(profileEmail, fullName: profileName)
-        
+
         cell.accessoryType = .disclosureIndicator
-        
+
         if mode != .all {
             cell.backgroundColor = .secondarySystemGroupedBackground
         }
-        
+
         return cell
     }
-    
+
     private func configureAppearanceCell(_ indexPath: IndexPath) -> UITableViewCell {
-        
+
         var result = buildSettingsCellContent(indexPath: indexPath)
-        
+
         result.content.image = UIImage(systemName: "sun.max")
         result.content.text = Strings.SettingsItemAppearance
         result.cell.tintColor = .label
         result.cell.accessoryType = .disclosureIndicator
-        
+
         result.cell.contentConfiguration = result.content
-        
+
         return result.cell
     }
-    
+
     private func configurePasscodeCell(_ indexPath: IndexPath) -> UITableViewCell {
-        
+
         var result = buildSettingsCellContent(indexPath: indexPath)
-        
+
         if viewModel.hasPasscode() {
             result.content.image = UIImage(systemName: "lock")
             result.content.text = Strings.SettingsItemSettingsPasscode
@@ -530,53 +553,53 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             result.content.image = UIImage(systemName: "lock.open")
             result.content.text = Strings.SettingsItemAddPasscode
         }
-        
+
         result.cell.tintColor = .label
         result.cell.accessoryType = .disclosureIndicator
 
         result.cell.contentConfiguration = result.content
-        
+
         return result.cell
     }
-    
+
     private func configureRemovePasscodeCell(_ indexPath: IndexPath) -> UITableViewCell {
-        
+
         var result = buildSettingsCellContent(indexPath: indexPath)
-        
+
         result.content.image = UIImage(systemName: "lock.slash")
         result.content.text = Strings.SettingsItemDeletePasscode
-        
+
         result.cell.tintColor = .red
         result.cell.accessoryType = .disclosureIndicator
 
         result.cell.contentConfiguration = result.content
-        
+
         return result.cell
     }
-    
+
     private func configureAcknowledgementsCell(_ indexPath: IndexPath) -> UITableViewCell {
-        
+
         var result = buildSettingsCellContent(indexPath: indexPath)
-        
+
         result.content.image = UIImage(systemName: "person.wave.2")
         result.content.text = Strings.SettingsItemAcknowledgements
         result.cell.tintColor = .label
         result.cell.accessoryType = .disclosureIndicator
 
         result.cell.contentConfiguration = result.content
-        
+
         return result.cell
     }
-    
+
     private func configureVersionCell(_ indexPath: IndexPath) -> UITableViewCell {
-        
+
         var result = buildSettingsCellContent(indexPath: indexPath)
-        
+
         result.content.image = UIImage(systemName: "info.circle")
         result.cell.accessoryType = .none
         result.cell.tintColor = .label
         result.cell.selectionStyle = .none
-        
+
         if let dictionary = Bundle.main.infoDictionary,
             let version = dictionary["CFBundleShortVersionString"] as? String,
             let build = dictionary["CFBundleVersion"] as? String {
@@ -584,45 +607,45 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
         } else {
             result.content.text = "\(Strings.SettingsLabelVersion) (\(Strings.SettingsLabelVersionUnknown)))"
         }
-        
+
         result.cell.contentConfiguration = result.content
-        
+
         return result.cell
     }
-    
+
     private func configureServerCell(_ indexPath: IndexPath) -> UITableViewCell {
-        
+
         var result = buildSettingsCellContent(indexPath: indexPath)
-        
+
         result.content.image = UIImage(systemName: "cloud")
         result.content.textProperties.lineBreakMode = .byWordWrapping
-        
+
         if let quota = buildQuotaString() {
             result.content.text = quota
         }
-        
+
         if let serverNameVersion = getServerNameVersion() {
             result.content.secondaryText = serverNameVersion
         }
-        
+
         result.content.secondaryTextProperties.lineBreakMode = .byCharWrapping
         result.cell.tintColor = .label
         result.cell.accessoryType = .none
         result.cell.selectionStyle = .none
-        
+
         result.cell.contentConfiguration = result.content
-        
+
         return result.cell
     }
-    
+
     private func buildQuotaString() -> String? {
-        
+
         let format = Strings.SettingsLabelQuota
-        
+
         let hasQuotaUsed = serverUsingSize != nil
         var hasQuotaTotal = false
         var totalDescription = ""
-        
+
         if let totalSize = serverTotalSize {
             if totalSize == -1 {
                 totalDescription = 0.description
@@ -634,42 +657,42 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
                 hasQuotaTotal = true
             }
         }
-        
+
         if hasQuotaUsed && hasQuotaTotal {
-            
+
             let using = self.serverUsingSize!
             let total = self.serverTotalSize!
-            
+
             let formatter: ByteCountFormatter = ByteCountFormatter()
             formatter.countStyle = .binary
-                    
+
             let formattedUsing = formatter.string(fromByteCount: using)
             let formattedTotal = formatter.string(fromByteCount: total)
-            
-            let formatted = String.init(format: format, formattedUsing, formattedTotal)
+
+            let formatted = String(format: format, formattedUsing, formattedTotal)
             return formatted
-            
+
         } else if hasQuotaUsed {
-            
+
             let using = self.serverUsingSize!
             let formatter: ByteCountFormatter = ByteCountFormatter()
-            
+
             formatter.countStyle = .binary
-                    
+
             let formattedUsing = formatter.string(fromByteCount: using)
-            
-            let formatted = String.init(format: format, formattedUsing, totalDescription)
+
+            let formatted = String(format: format, formattedUsing, totalDescription)
             return formatted
         }
-        
+
         return nil
     }
-    
+
     private func getServerNameVersion() -> String? {
-        
+
         let hasServerName = serverName?.isEmpty == false
         let hasServerVersion = serverVersion?.isEmpty == false
-        
+
         if hasServerName && hasServerVersion {
             return "\(self.serverName ?? "") \(Strings.SettingsLabelServerVersion)\(self.serverVersion ?? "")"
         } else if hasServerName {
@@ -680,80 +703,81 @@ extension SettingsController : UITableViewDelegate, UITableViewDataSource {
             return nil
         }
     }
-    
+
     private func configureCacheCell(_ indexPath: IndexPath) -> UITableViewCell {
-        
+
         var result = buildSettingsCellContent(indexPath: indexPath)
-        
+
         result.content.image = UIImage(systemName: "trash")
         result.content.text = Strings.SettingsItemClearCache
         result.content.secondaryText = "\(Strings.SettingsLabelCacheSize): \(cacheSizeDescription)"
         result.cell.tintColor = .label
         result.cell.accessoryType = .none
-        
+
         result.cell.contentConfiguration = result.content
-        
+
         return result.cell
     }
-    
+
     private func configureResetCell(_ indexPath: IndexPath) -> UITableViewCell {
-        
+
         var result = buildSettingsCellContent(indexPath: indexPath)
-        
+
         result.content.image = UIImage(systemName: "xmark.octagon")
         result.content.text = Strings.SettingsItemResetApplication
         result.cell.tintColor = .red
         result.cell.accessoryType = .none
-        
+
         result.cell.contentConfiguration = result.content
-        
+
         return result.cell
     }
 }
 
 extension SettingsController: ProfileDelegate {
-    
+
     func beginSwitchingAccounts() {}
     func noAccountsFound() {}
-    
+
     func profileResultReceived(profile: Profile?) {
         handleProfileLoaded(profile: profile)
     }
 }
 
 extension SettingsController: SettingsDelegate {
-    
+
     func userChangeError() {
         DispatchQueue.main.async { [weak self] in
-            self?.stopActivityIndicator()
+            //self?.stopActivityIndicator()
+            self?.hideActivityIndicator()
             self?.viewModel.showProfileLoadfailedError()
         }
     }
-    
+
     func userChanged() {
         DispatchQueue.main.async { [weak self] in
-            self?.stopActivityIndicator()
+            self?.hideActivityIndicator()
             self?.clear(notify: true, reload: true)
             self?.viewModel.userAccountChanged()
             self?.viewModel?.lockCheck()
         }
     }
-    
+
     func cacheCleared() {
-        
+
         setServerInfo()
-        
+
         calculateCacheSize()
-        
+
         DispatchQueue.main.async { [weak self] in
-            self?.stopActivityIndicator()
+            self?.hideActivityIndicator()
         }
     }
-    
+
     func cacheCalculated(cacheSize: Int64) {
 
         cacheSizeDescription = ByteCountFormatter.string(fromByteCount: cacheSize, countStyle: .file)
-        
+
         DispatchQueue.main.async { [weak self] in
             if self?.tableView.window != nil {
                 self?.tableView.reloadData()
@@ -761,4 +785,3 @@ extension SettingsController: SettingsDelegate {
         }
     }
 }
-

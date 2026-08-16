@@ -29,7 +29,7 @@ final class AvatarModel {
     var date = Date()
     var etag = ""
     var fileName = ""
-    
+
     init(date: Date = Date(), etag: String = "", fileName: String = "") {
         self.date = date
         self.etag = etag
@@ -37,42 +37,42 @@ final class AvatarModel {
     }
 }
 
-struct Avatar {
+nonisolated struct Avatar {
     var date: Date
     var etag: String
     var fileName: String
-    
-    init(model: AvatarModel) {
-        self.date = model.date
-        self.etag = model.etag
-        self.fileName = model.fileName
+
+    static func build(_ model: AvatarModel) -> Avatar {
+        return .init(date: model.date,
+                     etag: model.etag,
+                     fileName: model.fileName)
     }
 }
 
 extension DatabaseManager {
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DatabaseManager.self) + String(describing: Avatar.self)
     )
-    
+
     func addAvatar(fileName: String, etag: String) {
         modelContext.insert(AvatarModel(date: Date(), etag: etag, fileName: fileName))
         try? modelContext.save()
     }
-    
+
     func getAvatar(fileName: String) -> Avatar? {
-        
+
         let predicate = #Predicate<AvatarModel> { avatarModel in
             avatarModel.fileName == fileName
         }
-        
+
         let fetchDescriptor = FetchDescriptor<AvatarModel>(predicate: predicate)
-        
+
         if let results = try? modelContext.fetch(fetchDescriptor), let avatar = results.first {
-            return Avatar(model: avatar)
+            return Avatar.build(avatar)
         }
-        
+
         return nil
     }
 }

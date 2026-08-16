@@ -23,29 +23,28 @@ import UIKit
 import KeychainAccess
 import os.log
 
-
-struct ImageProviderData: Codable {
+nonisolated struct ImageProviderData: Codable {
     var date: Date
     var widgetUrl: String
     var imagePath: String
     var imageTitle: String
 }
 
-struct StoreUtility: Sendable {
-    
+nonisolated struct StoreUtility: Sendable {
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: StoreUtility.self)
     )
-    
+
     var groupURL: URL? {
         return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Global.shared.groupIdentifier)
     }
-    
+
     var cacheDirectory: String {
-        
+
         let path = getCacheDirectoryURL()?.path() ?? ""
-        
+
         if !path.isEmpty && !FileManager.default.fileExists(atPath: path) {
             do {
                 try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
@@ -53,70 +52,70 @@ struct StoreUtility: Sendable {
                 Self.logger.error("cacheDirectory - error: \(error)")
             }
         }
-        
+
         return path
     }
-    
+
     var databaseDirectory: URL? {
-        
+
         let url = groupURL?.appendingPathComponent("Database", isDirectory: true)
         let path = url?.path() ?? ""
-        
+
         if !path.isEmpty && !FileManager.default.fileExists(atPath: path) {
             do {
                 try FileManager.default.createDirectory(at: url!, withIntermediateDirectories: true)
-            } catch  {
+            } catch {
                 Self.logger.error("databaseDirectory - error: \(error)")
             }
         }
-        
+
         return url
     }
-    
+
     var certificatesDirectory: URL? {
-        
+
         let url = groupURL?.appendingPathComponent("Certificates", isDirectory: true)
         let path = url?.path() ?? ""
-        
+
         if !path.isEmpty && !FileManager.default.fileExists(atPath: path) {
             do {
                 try FileManager.default.createDirectory(at: url!, withIntermediateDirectories: true)
-            } catch  {
+            } catch {
                 Self.logger.error("certificatesDirectory - error: \(error)")
             }
         }
-        
+
         return url
     }
-    
+
     func getPasscode(_ account: String!) -> String! {
         let key = "passcode" + account
         return Keychain(service: Global.shared.keyChain)[key]
     }
-    
+
     func setPasscode(_ account: String, passcode: String?) {
         let key = "passcode" + account
         Keychain(service: Global.shared.keyChain)[key] = passcode
     }
-    
+
     func deletePasscode(_ account: String) {
         let key = "passcode" + account
         try? Keychain(service: Global.shared.keyChain).remove(key)
-        
+
         deleteFailedPasscodeCount(account)
         deleteAppResetOnFailedAttempts(account)
     }
-    
+
     func getPassword(_ account: String!) -> String! {
         let key = "password" + account
         return Keychain(service: Global.shared.keyChain)[key]
     }
-    
+
     func setPassword(_ account: String, password: String?) {
         let key = "password" + account
         Keychain(service: Global.shared.keyChain)[key] = password
     }
-    
+
     func getFailedPasscodeCount(_ account: String) -> Int {
         let key = "failedPasscodeCount" + account
         if let rawValue = Keychain(service: Global.shared.keyChain)[key] {
@@ -124,22 +123,22 @@ struct StoreUtility: Sendable {
         }
         return 0
     }
-    
+
     func setFailedPasscodeCount(_ account: String, _ count: Int) {
         let key = "failedPasscodeCount" + account
         Keychain(service: Global.shared.keyChain)[key] = count.description
     }
-    
+
     func deleteFailedPasscodeCount(_ account: String) {
         let key = "failedPasscodeCount" + account
         try? Keychain(service: Global.shared.keyChain).remove(key)
     }
-    
+
     func setAppResetOnFailedAttempts(_ account: String, _ reset: Bool) {
         let key = "appResetOnFailedAttempts" + account
         Keychain(service: Global.shared.keyChain)[key] = reset.description
     }
-    
+
     func getAppResetOnFailedAttempts(_ account: String) -> Bool {
         let key = "appResetOnFailedAttempts" + account
         if let reset = Keychain(service: Global.shared.keyChain)[key] {
@@ -147,28 +146,28 @@ struct StoreUtility: Sendable {
         }
         return false
     }
-    
+
     func deleteAppResetOnFailedAttempts(_ account: String) {
         let key = "appResetOnFailedAttempts" + account
         try? Keychain(service: Global.shared.keyChain).remove(key)
     }
-    
+
     func getUserDefaults() -> UserDefaults? {
         return UserDefaults(suiteName: Global.shared.groupIdentifier)
     }
-    
+
     func getWidgetFavoriteLastImageDate() -> Date? {
         return getUserDefaults()?.value(forKey: "Favorites_lastImageDate") as? Date
     }
-    
+
     func setWidgetFavoriteLastImageDate(date: Date?) {
         getUserDefaults()?.set(date, forKey: "Favorites_lastImageDate")
     }
-    
+
     func clearWidgetFavoriteData(_ family: String) {
         getUserDefaults()?.removeObject(forKey: "Favorites_lastImageData_\(family)")
     }
-    
+
     func getWidgetFavoriteLastImageData(_ family: String) -> ImageProviderData? {
         if let encoded = getUserDefaults()?.value(forKey: "Favorites_lastImageData_\(family)") as? Data {
             let data = try? JSONDecoder().decode(ImageProviderData.self, from: encoded)
@@ -176,40 +175,40 @@ struct StoreUtility: Sendable {
         }
         return nil
     }
-    
+
     func setWidgetFavoriteLastImageData(data: ImageProviderData, family: String) {
         guard let encoded = try? JSONEncoder().encode(data) else { return }
         getUserDefaults()?.set(encoded, forKey: "Favorites_lastImageData_\(family)")
     }
-    
+
     func getWidgetFavoriteLastImageOcId() -> String? {
         return getUserDefaults()?.value(forKey: "Favorites_lastImageOcId") as? String
     }
-    
+
     func setWidgetFavoriteLastImageOcId(ocId: String?) {
         getUserDefaults()?.set(ocId, forKey: "Favorites_lastImageOcId")
     }
-    
+
     func getWidgetFeedLastImageOcId() -> String? {
         return getUserDefaults()?.value(forKey: "Feed_lastImageOcId") as? String
     }
-    
+
     func setWidgetFeedLastImageOcId(ocId: String?) {
         getUserDefaults()?.set(ocId, forKey: "Feed_lastImageOcId")
     }
-    
+
     func getWidgetFeedLastImageDate() -> Date? {
         return getUserDefaults()?.value(forKey: "Feed_lastImageDate") as? Date
     }
-    
+
     func setWidgetFeedLastImageDate(date: Date?) {
         getUserDefaults()?.set(date, forKey: "Feed_lastImageDate")
     }
-    
+
     func clearWidgetFeedData(_ family: String) {
         getUserDefaults()?.removeObject(forKey: "Feed_lastImageData_\(family)")
     }
-    
+
     func getWidgetFeedLastImageData(_ family: String) -> ImageProviderData? {
         if let encoded = getUserDefaults()?.value(forKey: "Feed_lastImageData_\(family)") as? Data {
             let data = try? JSONDecoder().decode(ImageProviderData.self, from: encoded)
@@ -217,89 +216,89 @@ struct StoreUtility: Sendable {
         }
         return nil
     }
-    
+
     func setWidgetFeedLastImageData(data: ImageProviderData, family: String) {
         guard let encoded = try? JSONEncoder().encode(data) else { return }
         getUserDefaults()?.set(encoded, forKey: "Feed_lastImageData_\(family)")
     }
-    
+
     func setPreferenceValue(key: String, value: Any?) {
         UserDefaults(suiteName: Global.shared.groupIdentifier)?.set(value, forKey: "Preference_\(key)")
     }
-    
+
     func getPreferenceValue(key: String) -> Any? {
         return UserDefaults(suiteName: Global.shared.groupIdentifier)?.value(forKey: "Preference_\(key)")
     }
-    
+
     func getDisplayStyle() -> UIUserInterfaceStyle? {
-        
+
         if let value = getPreferenceValue(key: "displayStyle") as? String {
             return value == "light" ? .light : .dark
         }
-        
+
         return nil
     }
-    
+
     func setDisplayStyle(style: UIUserInterfaceStyle?) {
-        
-        var value: String? = nil
-        
+
+        var value: String?
+
         if style != nil {
             value = style == .light ? "light" : "dark"
         }
 
         setPreferenceValue(key: "displayStyle", value: value)
     }
-    
-    func getVideoControlsStyleGlass() -> Bool? {
-        
+
+    func getVideoControlsStyleBackground() -> Bool? {
+
         if let value = getPreferenceValue(key: "videoControlsStyle") as? String {
-            return value == "glass" ? true : false
+            return value == "background" ? true : false
         }
-        
+
         return nil
     }
-    
-    func saveVideoControlsStyleGlass(isGlass: Bool) {
-        setPreferenceValue(key: "videoControlsStyle", value: isGlass ? "glass" : "opaque")
+
+    func saveVideoControlsStyleBackground(hasBackground: Bool) {
+        setPreferenceValue(key: "videoControlsStyle", value: hasBackground ? "background" : "clear")
     }
-    
+
     func getMediaColumnCount(_ device: UIUserInterfaceIdiom) -> Int {
 
         let defaultCount = device == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
-        
+
         if let value = getPreferenceValue(key: "mediaColumnCount") as? Int {
             return value
         } else {
             setMediaColumnCount(defaultCount)
         }
-        
+
         return defaultCount
     }
-    
+
     func setMediaColumnCount(_ count: Int) {
         setPreferenceValue(key: "mediaColumnCount", value: count)
     }
 
     func getFavoriteColumnCount(_ device: UIUserInterfaceIdiom) -> Int {
-        
+
         let defaultCount = device == .pad ? Global.shared.layoutColumnCountDefaultPad : Global.shared.layoutColumnCountDefault
-        
+
         if let value = getPreferenceValue(key: "favoriteColumnCount") as? Int {
             return value
         } else {
             setFavoriteColumnCount(defaultCount)
         }
-        
+
         return defaultCount
     }
-    
+
     func setFavoriteColumnCount(_ count: Int) {
         setPreferenceValue(key: "favoriteColumnCount", value: count)
     }
-    
+
     func getMediaLayoutType() -> String {
-        
+
         if let value = getPreferenceValue(key: "mediaLayoutType") as? String {
             return value
         } else {
@@ -308,13 +307,13 @@ struct StoreUtility: Sendable {
             return defaultLayoutType
         }
     }
-    
+
     func setMediaLayoutType(_ type: String) {
         setPreferenceValue(key: "mediaLayoutType", value: type)
     }
-    
+
     func getMediaCollectionType() -> String {
-        
+
         if let value = getPreferenceValue(key: "mediaCollectionType") as? String {
             return value
         } else {
@@ -323,13 +322,13 @@ struct StoreUtility: Sendable {
             return defaultType
         }
     }
-    
+
     func setMediaCollectionType(_ type: String) {
         setPreferenceValue(key: "mediaCollectionType", value: type)
     }
-    
+
     func getMediaSocialType() -> String {
-        
+
         if let value = getPreferenceValue(key: "mediaSocialType") as? String {
             return value
         } else {
@@ -338,13 +337,13 @@ struct StoreUtility: Sendable {
             return defaultType
         }
     }
-    
+
     func setMediaSocialType(_ type: String) {
         setPreferenceValue(key: "mediaSocialType", value: type)
     }
-    
+
     func getFavoriteLayoutType() -> String! {
-        
+
         if let value = getPreferenceValue(key: "favoriteLayoutType") as? String {
             return value
         } else {
@@ -353,13 +352,13 @@ struct StoreUtility: Sendable {
             return defaultLayoutType
         }
     }
-    
+
     func setFavoriteLayoutType(_ type: String) {
         setPreferenceValue(key: "favoriteLayoutType", value: type)
     }
-    
+
     func getFavoriteCollectionType() -> String {
-        
+
         if let value = getPreferenceValue(key: "favoriteCollectionType") as? String {
             return value
         } else {
@@ -368,13 +367,13 @@ struct StoreUtility: Sendable {
             return defaultType
         }
     }
-    
+
     func setFavoriteCollectionType(_ type: String) {
         setPreferenceValue(key: "favoriteCollectionType", value: type)
     }
-    
+
     func getFavoriteSocialType() -> String {
-        
+
         if let value = getPreferenceValue(key: "favoriteSocialType") as? String {
             return value
         } else {
@@ -383,112 +382,112 @@ struct StoreUtility: Sendable {
             return defaultType
         }
     }
-    
+
     func setFavoriteSocialType(_ type: String) {
         setPreferenceValue(key: "favoriteSocialType", value: type)
     }
-    
+
     func getCacheDirectoryURL() -> URL? {
         return groupURL?.appendingPathComponent("Cache")
     }
-    
+
     func getUserDirectory() -> String {
-        
+
         let path = cacheDirectory + "/user"
-        
-        if !FileManager.default.fileExists(atPath: path) {
-            try? FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true, attributes: nil)
-        }
-        
-        return path
-    }
-    
-    func getFileCachePath() -> String? {
-        
-        guard let cacheURL = getCacheDirectoryURL() else { return nil }
-        let filePath = cacheURL.appendingPathComponent("files").path
-        
-        if !FileManager.default.fileExists(atPath: filePath) {
-            try? FileManager.default.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
-        }
-        
-        return filePath
-    }
-    
-    func getAvatarCachePath() -> String? {
-        
-        guard let cacheURL = getCacheDirectoryURL() else { return nil }
-        let avatarPath = cacheURL.appendingPathComponent("avatars").path
-        
-        if !FileManager.default.fileExists(atPath: avatarPath) {
-            try? FileManager.default.createDirectory(atPath: avatarPath, withIntermediateDirectories: true, attributes: nil)
-        }
-        
-        return avatarPath
-    }
-    
-    private func getCachePathForOcId(_ ocId: String) -> String? {
-        
-        let path = "\(getFileCachePath() ?? "")/\(ocId)"
-        
+
         if !FileManager.default.fileExists(atPath: path) {
             try? FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true, attributes: nil)
         }
 
         return path
     }
-    
+
+    func getFileCachePath() -> String? {
+
+        guard let cacheURL = getCacheDirectoryURL() else { return nil }
+        let filePath = cacheURL.appendingPathComponent("files").path
+
+        if !FileManager.default.fileExists(atPath: filePath) {
+            try? FileManager.default.createDirectory(atPath: filePath, withIntermediateDirectories: true, attributes: nil)
+        }
+
+        return filePath
+    }
+
+    func getAvatarCachePath() -> String? {
+
+        guard let cacheURL = getCacheDirectoryURL() else { return nil }
+        let avatarPath = cacheURL.appendingPathComponent("avatars").path
+
+        if !FileManager.default.fileExists(atPath: avatarPath) {
+            try? FileManager.default.createDirectory(atPath: avatarPath, withIntermediateDirectories: true, attributes: nil)
+        }
+
+        return avatarPath
+    }
+
+    private func getCachePathForOcId(_ ocId: String) -> String? {
+
+        let path = "\(getFileCachePath() ?? "")/\(ocId)"
+
+        if !FileManager.default.fileExists(atPath: path) {
+            try? FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true, attributes: nil)
+        }
+
+        return path
+    }
+
     func getAvatarPath(_ userId: String, _ urlBase: String) -> String {
         let server = URL(string: urlBase)?.host() ?? "localhost"
         let path = "\(getAvatarCachePath() ?? "")/\(userId)"
         return "\(path)@\(server).png"
     }
-    
+
     func getPreviewPath(_ ocId: String, _ etag: String) -> String {
         return "\(self.getCachePathForOcId(ocId) ?? "")/\(etag).small.\(Global.shared.extensionPreview)"
     }
-    
+
     func getIconPath(_ ocId: String, _ etag: String) -> String {
         return "\(self.getCachePathForOcId(ocId) ?? "")/\(etag).ico.\(Global.shared.extensionPreview)"
     }
-    
+
     func getImagePath(_ ocId: String, _ etag: String) -> String {
         return "\(self.getCachePathForOcId(ocId) ?? "")/\(etag).full.\(Global.shared.extensionPreview)"
     }
-    
+
     func getCachePath(_ ocId: String, _ fileNameView: String) -> String? {
-        
+
         let fileNamePath = "\(getCachePathForOcId(ocId) ?? "")/\(fileNameView)"
 
         if !FileManager.default.fileExists(atPath: fileNamePath) {
             FileManager.default.createFile(atPath: fileNamePath, contents: nil)
         }
-        
+
         return fileNamePath
     }
-    
+
     func fileExists(_ metadata: Metadata) -> Bool {
-        
+
         let filePath: String! = getCachePath(metadata.ocId, metadata.fileNameView)
-        
+
         do {
             let size: UInt64 = try FileManager.default.attributesOfItem(atPath: filePath)[FileAttributeKey.size] as? UInt64 ?? 0
-            return size == metadata.size;
+            return size == metadata.size
         } catch { }
-        
+
         return false
     }
-    
+
     func getDirectorySize(directory: String) async -> Int64 {
-        
+
         let url = URL(fileURLWithPath: directory)
         let manager = FileManager.default
         var totalSize: Int64 = 0
 
         if let enumerator = manager.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey], options: [.skipsHiddenFiles]) {
-            
+
             let fileURLs = enumerator.compactMap { $0 as? URL }
-            
+
             for fileURL in fileURLs {
                 if let attributes = try? manager.attributesOfItem(atPath: fileURL.path) {
                     if let size = attributes[.size] as? Int64 {
@@ -500,38 +499,38 @@ struct StoreUtility: Sendable {
 
         return totalSize
     }
-    
+
     func cleanupFileCache() async {
-        
+
         guard let cachePath = getFileCachePath(), let fileCacheDirectory = URL(string: cachePath) else { return }
         let maxFileCache = 1000 * 1000 * Global.shared.fileCacheLimit
         let deleteLimit = maxFileCache / 2 //delete half the cache
         var totalSize = await getDirectorySize(directory: cacheDirectory)
-        
+
         guard totalSize > maxFileCache else {
             return
         }
-        
+
         //Self.logger.debug("cleanupFileCache() - totalSize: \(totalSize) maxFileCache: \(maxFileCache) file cache path: \(cachePath) ")
-        
+
         let fileManager = FileManager.default
         let keys = [URLResourceKey.contentAccessDateKey, URLResourceKey.totalFileAllocatedSizeKey]
-        
+
         guard let enumerator = fileManager.enumerator(at: fileCacheDirectory, includingPropertiesForKeys: keys, options: .skipsHiddenFiles) else { return }
         guard let urls = enumerator.allObjects as? [URL] else { return }
-        
+
         let sorted = urls.sorted(by: { url1, url2 in
             let date1 = (try? url1.resourceValues(forKeys: [.contentAccessDateKey]).contentAccessDate) ?? Date.distantPast
             let date2 = (try? url2.resourceValues(forKeys: [.contentAccessDateKey]).contentAccessDate) ?? Date.distantPast
-            
+
             return date1.compare(date2) == .orderedAscending
         })
-        
+
         for url in sorted {
             guard let resourceValues = try? url.resourceValues(forKeys: [.contentAccessDateKey, .totalFileAllocatedSizeKey]) else { continue }
             //guard let contentAccessDate = resourceValues.contentAccessDate else { continue }
             guard let size = resourceValues.totalFileAllocatedSize else { continue }
-            
+
             //remove file if over the limit
             if totalSize > deleteLimit {
                 do {
@@ -547,13 +546,13 @@ struct StoreUtility: Sendable {
             }
         }
     }
-    
+
     private func removeParentDirectoryIfEmpty(fileDirectory: URL) {
-        
+
         let directory = fileDirectory.deletingLastPathComponent()
         guard directory.absoluteString != getFileCachePath() else { return }
         let fileManager = FileManager.default
-        
+
         do {
             let contents = try fileManager.contentsOfDirectory(at: directory, includingPropertiesForKeys: [], options: .skipsHiddenFiles)
             if contents.isEmpty {
@@ -563,9 +562,9 @@ struct StoreUtility: Sendable {
             Self.logger.error("Cleanup of empty cache directory failed with error: \(error.localizedDescription)")
         }
     }
-    
+
     func clearCache() async {
-        
+
         let fileManager = FileManager.default
         let cachesDirectory = getCacheDirectoryURL()
 
@@ -583,9 +582,9 @@ struct StoreUtility: Sendable {
             Self.logger.error("Failed to clear cache with error: \(error.localizedDescription)")
         }
     }
-    
+
     func fileSize(_ ocId: String, _ fileNameView: String) -> Int64 {
-        
+
         guard let path = getCachePath(ocId, fileNameView) else { return 0 }
 
         var fileSize: Int64
@@ -597,40 +596,40 @@ struct StoreUtility: Sendable {
 
         return 0
     }
-    
+
     func previewExists(_ ocId: String, _ etag: String) -> Bool {
-        
+
         let path = getPreviewPath(ocId, etag)
-        
-        var fileSizePreview: UInt64? = nil
+
+        var fileSizePreview: UInt64?
         do {
             fileSizePreview = try FileManager.default.attributesOfItem(atPath: path)[FileAttributeKey.size] as? UInt64 ?? 0
         } catch {
         }
-        
+
         if (fileSizePreview ?? 0) > 0 {
             return true
         } else {
             return false
         }
     }
-    
+
     func removeDirectories() async {
-        
+
         if let certs = certificatesDirectory?.path() {
             try? FileManager.default.removeItem(atPath: certs)
         }
-        
+
         if let caches = getCacheDirectoryURL()?.path() {
             try? FileManager.default.removeItem(atPath: caches)
         }
     }
-    
+
     func deleteAllChainStore() {
         let keychain = Keychain(service: Global.shared.keyChain)
         try? keychain.removeAll()
     }
-    
+
     func copyFile(atPath: String, toPath: String) -> Bool {
 
         if FileManager.default.fileExists(atPath: toPath) {

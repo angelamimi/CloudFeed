@@ -22,31 +22,31 @@
 import UIKit
 
 final class DisplayController: UIViewController {
-    
+
     @IBOutlet weak var tableView: UITableView!
-    
+
     private var style: UIUserInterfaceStyle?
     private var videoControlsGlass: Bool?
-    
+
     var viewModel: DisplayViewModel?
-    
+
     override func viewDidLoad() {
-        
+
         tableView.delegate = self
         tableView.dataSource = self
         tableView.sectionHeaderHeight = UITableView.automaticDimension
-        
+
         initObservers()
         initTitle()
-        
+
         style = viewModel?.getStyle()
-        videoControlsGlass = viewModel?.getVideoControlsGlass() ?? true
+        videoControlsGlass = viewModel?.getVideoControlsStyleBackground() ?? true
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
-    
+
     private func initObservers() {
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
             DispatchQueue.main.async { [weak self] in
@@ -54,18 +54,18 @@ final class DisplayController: UIViewController {
             }
         }
     }
-    
+
     private func willEnterForegroundNotification() {
         if isViewLoaded && view.window != nil {
             style = viewModel?.getStyle()
             tableView.reloadData()
         }
     }
-    
+
     private func initTitle() {
         navigationItem.title = Strings.SettingsItemAppearance
         navigationItem.largeTitleDisplayMode = .never
-        
+
         if #unavailable(iOS 26) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithTransparentBackground()
@@ -75,10 +75,10 @@ final class DisplayController: UIViewController {
             navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
         }
     }
-    
+
     @objc
     private func systemSwitchChanged(_ sender: UISwitch!) {
-        
+
         if sender.isOn {
             let system = UIScreen.main.traitCollection.userInterfaceStyle
             style = nil
@@ -90,21 +90,21 @@ final class DisplayController: UIViewController {
             updateUserInterfaceStyle(style)
         }
     }
-    
+
     @objc
-    private func videoControlsGlassSwitchChanged(_ sender: UISwitch!) {
-        
+    private func videoControlsStyleSwitchChanged(_ sender: UISwitch!) {
+
         if sender.isOn {
             videoControlsGlass = true
-            viewModel?.setVideoControlsGlass(isGlass: true)
+            viewModel?.setVideoControlsStyleBackground(hasBackground: true)
         } else {
             videoControlsGlass = false
-            viewModel?.setVideoControlsGlass(isGlass: false)
+            viewModel?.setVideoControlsStyleBackground(hasBackground: false)
         }
     }
-    
+
     private func updateUserInterfaceStyle(_ style: UIUserInterfaceStyle?) {
-        
+
         if style != nil {
             let windowScenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
             for windowScene in windowScenes {
@@ -114,9 +114,9 @@ final class DisplayController: UIViewController {
             }
         }
     }
-    
+
     private func processCellStyle(_ style: UIUserInterfaceStyle?) -> UIUserInterfaceStyle {
-        
+
         if style == nil {
             let system = UIScreen.main.traitCollection.userInterfaceStyle
             if system == .dark {
@@ -127,14 +127,14 @@ final class DisplayController: UIViewController {
                 return .light
             }
         }
-        
+
         updateUserInterfaceStyle(style!)
         return style!
     }
 }
 
-extension DisplayController : UITableViewDelegate, UITableViewDataSource {
-    
+extension DisplayController: UITableViewDelegate, UITableViewDataSource {
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             return 2
@@ -142,15 +142,11 @@ extension DisplayController : UITableViewDelegate, UITableViewDataSource {
             return 1
         }
     }
-    
+
     func numberOfSections(in tableView: UITableView) -> Int {
-        if #available(iOS 26, *) {
-            return 2
-        } else {
-            return 1
-        }
+        return 2
     }
-    
+
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0 {
             return Strings.SettingsSectionDisplayMode
@@ -160,82 +156,82 @@ extension DisplayController : UITableViewDelegate, UITableViewDataSource {
             return ""
         }
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         if indexPath.section == 0 && indexPath.item == 0 {
-            
-            let cell = tableView.dequeueReusableCell(withIdentifier: "ModeCell", for: indexPath) as! ModeCell
+
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: "ModeCell", for: indexPath) as? ModeCell else { return UITableViewCell() }
             cell.delegate = self
             cell.setStyle(style: processCellStyle(style))
             return cell
-            
+
         } else if indexPath.section == 0 && indexPath.item == 1 {
-            
+
             let cell = UITableViewCell()
             cell.selectionStyle = .none
             cell.backgroundColor = .secondarySystemGroupedBackground
-            
+
             var config = cell.defaultContentConfiguration()
-            
+
             config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
             config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: 0)
             config.textProperties.color = .label
             config.text = Strings.SettingsItemSystemStyle
-            
+
             let switchView = UISwitch(frame: .zero)
-            
+
             switchView.onTintColor = .tintColor
             switchView.setOn(style == nil, animated: true)
             switchView.addTarget(self, action: #selector(systemSwitchChanged(_:)), for: .valueChanged)
-            
+
             cell.isAccessibilityElement = true
             cell.accessibilityLabel = Strings.SettingsItemSystemStyle
             cell.accessibilityValue = style == nil ? Strings.SwitchValueOn : Strings.SwitchValueOff
             cell.accessoryView = switchView
             cell.contentConfiguration = config
-            
+
             return cell
-            
+
         } else {
-                
+
             let cell = UITableViewCell()
             cell.selectionStyle = .none
             cell.backgroundColor = .secondarySystemGroupedBackground
-            
+
             var config = cell.defaultContentConfiguration()
-            
+
             config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
             config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: 0)
             config.textProperties.color = .label
-            config.text = Strings.SettingsLabelVideoControlsGlass
-            
+            config.text = Strings.SettingsLabelVideoControlsStyle
+
             let switchView = UISwitch(frame: .zero)
-            
+
             switchView.onTintColor = .tintColor
             switchView.setOn(videoControlsGlass == true, animated: true)
-            switchView.addTarget(self, action: #selector(videoControlsGlassSwitchChanged(_:)), for: .valueChanged)
-            
+            switchView.addTarget(self, action: #selector(videoControlsStyleSwitchChanged(_:)), for: .valueChanged)
+
             cell.isAccessibilityElement = true
-            cell.accessibilityLabel = Strings.SettingsLabelVideoControlsGlass
+            cell.accessibilityLabel = Strings.SettingsLabelVideoControlsStyle
             cell.accessibilityValue = videoControlsGlass == true ? Strings.SwitchValueOn : Strings.SwitchValueOff
             cell.accessoryView = switchView
             cell.contentConfiguration = config
-            
+
             return cell
         }
     }
 }
 
 extension DisplayController: ModeDelegate {
-    
+
     func selectionChangedDark() {
         viewModel?.setStyle(style: .dark)
         updateUserInterfaceStyle(.dark)
         style = .dark
         tableView.reloadData()
     }
-    
+
     func selectionChangedLight() {
         viewModel?.setStyle(style: .light)
         updateUserInterfaceStyle(.light)

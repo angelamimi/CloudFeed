@@ -23,34 +23,34 @@ import UIKit
 
 @MainActor
 final class LoginPollController: UIViewController {
-    
+
     @IBOutlet weak var retryButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var pollLabel: UILabel!
-    
+
     var coordinator: LoginWebCoordinator!
     var viewModel: LoginViewModel!
-    
+
     var token: String!
     var endpoint: String!
     var login: String!
-    
+
     override func viewDidLoad() {
-        
+
         pollLabel.text = Strings.LoginPoll
         cancelButton.titleLabel?.text = Strings.CancelAction
         retryButton.titleLabel?.text = Strings.RetryAction
-        
+
         retryButton.addTarget(self, action: #selector(retryLogin), for: .touchUpInside)
         cancelButton.addTarget(self, action: #selector(cancelLogin), for: .touchUpInside)
-        
+
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
             DispatchQueue.main.async { [weak self] in
                 self?.willEnterForegroundNotification()
             }
         }
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
 
         if let token = self.token, let endpoint = self.endpoint, let login = self.login, let url = URL(string: login) {
@@ -58,27 +58,27 @@ final class LoginPollController: UIViewController {
             UIApplication.shared.open(url)
         }
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
-    
+
     @objc private func retryLogin() {
         if let login = self.login, let url = URL(string: login) {
             UIApplication.shared.open(url)
         }
     }
-    
+
     @objc private func cancelLogin() {
         navigationController?.popViewController(animated: true)
     }
-    
+
     private func willEnterForegroundNotification() {
         if let token = self.token, let endpoint = self.endpoint {
             poll(token: token, endpoint: endpoint)
         }
     }
-    
+
     private func poll(token: String, endpoint: String) {
         Task { [weak self] in
             await self?.viewModel.loginPoll(token: token, endpoint: endpoint)

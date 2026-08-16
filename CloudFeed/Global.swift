@@ -21,24 +21,24 @@
 
 import UIKit
 
-final class Global: Sendable {
-    
+nonisolated final class Global: Sendable {
+
     static let shared = Global()
-    
+
     let keyChain                      = "com.angelamimi.cloudfeed"
     let userAgent                     = "CloudFeed-iOS"
     let database                      = "CloudFeed.db"
-    
+
     let tablePadding                  = 16.0
     let photoOriginalServerVersion    = 31
-    
+
     // MARK: - Login & Passcode
     //
     let minimumServerVersion          = 12
     let maxPasscodeAttempts           = 10
     let maxPasscodeWaitAttempts       = 3
     let passcodeWaitSeconds           = 60
-    
+
     // MARK: - Remote
     //
     let davLocation                   = "/remote.php/dav/files/"
@@ -47,28 +47,25 @@ final class Global: Sendable {
     let urlValidation                 = "/login"
     let http                          = "http://"
     let https                         = "https://"
-    
+
     // MARK: - Storage
     //
     let groupIdentifier               = "group.com.angelamimi.cloudfeed"
     let databaseDirectory             = "Library/Application Support/CloudFeed"
-    
+
     let databaseSchemaVersion: UInt64 = 1
-    
-    
+
     // MARK: - Cache
     //
     let fileCacheLimit: UInt = 500 //megabytes
     let cacheLimit           = 200
     let sizeCacheLimit       = 300 * 1024 * 1024
     let queueLimit           = 5
-    
-    
+
     // MARK: - Capabilities
     //
     let capabilitiesVersionMajor: Array = ["ocs", "data", "version", "major"]
-    
-    
+
     // MARK: - Layout
     //
     let layoutTypeSquare              = "layoutTypeSquare"
@@ -79,20 +76,18 @@ final class Global: Sendable {
     let layoutSocialTypeExpanded      = "layoutSocialTypeExpanded"
     let layoutColumnCountDefaultPad   = 4
     let layoutColumnCountDefault      = 3
-    
-    
+
     // MARK: - Icon/Preview
     //
     let extensionPreview        = "jpeg"
     let sizePreview: Int        = 1024
     let sizeIcon: Int           = 512
     let avatarSizeBase: Int     = 128
-    
-    
+
     // MARK: - Metadata download status
     //
     let metadataStatusNormal: Int = 0
-    
+
     // MARK: - Error
     //
     let errorNotModified: Int    = 304
@@ -100,27 +95,25 @@ final class Global: Sendable {
     let errorConnectionLost: Int = -1005
     let errorTimeout: Int        = -1001
     let errorOffline: Int        = -1009
-    
-    // MARK: - Search
+
+    // MARK: - DB
     //
-    let pageSize: Int         = 200
-    let limit: Int            = 200
-    let largeLimit: Int       = 10_000
-    
+    let chunkSize: Int = 300
+
     // MARK: - Title
     //
     let titleSize: CGFloat          = 50
     let titleSizeLarge: CGFloat     = 70
-    
+
     // MARK: - Widget
     //
-    let widgetScheme: String        = "cloudfeed"
-    
+    let widgetScheme: String = "cloudfeed"
+
     enum WidgetAction: String {
-        case viewFavorite = "viewFavorite"
-        case viewImage = "viewImage"
+        case viewFavorite
+        case viewImage
     }
-    
+
     // MARK: - Filter
     //
     enum FilterType {
@@ -128,15 +121,15 @@ final class Global: Sendable {
         case video
         case all
     }
-    
+
     // MARK: - Viewer
     //
     enum ViewerStatus: String {
-        case fullscreen = "fullscreen"  //title hidden. details hidden.
-        case details = "details"        //title hidden. details visible.
-        case title = "title"            //title visible. details hidden.
+        case fullscreen  //title hidden. details hidden.
+        case details     //title hidden. details visible.
+        case title       //title visible. details hidden.
     }
-    
+
     // MARK: - Settings
     //
     enum SettingsMode {
@@ -147,7 +140,7 @@ final class Global: Sendable {
         case information
         case data
     }
-    
+
     // MARK: - Passcode
     //
     enum PasscodeMode {
@@ -156,17 +149,17 @@ final class Global: Sendable {
         case unlock
         case delete
     }
-    
+
     // MARK: - File Types
     //
     enum FileType: String {
-        case audio = "audio"
-        case compress = "compress"
-        case directory = "directory"
-        case document = "document"
-        case image = "image"
-        case unknow = "unknow"
-        case url = "url"
-        case video = "video"
+        case audio
+        case compress
+        case directory
+        case document
+        case image
+        case unknow
+        case url
+        case video
     }
 }

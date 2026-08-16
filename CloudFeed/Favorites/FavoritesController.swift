@@ -24,107 +24,107 @@ import os.log
 import UIKit
 
 class FavoritesController: CollectionController {
-    
+
     var viewModel: FavoritesViewModel!
     var viewImageOcId: String?
-    
+
     private enum SelectionMode {
         case share
         case favorite
     }
-    
+
     private var layout: CollectionLayout?
     private var selectionMode: SelectionMode?
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: FavoritesController.self)
     )
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         tableMode = false
-        
+
         registerCollectionCell("CollectionViewCell")
-        
+
         collectionView.delegate = self
         collectionView.allowsMultipleSelection = false
-        
+
         viewModel.initDataSource(collectionView: collectionView)
-        
+
         navigationItem.title = nil
-        
+
         initCollectionView(layoutType: viewModel.getLayoutType(), columnCount: viewModel.getColumnCount())
         initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
         initEmptyView(imageSystemName: "star.fill", title: Strings.FavEmptyTitle, description: Strings.FavEmptyDescription)
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
-        viewModel.cancelLoads()
+        viewModel.cancel()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         refreshVisibleItems()
         syncFavorites()
-        
+
         viewModel.cleanupFileCache()
     }
-    
+
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         //make sure filter controller sheet is centered
         if presentedViewController != nil && presentedViewController is FilterController {
             presentedViewController?.popoverPresentationController?.sourceRect = CGRect(origin: .zero, size: size)
         }
     }
-    
+
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
             refreshVisibleItems()
         }
     }
-    
+
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         super.scrollViewDidEndDecelerating(scrollView)
-        
+
         refreshVisibleItems()
     }
-    
+
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         super.scrollViewDidEndScrollingAnimation(scrollView)
-        
+
         refreshVisibleItems()
     }
-    
+
     func shareComplete() {
         reset()
         setTitle()
     }
-    
+
     func mediaPathChanged() {
         reload()
     }
-    
+
     func sync() {
         syncFavorites()
     }
-    
+
     func setViewImage(ocId: String) {
         viewImageOcId = ocId
     }
-    
+
     public func reload() {
         clear()
         syncFavorites()
     }
-    
+
     public func clear() {
         setTitle("")
         viewModel?.clearCache()
         scrollToTop(false)
         viewModel?.resetDataSource()
     }
-    
+
     public func scrollToMetadata(metadata: Metadata) {
         if let indexPath = viewModel.getIndexPathForMetadata(metadata: metadata) {
             //only scroll to item if not visible already
@@ -134,38 +134,38 @@ class FavoritesController: CollectionController {
             }
         }
     }
-    
+
     override func resetFilter() {
         super.resetFilter()
         initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
     }
-    
+
     override func updateMediaType(_ type: Global.FilterType) {
         filterType = type
         clear()
         syncFavorites()
     }
-    
+
     override func updateLayout(_ layout: String) {
         viewModel.updateLayoutType(layout)
         initTitle(allowEdit: true, allowSelect: true, layoutType: layout)
         updateLayoutType(layout)
     }
-    
+
     override func zoomInGrid() {
         if viewModel.currentItemCount() > 0 {
             zoomIn()
             refreshVisibleItems()
         }
     }
-    
+
     override func zoomOutGrid() {
         if viewModel.currentItemCount() > 0 {
             zoomOut()
             refreshVisibleItems()
         }
     }
-    
+
     override func edit() {
         if viewModel.currentItemCount() > 0 {
             selectionMode = .favorite
@@ -175,7 +175,7 @@ class FavoritesController: CollectionController {
             reloadSection()
         }
     }
-    
+
     override func select() {
         if viewModel.currentItemCount() > 0 {
             selectionMode = .share
@@ -185,9 +185,9 @@ class FavoritesController: CollectionController {
             reloadSection()
         }
     }
-    
+
     override func endEdit() {
-        
+
         initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
 
         if selectionMode == .favorite {
@@ -198,20 +198,20 @@ class FavoritesController: CollectionController {
             bulkSelect()
         }
     }
-    
+
     override func filter() {
         viewModel.showFilter(filterable: self, from: filterFromDate, to: filterToDate)
     }
-    
+
     override func setMediaDirectory() {
         viewModel.showPicker()
     }
-    
+
     override func resetEdit() {
         initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
         setTitle()
     }
-    
+
     override func cancel() {
 
         collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
@@ -221,51 +221,47 @@ class FavoritesController: CollectionController {
         isEditing = false
         collectionView.allowsMultipleSelection = false
         reloadSection()
-        
+
         initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
         setTitle()
     }
-    
+
     private func share(_ metadatas: [Metadata]) {
         viewModel.share(metadatas: metadatas)
     }
-    
+
     private func refreshVisibleItems() {
         let visibleIndexPaths = collectionView.indexPathsForVisibleItems
         if visibleIndexPaths.count > 0 {
             viewModel.refreshItems(visibleIndexPaths)
         }
     }
-    
+
     private func syncFavorites() {
 
         if collectionView.isHidden == true && emptyView.isHidden == false {
             emptyView.hide(animate: false) //hiding empty view during sync looks better
         }
-        
-        let visibleDateRange = getVisibleItemData()
-        
-        if hasFilter() {
-            viewModel.syncFavs(type: filterType, from: filterFromDate, to: filterToDate)
-        } else if visibleDateRange.toDate != nil || visibleDateRange.name != nil {
-            viewModel.syncFavs(type: filterType, from: nil, to: nil)
+
+        if let from = filterFromDate, let to = filterToDate {
+            viewModel.filter(type: filterType, from: from, to: to)
         } else {
-            viewModel.fetch(type: filterType, refresh: false)
+            viewModel.sync(type: filterType, from: .distantPast, to: .distantFuture, refresh: false)
         }
     }
-    
+
     private func openViewer(indexPath: IndexPath) {
-        
+
         let metadata = viewModel.getItemAtIndexPath(indexPath)
-        
+
         guard metadata != nil && (metadata!.classFile == NKTypeClassFile.image.rawValue
                 || metadata!.classFile == NKTypeClassFile.audio.rawValue
                 || metadata!.classFile == NKTypeClassFile.video.rawValue) else { return }
-        
+
         let metadatas = viewModel.getItems()
         viewModel.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)
     }
-    
+
     func openViewer(ocId: String) {
         Task { [weak self] in
             if let metadata = await self?.viewModel.getMetadataFromOcId(ocId) {
@@ -273,51 +269,51 @@ class FavoritesController: CollectionController {
             }
         }
     }
-    
+
     private func bulkEdit() async {
         guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
         await viewModel.bulkEdit(indexPaths: indexPaths)
     }
-    
+
     private func bulkSelect() {
         guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
         viewModel.share(indexPaths: indexPaths)
     }
-    
+
     private func reloadSection() {
         viewModel.reload()
     }
-    
+
     private func getVisibleItemData() -> (toDate: Date?, name: String?) {
-        
+
         let visibleIndexes = collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-        
+
         if let first = visibleIndexes?.first,
            let firstMetadata = viewModel.getItemAtIndexPath(first) {
             return (firstMetadata.date, firstMetadata.fileNameView)
         }
-        
+
         return (nil, nil)
     }
-    
+
     private func shareMenuAction(metadata: Metadata) -> UIAction {
         return UIAction(title: Strings.ShareAction, image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
             self?.share([metadata])
         }
     }
-    
+
     private func favoriteMenuAction(indexPath: IndexPath) -> UIAction {
         return UIAction(title: Strings.FavRemove, image: UIImage(systemName: "star.slash")) { [weak self] _ in
             self?.removeFavorite(indexPath: indexPath)
         }
     }
-    
+
     private func removeFavorite(indexPath: IndexPath) {
         Task { [weak self] in
             await self?.viewModel.bulkEdit(indexPaths: [indexPath])
         }
     }
-    
+
     private func displayResults(refresh: Bool) {
         if hasFilter() {
             displayResults(refresh: refresh, emptyViewTitle: Strings.FavEmptyFilterTitle, emptyViewDescription: Strings.FavEmptyFilterDescription)
@@ -325,9 +321,9 @@ class FavoritesController: CollectionController {
             displayResults(refresh: refresh, emptyViewTitle: Strings.FavEmptyTitle, emptyViewDescription: Strings.FavEmptyDescription)
         }
     }
-    
+
     private func reset() {
-        
+
         collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
             self?.collectionView.deselectItem(at: $0, animated: false)
         }
@@ -339,37 +335,33 @@ class FavoritesController: CollectionController {
 }
 
 extension FavoritesController: CollectionDelegate {
-    
+
     func enteringForeground() {
         syncFavorites()
     }
-    
+
     func columnCountChanged(columnCount: Int) {
         viewModel.saveColumnCount(columnCount)
     }
-    
+
     func scrollSpeedChanged(scrolling: Bool) {
         viewModel.pauseLoading = scrolling
-        
+
         if scrolling {
             viewModel.cancelLoads()
         }
     }
-    
+
     func refresh() {
-        if hasFilter() {
-            viewModel.filter(type: filterType, from: filterFromDate!, to: filterToDate!)
+        if let fromDate = filterFromDate, let toDate = filterToDate {
+            viewModel.filter(type: filterType, from: fromDate, to: toDate)
         } else {
-            viewModel.fetch(type: filterType, refresh: true)
+            viewModel.sync(type: filterType, from: .distantPast, to: .distantFuture, refresh: true)
         }
     }
-    
-    func loadMore() {
-        viewModel.loadMore(type: filterType, filterFromDate: filterFromDate, filterToDate: filterToDate)
-    }
-    
+
     func setTitle() {
-        
+
         let visibleIndexes = collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
 
         if let indexPath = visibleIndexes?.first,
@@ -379,9 +371,9 @@ extension FavoritesController: CollectionDelegate {
             setTitle("")
         }
     }
-    
+
     func sizeAtIndexPath(indexPath: IndexPath) -> CGSize {
-        
+
         guard let metadata = viewModel.getItemAtIndexPath(indexPath) else {
             return CGSize.zero
         }
@@ -391,7 +383,7 @@ extension FavoritesController: CollectionDelegate {
 }
 
 extension FavoritesController: FavoritesDelegate {
-    
+
     func videoSelected() {
         //Hack. iOS 26 and above. Setting background color to match viewer background when video is selected.
         //Background color is returned to system in appear
@@ -399,13 +391,13 @@ extension FavoritesController: FavoritesDelegate {
     }
 
     func bulkEditFinished(error: Bool) {
-        
+
         isEditing = false
         collectionView.allowsMultipleSelection = false
 
         displayResults(refresh: false)
         reloadSection()
-        
+
         if error {
             collectionView.indexPathsForSelectedItems?.forEach { [weak self] in
                 self?.collectionView.deselectItem(at: $0, animated: false)
@@ -415,32 +407,37 @@ extension FavoritesController: FavoritesDelegate {
             syncFavorites()
         }
     }
-    
+
     func fetching() {
-        if !isRefreshing() && !isLoadingMore() {
-            activityIndicator.startAnimating()
+        if !isRefreshing() {
+            //activityIndicator.startAnimating()
+            showActivityIndicator()
         }
     }
-    
+
     func fetchResultReceived(resultItemCount: Int?) {
+
         if resultItemCount == nil {
             viewModel.showLoadfailedError()
             displayResults(refresh: false)
         }
-        
+
+        endRefreshing()
+        hideActivityIndicator()
+
         if let ocId = viewImageOcId {
             viewImageOcId = nil //app launched via selecting image from widget. reset.
             openViewer(ocId: ocId)
         }
     }
-    
+
     func dataSourceUpdated(refresh: Bool) {
         displayResults(refresh: refresh)
         refreshVisibleItems()
     }
-    
+
     func editCellUpdated(cell: CollectionViewCell, indexPath: IndexPath) {
-        
+
         if isEditing {
             if selectionMode == .favorite {
                 if collectionView.indexPathsForSelectedItems?.firstIndex(of: indexPath) != nil {
@@ -460,42 +457,42 @@ extension FavoritesController: FavoritesDelegate {
 }
 
 extension FavoritesController: Filterable {
-    
+
     func filter(from: Date, to: Date) {
-        
+
         if emptyView.isHidden == false {
             emptyView.hide() //looks better when searching again
         }
-        
+
         viewModel.dismissFilter()
-        
+
         if to < from {
             viewModel.showInvalidFilterError()
         } else {
-            
+
             filterToDate = to
             filterFromDate = from
-            
+
             initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
-            
+
             viewModel.filter(type: filterType, from: from, to: to)
         }
     }
-    
+
     func removeFilter() {
-        
+
         viewModel.dismissFilter()
-        
+
         hideEmptyView()
-        
+
         filterToDate = nil
         filterFromDate = nil
-        
+
         initTitle(allowEdit: true, allowSelect: true, layoutType: viewModel.getLayoutType())
         setTitle("")
-        
+
         refresh()
-        
+
         viewModel.resetDataSource()
     }
 }
@@ -512,7 +509,7 @@ extension FavoritesController: UICollectionViewDelegate {
             openViewer(indexPath: indexPath)
         }
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         if isEditing {
             if let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell {
@@ -520,16 +517,16 @@ extension FavoritesController: UICollectionViewDelegate {
             }
         }
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        
+
         guard isEditing == false else { return nil }
         guard let indexPath = indexPaths.first, let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell else { return nil }
         guard let image = cell.imageView.image else { return nil }
         guard let metadata = viewModel.getItemAtIndexPath(indexPath) else { return nil }
-        
+
         let previewController = viewModel.getPreviewController(metadata: metadata)
-        
+
         previewController.preferredContentSize = image.size
 
         let config = UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: { previewController }, actionProvider: { [weak self] _ in
@@ -540,10 +537,10 @@ extension FavoritesController: UICollectionViewDelegate {
                 return .init(children: [])
             }
         })
-        
+
         return config
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
         guard let indexPath = configuration.identifier as? IndexPath else { return }
         openViewer(indexPath: indexPath)

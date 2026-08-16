@@ -24,7 +24,7 @@ import Foundation
 public struct Strings {}
 
 extension Strings {
-    
+
     //Common
     public static let OkAction = NSLocalizedString("Ok.Action", comment: "")
     public static let CancelAction = NSLocalizedString("Cancel.Action", comment: "")
@@ -38,15 +38,15 @@ extension Strings {
     public static let LiveTitle = NSLocalizedString("Live.Title", comment: "")
     public static let SwitchValueOn = NSLocalizedString("Switch.Value.On", comment: "")
     public static let SwitchValueOff = NSLocalizedString("Switch.Value.Off", comment: "")
-    
+
     //Settings - Application reset Dialog
     public static let ResetAction = NSLocalizedString("Reset.Action", comment: "")
     public static let ResetTitle = NSLocalizedString("Reset.Title", comment: "")
     public static let ResetMessage = NSLocalizedString("Reset.Message", comment: "")
-    
+
     //Settings - Profile load error
     public static let ProfileErrorMessage = NSLocalizedString("Profile.Error.Message", comment: "")
-    
+
     //Settings
     public static let SettingsNavTitle = NSLocalizedString("Settings.Nav.Title", comment: "")
     public static let SettingsSectionPrivacy = NSLocalizedString("Settings.Section.Privacy", comment: "")
@@ -78,12 +78,12 @@ extension Strings {
     public static let SettingsLabelFiles = NSLocalizedString("Settings.Label.Files", comment: "")
     public static let SettingsLabelNextcloud = NSLocalizedString("Settings.Label.Nextcloud", comment: "")
     public static let SettingsLabelMediaPath = NSLocalizedString("Settings.Label.MediaPath", comment: "")
-    public static let SettingsLabelVideoControlsGlass = NSLocalizedString("Settings.Label.VideoControlsGlass", comment: "")
+    public static let SettingsLabelVideoControlsStyle = NSLocalizedString("Settings.Label.VideoControlsStyle", comment: "")
     public static let SettingsLabelQuota = NSLocalizedString("Settings.Label.Quota", comment: "")
     public static let SettingsLabelQuotaTotalUnknown = NSLocalizedString("Settings.Label.QuotaTotalUnknown", comment: "")
     public static let SettingsLabelQuotaTotalUnlimited = NSLocalizedString("Settings.Label.QuotaTotalUnlimited", comment: "")
     public static let SettingsMenuAddAccount = NSLocalizedString("Settings.Menu.AddAccount", comment: "")
-    
+
     //Profile
     public static let ProfileNavTitle = NSLocalizedString("Profile.Nav.Title", comment: "")
     public static let ProfileNavTitleView = NSLocalizedString("Profile.Nav.Title.View", comment: "")
@@ -94,7 +94,7 @@ extension Strings {
     public static let ProfileRemoveTitle = NSLocalizedString("Profile.Remove.Title", comment: "")
     public static let ProfileRemoveMessage = NSLocalizedString("Profile.Remove.Message", comment: "")
     public static let ProfileRemoveAction = NSLocalizedString("Profile.Remove.Action", comment: "")
-    
+
     //Initialization and Login
     public static let InitErrorMessage = NSLocalizedString("Init.Error.Message", comment: "")
     public static let UrlErrorMessage = NSLocalizedString("Url.Error.Message", comment: "")
@@ -111,7 +111,7 @@ extension Strings {
     public static let LoginViewCertificateError = NSLocalizedString("Login.ViewCertificateError", comment: "")
     public static let LoginUntrustedServerChanged = NSLocalizedString("Login.UntrustedServerChanged", comment: "")
     public static let LoginFailed = NSLocalizedString("Login.Failed", comment: "")
-    
+
     //Media
     public static let MediaErrorMessage = NSLocalizedString("Media.Error.Message", comment: "")
     public static let MediaEmptyTitle = NSLocalizedString("Media.Empty.Title", comment: "")
@@ -128,7 +128,7 @@ extension Strings {
     public static let MediaPhoto = NSLocalizedString("Media.Photo", comment: "")
     public static let MediaLivePhoto = NSLocalizedString("Media.LivePhoto", comment: "")
     public static let MediaVideo = NSLocalizedString("Media.Video", comment: "")
-    
+
     //Favorites
     public static let FavErrorMessage = NSLocalizedString("Fav.Error.Message", comment: "")
     public static let FavUpdateErrorMessage = NSLocalizedString("Fav.Update.Error.Message", comment: "")
@@ -139,7 +139,7 @@ extension Strings {
     public static let FavEmptyFilterTitle = NSLocalizedString("Fav.Empty.Filter.Title", comment: "")
     public static let FavEmptyFilterDescription = NSLocalizedString("Fav.Empty.Filter.Description", comment: "")
     public static let FavNavTitle = NSLocalizedString("Fav.Nav.Title", comment: "")
-    
+
     //Title Bar
     public static let TitleApply = NSLocalizedString("Title.ApplyChanges", comment: "")
     public static let TitleCancel = NSLocalizedString("Title.CancelChanges", comment: "")
@@ -158,26 +158,26 @@ extension Strings {
     public static let TitleGridMode = NSLocalizedString("Title.GridMode", comment: "")
     public static let TitleSocialModeExpand = NSLocalizedString("Title.SocialMode.Expand", comment: "")
     public static let TitleSocialModeCompact = NSLocalizedString("Title.SocialMode.Compact", comment: "")
-    
+
     //Sharing
     public static let ShareAction = NSLocalizedString("Share.Action", comment: "")
     public static let ShareMessageDownloading = NSLocalizedString("Share.Message.Downloading", comment: "")
     public static let ShareMessageCancel = NSLocalizedString("Share.Message.Cancel", comment: "")
-    
+
     //Download
     public static let DownloadAction = NSLocalizedString("Download.Action", comment: "")
     public static let DownloadMessageDownloading = NSLocalizedString("Download.Message.Downloading", comment: "")
     public static let DownloadMessageCancel = NSLocalizedString("Download.Message.Cancel", comment: "")
-    
+
     //Viewer
     public static let ViewerLabelImage = NSLocalizedString("Viewer.Label.Image", comment: "")
     public static let ViewerLabelVideo = NSLocalizedString("Viewer.Label.Video", comment: "")
     public static let ViewerLabelLivePhoto = NSLocalizedString("Viewer.Label.LivePhoto", comment: "")
-    
+
     //Filter
     public static let FilterLabelDateFrom = NSLocalizedString("Filter.Label.DateFrom", comment: "")
     public static let FilterLabelDateTo = NSLocalizedString("Filter.Label.DateTo", comment: "")
-    
+
     //Video Controls
     public static let ControlsSpeed = NSLocalizedString("Controls.Label.Speed", comment: "")
     public static let ControlsCurrentTime = NSLocalizedString("Controls.Label.CurrentTime", comment: "")
@@ -196,7 +196,7 @@ extension Strings {
     public static let ControlsSpeedRate175 = NSLocalizedString("Controls.SpeedRate.1.75", comment: "")
     public static let ControlsSpeedRate2 = NSLocalizedString("Controls.SpeedRate.2", comment: "")
     public static let ControlsSpeedRateTitle = NSLocalizedString("Controls.SpeedRate.Title", comment: "")
-    
+
     //Passcode
     public static let PasscodeNumberPad0 = NSLocalizedString("Passcode.NumberPad.0", comment: "")
     public static let PasscodeNumberPad1 = NSLocalizedString("Passcode.NumberPad.1", comment: "")
@@ -223,7 +223,7 @@ extension Strings {
     public static let PasscodeSaved = NSLocalizedString("Passcode.Saved", comment: "")
     public static let PasscodeDeleted = NSLocalizedString("Passcode.Deleted", comment: "")
     public static let PasscodeWait = NSLocalizedString("Passcode.Wait", comment: "")
-    
+
     //Comments
     public static let CommentsAction = NSLocalizedString("Comments.Action", comment: "")
     public static let CommentsActionEdit = NSLocalizedString("Comments.Action.Edit", comment: "")
@@ -235,7 +235,7 @@ extension Strings {
     public static let CommentsErrorUpdate = NSLocalizedString("Comments.Error.Update", comment: "")
     public static let CommentsErrorDelete = NSLocalizedString("Comments.Error.Delete", comment: "")
     public static let CommentsErrorLoad = NSLocalizedString("Comments.Error.Load", comment: "")
-    
+
     //Image Detail and EXIF
     public static let DetailTitle = NSLocalizedString("Detail.Title", comment: "")
     public static let DetailSectionGeneral = NSLocalizedString("Detail.Section.General", comment: "")
@@ -271,7 +271,7 @@ extension Strings {
     public static let DetailVideoSpeed = NSLocalizedString("Detail.VideoSpeed", comment: "")
     public static let DetailVideoLength = NSLocalizedString("Detail.VideoLength", comment: "")
     public static let DetailNoValue = NSLocalizedString("Detail.NoValue", comment: "")
-    
+
     public static let DetailOrientation = NSLocalizedString("Detail.Orientation", comment: "")
     public static let DetailOrientationUp = NSLocalizedString("Detail.Orientation.Up", comment: "")
     public static let DetailOrientationUpMirrored = NSLocalizedString("Detail.Orientation.UpMirrored", comment: "")
@@ -281,25 +281,25 @@ extension Strings {
     public static let DetailOrientationRight = NSLocalizedString("Detail.Orientation.Right", comment: "")
     public static let DetailOrientationRightMirrored = NSLocalizedString("Detail.Orientation.RightMirrored", comment: "")
     public static let DetailOrientationLeft = NSLocalizedString("Detail.Orientation.Left", comment: "")
-    
+
     public static let DetailColorSpace = NSLocalizedString("Detail.ColorSpace", comment: "")
     public static let DetailColorSpaceSRGB = NSLocalizedString("Detail.ColorSpace.sRGB", comment: "")
     public static let DetailColorSpaceOther = NSLocalizedString("Detail.ColorSpace.Other", comment: "")
-    
+
     public static let DetailContrast = NSLocalizedString("Detail.Contrast", comment: "")
     public static let DetailContrast0 = NSLocalizedString("Detail.Contrast.0", comment: "")
     public static let DetailContrast1 = NSLocalizedString("Detail.Contrast.1", comment: "")
     public static let DetailContrast2 = NSLocalizedString("Detail.Contrast.2", comment: "")
-    
+
     public static let DetailCustomRendered = NSLocalizedString("Detail.CustomRendered", comment: "")
     public static let DetailCustomRendered0 = NSLocalizedString("Detail.CustomRendered.0", comment: "")
     public static let DetailCustomRendered1 = NSLocalizedString("Detail.CustomRendered.1", comment: "")
-    
+
     public static let DetailExposureMode = NSLocalizedString("Detail.ExposureMode", comment: "")
     public static let DetailExposureMode0 = NSLocalizedString("Detail.ExposureMode.0", comment: "")
     public static let DetailExposureMode1 = NSLocalizedString("Detail.ExposureMode.1", comment: "")
     public static let DetailExposureMode2 = NSLocalizedString("Detail.ExposureMode.2", comment: "")
-    
+
     public static let DetailExposureProgram = NSLocalizedString("Detail.ExposureProgram", comment: "")
     public static let DetailExposureProgram0 = NSLocalizedString("Detail.ExposureProgram.0", comment: "")
     public static let DetailExposureProgram1 = NSLocalizedString("Detail.ExposureProgram.1", comment: "")
@@ -311,14 +311,14 @@ extension Strings {
     public static let DetailExposureProgram7 = NSLocalizedString("Detail.ExposureProgram.7", comment: "")
     public static let DetailExposureProgram8 = NSLocalizedString("Detail.ExposureProgram.8", comment: "")
     public static let DetailExposureProgram9 = NSLocalizedString("Detail.ExposureProgram.9", comment: "")
-    
+
     public static let DetailExposureTime = NSLocalizedString("Detail.ExposureTime", comment: "")
-    
+
     public static let DetailFileSource = NSLocalizedString("Detail.FileSource", comment: "")
     public static let DetailFileSource1 = NSLocalizedString("Detail.FileSource.1", comment: "")
     public static let DetailFileSource2 = NSLocalizedString("Detail.FileSource.2", comment: "")
     public static let DetailFileSource3 = NSLocalizedString("Detail.FileSource.3", comment: "")
-    
+
     public static let DetailFlash = NSLocalizedString("Detail.Flash", comment: "")
     public static let DetailFlashPrefix = "Detail.Flash."
     public static let DetailFlashPixVersion = NSLocalizedString("Detail.FlashPixVersion", comment: "")
@@ -326,7 +326,7 @@ extension Strings {
     public static let DetailExifVersion = NSLocalizedString("Detail.ExifVersion", comment: "")
     public static let DetailFocalLength = NSLocalizedString("Detail.FocalLength", comment: "")
     public static let DetailFocalLengthIn35mmFilm = NSLocalizedString("Detail.FocalLengthIn35mmFilm", comment: "")
-    
+
     public static let DetailMeteringMode = NSLocalizedString("Detail.MeteringMode", comment: "")
     public static let DetailMeteringMode0 = NSLocalizedString("Detail.MeteringMode.0", comment: "")
     public static let DetailMeteringMode1 = NSLocalizedString("Detail.MeteringMode.1", comment: "")
@@ -335,24 +335,24 @@ extension Strings {
     public static let DetailMeteringMode4 = NSLocalizedString("Detail.MeteringMode.4", comment: "")
     public static let DetailMeteringMode5 = NSLocalizedString("Detail.MeteringMode.5", comment: "")
     public static let DetailMeteringMode6 = NSLocalizedString("Detail.MeteringMode.6", comment: "")
-    
+
     public static let DetailRecommendedExposureIndex = NSLocalizedString("Detail.RecommendedExposureIndex", comment: "")
-    
+
     public static let DetailSaturation = NSLocalizedString("Detail.Saturation", comment: "")
     public static let DetailSaturation0 = NSLocalizedString("Detail.Saturation.0", comment: "")
     public static let DetailSaturation1 = NSLocalizedString("Detail.Saturation.1", comment: "")
     public static let DetailSaturation2 = NSLocalizedString("Detail.Saturation.2", comment: "")
-    
+
     public static let DetailSceneCaptureType = NSLocalizedString("Detail.SceneCaptureType", comment: "")
     public static let DetailSceneCaptureType0 = NSLocalizedString("Detail.SceneCaptureType.0", comment: "")
     public static let DetailSceneCaptureType1 = NSLocalizedString("Detail.SceneCaptureType.1", comment: "")
     public static let DetailSceneCaptureType2 = NSLocalizedString("Detail.SceneCaptureType.2", comment: "")
     public static let DetailSceneCaptureType3 = NSLocalizedString("Detail.SceneCaptureType.3", comment: "")
     public static let DetailSceneCaptureType4 = NSLocalizedString("Detail.SceneCaptureType.4", comment: "")
-    
+
     public static let DetailSceneType = NSLocalizedString("Detail.SceneType", comment: "")
     public static let DetailSceneType1 = NSLocalizedString("Detail.SceneType.1", comment: "")
-    
+
     public static let DetailSensitivityType = NSLocalizedString("Detail.SensitivityType", comment: "")
     public static let DetailSensitivityType0 = NSLocalizedString("Detail.SensitivityType.0", comment: "")
     public static let DetailSensitivityType1 = NSLocalizedString("Detail.SensitivityType.1", comment: "")
@@ -362,49 +362,49 @@ extension Strings {
     public static let DetailSensitivityType5 = NSLocalizedString("Detail.SensitivityType.5", comment: "")
     public static let DetailSensitivityType6 = NSLocalizedString("Detail.SensitivityType.6", comment: "")
     public static let DetailSensitivityType7 = NSLocalizedString("Detail.SensitivityType.7", comment: "")
-    
+
     public static let DetailSharpness = NSLocalizedString("Detail.Sharpness", comment: "")
     public static let DetailSharpness0 = NSLocalizedString("Detail.Sharpness.0", comment: "")
     public static let DetailSharpness1 = NSLocalizedString("Detail.Sharpness.1", comment: "")
     public static let DetailSharpness2 = NSLocalizedString("Detail.Sharpness.2", comment: "")
-    
+
     public static let DetailWhiteBalance = NSLocalizedString("Detail.WhiteBalance", comment: "")
     public static let DetailWhiteBalance0 = NSLocalizedString("Detail.WhiteBalance.0", comment: "")
     public static let DetailWhiteBalance1 = NSLocalizedString("Detail.WhiteBalance.1", comment: "")
-    
+
     public static let DetailLensInfo = NSLocalizedString("Detail.LensInfo", comment: "")
     public static let DetailLensSpecification = NSLocalizedString("Detail.LensSpecification", comment: "")
-    
+
     public static let DetailLatitude = NSLocalizedString("Detail.Latitude", comment: "")
     public static let DetailLongitude = NSLocalizedString("Detail.Longitude", comment: "")
-    
+
     public static let DetailAltitude = NSLocalizedString("Detail.Altitude", comment: "")
     public static let DetailAltitudeReference = NSLocalizedString("Detail.AltitudeReference", comment: "")
     public static let DetailAltitudeReference0 = NSLocalizedString("Detail.AltitudeReference.0", comment: "")
     public static let DetailAltitudeReference1 = NSLocalizedString("Detail.AltitudeReference.1", comment: "")
-    
+
     public static let DetailSpeed = NSLocalizedString("Detail.Speed", comment: "")
     public static let DetailSpeedReference = NSLocalizedString("Detail.SpeedReference", comment: "")
     public static let DetailSpeedReferenceK = NSLocalizedString("Detail.SpeedReference.K", comment: "")
     public static let DetailSpeedReferenceM = NSLocalizedString("Detail.SpeedReference.M", comment: "")
     public static let DetailSpeedReferenceN = NSLocalizedString("Detail.SpeedReference.N", comment: "")
-    
+
     public static let DetailDateStamp = NSLocalizedString("Detail.DateStamp", comment: "")
-    
+
     public static let DetailDestinationBearing = NSLocalizedString("Detail.DestinationBearing", comment: "")
     public static let DetailDestinationBearingReference = NSLocalizedString("Detail.DestinationBearingReference", comment: "")
     public static let DetailDestinationBearingReferenceM = NSLocalizedString("Detail.DestinationBearingReference.M", comment: "")
     public static let DetailDestinationBearingReferenceT = NSLocalizedString("Detail.DestinationBearingReference.T", comment: "")
-    
+
     public static let DetailHorizontalPositioningError = NSLocalizedString("Detail.HorizontalPositioningError", comment: "")
-    
+
     public static let DetailImageDirection = NSLocalizedString("Detail.ImageDirection", comment: "")
     public static let DetailImageDirectionReference = NSLocalizedString("Detail.ImageDirectionReference", comment: "")
     public static let DetailImageDirectionReferenceM = NSLocalizedString("Detail.ImageDirectionReference.M", comment: "")
     public static let DetailImageDirectionReferenceT = NSLocalizedString("Detail.ImageDirectionReference.T", comment: "")
-    
+
     public static let DetailTimeStamp = NSLocalizedString("Detail.TimeStamp", comment: "")
-    
+
     public static let DetailTDateTime = NSLocalizedString("Detail.DateTime", comment: "")
     public static let DetailHostComputer = NSLocalizedString("Detail.HostComputer", comment: "")
     public static let DetailMake = NSLocalizedString("Detail.Make", comment: "")
@@ -415,7 +415,7 @@ extension Strings {
     public static let DetailSoftware = NSLocalizedString("Detail.Software", comment: "")
     public static let DetailXResolution = NSLocalizedString("Detail.XResolution", comment: "")
     public static let DetailYResolution = NSLocalizedString("Detail.YResolution", comment: "")
-    
+
     public static let DetailNameNone = NSLocalizedString("Detail.Name.None", comment: "")
     public static let DetailDateNone = NSLocalizedString("Detail.Date.None", comment: "")
     public static let DetailCameraNone = NSLocalizedString("Detail.Camera.None", comment: "")

@@ -28,7 +28,7 @@ protocol Filterable: AnyObject {
 }
 
 class FilterController: UIViewController {
-    
+
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var actionStackView: UIStackView!
@@ -40,58 +40,58 @@ class FilterController: UIViewController {
     @IBOutlet weak var toDatePicker: UIDatePicker!
     @IBOutlet weak var filterButton: UIButton!
     @IBOutlet weak var removeFilterButton: UIButton!
-    
+
     weak var filterable: Filterable?
-    
+
     private var presetsDataSource: UICollectionViewDiffableDataSource<Int, Int>!
-    
+
     private var yearsData: [Int] = []
-    
+
     private var selectedYear: Int = -1
     private var selectedMonths: [Int] = []
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         filterButton.configuration?.title = Strings.MediaFilter
         removeFilterButton.configuration?.title = Strings.MediaRemoveFilter
-        
+
         dateSectionLabel.text = Strings.MediaFilterSectionDates
         presetsSectionLabel.text = Strings.MediaFilterSectionPresets
-        
+
         toLabel.text = Strings.FilterLabelDateTo
         fromLabel.text = Strings.FilterLabelDateFrom
-        
+
         filterButton.addTarget(self, action: #selector(executeFilter), for: .touchUpInside)
         removeFilterButton.addTarget(self, action: #selector(executeRemoveFilter), for: .touchUpInside)
-        
+
         initDataSource()
-        
+
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
             DispatchQueue.main.async { [weak self] in
                 self?.willEnterForegroundNotification()
             }
         }
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
-    
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
+
         DispatchQueue.main.async { [weak self] in
             if let height = self?.actionStackView.frame.height {
                 self?.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: height + 16, right: 0)
             }
         }
     }
-    
+
     func setFilterable(filterable: Filterable) {
         self.filterable = filterable
     }
-    
+
     func initDateFilter(from: Date?, to: Date?) {
         if from != nil && to != nil {
             fromDatePicker.date = from!
@@ -101,24 +101,24 @@ class FilterController: UIViewController {
             toDatePicker.date = Date()
         }
     }
-    
+
     @objc private func executeFilter() {
-        
+
         let calender = Calendar.current
         let fromComponents = calender.dateComponents([.year, .month, .day], from: fromDatePicker.date)
         var toComponents = calender.dateComponents([.year, .month, .day], from: toDatePicker.date)
-        
+
         toComponents.hour = 23
         toComponents.minute = 59
         toComponents.second = 59
 
         filterable?.filter(from: calender.date(from: fromComponents)!, to: calender.date(from: toComponents)!)
     }
-    
+
     @objc private func executeRemoveFilter() {
         filterable?.removeFilter()
     }
-    
+
     private func willEnterForegroundNotification() {
         if isViewLoaded && view.window != nil {
             var snapshot = presetsDataSource.snapshot()
@@ -129,10 +129,10 @@ class FilterController: UIViewController {
 
     private func initDataSource() {
 
-        let layout = UICollectionViewCompositionalLayout { [weak self] (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+        let layout = UICollectionViewCompositionalLayout { [weak self] (_: Int, _: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
             return self?.buildHorizontalSection()
         }
-        
+
         let config = UICollectionViewCompositionalLayoutConfiguration()
         config.scrollDirection = .vertical
         config.interSectionSpacing = 8
@@ -140,7 +140,7 @@ class FilterController: UIViewController {
         layout.configuration = config
 
         collectionView.collectionViewLayout = layout
-        
+
         presetsDataSource = UICollectionViewDiffableDataSource<Int, Int>(collectionView: collectionView) { [weak self] (collectionView: UICollectionView, indexPath: IndexPath, identifier: Int) -> UICollectionViewCell? in
             if indexPath.section == 0 {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterYearCell", for: indexPath) as? FilterYearCell else { fatalError("Cannot create new cell") }
@@ -152,81 +152,81 @@ class FilterController: UIViewController {
                 return cell
             }
         }
-        
+
         var snapshot = presetsDataSource.snapshot()
         snapshot.appendSections([0, 1])
-        
+
         initData()
-        
+
         snapshot.appendItems(yearsData, toSection: 0)
-        
+
         let monthInexes = 0...11
         snapshot.appendItems(monthInexes.sorted(), toSection: 1)
-        
+
         presetsDataSource.apply(snapshot, animatingDifferences: true)
     }
-    
+
     private func initData() {
         let years = 1900...Calendar.current.component(.year, from: .now)
         yearsData = years.reversed()
     }
-    
+
     private func buildHorizontalSection() -> NSCollectionLayoutSection {
-        
+
         let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(1), heightDimension: .estimated(40))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         let groupSize = NSCollectionLayoutSize(widthDimension: itemSize.widthDimension, heightDimension: itemSize.heightDimension)
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
-        
+
         section.contentInsetsReference = .none
         section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
         section.interGroupSpacing = 8.0
 
         return section
     }
-    
+
     private func populateCell(year: Int, cell: FilterYearCell) {
-        
+
         cell.yearButton.tag = year
         cell.delegate = self
-        
+
         let selected = year == selectedYear
         cell.setSelected(selected: selected)
-        
+
         cell.setYear(year)
     }
-    
+
     private func populateCell(month: Int, cell: FilterMonthCell) {
-        
+
         cell.monthButton.tag = month
         cell.delegate = self
-        
+
         let selected = selectedMonths.contains(month)
         cell.setSelected(selected: selected)
 
-        if month >= 0 && month <= 11  {
+        if month >= 0 && month <= 11 {
             cell.setMonth(index: month, month: Calendar.current.monthSymbols[month])
         }
     }
-    
+
     private func updateItems(_ indexPaths: [IndexPath]) {
         let items = indexPaths.compactMap { presetsDataSource.itemIdentifier(for: $0) }
         var snapshot = presetsDataSource.snapshot()
-        
+
         snapshot.reconfigureItems(items)
         presetsDataSource.apply(snapshot, animatingDifferences: false)
     }
-    
+
     private func setDateRange() {
-        
+
         if selectedMonths.count == 0 {
             if selectedYear == -1 {
                 //nothing selected. set default of today
                 fromDatePicker.date = .now
                 toDatePicker.date = .now
             } else {
-                
+
                 var fromComponents = DateComponents()
                 fromComponents.year = selectedYear
                 fromComponents.month = 1
@@ -236,7 +236,7 @@ class FilterController: UIViewController {
                 if let from = calendar.date(from: fromComponents) {
                     fromDatePicker.date = from
                 }
-                
+
                 var toComponents = DateComponents()
                 toComponents.year = selectedYear
                 toComponents.month = 12
@@ -247,10 +247,10 @@ class FilterController: UIViewController {
                 }
             }
         } else {
-            
+
             var fromYear: Int
             var toYear: Int
-            
+
             if selectedYear == -1 {
                 fromYear = Calendar.current.component(.year, from: fromDatePicker.date)
                 toYear = Calendar.current.component(.year, from: fromDatePicker.date)
@@ -258,11 +258,11 @@ class FilterController: UIViewController {
                 fromYear = selectedYear
                 toYear = selectedYear
             }
-            
+
             let sortedMonths = selectedMonths.sorted()
             let firstMonth = sortedMonths.first == nil ? 1 : sortedMonths.first! + 1
             let lastMonth = sortedMonths.last == nil ? 1 : sortedMonths.last! + 1
-            
+
             var fromComponents = DateComponents()
             fromComponents.year = fromYear
             fromComponents.month = firstMonth
@@ -272,36 +272,36 @@ class FilterController: UIViewController {
             if let from = calendar.date(from: fromComponents) {
                 fromDatePicker.date = from
             }
-            
+
             //get last day of month
             var startComponents = DateComponents()
             startComponents.year = toYear
             startComponents.month = lastMonth
             startComponents.day = 1
-            
+
             var lastDatComponents = DateComponents()
             lastDatComponents.month = 1
             lastDatComponents.day = -1
-            
+
             if let start = calendar.date(from: startComponents),
                let endOfMonth = calendar.date(byAdding: lastDatComponents, to: start) {
                 toDatePicker.date = endOfMonth
             }
         }
     }
-    
+
     private func setMonthRange() -> [IndexPath] {
-        
+
         var newlySelected: [IndexPath] = []
-        
+
         if selectedMonths.count > 1 {
-            
+
             let sorted = selectedMonths.sorted()
-            
+
             if let first = sorted.first, let last = sorted.last {
 
                 for month in first...last {
-                    
+
                     if !selectedMonths.contains(month) {
                         selectedMonths.append(month)
                         newlySelected.append(IndexPath(item: month, section: 1))
@@ -309,49 +309,49 @@ class FilterController: UIViewController {
                 }
             }
         }
-        
+
         return newlySelected
     }
 }
 
 extension FilterController: YearCellDelegate {
-    
+
     func yearSelected(year: Int, selected: Bool) {
-        
+
         var indexPaths: [IndexPath] = []
-        
+
         if selectedYear != -1 {
             let index = yearsData.firstIndex(of: selectedYear)!
             indexPaths.append(IndexPath(item: index, section: 0))
         }
-        
+
         if year != -1 && year != selectedYear {
             let index = yearsData.firstIndex(of: year)!
             indexPaths.append(IndexPath(item: index, section: 0))
         }
-        
+
         selectedYear = selected ? -1 : year
-        
+
         updateItems(indexPaths)
         setDateRange()
     }
 }
 
 extension FilterController: MonthCellDelegate {
-    
+
     func monthSelected(month: Int, selected: Bool) {
-        
+
         var indexPaths: [IndexPath] = []
-        
+
         if selected {
-            
+
             let sorted = selectedMonths.sorted()
 
             if sorted.first == month || sorted.last == month {
                 selectedMonths.remove(at: selectedMonths.firstIndex(of: month)!)
                 indexPaths.append(IndexPath(item: month, section: 1))
             } else {
-                
+
                 //deselect anything after the newly deselected month
                 for selectedMonth in sorted {
                     if selectedMonth > month {
@@ -361,10 +361,10 @@ extension FilterController: MonthCellDelegate {
                     }
                 }
             }
-            
+
             updateItems(indexPaths)
             setDateRange()
-            
+
         } else {
 
             selectedMonths.append(month)

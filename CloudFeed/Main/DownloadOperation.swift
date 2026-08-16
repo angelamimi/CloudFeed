@@ -28,24 +28,26 @@ protocol DownloadOperationDelegate: AnyObject {
     func progress(metadata: Metadata, progress: Progress)
 }
 
-class DownloadOperation: AsyncOperation, @unchecked Sendable {
-    
+nonisolated class DownloadOperation: AsyncOperation, @unchecked Sendable {
+
     private var task: Task<Void, Never>?
+    private var account: String?
     private var metadata: Metadata?
     private weak var dataService: DataService?
     private weak var delegate: DownloadOperationDelegate?
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DownloadOperation.self)
     )
 
-    init(_ metadata: Metadata, dataService: DataService, delegate: DownloadOperationDelegate) {
+    init(_ account: String, _ metadata: Metadata, dataService: DataService, delegate: DownloadOperationDelegate) {
+        self.account = account
         self.metadata = metadata
         self.delegate = delegate
         self.dataService = dataService
     }
-    
+
     override func main() {
 
         task = Task { [weak self] in
@@ -56,29 +58,29 @@ class DownloadOperation: AsyncOperation, @unchecked Sendable {
             }
 
             await self?.download()
-            
+
             if self?.isCancelled ?? true {
                 self?.finish()
                 return
             }
-            
+
             if let metadata = self?.metadata {
                 await self?.delegate?.downloaded(metadata: metadata)
             }
-            
+
             self?.finish()
         }
     }
-    
+
     override func cancel() {
         super.cancel()
-        
+
         task?.cancel()
         task = nil
     }
-    
+
     private func download() async {
-        await dataService?.download(metadata: metadata!, progressHandler: { [weak self] metadata, progress in
+        await dataService?.download(account: account!, metadata: metadata!, progressHandler: { [weak self] metadata, progress in
             DispatchQueue.main.async { [weak self] in
                 self?.delegate?.progress(metadata: metadata, progress: progress)
             }

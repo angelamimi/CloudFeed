@@ -30,141 +30,138 @@ protocol DownloadableCoordinator: AnyObject {
 }
 
 @MainActor
-struct ViewerViewModel {
-    
+final class ViewerViewModel {
+
     let metadata: Metadata
     let dataService: DataService
     private weak var coordinator: DownloadableCoordinator?
-    
+
     init(dataService: DataService, metadata: Metadata) {
         self.metadata = metadata
         self.dataService = dataService
     }
-    
+
     init(coordinator: DownloadableCoordinator, dataService: DataService, metadata: Metadata) {
         self.coordinator = coordinator
         self.metadata = metadata
         self.dataService = dataService
     }
-    
+
     func isLivePhoto() async -> Bool {
         return await getMetadataLivePhoto(metadata: metadata) != nil
     }
-    
-    func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
+
+    @concurrent func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
         return await dataService.getMetadataLivePhoto(metadata: metadata)
     }
-    
-    func getMetadataFromOcId(_ ocId: String) async -> Metadata? {
+
+    @concurrent func getMetadataFromOcId(_ ocId: String) async -> Metadata? {
         return await dataService.getMetadataFromOcId(ocId)
     }
-    
+
     func getVideoURL(metadata: Metadata) async -> URL? {
 
         if let url = await dataService.getDirectDownload(metadata: metadata) {
             return url
         }
-        
+
         return nil
     }
-    
+
     func previewExists(_ metadata: Metadata) -> Bool {
         return dataService.store.previewExists(metadata.ocId, metadata.etag)
     }
-    
+
     func getPreviewPath(_ metadata: Metadata) -> String {
         return dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
     }
-    
+
     func downloadPreview(_ metadata: Metadata) async {
-        await dataService.downloadPreview(metadata: metadata)
+        guard let account = Environment.current.currentUser?.account else { return }
+        await dataService.downloadPreview(account: account, metadata: metadata)
     }
-    
+
     func downloadImage(metadata: Metadata) {
         if !dataService.store.fileExists(metadata) {
             coordinator?.download(metadata)
         }
     }
-    
-    func loadImage(metadata: Metadata) async -> UIImage? {
-        
+
+    @concurrent func loadImage(account: String, metadata: Metadata) async -> UIImage? {
+
         if metadata.livePhoto {
-            
-            if let videoMetadata = await getMetadataLivePhoto(metadata: metadata), !dataService.store.fileExists(videoMetadata) {
-                await downloadLivePhotoVideo(metadata: videoMetadata)
-            }
-            
-        } else if metadata.svg {
-            
+
             if !dataService.store.fileExists(metadata) {
-                await dataService.download(metadata: metadata, progressHandler: { _, _ in })
+                await dataService.download(account: account, metadata: metadata, progressHandler: { _, _ in })
             }
-            
+
+            if let videoMetadata = await getMetadataLivePhoto(metadata: metadata), !dataService.store.fileExists(videoMetadata) {
+                await downloadLivePhotoVideo(account: account, metadata: videoMetadata)
+            }
+
+        } else if metadata.svg {
+
+            if !dataService.store.fileExists(metadata) {
+                await dataService.download(account: account, metadata: metadata, progressHandler: { _, _ in })
+            }
+
             let iconPath = dataService.store.getIconPath(metadata.ocId, metadata.etag)
             let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
             let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
-            
+
             await ImageUtility.loadSVG(metadata: metadata, imagePath: imagePath, iconPath: iconPath, previewPath: previewPath)
-            
+
         } else if metadata.gif {
-            
+
             if !dataService.store.fileExists(metadata) {
-                await dataService.download(metadata: metadata, progressHandler: { _, _ in })
+                await dataService.download(account: account, metadata: metadata, progressHandler: { _, _ in })
             }
-    
+
             let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
 
             return await ImageUtility.loadGIF(metadata: metadata, imagePath: imagePath)
-            
+
         } else {
-            
-            //check for full res image
-            if dataService.store.fileExists(metadata) {
-                let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
-                return autoreleasepool { () -> UIImage? in
-                    return UIImage(contentsOfFile: imagePath)
-                }
-            }
-            
-            //check for preview image
-            if !dataService.store.previewExists(metadata.ocId, metadata.etag) {
-                await dataService.downloadPreview(metadata: metadata)
+
+            if !dataService.store.fileExists(metadata) {
+                await dataService.download(account: account, metadata: metadata, progressHandler: { _, _ in })
             }
         }
-        
-        if dataService.store.previewExists(metadata.ocId, metadata.etag) {
-            let imagePreviewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+
+        if dataService.store.fileExists(metadata) {
+            let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
             return autoreleasepool { () -> UIImage? in
-                return UIImage(contentsOfFile: imagePreviewPath)
+                return UIImage(contentsOfFile: imagePath)
             }
         }
-        
         return nil
     }
-    
+
     func saveVideoPreview(metadata: Metadata, image: UIImage) {
-        return dataService.saveVideoPreview(metadata: metadata, image: image)
+        Task { [weak self] in
+            await self?.dataService.saveVideoPreview(metadata: metadata, image: image)
+        }
     }
-    
+
     func getVideoFrame(metadata: Metadata) -> UIImage? {
         return dataService.getVideoFrame(metadata: metadata)
     }
-    
+
     func downloadVideoFrame(metadata: Metadata, url: URL, size: CGSize) async -> UIImage? {
         return await dataService.downloadVideoFrame(metadata: metadata, url: url, size: size)
     }
-    
-    func downloadLivePhotoVideo(metadata: Metadata) async {
-        await dataService.download(metadata: metadata, progressHandler: { _, _ in })
+
+    @concurrent func downloadLivePhotoVideo(account: String, metadata: Metadata) async {
+        await dataService.download(account: account, metadata: metadata, progressHandler: { _, _ in })
     }
-    
+
     func getCachePath(_ metadata: Metadata) -> String? {
         if dataService.store.fileExists(metadata) {
             return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
         }
         return nil
     }
-    
+
     func getFilePath(_ metadata: Metadata) -> String? {
         if dataService.store.fileExists(metadata) {
             return dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)
@@ -173,12 +170,12 @@ struct ViewerViewModel {
         }
         return nil
     }
-    
+
     func fileExists(_ metadata: Metadata) -> Bool {
         return dataService.store.fileExists(metadata)
     }
-    
-    func getVideoControlsStyleGlass() -> Bool {
-        return dataService.getVideoControlsStyleGlass() ?? true
+
+    func getVideoControlsStyleBackground() -> Bool {
+        return dataService.getVideoControlsStyleBackground() ?? true
     }
 }

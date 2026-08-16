@@ -22,17 +22,17 @@
 import UIKit
 
 class AvatarCell: UITableViewCell {
-    
+
     @IBOutlet weak var avatarImageView: UIImageView!
-    
-    override func awakeFromNib() {
+
+    nonisolated override func awakeFromNib() {
         super.awakeFromNib()
-        
+
         MainActor.assumeIsolated { [weak self] in
             self?.initCell()
         }
     }
-    
+
     func updateAvatarImage(_ image: UIImage?) {
 
         if image == nil {
@@ -42,7 +42,7 @@ class AvatarCell: UITableViewCell {
             avatarImageView.image = image
         }
     }
-    
+
     private func initCell() {
         avatarImageView.layer.cornerRadius = avatarImageView.frame.size.width / 2
         avatarImageView.layer.masksToBounds = true

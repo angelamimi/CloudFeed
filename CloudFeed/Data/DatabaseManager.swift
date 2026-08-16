@@ -25,8 +25,8 @@ import SwiftData
 import UIKit
 
 @ModelActor
-actor DatabaseManager: Sendable {
-    
+actor DatabaseManager {
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DatabaseManager.self)
@@ -36,29 +36,39 @@ actor DatabaseManager: Sendable {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         return modelConainerFor(config)
     }
-    
+
     static func urlContainer(_ url: URL) -> ModelContainer {
         let config = ModelConfiguration(url: url)
         return modelConainerFor(config)
     }
-    
+
     static func modelConainerFor(_ config: ModelConfiguration) -> ModelContainer {
-        
+
         do {
             return try ModelContainer(for: AccountModel.self, MetadataModel.self, AvatarModel.self, MetadataExifModel.self, configurations: config)
         } catch {
             fatalError("Failed to create container.")
         }
     }
-    
+
+    static func modelConainerForConfigs(_ configs: [ModelConfiguration]) -> ModelContainer {
+
+        do {
+            let schema = Schema([AccountModel.self, MetadataModel.self, AvatarModel.self, MetadataExifModel.self])
+            return try ModelContainer(for: schema, configurations: configs)
+        } catch {
+            fatalError("Failed to create container.")
+        }
+    }
+
     func clearDatabase(account: String?, removeAccount: Bool) {
-        
+
         do {
             try modelContext.delete(model: AvatarModel.self)
-            
+
             if account != nil {
                 deleteMetadata(account!)
-                
+
                 if removeAccount {
                     deleteAccount(account!)
                 }
@@ -67,9 +77,9 @@ actor DatabaseManager: Sendable {
             Self.logger.error("Failed to clear database")
         }
     }
-    
+
     func clearDatabase() {
-        
+
         do {
             try modelContext.delete(model: AccountModel.self)
             try modelContext.delete(model: MetadataExifModel.self)

@@ -21,8 +21,6 @@
                 <outlet property="controlsView" destination="AXL-dv-8Qn" id="mtk-N9-R2J"/>
                 <outlet property="controlsViewTopConstraint" destination="9tG-4w-mP1" id="tZZ-A3-fJS"/>
                 <outlet property="horizontalTimeSlider" destination="edg-E9-ls8" id="37O-7V-SBU"/>
-                <outlet property="horizontalTimeView" destination="u4w-Dq-iVA" id="aVo-A1-A27"/>
-                <outlet property="horizontalTimeViewHeightConstraint" destination="j9Y-ZP-086" id="tfa-r1-RU4"/>
                 <outlet property="playButton" destination="Kl1-HT-Qt7" id="TZU-zB-wih"/>
                 <outlet property="routeButton" destination="90T-1L-joY" id="a6y-SK-TfG"/>
                 <outlet property="routeView" destination="Vu6-Dx-Gnc" id="UUB-eD-0Bl"/>
@@ -31,14 +29,12 @@
                 <outlet property="speedButton" destination="Wyc-o3-XBg" id="7Tw-rW-tyh"/>
                 <outlet property="speedButtonWidthConstraint" destination="FGP-Wu-t7X" id="wz8-YY-D7h"/>
                 <outlet property="timeButton" destination="YCf-Gc-4iH" id="Nac-qb-zxl"/>
-                <outlet property="timeSliderLeadingConstraint" destination="6Ao-xQ-iue" id="8oN-2k-39q"/>
-                <outlet property="timeSliderTrailingConstraint" destination="TdM-EE-vEk" id="k35-xu-fuh"/>
-                <outlet property="timeView" destination="bl4-yO-kwe" id="35Y-yd-F8P"/>
                 <outlet property="topStackView" destination="fru-9w-RdC" id="wfX-lS-iM9"/>
                 <outlet property="totalTimeButton" destination="ZMD-Vw-KCm" id="KEW-7c-4Pl"/>
                 <outlet property="verticalTimeSlider" destination="TQa-8z-Wo6" id="gy6-xX-oXH"/>
                 <outlet property="volumeButton" destination="meV-1j-cr0" id="a8L-fd-mwv"/>
                 <outlet property="volumeSlider" destination="WVT-e9-SFW" id="vKs-hr-8hC"/>
+                <outlet property="volumeStackView" destination="cN2-xs-hWm" id="9Sa-Hv-NLY"/>
                 <outlet property="volumeTopConstraint" destination="8z1-X0-k3d" id="hHA-ks-TtJ"/>
                 <outlet property="volumeView" destination="NBR-iP-9gV" id="O8q-Lw-W6n"/>
                 <outlet property="volumeViewTrailingConstraint" destination="2qC-ai-TtE" id="YOV-mk-NJO"/>
@@ -58,79 +54,47 @@
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="Wmb-p0-zvf">
                                 <rect key="frame" x="0.0" y="16" width="524" height="453"/>
                                 <subviews>
-                                    <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bl4-yO-kwe">
-                                        <rect key="frame" x="16" y="-16" width="492" height="16"/>
-                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="E8k-MG-Td0">
-                                            <rect key="frame" x="0.0" y="0.0" width="492" height="16"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <subviews>
-                                                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TQa-8z-Wo6" userLabel="Time Slider">
-                                                    <rect key="frame" x="16" y="8" width="460" height="0.0"/>
-                                                    <color key="tintColor" systemColor="labelColor"/>
-                                                </slider>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="TQa-8z-Wo6" firstAttribute="leading" secondItem="E8k-MG-Td0" secondAttribute="leading" constant="16" id="6Ao-xQ-iue"/>
-                                                <constraint firstItem="TQa-8z-Wo6" firstAttribute="top" secondItem="E8k-MG-Td0" secondAttribute="top" constant="8" id="JxA-jy-MkB"/>
-                                                <constraint firstAttribute="bottom" secondItem="TQa-8z-Wo6" secondAttribute="bottom" constant="8" id="SfW-cQ-AKe"/>
-                                                <constraint firstAttribute="trailing" secondItem="TQa-8z-Wo6" secondAttribute="trailing" constant="16" id="TdM-EE-vEk"/>
-                                            </constraints>
-                                        </view>
-                                        <blurEffect style="regular"/>
+                                    <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TQa-8z-Wo6" userLabel="Time Slider">
+                                        <rect key="frame" x="8" y="8" width="508" height="0.0"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <variation key="heightClass=compact" hidden="YES"/>
-                                        <variation key="heightClass=regular-widthClass=regular" hidden="YES"/>
-                                    </visualEffectView>
+                                    </slider>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="05Y-Dk-tB3">
-                                        <rect key="frame" x="16" y="0.0" width="492" height="30"/>
+                                        <rect key="frame" x="8" y="8" width="508" height="50"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YCf-Gc-4iH">
-                                                <rect key="frame" x="0.0" y="0.0" width="90" height="30"/>
-                                                <color key="tintColor" systemColor="labelColor"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YCf-Gc-4iH">
+                                                <rect key="frame" x="0.0" y="16" width="90.666666666666671" height="34"/>
+                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="plain" title="00:00"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="00:00">
+                                                    <fontDescription key="titleFontDescription" style="UICTFontTextStyleSubhead"/>
+                                                </buttonConfiguration>
                                             </button>
-                                            <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="u4w-Dq-iVA">
-                                                <rect key="frame" x="106" y="0.0" width="300" height="30"/>
-                                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="fcc-NS-S0J">
-                                                    <rect key="frame" x="0.0" y="0.0" width="300" height="30"/>
-                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                    <subviews>
-                                                        <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="edg-E9-ls8">
-                                                            <rect key="frame" x="16" y="0.0" width="268" height="30"/>
-                                                            <color key="tintColor" systemColor="labelColor"/>
-                                                        </slider>
-                                                    </subviews>
-                                                    <constraints>
-                                                        <constraint firstAttribute="trailing" secondItem="edg-E9-ls8" secondAttribute="trailing" constant="16" id="0Uk-c9-vOd"/>
-                                                        <constraint firstAttribute="bottom" secondItem="edg-E9-ls8" secondAttribute="bottom" id="PQq-SL-CXd"/>
-                                                        <constraint firstItem="edg-E9-ls8" firstAttribute="leading" secondItem="fcc-NS-S0J" secondAttribute="leading" constant="16" id="fVc-y5-pGh"/>
-                                                        <constraint firstItem="edg-E9-ls8" firstAttribute="top" secondItem="fcc-NS-S0J" secondAttribute="top" id="qzF-Al-0gA"/>
-                                                    </constraints>
-                                                </view>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="30" id="j9Y-ZP-086"/>
-                                                </constraints>
-                                                <blurEffect style="regular"/>
+                                            <slider hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="edg-E9-ls8">
+                                                <rect key="frame" x="106.66666666666663" y="16" width="320" height="34"/>
+                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <variation key="heightClass=compact" hidden="NO"/>
-                                                <variation key="heightClass=regular-widthClass=regular" hidden="NO"/>
-                                            </visualEffectView>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZMD-Vw-KCm">
-                                                <rect key="frame" x="422" y="0.0" width="70" height="30"/>
-                                                <color key="tintColor" systemColor="labelColor"/>
+                                            </slider>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZMD-Vw-KCm">
+                                                <rect key="frame" x="442.66666666666669" y="16" width="65.333333333333314" height="34"/>
+                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="plain" title="00:00"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="00:00">
+                                                    <fontDescription key="titleFontDescription" style="UICTFontTextStyleSubhead"/>
+                                                </buttonConfiguration>
                                             </button>
                                         </subviews>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
-                                        <variation key="heightClass=compact" distribution="fill"/>
+                                        <variation key="heightClass=compact" distribution="fill">
+                                            <edgeInsets key="layoutMargins" top="16" left="0.0" bottom="0.0" right="0.0"/>
+                                        </variation>
                                         <variation key="heightClass=compact-widthClass=regular" distribution="fill"/>
                                         <variation key="heightClass=regular-widthClass=regular" distribution="fill"/>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="3Xu-iX-Osf">
-                                        <rect key="frame" x="16" y="176" width="492" height="60"/>
+                                        <rect key="frame" x="8" y="190" width="508" height="60"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JAq-bM-gDn" userLabel="Captions Button">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JAq-bM-gDn" userLabel="Captions Button">
                                                 <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="60" id="OuW-HU-Rab"/>
@@ -144,7 +108,7 @@
                                                 </buttonConfiguration>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SxX-p9-6Sb" userLabel="Skip Back Button">
-                                                <rect key="frame" x="108" y="0.0" width="60" height="60"/>
+                                                <rect key="frame" x="112" y="0.0" width="60" height="60"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="60" id="6FG-x9-EDr"/>
                                                     <constraint firstAttribute="width" constant="60" id="gYK-gl-fsw"/>
@@ -156,7 +120,7 @@
                                                 </buttonConfiguration>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kl1-HT-Qt7" userLabel="Play Button">
-                                                <rect key="frame" x="216" y="0.0" width="60" height="60"/>
+                                                <rect key="frame" x="224" y="0.0" width="60" height="60"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="60" id="RRe-y8-vfW"/>
                                                     <constraint firstAttribute="width" constant="60" id="iaR-gX-JMO"/>
@@ -174,7 +138,7 @@
                                                 </buttonConfiguration>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="obn-Lo-YLJ" userLabel="Skip Forward Button">
-                                                <rect key="frame" x="324" y="0.0" width="60" height="60"/>
+                                                <rect key="frame" x="336" y="0.0" width="60" height="60"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="60" id="2Id-uT-Epv"/>
                                                     <constraint firstAttribute="height" constant="60" id="MmG-Tm-cry"/>
@@ -185,8 +149,8 @@
                                                     <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
                                                 </buttonConfiguration>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wyc-o3-XBg" userLabel="Speed Button">
-                                                <rect key="frame" x="432" y="0.0" width="60" height="60"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wyc-o3-XBg" userLabel="Speed Button">
+                                                <rect key="frame" x="448" y="0.0" width="60" height="60"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="60" id="3VM-lb-JtO"/>
@@ -200,11 +164,10 @@
                                                 </buttonConfiguration>
                                             </button>
                                         </subviews>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
                                     </stackView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gew-by-zcR">
-                                        <rect key="frame" x="16" y="382" width="492" height="16"/>
+                                        <rect key="frame" x="8" y="382" width="508" height="16"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="16" id="hOx-aX-X6V"/>
@@ -214,7 +177,7 @@
                                 <constraints>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="IFn-PE-KrN"/>
                                 </constraints>
-                                <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
+                                <edgeInsets key="layoutMargins" top="8" left="8" bottom="0.0" right="8"/>
                             </stackView>
                         </subviews>
                         <constraints>
@@ -231,48 +194,47 @@
                     <blurEffect style="prominent"/>
                 </visualEffectView>
                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NBR-iP-9gV" userLabel="Volume Visual Effect View">
-                    <rect key="frame" x="313" y="67" width="270" height="50"/>
+                    <rect key="frame" x="533" y="67" width="50" height="50"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="se5-JG-BBz">
-                        <rect key="frame" x="0.0" y="0.0" width="270" height="50"/>
+                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="100" minValue="0.0" maxValue="100" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WVT-e9-SFW" userLabel="Volume Slider">
-                                <rect key="frame" x="16" y="0.0" width="196" height="50"/>
-                                <color key="tintColor" systemColor="labelColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="Z6X-nJ-poU"/>
-                                    <constraint firstAttribute="width" constant="210" id="voQ-fE-B8t"/>
-                                </constraints>
-                                <variation key="default">
-                                    <mask key="constraints">
-                                        <exclude reference="voQ-fE-B8t"/>
-                                    </mask>
-                                </variation>
-                            </slider>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="meV-1j-cr0" userLabel="Volume Button">
-                                <rect key="frame" x="212" y="0.0" width="50" height="50"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="B9G-h7-wyL"/>
-                                    <constraint firstAttribute="width" constant="50" id="cnQ-9x-4Ul"/>
-                                </constraints>
-                                <color key="tintColor" systemColor="labelColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="speaker.wave.2" catalog="system">
-                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
-                                </buttonConfiguration>
-                            </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="cN2-xs-hWm">
+                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                <subviews>
+                                    <slider hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="100" minValue="0.0" maxValue="100" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WVT-e9-SFW" userLabel="Volume Slider">
+                                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="50"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="Z6X-nJ-poU"/>
+                                        </constraints>
+                                    </slider>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="meV-1j-cr0" userLabel="Volume Button">
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="B9G-h7-wyL"/>
+                                            <constraint firstAttribute="width" constant="50" id="cnQ-9x-4Ul"/>
+                                        </constraints>
+                                        <color key="tintColor" systemColor="labelColor"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" image="speaker.wave.2" catalog="system">
+                                            <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="20"/>
+                                        </buttonConfiguration>
+                                    </button>
+                                </subviews>
+                                <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
+                            </stackView>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="meV-1j-cr0" firstAttribute="leading" secondItem="WVT-e9-SFW" secondAttribute="trailing" id="2Pr-83-giX"/>
-                            <constraint firstItem="WVT-e9-SFW" firstAttribute="leading" secondItem="se5-JG-BBz" secondAttribute="leading" constant="16" id="Kog-BZ-u9W"/>
-                            <constraint firstItem="WVT-e9-SFW" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" id="UCZ-tE-ohT"/>
-                            <constraint firstAttribute="trailing" secondItem="meV-1j-cr0" secondAttribute="trailing" constant="8" id="aiw-oq-F3k"/>
-                            <constraint firstItem="meV-1j-cr0" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" id="x3t-a9-8hz"/>
+                            <constraint firstItem="cN2-xs-hWm" firstAttribute="top" secondItem="se5-JG-BBz" secondAttribute="top" id="89u-lS-fRB"/>
+                            <constraint firstAttribute="trailing" secondItem="cN2-xs-hWm" secondAttribute="trailing" id="Mae-xb-z4J"/>
+                            <constraint firstItem="cN2-xs-hWm" firstAttribute="leading" secondItem="se5-JG-BBz" secondAttribute="leading" id="Mqw-Tm-ixk"/>
+                            <constraint firstAttribute="bottom" secondItem="cN2-xs-hWm" secondAttribute="bottom" id="k7F-2a-AXf"/>
                         </constraints>
                     </view>
                     <constraints>
                         <constraint firstAttribute="height" constant="50" id="FLl-mz-sFw"/>
-                        <constraint firstAttribute="width" constant="270" id="t8s-r8-wms"/>
+                        <constraint firstAttribute="width" priority="250" constant="270" id="t8s-r8-wms"/>
                     </constraints>
                     <blurEffect style="prominent"/>
                 </visualEffectView>

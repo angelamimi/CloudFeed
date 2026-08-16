@@ -22,61 +22,61 @@
 import UIKit
 import os.log
 
-final class CacheManager {
-    
+nonisolated final class CacheManager {
+
     private weak var dataService: DataService!
     private let cache: NSCache<NSString, UIImage>
     private let queue: OperationQueue
-        
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: CacheManager.self))
-    
+
     init(dataService: DataService) {
         self.dataService = dataService
-        
+
         cache = NSCache<NSString, UIImage>()
         cache.countLimit = Global.shared.cacheLimit
         cache.totalCostLimit = Global.shared.sizeCacheLimit
-        
+
         queue = OperationQueue()
         queue.name = "downloadQueue"
         queue.maxConcurrentOperationCount = Global.shared.queueLimit
         queue.qualityOfService = .background
     }
-    
+
     func clear() {
         cancelAll()
         cache.removeAllObjects()
     }
-    
+
     func cancelAll() {
         queue.cancelAllOperations()
     }
-    
+
     func cache(metadata: Metadata, image: UIImage) {
         cache.setObject(image, forKey: (metadata.ocId + metadata.etag) as NSString)
     }
-    
+
     func cache(urlBase: String, userId: String, image: UIImage) {
         let key = Metadata.buildAvatarFileName(urlBase: urlBase, userId: userId)
         cache.setObject(image, forKey: key as NSString)
     }
-    
+
     func cached(ocId: String, etag: String) -> UIImage? {
         return cache.object(forKey: ocId + etag as NSString)
     }
-    
+
     func cached(urlBase: String, userId: String) -> UIImage? {
         let key = Metadata.buildAvatarFileName(urlBase: urlBase, userId: userId)
         return cache.object(forKey: key as NSString)
     }
-    
-    func download(metadata: Metadata, delegate: DownloadPreviewOperationDelegate) {
-        let operation = DownloadPreviewOperation(metadata, dataService: dataService, delegate: delegate)
+
+    func download(account: String, metadata: Metadata, delegate: DownloadPreviewOperationDelegate) {
+        let operation = DownloadPreviewOperation(account, metadata, dataService: dataService, delegate: delegate)
         queue.addOperation(operation)
     }
-    
+
     func download(objectId: String, userId: String, urlBase: String, account: String, delegate: DownloadAvatarOperationDelegate) {
         let operation = DownloadAvatarOperation(objectId: objectId, userId: userId, urlBase: urlBase, account: account, dataService: dataService, delegate: delegate)
         queue.addOperation(operation)

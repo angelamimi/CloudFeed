@@ -35,35 +35,30 @@ protocol ViewerDelegate: AnyObject {
 }
 
 class ViewerController: UIViewController {
-    
-    var viewModel: ViewerViewModel!
-    
+
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
+
     @IBOutlet weak var imageViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewTrailingConstraint: NSLayoutConstraint!
-    
+
     private weak var detailView: DetailView?
     private weak var detailViewTopConstraint: NSLayoutConstraint?
     private weak var detailViewWidthConstraint: NSLayoutConstraint?
     private weak var detailViewHeightConstraint: NSLayoutConstraint?
     private weak var detailViewLeadingConstraint: NSLayoutConstraint?
-    
-    private var downloadButton: UIButton?
-    private var downloadButtonRightConstraint: NSLayoutConstraint?
-    private var downloadButtonBottomConstraint: NSLayoutConstraint?
-    
+
+    var viewModel: ViewerViewModel!
     weak var delegate: ViewerDelegate?
-    
+
     var metadata: Metadata!
     var path: String?
     var videoURL: URL?
     var index: Int = 0
     var center: CGPoint?
-    
+
     private var avpLayer: AVPlayerLayer?
     private var pinchRecognizer: UIPinchGestureRecognizer?
     private var panRecognizer: UIPanGestureRecognizer?
@@ -73,48 +68,48 @@ class ViewerController: UIViewController {
     private var size = CGSize.zero
     private var disappearing = false
     private var overrideVideoPosition = false
-    
+
     private var mediaPlayer: VLCMediaPlayer?
     //private var dialogProvider: VLCDialogProvider?
     private var controlsView: ControlsView?
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: ViewerController.self)
     )
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         initImageAccessibility()
         initGestureRecognizers()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
-        
+
         disappearing = false
-        
+
         let detailsVisible = detailsVisible()
         let currentStatus = currentStatus()
-        
+
         if detailsVisible && currentStatus != .details {
             hideDetails(animate: false, status: currentStatus)
         }
-        
+
         if currentStatus != .title && controlsView != nil {
             hideControls()
         }
-        
+
         setImageViewBackgroundColor()
-        
+
         if metadata.video {
+            activityIndicator.color = .white
             loadVideo()
         } else {
-            downloadButton?.isHidden = isDownloadable() == false
             reloadImage()
         }
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
@@ -127,23 +122,23 @@ class ViewerController: UIViewController {
         if imageViewTrailingConstraint?.constant != 0 && size.height > size.width && isPad() == false {
             imageViewTrailingConstraint?.constant = 0  //prevent contraints from conflicting on orientation change
         }
-        
+
         super.viewWillTransition(to: size, with: coordinator)
 
         handleTransition(to: size, with: coordinator)
     }
-    
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
+
         if center != nil {
             imageView.center = center!
         }
-        
+
         if !view.frame.size.equalTo(size) {
 
             size = view.frame.size
-            
+
             if currentStatus() == .details {
                 showDetails(animate: false, reset: true, recenter: false)
             } else {
@@ -152,7 +147,7 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
+
     func willEnterForeground() {
         if presentedViewController != nil && presentedViewController is DetailsController {
             presentedViewController?.dismiss(animated: false)
@@ -161,52 +156,52 @@ class ViewerController: UIViewController {
             showDetails(animate: false, reset: true, recenter: false)
         }
     }
-    
+
     func playLivePhoto(_ url: URL) {
         hideAll()
         setupLiveVideo(url: url, autoPlay: true)
     }
-    
+
     func liveLongPressEnded() {
         avpLayer?.removeFromSuperlayer()
     }
-    
+
     func isZoomed() -> Bool {
         return imageView.transform.a != 1.0
     }
-    
+
     func handleSwipeUp() -> Bool {
-        
+
        let details = detailsVisible()
-        
+
         if !details && isZoomed() {
             //sometimes swipe hijacks child view controller pan when zoomed
             return false
         }
-        
+
         if isPad() {
             setImageViewBackgroundColor()
             if controlsView != nil {
                 hideControls()
             }
         } else {
-            
+
             if !details {
                 if metadata.video {
                     videoSetupForDetails()
                 }
             }
-            
+
             showDetails(animate: true, reset: false, recenter: false)
         }
-        
+
         return true
     }
-    
+
     func handleSwipeDown() -> Bool {
-        
+
         guard detailsVisible() else { return false }
-        
+
         if detailsScrolled() {
             scrollDownDetails()
             return true
@@ -218,38 +213,36 @@ class ViewerController: UIViewController {
             return false
         }
     }
-    
+
     func handlePadSwipeDown() {
-        
+
         pinchRecognizer?.isEnabled = true
-        
+
         if imageView.transform.a != 1.0 {
             panRecognizer?.isEnabled = true
         }
-        
+
         toggleControlsVisibility()
-        removeDownloadButton()
     }
-    
+
     func handlePresentationControllerDidDismiss() {
-        
+
         guard disappearing == false else { return }
-        
+
         center = imageView.center
-        
+
         if metadata.video {
             //usability. making sure video controls are not covered by the title bar after dismissing details popover
             updateStatus(.fullscreen)
         } else {
-            removeDownloadButton()
             updateStatus(.title)
         }
     }
-    
+
     func handleTraitChange() {
-        
+
         guard UIDevice.current.userInterfaceIdiom == .pad else { return }
-        
+
         if presentedViewController != nil && presentedViewController is DetailsController {
             presentedViewController?.dismiss(animated: false)
             updateStatus(.title)
@@ -261,33 +254,33 @@ class ViewerController: UIViewController {
             updateStatus(.title)
         }
     }
-    
+
     func getUrl() -> URL? {
-        
+
         if metadata.image, let path = viewModel.getFilePath(metadata) {
-            return URL.init(filePath: path)
+            return URL(filePath: path)
         } else if metadata.video && path != nil && !path!.isEmpty {
-            return URL.init(string: path!)
+            return URL(string: path!)
         }
         return nil
     }
-    
+
     private func handleTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
-        
+
         if controlsView != nil {
             coordinator.animate(alongsideTransition: { [weak self] _ in
                 self?.controlsView?.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
             }, completion: nil)
         }
-        
+
         if isPad() {
-            
+
             if imageView.transform.a != 1.0 {
                 center = nil
             } else {
                 center = CGPoint(x: size.width / 2, y: size.height / 2)
             }
-            
+
             coordinator.animate(alongsideTransition: { [weak self] _ in
                 self?.imageViewHeightConstraint.constant = size.height
             }, completion: { [weak self] _ in
@@ -297,10 +290,10 @@ class ViewerController: UIViewController {
                 }
             })
         } else {
-            
+
             if currentStatus() != .details {
                 center = nil
-                
+
                 if imageView.transform.a == 1.0 {
                     coordinator.animate(alongsideTransition: { [weak self] _ in
                         self?.imageViewHeightConstraint.constant = size.height
@@ -310,32 +303,32 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
+
     private func handlePopover() {
         if currentStatus() == .details && isPad() && presentedViewController == nil {
             showDetails(animate: true, reset: true, recenter: false)
         }
     }
-    
+
     private func layout(rotated: Bool) {
-        
+
         if center != nil {
             imageView.center = center!
             center = nil
         }
-        
+
         if currentStatus() == .details {
             showDetails(animate: false, reset: true, recenter: !rotated)
         } else {
             imageViewHeightConstraint?.constant = view.frame.height
             controlsView?.frame = view.frame
-            
+
             if imageView.transform.a != 1.0 {
                 adjustImageView()
             }
         }
     }
-    
+
     func setImageViewBackgroundColor() {
         if metadata.video {
             imageView.backgroundColor = .black
@@ -343,56 +336,56 @@ class ViewerController: UIViewController {
             let status = currentStatus()
             let color: UIColor
             let pad = isPad()
-            
+
             if !imageView.transform.isIdentity && ((pad && (status == .details || status == .title)) || (!pad && status == .title)) {
                 color = .black
             } else {
                 color = status == .fullscreen ? .black : .systemBackground
             }
-            
+
             UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: { [weak self] in
                 self?.imageView.backgroundColor = color
             })
         }
     }
-    
+
     private func loadVideo(autoPlay: Bool = false) {
-        
+
         activityIndicator.startAnimating()
 
         Task { [weak self] in
-            
+
             guard let metadata = self?.metadata, let videoURL = await self?.viewModel.getVideoURL(metadata: metadata)
             else {
                 //Unable to access Nextcloud. VLC doesn't report an error state if stopped because of
                 //a failed connection, so allowing to fail here as a check for access upon video reload.
                 //https://code.videolan.org/videolan/VLCKit/-/issues/720
                 self?.delegate?.videoError()
-                
+
                 self?.activityIndicator.stopAnimating()
-                
-                if self?.controlsView != nil , let view = self?.view, self?.controlsView!.isDescendant(of: view) == true {
+
+                if self?.controlsView != nil, let view = self?.view, self?.controlsView!.isDescendant(of: view) == true {
                     self?.controlsView?.enable() //make sure enabled so user can try again
                     self?.controlsView?.reset()
                 }
-                
+
                 return
             }
             self?.detailView?.url = videoURL
             self?.path = videoURL.absoluteString
             self?.videoURL = videoURL
-            
+
             if let path = self?.path, self?.currentStatus() == .details {
                 self?.updateDetailsForPath(path)
             }
-            
+
             await self?.showFrame(url: videoURL)
 
             self?.setupVideoControls()
             self?.activityIndicator.stopAnimating()
         }
     }
-    
+
     private func showFrame(url: URL) async {
 
         if let image = await viewModel.downloadVideoFrame(metadata: metadata, url: url, size: imageView.frame.size) {
@@ -408,42 +401,42 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
+
     private func setupVideoControls() {
-        
+
         if controlsView == nil && currentStatus() == .title {
             initControls()
         }
-        
+
         let status = currentStatus()
-        
+
         if controlsView != nil && (status == .title || status == .fullscreen) {
             addControls()
         }
-        
+
         if status == .title {
             showControls()
         }
     }
-    
+
     private func setupVideoController(autoPlay: Bool) {
-        
+
         guard let url = videoURL else { return }
-        
+
         activityIndicator.startAnimating()
-        
+
         if mediaPlayer != nil {
             mediaPlayer!.media = VLCMedia(url: url)
         } else {
-            
+
             mediaPlayer = VLCMediaPlayer()
-            
+
             let media = VLCMedia(url: url)
             //let logger = VLCConsoleLogger()
 
             //logger.level = .error
             //logger.formatter.contextFlags = .levelContextModule
-            
+
             //dialogProvider = VLCDialogProvider(library: VLCLibrary.shared(), customUI: true)
             //dialogProvider?.customRenderer = self
 
@@ -452,44 +445,44 @@ class ViewerController: UIViewController {
             mediaPlayer?.drawable = imageView
             mediaPlayer?.delegate = self
         }
-        
+
         if autoPlay {
             mediaPlayer?.play()
         }
     }
-    
+
     private func initControls() {
-        controlsView = ControlsView(glass: viewModel.getVideoControlsStyleGlass(), frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
+        controlsView = ControlsView(style: viewModel.getVideoControlsStyleBackground(), frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
         controlsView?.alpha = 0
         controlsView?.isOpaque = false
     }
-    
+
     private func showControls() {
-        
+
         guard metadata.video else { return }
-        
+
         if controlsView == nil {
             initControls()
             addControls()
         } else {
             controlsView?.frame = view.frame
         }
-        
+
         UIView.animate(withDuration: 0.1, animations: { [weak self] in
             self?.controlsView?.alpha = 1
         })
     }
-    
+
     private func hideControls() {
         //controls view interferes with pinch gesture if just hidden. remove entirely.
         controlsView?.removeFromSuperview()
         controlsView = nil
     }
-    
+
     private func addControls() {
-        
+
         guard let controls = controlsView else { return }
-        
+
         if controls.isDescendant(of: view) {
             //already added
             controls.enable()
@@ -498,77 +491,81 @@ class ViewerController: UIViewController {
         }
 
         controls.delegate = self
-        
+
         view.addSubview(controls)
         view.bringSubviewToFront(controls)
     }
-    
+
     private func toggleControlsVisibility() {
-        
+
         guard metadata.video else { return }
-        
+
         if controlsView == nil {
             showControls()
         } else {
             hideControls()
         }
     }
-    
+
     private func reloadImage() {
-        
-        Task { [weak self] in
-            
-            if let ocId = self?.metadata.ocId, let metadata = await self?.viewModel.getMetadataFromOcId(ocId) {
-             
+
+        guard let account = Environment.current.currentUser?.account else { return }
+        let ocId = metadata.ocId
+
+        Task.detached { [weak self] in
+
+            if let metadata = await self?.viewModel.getMetadataFromOcId(ocId) {
+
                 await MainActor.run { [weak self] in
                     self?.metadata = metadata
                     self?.activityIndicator.startAnimating()
                 }
-                
-                await self?.loadImage(metadata: metadata)
+
+                await self?.loadImage(account: account, metadata: metadata)
             }
         }
     }
-    
-    private func loadImage(metadata: Metadata) async {
-    
-        let image = await viewModel.loadImage(metadata: metadata)
-        
-        path = viewModel.getCachePath(metadata)
-        
-        if path != nil && currentStatus() == .details {
-            updateDetailsForPath(path!)
-        }
 
-        if image == nil {
-            DispatchQueue.main.async { [weak self] in
+    @concurrent private func loadImage(account: String, metadata: Metadata) async {
+
+        let image = await viewModel.loadImage(account: account, metadata: metadata)
+
+        Task { @MainActor [weak self] in
+
+            self?.path = self?.viewModel.getCachePath(metadata)
+
+            if let imagePath = self?.path, self?.currentStatus() == .details {
+                self?.updateDetailsForPath(imagePath)
+            }
+
+            if image == nil {
                 self?.imageView.image = UIImage(systemName: "photo")
             }
-        }
 
-        if image != nil && metadata.ocId == self.metadata.ocId && imageView.layer.sublayers?.count == nil {
-            await setImage(image: image!)
+            if image != nil && metadata.ocId == self?.metadata.ocId && self?.imageView.layer.sublayers?.count == nil {
+                await self?.setImage(image: image!)
+            }
+
+            self?.handleImageLoadComplete(metadata: metadata)
         }
-        
-        handleImageLoadComplete(metadata: metadata)
     }
-    
+
     private func handleImageLoadComplete(metadata: Metadata) {
         DispatchQueue.main.async { [weak self] in
             self?.activityIndicator.stopAnimating()
         }
     }
-    
+
     private func updateDetailsForPath(_ path: String) {
 
-        var url: URL? = nil
-        
+        var url: URL?
+
         if metadata.video {
-            url = URL.init(string: path)
+            url = URL(string: path)
         } else if metadata.image && viewModel.fileExists(metadata) {
-            url = URL.init(filePath: path)
+            url = URL(filePath: path)
         }
-        
+
         if isPad() {
             delegate?.mediaLoaded(metadata: metadata, url: url)
         } else {
@@ -577,72 +574,72 @@ class ViewerController: UIViewController {
             detailView?.populateDetails()
         }
     }
-    
+
     private func setupLiveVideo(url: URL, autoPlay: Bool) {
-        
+
         let player = AVPlayer(url: url)
-        
+
         avpLayer = AVPlayerLayer(player: player)
-        
+
         avpLayer?.frame = imageView.bounds
 
         imageView.layer.addSublayer(avpLayer!)
-        
+
         if autoPlay {
             player.play()
         }
     }
-    
+
     private func currentStatus() -> Global.ViewerStatus {
         guard let pagerController = parent?.parent as? PagerController else { return .title }
         return pagerController.status
     }
-    
+
     private func cleanupPlayer() {
-        
+
         guard metadata.video else { return }
 
         if mediaPlayer != nil && mediaPlayer!.media != nil && mediaPlayer!.isPlaying {
             mediaPlayer?.stop()
         }
     }
-    
+
     private func initGestureRecognizers() {
-        
+
         pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(pinchGesture:)))
-        
+
         pinchRecognizer?.delaysTouchesBegan = false
         pinchRecognizer?.delaysTouchesEnded = false
-        
+
         panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(panGesture:)))
 
         panRecognizer?.delaysTouchesBegan = false
         panRecognizer?.delaysTouchesEnded = false
-        
+
         doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap))
         doubleTapRecognizer?.numberOfTapsRequired = 2
-        
+
         singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap(tapGesture:)))
         singleTapRecognizer?.numberOfTapsRequired = 1
         singleTapRecognizer?.require(toFail: doubleTapRecognizer!)
-        
+
         doubleTapRecognizer?.cancelsTouchesInView = false
         singleTapRecognizer?.cancelsTouchesInView = false
-        
+
         imageView.addGestureRecognizer(pinchRecognizer!)
         imageView.addGestureRecognizer(panRecognizer!)
         imageView.addGestureRecognizer(doubleTapRecognizer!)
         imageView.addGestureRecognizer(singleTapRecognizer!)
-        
+
         panRecognizer?.isEnabled = false
         panRecognizer?.delegate = self
     }
-    
+
     private func initImageAccessibility() {
-        
-        let attributedValue = NSMutableAttributedString(string: metadata.fileNameView, attributes:[.accessibilitySpeechSpellOut: true])
+
+        let attributedValue = NSMutableAttributedString(string: metadata.fileNameView, attributes: [.accessibilitySpeechSpellOut: true])
         imageView.accessibilityAttributedValue = attributedValue
-        
+
         if metadata.video {
             imageView.accessibilityLabel = Strings.ViewerLabelVideo
         } else if metadata.livePhoto {
@@ -650,29 +647,29 @@ class ViewerController: UIViewController {
         } else {
             imageView.accessibilityLabel = Strings.ViewerLabelImage
         }
-        
+
         imageView.accessibilityTraits = .none
     }
-    
+
     private func videoSetupForDetails() {
-        
+
         if mediaPlayer != nil && mediaPlayer!.isPlaying {
             mediaPlayer!.stop()
         }
-        
+
         guard let image = viewModel.getVideoFrame(metadata: metadata) else { return }
 
         Task { [weak self] in
             await self?.setImage(image: image)
         }
     }
-    
+
     private func setImage(image: UIImage) async {
-        
+
         imageView.image = await image.byPreparingForDisplay()
-        
+
         let detailsVisible = currentStatus() == .details
-        
+
         if isPad() == false && detailsVisible {
 
             if isPortrait() {
@@ -682,7 +679,7 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
+
     private func detailsScrolled() -> Bool {
         if isPortrait() {
             return imageViewHeightConstraint.constant < view.frame.height / 2
@@ -690,35 +687,35 @@ class ViewerController: UIViewController {
             return detailViewTopConstraint?.constant ?? 0 < -(view.frame.height)
         }
     }
-    
+
     @objc private func handleSingleTap(tapGesture: UITapGestureRecognizer) {
 
         if isPad() {
-            
+
             if presentedViewController == nil {
-                
+
                 center = imageView.center
-                
+
                 delegate?.singleTapped()
                 setImageViewBackgroundColor()
                 toggleControlsVisibility()
             }
         } else {
-            
+
             delegate?.singleTapped()
-            
+
             if detailsVisible() {
                 center = nil
                 hideDetails(animate: true, status: .title)
                 setImageViewBackgroundColor()
             } else {
-                
+
                 if imageView.transform.a == 1.0 {
                     center = imageView.center
                 }
-                
+
                 setImageViewBackgroundColor()
-                
+
                 if metadata.video {
                     if currentStatus() == .fullscreen {
                         hideControls()
@@ -729,17 +726,17 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
+
     @objc private func handleDoubleTap() {
-        
+
         let details = detailsVisible()
         guard !details || isPad() else { return }
-        
+
         if imageView.transform.isIdentity {
-            
+
             panRecognizer?.isEnabled = true
             center = nil
-            
+
             if isPad() {
                 if !details {
                     hideAll()
@@ -747,7 +744,7 @@ class ViewerController: UIViewController {
             } else {
                 hideAll()
             }
-            
+
             UIView.animate(withDuration: 0.3, delay: 0.0, animations: { [weak self] in
                 self?.imageView.transform = CGAffineTransformMakeScale(2, 2)
                 self?.imageView.center = self?.view.center ?? .zero
@@ -762,7 +759,7 @@ class ViewerController: UIViewController {
             panRecognizer?.isEnabled = false
             setImageViewIdentity()
             center = nil
-            
+
             if isPad() {
                 if details {
                     setImageViewBackgroundColor()
@@ -774,21 +771,21 @@ class ViewerController: UIViewController {
                 updateStatus(.title)
                 showControls()
             }
-            
+
             delegate?.doubleTapped()
         }
     }
-    
+
     @objc private func handlePan(panGesture: UIPanGestureRecognizer) {
-        
+
         if let view = panGesture.view {
-            
+
             switch panGesture.state {
             case .began:
                 break
             case .changed:
                 let translation = panGesture.translation(in: view)
-                
+
                 // Get the current scale of the image view
                 let currentScale = imageView.transform.a // Since the transform is a CGAffineTransform, the 'a' value represents the x scale.
 
@@ -797,7 +794,7 @@ class ViewerController: UIViewController {
                     x: imageView.center.x + (translation.x * currentScale),
                     y: imageView.center.y + (translation.y * currentScale)
                 )
-                
+
                 // Reset the translation to zero
                 panGesture.setTranslation(.zero, in: self.view)
 
@@ -808,22 +805,22 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
+
     @objc private func handlePinch(pinchGesture: UIPinchGestureRecognizer) {
-        
+
         guard let view = pinchGesture.view else { return }
 
-        let currentScale : CGFloat = view.layer.value(forKeyPath: "transform.scale.x") as! CGFloat
-        
+        let currentScale: CGFloat = view.layer.value(forKeyPath: "transform.scale.x") as? CGFloat ?? 1.0
+
         if pinchGesture.state == .began {
             hideAll()
         }
-        
+
         if pinchGesture.state == .changed {
-            
+
             var center: CGPoint = .zero
             let touches = pinchGesture.numberOfTouches
-            
+
             for i in 0 ..< touches {
                 let pinch = pinchGesture.location(ofTouch: i, in: view)
                 center.x += pinch.x
@@ -831,7 +828,7 @@ class ViewerController: UIViewController {
             }
             center.x /= CGFloat(touches)
             center.y /= CGFloat(touches)
-            
+
             let anchorPoint = CGPoint(x: center.x / view.bounds.size.width, y: center.y / view.bounds.size.height)
             setAnchorPoint(anchorPoint, forView: view)
 
@@ -843,20 +840,20 @@ class ViewerController: UIViewController {
 
             // translate the zoom to 0 (origin) so can multiply a speed factor and then translate back to "zoomSpace" around 1
             deltaScale = ((deltaScale - 1) * zoomSpeed) + 1
-            
+
             // Limit to min/max size (i.e maxScale = 2, current scale = 2, 2/2 = 1.0)
             //  A deltaScale is ~0.99 for decreasing or ~1.01 for increasing
             //  A deltaScale of 1.0 will maintain the zoom size
             deltaScale = min(deltaScale, maxScale / currentScale)
             deltaScale = max(deltaScale, minScale / currentScale)
-            
+
             let transform = view.transform.scaledBy(x: deltaScale, y: deltaScale)
             view.transform = transform
-            
+
             pinchGesture.scale = 1.0
 
         } else if pinchGesture.state == .ended || pinchGesture.state == .cancelled || pinchGesture.state == .failed {
-            
+
             if view.transform.isIdentity {
                 panRecognizer?.isEnabled = false //panning doesn't work with paging
                 center = nil
@@ -868,7 +865,7 @@ class ViewerController: UIViewController {
             adjustImageView()
         }
     }
-    
+
     private func setImageViewIdentity() {
         UIView.animate(withDuration: 0.2, delay: 0.0, animations: { [weak self] in
             self?.imageView.transform = .identity
@@ -876,11 +873,11 @@ class ViewerController: UIViewController {
             self?.imageView.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         })
     }
-    
+
     private func adjustImageView() {
-        
+
         let imageSize: CGSize
-        
+
         if imageView.image == nil {
             if mediaPlayer?.videoSize == nil {
                 return
@@ -890,7 +887,7 @@ class ViewerController: UIViewController {
         } else {
             imageSize = imageView.image!.size
         }
-        
+
         let bounds = imageView.bounds
         let scale: CGFloat = min(bounds.width / imageSize.width, bounds.height / imageSize.height)
         let size = CGSize(width: imageSize.width * scale, height: imageSize.height * scale)
@@ -905,23 +902,23 @@ class ViewerController: UIViewController {
             adjustImageViewVertical(imageBounds: rect)
         }
     }
-    
+
     private func adjustImageViewVertical(imageBounds: CGRect) {
-        
+
         let imageViewWidth = imageView.bounds.width
         let imageViewHeight = imageView.bounds.height
         let transform = imageView.transform.a
         let imageHeight = imageBounds.height * transform
         let imageWidth = imageBounds.width * transform
-        
+
         let newBounds = imageBounds.applying(imageView.transform)
-        
+
         let imageRight = newBounds.width + newBounds.minX + imageView.frame.minX
         let imageBottom = (newBounds.height + newBounds.minY) + imageView.frame.minY
-        
+
         var centerX: CGFloat = imageView.frame.midX
         var centerY: CGFloat = imageView.frame.midY
-        
+
         if imageView.frame.origin.y > 0 {
             //panned to the up beyond limit.
             centerY = imageHeight / 2.0
@@ -929,7 +926,7 @@ class ViewerController: UIViewController {
             //panned to the down beyond the limit
             centerY = centerY + (imageViewHeight - imageBottom)
         }
-        
+
         if imageWidth > imageViewWidth {
             //zoomed in wider than viewable area
             if imageView.frame.minX + newBounds.minX > 0 {
@@ -943,27 +940,27 @@ class ViewerController: UIViewController {
             //zoomed in, but not wider than viewable area. back to center
             centerX = view.center.x
         }
-        
+
         setImageViewCenter(CGPoint(x: centerX, y: centerY))
     }
-    
+
     private func adjustImageViewHorizontal(imageBounds: CGRect) {
-        
+
         let imageViewWidth = imageView.bounds.width
         let imageViewHeight = imageView.bounds.height
         let transform = imageView.transform.a
         let imageHeight = imageBounds.height * transform
         let imageWidth = imageBounds.width * transform
-        
+
         let newBounds = imageBounds.applying(imageView.transform)
-        
+
         let imageTop = -newBounds.minY
         let imageRight = newBounds.width + newBounds.minX + imageView.frame.minX
         let imageBottom = (newBounds.height + newBounds.minY) + imageView.frame.minY
-        
+
         var centerX: CGFloat = imageView.frame.midX
         var centerY: CGFloat = imageView.frame.midY
-        
+
         if imageView.frame.origin.x > 0 {
             //panned to the right beyond limit.
             centerX = imageWidth / 2.0
@@ -971,7 +968,7 @@ class ViewerController: UIViewController {
             //panned to the left beyond the limit
             centerX = centerX + (imageViewWidth - imageRight)
         }
-        
+
         if imageHeight > imageViewHeight {
             //zoomed in taller than viewable area
             if imageView.frame.minY > imageTop {
@@ -985,76 +982,76 @@ class ViewerController: UIViewController {
             //zoomed in, but not taller than viewable area. back to center
             centerY = imageView.bounds.midY
         }
-        
+
         setImageViewCenter(CGPoint(x: centerX, y: centerY))
     }
-    
+
     private func setImageViewCenter(_ center: CGPoint) {
         self.center = center
-        
+
         UIView.animate(withDuration: 0.5, animations: { [weak self] in
             self?.imageView.anchorPoint = CGPoint(x: 0.5, y: 0.5)
             self?.imageView.center = center
         }, completion: nil)
     }
-    
+
     //https://www.hackingwithswift.com/example-code/calayer/how-to-change-a-views-anchor-point-without-moving-it
     private func setAnchorPoint(_ anchorPoint: CGPoint, forView view: UIView) {
-        
+
         var newPoint = CGPoint(x: view.bounds.size.width * anchorPoint.x, y: view.bounds.size.height * anchorPoint.y)
         var oldPoint = CGPoint(x: view.bounds.size.width * view.layer.anchorPoint.x, y: view.bounds.size.height * view.layer.anchorPoint.y)
-        
+
         newPoint = newPoint.applying(view.transform)
         oldPoint = oldPoint.applying(view.transform)
-        
+
         var position = view.layer.position
         position.x -= oldPoint.x
         position.x += newPoint.x
-        
+
         position.y -= oldPoint.y
         position.y += newPoint.y
-        
+
         view.center = position
         view.layer.anchorPoint = anchorPoint
     }
-    
+
     private func handleVideoPlaying() {
-        
+
         controlsView?.setPlaying(playing: true)
-        
+
         if mediaPlayer?.isSeekable ?? false {
             controlsView?.enableSeek()
         }
-        
+
         if let volume = controlsView?.getVolume() {
             mediaPlayer?.audio?.volume = Int32(volume)
         }
-        
+
         controlsView?.initCaptionsMenu(currentSubtitleIndex: mediaPlayer!.currentVideoSubTitleIndex,
                                        subtitleIndexes: mediaPlayer!.videoSubTitlesIndexes,
                                        subtitleNames: mediaPlayer!.videoSubTitlesNames)
-    
+
         controlsView?.initAudioTrackMenu(currentAudioTrackIndex: mediaPlayer!.currentAudioTrackIndex,
                                          audioTrackIndexes: mediaPlayer!.audioTrackIndexes,
                                          audioTrackNames: mediaPlayer!.audioTrackNames)
     }
-    
+
     private func restartMediaPlayer() {
 
         mediaPlayer?.media = nil
         controlsView?.reset()
-        
+
         // make sure video wasn't stopped because user swiped up details or disappearing
         if !disappearing && currentStatus() != .details {
             controlsView?.disable()
             loadVideo()
         }
     }
-    
+
     private func toggleMute() {
-        
+
         guard mediaPlayer != nil else { return }
-        
+
         if mediaPlayer!.audio?.volume == 0 {
             mediaPlayer!.audio?.volume = 100
             controlsView?.setVolume(100)
@@ -1063,9 +1060,9 @@ class ViewerController: UIViewController {
             controlsView?.setVolume(0)
         }
     }
-    
+
     private func playPause() {
-        
+
         if mediaPlayer == nil || mediaPlayer!.media == nil {
             setupVideoController(autoPlay: true)
         } else {
@@ -1076,17 +1073,17 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
+
     private func hideAll() {
         hideControls()
         updateStatus(.fullscreen)
     }
-    
+
     private func updateStatus(_ status: Global.ViewerStatus) {
         delegate?.updateStatus(status: status)
         setImageViewBackgroundColor()
     }
-    
+
     private func isPad() -> Bool {
         if UIDevice.current.userInterfaceIdiom == .pad {
             let isCompact = traitCollection.horizontalSizeClass == .compact
@@ -1094,11 +1091,11 @@ class ViewerController: UIViewController {
         }
         return false
     }
-    
+
     private func isPortrait() -> Bool {
         return view.frame.size.height >= view.frame.size.width
     }
-    
+
     private func detailsVisible() -> Bool {
         if isPad() {
             return presentedViewController != nil
@@ -1115,42 +1112,42 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
+
     private func verticalDetailsVisible() -> Bool {
         if let constant = imageViewHeightConstraint?.constant {
             return constant != view.frame.height
         }
         return false
     }
-    
+
     private func horizontalDetailsVisible() -> Bool {
         return detailViewTopConstraint?.constant ?? -1 != 0
     }
-    
-    private func initDetailController() -> DetailController {
-        
-        let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailController") as! DetailController
+
+    private func initDetailController() -> DetailController? {
+
+        let controller = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(withIdentifier: "DetailController") as? DetailController
 
         let filePath = metadata.video || viewModel.fileExists(metadata) ? viewModel.getFilePath(metadata) : nil
         let viewModel = DetailViewModel()
-        
+
         viewModel.delegate = controller
         viewModel.filePath = filePath
         viewModel.metadata = metadata
-        
-        controller.viewModel = viewModel
-        
+
+        controller?.viewModel = viewModel
+
         return controller
     }
 
     private func presentAllDetailsSheet() {
-        
+
         guard let details = detailView else { return }
-        
+
         let controller = initDetailController()
         let height = view.frame.height - details.frame.minY
-        
-        if let sheet = controller.sheetPresentationController {
+
+        if let sheet = controller?.sheetPresentationController {
             sheet.detents = [.custom { _ in
                 return height
                }, .large()]
@@ -1158,19 +1155,21 @@ class ViewerController: UIViewController {
                 sheet.preferredCornerRadius = .zero
             }
         }
-        
-        present(controller, animated: true)
+
+        if let presentController = controller {
+            present(presentController, animated: true)
+        }
     }
-    
+
     func showDetails(animate: Bool, reset: Bool, recenter: Bool) {
 
         updateStatus(.details)
         hideControls()
-        
+
         if isPad() {
 
             updateVerticalConstraintsHide()
-            
+
             if imageView.transform.a == 1.0 {
                 panRecognizer?.isEnabled = false
             } else {
@@ -1180,47 +1179,35 @@ class ViewerController: UIViewController {
             }
 
             imageViewHeightConstraint?.constant = view.frame.height
-            
+
         } else {
 
             pinchRecognizer?.isEnabled = false
             panRecognizer?.isEnabled = false
-            
+
             if !detailsVisible() {
                 imageView.transform = .identity
                 imageView.center = view.center
                 center = nil
             }
-            
+
             if detailView == nil {
                 initDetailView()
             }
-            
-            if downloadButton == nil {
-                initDownloadButton()
-            } else {
-                
-                NSLayoutConstraint.deactivate([downloadButtonRightConstraint!,downloadButtonBottomConstraint!])
-                
-                initDownloadButtonConstraints()
-                
-                downloadButtonRightConstraint?.isActive = true
-                downloadButtonBottomConstraint?.isActive = true
-            }
-            
+
             //video view is added at runtime, which ends up in front of detail view. bring detail view back to front
             if detailView != nil {
                 view.bringSubviewToFront(detailView!)
             }
-            
+
             if isPortrait() {
                 showVerticalDetails(animate: animate, reset: reset)
             } else {
                 showHorizontalDetails(animate: animate, reset: reset)
             }
-            
+
             if let details = detailView {
-                
+
                 details.metadata = metadata
 
                 if path == nil {
@@ -1235,118 +1222,38 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
-    func showDownloadButton() {
-        initDownloadButton()
-    }
-    
-    private func removeDownloadButton() {
-        downloadButton?.removeFromSuperview()
-        downloadButton = nil
-    }
-    
-    private func isDownloadable() -> Bool {
-        if metadata.video || metadata.svg || metadata.gif || viewModel.fileExists(metadata) {
-            return false
-        } else {
-            return true
-        }
-    }
-    
-    private func initDownloadButton() {
-        
-        guard downloadButton == nil else { return }
-        guard isDownloadable() else { return }
-        
-        let pad = isPad()
-        
-        downloadButton = UIButton.init(type: .system)
-        view.addSubview(downloadButton!)
-        
-        downloadButton?.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            downloadButton!.widthAnchor.constraint(equalToConstant: pad ? 80 : 60),
-            downloadButton!.heightAnchor.constraint(equalToConstant: pad ? 80 : 60)
-        ])
-        
-        initDownloadButtonConstraints()
-        
-        downloadButtonRightConstraint?.isActive = true
-        downloadButtonBottomConstraint?.isActive = true
-        
-        if #available(iOS 26.0, *) {
-            downloadButton?.configuration = pad ? .prominentGlass() : .prominentClearGlass()
-            downloadButton?.cornerConfiguration = .capsule()
-            if pad {
-                downloadButton?.tintColor = .systemGray5
-            }
-        } else {
-            var config = UIButton.Configuration.bordered()
-            config.cornerStyle = .capsule
-            downloadButton?.configuration = config
-        }
-        
-        downloadButton?.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20)
-        downloadButton?.configuration?.image = UIImage(systemName: "square.and.arrow.down")?.withTintColor(pad ? .label : .white, renderingMode: .alwaysOriginal)
-        downloadButton?.addTarget(self, action: #selector(downloadButtonTouched(_:)), for: .touchUpInside)
-    }
-    
-    @objc func downloadButtonTouched(_ sender: UIButton) {
-        if isPad(), presentedViewController != nil, let metadata = self.metadata {
-            presentedViewController?.dismiss(animated: true, completion: { [weak self] in
-                self?.viewModel.downloadImage(metadata: metadata)
-            })
-        } else {
-            viewModel.downloadImage(metadata: metadata)
-        }
-    }
-    
-    private func initDownloadButtonConstraints() {
-        
-        if isPad() {
-            downloadButtonRightConstraint = downloadButton!.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -16)
-            downloadButtonBottomConstraint = downloadButton!.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16)
-        } else if view.frame.width <= view.frame.height {
-            downloadButtonRightConstraint = downloadButton!.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -16)
-            downloadButtonBottomConstraint = downloadButton!.bottomAnchor.constraint(equalTo: detailView!.topAnchor, constant: -16)
-        } else {
-            downloadButtonRightConstraint = downloadButton!.rightAnchor.constraint(equalTo: detailView!.leftAnchor, constant: -16)
-            downloadButtonBottomConstraint = downloadButton!.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16)
-        }
-    }
-    
+
     private func initDetailView() {
-        
+
         guard let detailView = Bundle.main.loadNibNamed("DetailView", owner: self, options: nil)?.first as? DetailView else { return }
-        
+
         detailView.delegate = self
-        
+
         self.detailView = detailView
 
         view.addSubview(detailView)
-        
+
         detailView.translatesAutoresizingMaskIntoConstraints = false
-        
+
         detailViewTopConstraint = detailView.topAnchor.constraint(equalTo: imageView.bottomAnchor)
         detailViewWidthConstraint = detailView.widthAnchor.constraint(equalToConstant: imageView.frame.width)
         detailViewHeightConstraint = detailView.heightAnchor.constraint(greaterThanOrEqualToConstant: 0)
         detailViewLeadingConstraint = detailView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 0)
-        
+
         detailViewTopConstraint?.isActive = true
         detailViewWidthConstraint?.isActive = true
         detailViewHeightConstraint?.isActive = true
         detailViewLeadingConstraint?.isActive = true
-        
+
         detailViewHeightConstraint?.priority = .defaultLow
-        
+
         view.layoutIfNeeded()
     }
-    
+
     private func scrollDownDetails() {
-        
+
         if isPad() == false {
-            
+
             if isPortrait() {
                 scrollDownVerticalDetails()
             } else {
@@ -1354,19 +1261,19 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
+
     private func hideDetails(animate: Bool, status: Global.ViewerStatus) {
-        
+
         pinchRecognizer?.isEnabled = true
 
         updateStatus(status)
-        
+
         if metadata.video && status == .title {
             showControls()
         }
-        
+
         if isPad() == false {
-            
+
             if isPortrait() {
                 hideVerticalDetails(animate: animate)
             } else {
@@ -1374,9 +1281,9 @@ class ViewerController: UIViewController {
             }
         }
     }
-    
+
     private func showVerticalDetails(animate: Bool, reset: Bool) {
-        
+
         guard let detailView = self.detailView else { return }
         let allowTransform = ImageUtility.ratioWithinThreshold(imageView.image?.size ?? .zero) && imageView.image?.isSymbolImage == false
         let heightOffset: CGFloat
@@ -1384,7 +1291,7 @@ class ViewerController: UIViewController {
         let height = size.height
         let halfHeight = height / 2
         let visible = verticalDetailsVisible()
-        
+
         if visible {
 
             //details visible. snap to half or full detail
@@ -1392,9 +1299,9 @@ class ViewerController: UIViewController {
                 //not up to half height. snap to half height
                 heightOffset = halfHeight
             } else {
-                
+
                 let detailViewHeight = detailView.frame.height - 16 //fillerView's padding
-                
+
                 if detailViewHeight < halfHeight {
                     heightOffset = halfHeight
                 } else {
@@ -1406,11 +1313,11 @@ class ViewerController: UIViewController {
             //details not visible yet. snap top of detail visible
             heightOffset = halfHeight
         }
-        
+
         if imageView.contentMode != .scaleAspectFit {
             imageView.contentMode = .scaleAspectFit
         }
-        
+
         view.layoutIfNeeded()
 
         if animate && !UIAccessibility.isReduceMotionEnabled {
@@ -1418,12 +1325,12 @@ class ViewerController: UIViewController {
             UIView.animate(withDuration: 0.2, delay: 0, options: .curveLinear, animations: { [weak self] in
                 self?.calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: self?.view.frame.width ?? 0, height: heightOffset), reset: reset)
             })
-            
+
         } else {
             calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: view.frame.width, height: heightOffset), reset: reset)
         }
     }
-    
+
     private func calculateVerticalConstraintsShow(transformImage: Bool, size: CGSize, reset: Bool = false) {
 
         guard let originalSize = imageView.image?.size else {
@@ -1432,18 +1339,18 @@ class ViewerController: UIViewController {
         }
 
         let renderSize = CGSize(width: size.width, height: size.height)
-        
+
         let scaleW: CGFloat = renderSize.width / originalSize.width
         let scaleH: CGFloat = renderSize.height / originalSize.height
-        
+
         let scale: CGFloat = scaleW > scaleH ? scaleW : scaleH
         let resizeSize: CGSize = CGSize(width: round(originalSize.width * scale), height: round(originalSize.height * scale))
-        
+
         let diff = resizeSize.height - renderSize.height
-        
+
         var newScale = 1.0
         var shiftOnly = false
-        
+
         if (resizeSize.height > renderSize.height) && diff >= 1.0 {
 
             if resizeSize.width == renderSize.width {
@@ -1451,7 +1358,7 @@ class ViewerController: UIViewController {
             } else {
                 newScale = resizeSize.height / renderSize.height
             }
-            
+
         } else if resizeSize.width > renderSize.width {
 
             newScale = resizeSize.width / renderSize.width
@@ -1460,7 +1367,7 @@ class ViewerController: UIViewController {
         if transformImage {
             imageView.transform = CGAffineTransform(scaleX: newScale, y: newScale)
         }
-        
+
         if shiftOnly && transformImage {
             let top = -(resizeSize.height - renderSize.height) / 2
             imageViewTopConstraint.constant = top
@@ -1472,12 +1379,12 @@ class ViewerController: UIViewController {
             updateVerticalConstraintsShow(heightOffset: size.height, size: size)
         }
     }
-    
+
     private func scrollDownVerticalDetails() {
-        
+
         let heightOffset = view.frame.height / 2
         let allowTransform = ImageUtility.ratioWithinThreshold(imageView.image?.size ?? .zero)
-        
+
         if UIAccessibility.isReduceMotionEnabled {
             calculateVerticalConstraintsShow(transformImage: allowTransform, size: CGSize(width: view.frame.width, height: heightOffset))
         } else {
@@ -1488,69 +1395,67 @@ class ViewerController: UIViewController {
     }
 
     private func hideVerticalDetails(animate: Bool) {
-        
+
         view.layoutIfNeeded()
-        
+
         if animate && !UIAccessibility.isReduceMotionEnabled {
-            
+
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: { [weak self] in
                 self?.updateVerticalConstraintsHide()
             }, completion: { [weak self] _ in
                 self?.detailView?.removeFromSuperview()
                 self?.detailView = nil
-                self?.removeDownloadButton()
             })
-            
+
         } else {
             updateVerticalConstraintsHide()
             detailView?.removeFromSuperview()
             detailView = nil
-            removeDownloadButton()
         }
     }
-    
+
     private func updateVerticalConstraintsShow(heightOffset: CGFloat, topOffset: CGFloat = 0, size: CGSize) {
-        
+
         imageViewLeadingConstraint?.constant = 0
         imageViewTrailingConstraint?.constant = 0
-        
+
         imageViewHeightConstraint?.constant = heightOffset
-        
+
         detailViewTopConstraint?.constant = topOffset
         detailViewLeadingConstraint?.constant = 0
         detailViewWidthConstraint?.constant = size.width
         detailViewHeightConstraint?.constant = size.height
-        
+
         view.layoutIfNeeded()
     }
-    
+
     private func updateVerticalConstraintsHide() {
-        
+
         detailViewTopConstraint?.constant = 0
-        
+
         imageViewHeightConstraint?.constant = view.frame.height
         imageViewTopConstraint.constant = 0
-        
+
         imageView.transform = .identity
-        
+
         if !metadata.video {
             imageView.backgroundColor = .systemBackground
         }
-        
+
         view.layoutIfNeeded()
     }
-    
+
     private func showHorizontalDetails(animate: Bool, reset: Bool) {
-        
+
         guard let detailView = self.detailView else { return }
-        
+
         let allowTransform = ImageUtility.ratioWithinThreshold(imageView.image?.size ?? .zero) && imageView.image?.isSymbolImage == false
         let trailingOffset: CGFloat
         let topOffset: CGFloat
         let height = view.frame.height
         let halfWidth = view.frame.width / 2
         let visible = horizontalDetailsVisible()
-        
+
         if visible && reset == false {
             //details visible. show more if can
             trailingOffset = (halfWidth)
@@ -1560,55 +1465,55 @@ class ViewerController: UIViewController {
             trailingOffset = (halfWidth)
             topOffset = height
         }
-        
+
         view.layoutIfNeeded()
-        
+
         if animate && !UIAccessibility.isReduceMotionEnabled {
 
             UIView.animate(withDuration: 0.2, delay: 0, options: .curveLinear, animations: { [weak self] in
                 self?.calculateHorizontalConstraintsShow(transformImage: allowTransform, height: height, topOffset: topOffset, trailingOffset: trailingOffset)
             })
-            
+
         } else {
             calculateHorizontalConstraintsShow(transformImage: allowTransform, height: height, topOffset: topOffset, trailingOffset: trailingOffset)
         }
     }
-    
+
     private func calculateHorizontalConstraintsShow(transformImage: Bool, height: CGFloat, topOffset: CGFloat, trailingOffset: CGFloat) {
-        
+
         guard let originalSize = imageView.image?.size else {
             updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset, shift: false)
             return
         }
-        
+
         let renderSize = CGSize(width: trailingOffset, height: height)
-        
+
         let scaleW: CGFloat = renderSize.width / originalSize.width
         let scaleH: CGFloat = renderSize.height / originalSize.height
-        
+
         let scale: CGFloat = scaleW > scaleH ? scaleW : scaleH
         let resizeSize: CGSize = CGSize(width: round(originalSize.width * scale), height: round(originalSize.height * scale))
         let diff = abs(resizeSize.width - renderSize.width)
-        
+
         var newScale = 1.0
         var shiftOnly = false
-        
+
         if resizeSize.width == renderSize.width || (diff > 0 && diff < 1) {
-            
+
             if resizeSize.height > renderSize.height {
                 newScale = resizeSize.height / renderSize.height
             }
         } else if resizeSize.height == renderSize.height {
-            
+
             if resizeSize.width > renderSize.width {
                 shiftOnly = true
             }
         }
-        
+
         if transformImage && newScale != 1.0 {
             imageView.transform = CGAffineTransform(scaleX: newScale, y: newScale)
         }
-        
+
         if shiftOnly && transformImage {
             imageView.transform = .identity
             updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset, shift: true)
@@ -1616,11 +1521,11 @@ class ViewerController: UIViewController {
             updateHorizontalConstraintsShow(height: height, topOffset: topOffset, trailingOffset: trailingOffset, shift: false)
         }
     }
-    
+
     private func scrollDownHorizontalDetails() {
-        
+
         detailViewTopConstraint?.constant = -(view.frame.height)
-        
+
         if UIAccessibility.isReduceMotionEnabled {
             view.layoutIfNeeded()
         } else {
@@ -1629,46 +1534,42 @@ class ViewerController: UIViewController {
             })
         }
     }
-    
+
     private func hideHorizontalDetails(animate: Bool) {
-        
+
         view.layoutIfNeeded()
-        
+
         if animate && !UIAccessibility.isReduceMotionEnabled {
-            
+
             if imageView.contentMode != .scaleAspectFit {
                 UIView.transition(with: imageView, duration: 0.5, options: .transitionCrossDissolve, animations: { [weak self] in
                     self?.updateContentMode(contentMode: .scaleAspectFit)
                 })
             }
-            
+
             UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: { [weak self] in
                 self?.updateHorizontalConstraintsHide()
             }, completion: { [weak self] _ in
                 self?.detailView?.removeFromSuperview()
                 self?.detailView = nil
-                self?.downloadButton?.removeFromSuperview()
-                self?.downloadButton = nil
             })
         } else {
-            
+
             if imageView.contentMode != .scaleAspectFit {
                 updateContentMode(contentMode: .scaleAspectFit)
             }
-            
+
             updateHorizontalConstraintsHide()
             detailView?.removeFromSuperview()
             detailView = nil
-            downloadButton?.removeFromSuperview()
-            downloadButton = nil
         }
     }
-    
+
     private func updateHorizontalConstraintsShow(height: CGFloat, topOffset: CGFloat, trailingOffset: CGFloat, shift: Bool) {
 
         detailViewTopConstraint?.constant = -topOffset
         imageViewHeightConstraint?.constant = height
-                         
+
         if shift {
             imageViewLeadingConstraint?.constant = -trailingOffset
             imageViewTrailingConstraint?.constant = 0
@@ -1685,23 +1586,23 @@ class ViewerController: UIViewController {
 
         view.layoutIfNeeded()
     }
-    
+
     private func updateHorizontalConstraintsHide() {
-        
+
         detailViewTopConstraint?.constant = 0
-        
+
         imageViewLeadingConstraint?.constant = 0
         imageViewTrailingConstraint?.constant = 0
-        
+
         imageView.transform = .identity
-        
+
         if !metadata.video {
             imageView.backgroundColor = .systemBackground
         }
-        
+
         view.layoutIfNeeded()
     }
-    
+
     private func updateContentMode(contentMode: UIView.ContentMode) {
         imageView.contentMode = contentMode
     }
@@ -1710,117 +1611,117 @@ class ViewerController: UIViewController {
 extension ViewerController: UIGestureRecognizerDelegate {
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        
+
         guard metadata.video else { return false }
-        
+
         if gestureRecognizer is UITapGestureRecognizer && otherGestureRecognizer is UITapGestureRecognizer
             && gestureRecognizer.state == .ended && otherGestureRecognizer.state == .ended {
             //Allow both video layer and video container to receive tap events
             return true
         }
-        
+
         return false
     }
 }
 
 extension ViewerController: ControlsDelegate {
-    
+
     func beganTracking() {
         if mediaPlayer?.isPlaying ?? false {
             mediaPlayer?.pause()
             controlsView?.setPlaying(playing: false)
         }
     }
-    
+
     func timeChanged(time: Float) {
         if mediaPlayer != nil {
             mediaPlayer!.position = time
         }
     }
-    
+
     func volumeChanged(volume: Float) {
         mediaPlayer?.audio?.volume = Int32(volume)
     }
-    
+
     func speedRateChanged(rate: Float) {
         mediaPlayer?.rate = rate
     }
-    
+
     func volumeButtonTapped() {
         toggleMute()
     }
 
     func captionsSelected(subtitleIndex: Int32) {
-        
+
         guard mediaPlayer != nil else { return }
-        
+
         mediaPlayer!.currentVideoSubTitleIndex = subtitleIndex
         controlsView?.selectCaption(currentSubtitleIndex: mediaPlayer!.currentVideoSubTitleIndex)
     }
-    
+
     func audioTrackSelected(audioTrackIndex: Int32) {
-        
+
         guard mediaPlayer != nil else { return }
-        
+
         mediaPlayer!.currentAudioTrackIndex = audioTrackIndex
         controlsView?.selectAudioTrack(currentAudioTrackIndex: mediaPlayer!.currentAudioTrackIndex)
     }
-    
+
     func playButtonTapped() {
         playPause()
     }
-    
+
     func fullScreenButtonTapped() {
         hideAll()
     }
 }
 
 extension ViewerController: VLCMediaPlayerDelegate {
-    
+
     nonisolated func mediaPlayerTimeChanged(_ aNotification: Notification) {
-        
+
         Task { @MainActor [weak self] in
 
             self?.activityIndicator.stopAnimating()
-            
+
             guard let currentPosition = self?.controlsView?.getTimeSlider().value else { return }
             guard let playerPosition = self?.mediaPlayer?.position else { return }
-            
+
             self?.controlsView?.setMediaLength(length: self?.mediaPlayer?.media?.length.value?.doubleValue ?? 0)
-            
+
             if currentPosition == 0 {
                 //playing for the first time
                 self?.handleVideoPlaying()
             }
-            
+
             self?.controlsView?.setPosition(position: playerPosition)
-            
+
             if let time = self?.mediaPlayer?.time.stringValue {
                 self?.controlsView?.setTime(time: time)
             }
-            
+
             if let remainingTime = self?.mediaPlayer?.remainingTime?.stringValue {
                 self?.controlsView?.setRemainingTime(time: remainingTime)
             }
         }
     }
-    
+
     nonisolated func mediaPlayerStateChanged(_ aNotification: Notification) {
-        
+
         Task { @MainActor [weak self] in
-            
+
             guard let player = self?.mediaPlayer else { return }
-            
+
             let state = player.state
-            
+
             //Self.logger.debug("mediaPlayerStateChanged() - state: \(VLCMediaPlayerStateToString(state))")
-            
+
             if state == .playing || state == .opening || (state == .buffering && player.isPlaying) {
                 self?.activityIndicator.startAnimating()
             } else {
                 self?.activityIndicator.stopAnimating()
             }
-            
+
             if state == .stopped {
                 self?.restartMediaPlayer()
             }
@@ -1829,23 +1730,23 @@ extension ViewerController: VLCMediaPlayerDelegate {
 }
 
 extension ViewerController: VLCCustomDialogRendererProtocol {
-    
+
     nonisolated func showLogin(withTitle title: String, message: String, defaultUsername username: String?, askingForStorage: Bool, withReference reference: NSValue) {
     }
-    
+
     nonisolated func showQuestion(withTitle title: String, message: String, type questionType: VLCDialogQuestionType, cancel cancelString: String?, action1String: String?, action2String: String?, withReference reference: NSValue) {
         //Self.logger.debug("showQuestion() - title: \(title) message: \(message)")
     }
-    
+
     nonisolated func showProgress(withTitle title: String, message: String, isIndeterminate: Bool, position: Float, cancel cancelString: String?, withReference reference: NSValue) {
     }
-    
+
     nonisolated func updateProgress(withReference reference: NSValue, message: String?, position: Float) {
     }
-    
+
     nonisolated func cancelDialog(withReference reference: NSValue) {
     }
-    
+
     nonisolated func showError(withTitle error: String, message: String) {
         DispatchQueue.main.async { [weak self] in
             Self.logger.error("showError() - ERROR: \(error) MESSAGE: \(message)")
@@ -1855,23 +1756,23 @@ extension ViewerController: VLCCustomDialogRendererProtocol {
 }
 
 extension ViewerController: DetailViewDelegate {
-    
+
     func close() {}
     func detailsLoaded() {}
-    
+
     func showAllDetails(metadata: Metadata) {
         presentAllDetailsSheet()
     }
 }
 
 extension ViewerController: VLCMediaThumbnailerDelegate {
-    
+
     nonisolated func mediaThumbnailerDidTimeOut(_ mediaThumbnailer: VLCMediaThumbnailer) {}
-    
+
     nonisolated func mediaThumbnailer(_ mediaThumbnailer: VLCMediaThumbnailer, didFinishThumbnail thumbnail: CGImage) {
 
         DispatchQueue.main.async { [weak self] in
-            
+
             if let metadata = self?.metadata {
                 autoreleasepool {
                     let image = UIImage(cgImage: thumbnail)

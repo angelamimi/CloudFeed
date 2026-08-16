@@ -23,27 +23,32 @@ import Foundation
 
 @MainActor
 public class Environment: NSObject {
-    
+
     static let current = Environment()
-    
-    var currentUser: UserAccount? = nil
-    var currentServer: Server? = nil
-    
-    func setCurrentUser(account: String, user: String, userId: String)  {
+
+    var currentUser: UserAccount?
+    var currentServer: Server?
+    var windowSize: CGSize?
+
+    func setCurrentUser(account: String, user: String, userId: String) {
         if !isCurrentUser(account: account, userId: userId) {
             currentUser = UserAccount(account: account, user: user, userId: userId)
         }
     }
-    
+
     func setCurrentServer(urlBase: String, version: String) {
         currentServer = Server(urlBase: urlBase, version: version)
     }
-    
+
     func isCurrentUser(account: String, userId: String) -> Bool {
         guard currentUser != nil else { return false }
         return currentUser!.account == account && currentUser!.userId == userId
     }
-    
+
+    func setWindowSize(size: CGSize) {
+        windowSize = size
+    }
+
     func clear() {
         currentUser = nil
         currentServer = nil
@@ -51,25 +56,14 @@ public class Environment: NSObject {
 }
 
 public struct UserAccount: Sendable {
-    
+
     public let account: String
     public let user: String
     public let userId: String
-    
-    init(account: String, user: String, userId: String) {
-        self.account = account
-        self.user = user
-        self.userId = userId
-    }
 }
 
 public struct Server: Sendable {
-    
+
     public let urlBase: String
     public let version: String
-    
-    init(urlBase: String, version: String) {
-        self.urlBase = urlBase
-        self.version = version
-    }
 }

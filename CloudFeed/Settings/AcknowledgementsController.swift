@@ -22,12 +22,12 @@
 import UIKit
 import os.log
 
-final class AcknowledgementsController : UIViewController {
-    
+final class AcknowledgementsController: UIViewController {
+
     @IBOutlet weak var tableView: UITableView!
-    
+
     private var acknowledgements: [NSDictionary] = []
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: AcknowledgementsController.self)
@@ -35,30 +35,30 @@ final class AcknowledgementsController : UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         initTitle()
-        
+
         tableView.register(UINib(nibName: "AcknowledgementCell", bundle: nil), forCellReuseIdentifier: "AcknowledgementCell")
-        
-        tableView.rowHeight = UITableView.automaticDimension;
-        tableView.estimatedRowHeight = 120;
-        
+
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 120
+
         tableView.dataSource = self
         tableView.delegate = self
-        
+
         guard let plistURL = Bundle.main.url(forResource: "Acknowledgements", withExtension: "plist") else {
             Self.logger.error("Failed to load Acknowledgements.plist")
             return
         }
-        
+
         guard let array = NSArray(contentsOf: plistURL) as? [NSDictionary] else { return }
         acknowledgements = array
     }
-    
+
     private func initTitle() {
         navigationItem.title = Strings.SettingsItemAcknowledgements
         navigationItem.largeTitleDisplayMode = .never
-        
+
         if #unavailable(iOS 26) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithTransparentBackground()
@@ -71,11 +71,11 @@ final class AcknowledgementsController : UIViewController {
 }
 
 extension AcknowledgementsController: UITableViewDelegate, UITableViewDataSource {
-    
+
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return .leastNormalMagnitude
     }
-    
+
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -85,15 +85,14 @@ extension AcknowledgementsController: UITableViewDelegate, UITableViewDataSource
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "AcknowledgementCell", for: indexPath) as! AcknowledgementCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "AcknowledgementCell", for: indexPath) as? AcknowledgementCell
         let acknowledgement = acknowledgements[indexPath.row]
-        cell.titleLabel.text = acknowledgement.object(forKey: "title") as? String
-        cell.licenseLabel.text = acknowledgement.object(forKey: "license") as? String
-        return cell
+        cell?.titleLabel.text = acknowledgement.object(forKey: "title") as? String
+        cell?.licenseLabel.text = acknowledgement.object(forKey: "license") as? String
+        return cell ?? UITableViewCell()
     }
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
          return UITableView.automaticDimension
     }
 }
-

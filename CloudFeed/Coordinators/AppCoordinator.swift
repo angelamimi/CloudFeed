@@ -22,64 +22,67 @@
 import UIKit
 
 final class AppCoordinator: NSObject, Coordinator {
-    
+
     let window: UIWindow
     var dataService: DataService?
     var mainCoordinator: MainCoordinator?
     var actionURL: URL?
-    
-    init(window: UIWindow) {
+
+    let store = StoreUtility()
+
+    init(window: UIWindow) async {
+
         self.window = window
-    }
-    
-    func start() {
-        
-        let store = StoreUtility()
-        
+
+        super.init()
+
         guard let certificatesDirectory = store.certificatesDirectory else {
             showInitFailedError()
             return
         }
-        
-        guard let dbUrl = store.databaseDirectory?.appending(path: Global.shared.database) else {
-            showInitFailedError()
-            return
-        }
-        
-        let container = DatabaseManager.urlContainer(dbUrl)
-        let dbManager = DatabaseManager(modelContainer: container)
+
         let nextcloudService = NextcloudKitService(certificatesDirectory: certificatesDirectory, delegate: self)
-        
-        dataService = DataService(store: store, nextcloudService: nextcloudService, databaseManager: dbManager)
-        
+
+        do {
+            dataService = try await DataService(store: store, nextcloudService: nextcloudService)
+        } catch {
+            showInitFailedError()
+        }
+    }
+
+    func start() {
+
         if let dataService = self.dataService {
-            
+
+            Environment.current.setWindowSize(size: window.frame.size)
+
             dataService.setup()
-        
+
             Task { [weak self] in
-                
-                var urlBase: String? = nil
-                
+
+                var urlBase: String?
+
                 if let activeAccount = await dataService.getActiveAccount() {
                     Environment.current.setCurrentUser(account: activeAccount.account, user: activeAccount.user, userId: activeAccount.userId)
                     urlBase = activeAccount.urlBase
                 } else {
-                    store.deleteAllChainStore() //no account. make sure keychain is clear
+                    //store.deleteAllChainStore() //no account. make sure keychain is clear
+                    self?.store.deleteAllChainStore()
                 }
 
                 if let userAccount = Environment.current.currentUser {
-                    
+
                     for acc in await dataService.getAccountsOrdered() {
                         await dataService.appendSession(account: acc.account, user: acc.user, userId: acc.userId, urlBase: acc.urlBase)
                     }
-                    
+
                     if urlBase != nil {
                         let version = await dataService.getServerVersion(account: userAccount.account)
                         Environment.current.setCurrentServer(urlBase: urlBase!, version: version ?? "")
                     }
-                    
+
                     await self?.startMainCoordinator(unlock: false)
-                    
+
                 } else if let window = self?.window {
                     let loginServerCoordinator = LoginServerCoordinator(window: window, dataService: dataService)
                     loginServerCoordinator.delegate = self
@@ -88,18 +91,18 @@ final class AppCoordinator: NSObject, Coordinator {
             }
         }
     }
-    
+
     private func startMainCoordinator(unlock: Bool) async {
-        
+
         guard dataService != nil else { return }
-        
+
         if let style = dataService?.getDisplayStyle() {
             window.overrideUserInterfaceStyle = style
         }
-        
+
         if mainCoordinator == nil {
             mainCoordinator = MainCoordinator(window: window, dataService: dataService!)
-            
+
             if let url = actionURL, let result = URLUtility.processActionURL(url: url) {
                 actionURL = nil
                 if result.action == Global.WidgetAction.viewFavorite.rawValue {
@@ -115,12 +118,12 @@ final class AppCoordinator: NSObject, Coordinator {
         }
 
         mainCoordinator?.start()
-        
+
         if !unlock && requiresPasscode(controller: window.rootViewController) {
             return
         }
     }
-    
+
     func requiresPasscode() -> Bool {
         if let user = Environment.current.currentUser, (dataService?.store.getPasscode(user.account)) != nil {
             return true
@@ -128,24 +131,24 @@ final class AppCoordinator: NSObject, Coordinator {
             return false
         }
     }
-    
+
     func requiresPasscode(controller: UIViewController? = nil) -> Bool {
 
         if let user = Environment.current.currentUser {
-            
+
             if (dataService?.store.getPasscode(user.account)) != nil && mainCoordinator != nil {
-                
+
                 let passcodeController = UIStoryboard(name: "Passcode", bundle: nil).instantiateViewController(identifier: "PasscodeController") as PasscodeController
-                
+
                 passcodeController.viewModel = PasscodeViewModel(coordinator: nil, dataService: dataService!, resetDelegate: mainCoordinator!)
                 passcodeController.mode = .unlock
                 passcodeController.delegate = self
                 passcodeController.modalPresentationStyle = .overCurrentContext
-                
+
                 if #available(iOS 18.0, *) {
                     passcodeController.preferredTransition = .crossDissolve
                 }
-                
+
                 if let showController = controller {
                     passcodeController.isModalInPresentation = true
                     showController.show(passcodeController, sender: self)
@@ -154,49 +157,49 @@ final class AppCoordinator: NSObject, Coordinator {
                     window.rootViewController = navigationController
                     window.makeKeyAndVisible()
                 }
-                
+
                 return true
             }
         }
-        
+
         return false
     }
-    
+
     func showInitFailedError() {
-        
+
         let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.InitErrorMessage, preferredStyle: .alert)
         let navigationController = UINavigationController()
-        
+
         alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
             navigationController.popViewController(animated: true)
             exit(0)
         }))
-        
+
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
-        
+
         navigationController.present(alertController, animated: true)
     }
-    
+
     func showUntrustedWarningPrompt(host: String) {
-        
+
         guard let navigationController = getNavigationController() else { return }
-        
+
         let alertController = UIAlertController(title: Strings.LoginUntrustedServerChanged, message: Strings.LoginUntrustedServerContinue, preferredStyle: .alert)
-        
+
         alertController.addAction(UIAlertAction(title: Strings.YesAction, style: .default, handler: { [weak self] _ in
             self?.dataService?.writeCertificate(host: host)
         }))
-        
+
         alertController.addAction(UIAlertAction(title: Strings.NoAction, style: .default, handler: { _ in }))
-                            
+
         alertController.addAction(UIAlertAction(title: Strings.LoginViewCertificate, style: .default, handler: { [weak self] _ in
             self?.showCertificate(host: host, certificateDirectory: self?.dataService?.store.certificatesDirectory, navigationController: navigationController, delegate: self)
         }))
-        
+
         navigationController.present(alertController, animated: true)
     }
-    
+
     func showServerError(error: Int) {
         switch error {
         case Global.shared.errorMaintenance:
@@ -205,48 +208,48 @@ final class AppCoordinator: NSObject, Coordinator {
             break
         }
     }
-    
+
     func viewFavorite(account: String, ocId: String) {
         if let currentUser = Environment.current.currentUser, account == currentUser.account {
             mainCoordinator?.viewFavorite(ocId: ocId)
         }
     }
-    
+
     func viewImage(account: String, ocId: String) {
         if let currentUser = Environment.current.currentUser, account == currentUser.account {
             mainCoordinator?.viewImage(ocId: ocId)
         }
     }
-    
+
     private func showMaintenanceError() {
-        
+
         if let navigationController = getNavigationController() {
-            
+
             let alertController = UIAlertController(title: Strings.ErrorTitle, message: Strings.MaintenanceErrorMessage, preferredStyle: .alert)
-            
+
             alertController.addAction(UIAlertAction(title: Strings.OkAction, style: .default, handler: { _ in
                 navigationController.popViewController(animated: true)
             }))
-            
+
             navigationController.present(alertController, animated: true)
         }
     }
-    
+
     private func getNavigationController() -> UINavigationController? {
-        
+
         if let tabs = window.rootViewController as? UITabBarController,
            let navigationController = tabs.selectedViewController as? UINavigationController,
            !(navigationController.visibleViewController is UIAlertController) {
             return navigationController
         }
-        
+
         return nil
     }
-    
+
     private func showCertificateDisplayError() {
 
         let navigationController = getNavigationController()
-        
+
         navigationController?.presentedViewController?.dismiss(animated: true, completion: { [weak self] in
             if let nav = navigationController {
                 self?.showErrorPrompt(message: Strings.LoginViewCertificateError, navigationController: nav)
@@ -260,13 +263,13 @@ extension AppCoordinator: NextcloudKitServiceDelegate {
     nonisolated func serverStatusChanged(reachable: Bool) {
         //not implemented
     }
-    
+
     nonisolated func serverError(error: Int) {
         DispatchQueue.main.async { [weak self] in
             self?.showServerError(error: error)
         }
     }
-    
+
     nonisolated func serverCertificateUntrusted(host: String) {
         DispatchQueue.main.async { [weak self] in
             self?.showUntrustedWarningPrompt(host: host)
@@ -275,7 +278,7 @@ extension AppCoordinator: NextcloudKitServiceDelegate {
 }
 
 extension AppCoordinator: CertificateDelegate {
-    
+
     nonisolated func certificateDisplayError() {
         DispatchQueue.main.async { [weak self] in
             self?.showCertificateDisplayError()
@@ -299,7 +302,7 @@ extension AppCoordinator: PasscodeDelegate {
 }
 
 extension AppCoordinator: LoginServerCoordinatorDelegate {
-    
+
     func loginSuccess() {
         Task { [weak self] in
             await self?.startMainCoordinator(unlock: true)

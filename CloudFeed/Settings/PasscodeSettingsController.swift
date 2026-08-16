@@ -21,24 +21,24 @@
 import UIKit
 
 class PasscodeSettingsController: UIViewController {
-    
+
     @IBOutlet weak var tableView: UITableView!
-    
+
     var viewModel: PasscodeSettingsViewModel?
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         tableView.delegate = self
         tableView.dataSource = self
-        
+
         initTitle()
     }
-    
+
     private func initTitle() {
         navigationItem.title = Strings.SettingsItemSettingsPasscode
         navigationItem.largeTitleDisplayMode = .never
-        
+
         if #unavailable(iOS 26) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithTransparentBackground()
@@ -50,8 +50,8 @@ class PasscodeSettingsController: UIViewController {
     }
 }
 
-extension PasscodeSettingsController : UITableViewDelegate, UITableViewDataSource {
-    
+extension PasscodeSettingsController: UITableViewDelegate, UITableViewDataSource {
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 0 && indexPath.item == 0 {
             viewModel?.editPasscode()
@@ -62,32 +62,32 @@ extension PasscodeSettingsController : UITableViewDelegate, UITableViewDataSourc
             viewModel?.setAppReset(resetSwitch.isOn)
         }
     }
-    
+
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-    
+
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return ""
     }
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 2
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
+
         let cell = UITableViewCell()
         cell.selectionStyle = .none
         cell.backgroundColor = .secondarySystemGroupedBackground
-        
+
         var config = cell.defaultContentConfiguration()
 
         config.prefersSideBySideTextAndSecondaryText = true
         config.textProperties.font = UIFont.preferredFont(forTextStyle: .body)
         config.secondaryTextProperties.font = UIFont.preferredFont(forTextStyle: .body)
         config.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Global.shared.tablePadding, leading: 0, bottom: Global.shared.tablePadding, trailing: Global.shared.tablePadding)
-        
+
         if indexPath.section == 0 && indexPath.item == 0 {
             config.text = Strings.SettingsItemEditPasscode
         } else if indexPath.section == 0 && indexPath.item == 1 {
@@ -98,24 +98,24 @@ extension PasscodeSettingsController : UITableViewDelegate, UITableViewDataSourc
             config.text = Strings.SettingsItemResetAppPasscode
             cell.accessoryView = resetSwitch
         }
-        
+
         cell.contentConfiguration = config
-        
+
         return cell
     }
-    
+
     func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         if section == 0 {
             return Strings.SettingsItemResetAppDescriptionPasscode
         }
-        
+
         return nil
     }
-    
+
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return UITableView.automaticDimension
     }
-    
+
     @objc private func resetSwitchChanged(_ sender: UISwitch) {
         guard let cell = sender.superview as? UITableViewCell else { return }
         guard let resetSwitch = cell.accessoryView as? UISwitch else { return }

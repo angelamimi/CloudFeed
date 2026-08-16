@@ -22,39 +22,39 @@
 import UIKit
 
 class LoginServerController: UIViewController {
-    
+
     @IBOutlet weak var logoImageView: UIImageView!
     @IBOutlet weak var serverURLLabel: UILabel!
     @IBOutlet weak var serverURLTextField: UITextField!
     @IBOutlet weak var serverURLButton: UIButton!
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var centerConstraint: NSLayoutConstraint!
-    
+
     @IBAction func doneEditing(_ sender: Any) {
         processURL()
     }
-    
+
     @IBAction func buttonClicked(_ sender: Any) {
         processURL()
     }
-    
+
     @IBAction func closeButtonClicked(_ sender: Any) {
         dismiss(animated: true)
     }
 
     var viewModel: LoginServerViewModel!
-    
+
     var centerOffset: Double = 0
-    
+
     override func viewDidLoad() {
-        
+
         serverURLLabel.text = Strings.LoginServerLabel
         serverURLButton.configuration?.title = Strings.LoginServerButton
-        
+
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
-        
+
         if parent != nil && parent!.isBeingPresented {
             serverURLLabel.textColor = .label
             logoImageView.isHidden = true
@@ -62,32 +62,39 @@ class LoginServerController: UIViewController {
             centerConstraint.constant = -50
             view.backgroundColor = .systemBackground
         }
-        
+
         centerOffset = centerConstraint.constant
+
+        serverURLTextField.layer.cornerRadius = 16
+        serverURLTextField.layer.cornerCurve = .continuous
+        serverURLTextField.layer.borderColor = UIColor.tertiaryLabel.cgColor
+        serverURLTextField.layer.borderWidth = 1
+        serverURLTextField.layer.masksToBounds = true
+        serverURLTextField.layer.cornerCurve = .continuous
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
-    
+
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
-    
+
     override var prefersStatusBarHidden: Bool {
         return false
     }
-    
+
     @objc private func willEnterForeground() {
         serverURLTextField.resignFirstResponder()
     }
-    
+
     @objc private func keyboardWillShow(notification: Notification) {
 
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
@@ -95,15 +102,15 @@ class LoginServerController: UIViewController {
            let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
 
             let bottom = serverURLButton.frame.maxY + 16
-            
+
             if bottom > keyboardFrame.minY {
-                
+
                 let shift = bottom - keyboardFrame.minY
-                
+
                 centerConstraint.constant = centerOffset - shift
-                
+
                 let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
-                
+
                 UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options) { [weak self] in
                     self?.view.layoutIfNeeded()
                 }
@@ -112,26 +119,26 @@ class LoginServerController: UIViewController {
     }
 
     @objc private func keyboardWillBeHidden(notification: Notification) {
-        
+
         if let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
            let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
 
             centerConstraint.constant = centerOffset
-            
+
             let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
-            
+
             UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options) { [weak self] in
                 self?.view.layoutIfNeeded()
             }
         }
     }
-    
+
     private func processURL() {
-        
+
         guard let url = validateUrl() else { return }
-        
+
         Task { [weak self] in
-            
+
             if let result = await self?.viewModel.beginLoginFlow(url: url) {
                if !result.supported {
                     self?.viewModel.showUnsupportedVersionErrorPrompt()
@@ -151,25 +158,25 @@ class LoginServerController: UIViewController {
             }
         }
     }
-    
+
     private func validateUrl() -> String? {
-        
+
         guard var url = serverURLTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
             viewModel.showInvalidURLPrompt()
             return nil
         }
-        
+
         if url.hasSuffix("/") { url = String(url.dropLast()) }
         if url.count == 0 {
             viewModel.showInvalidURLPrompt()
             return nil
         }
-        
+
         // Check whether baseUrl contain protocol. If not add https:// by default.
         if url.hasPrefix("https") == false && url.hasPrefix("http") == false {
             url = "https://" + url
         }
-        
+
         return url
     }
 }

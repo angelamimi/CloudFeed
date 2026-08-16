@@ -27,64 +27,65 @@ protocol DownloadPreviewOperationDelegate: AnyObject {
     func previewDownloaded(metadata: Metadata)
 }
 
-class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable {
-    
+nonisolated class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable {
+
     private var task: Task<Void, Never>?
     private var metadata: Metadata?
+    private var account: String?
     private weak var dataService: DataService?
     private weak var delegate: DownloadPreviewOperationDelegate?
-    
+
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: String(describing: DownloadPreviewOperation.self)
     )
 
-    init(_ metadata: Metadata, dataService: DataService, delegate: DownloadPreviewOperationDelegate) {
+    init(_ account: String, _ metadata: Metadata, dataService: DataService, delegate: DownloadPreviewOperationDelegate) {
         self.metadata = metadata
+        self.account = account
         self.delegate = delegate
         self.dataService = dataService
     }
-    
+
     override func main() {
 
-        task = Task { [weak self] in
+        task = Task.detached { [weak self] in
 
             if self?.isCancelled ?? true {
                 self?.finish()
                 return
             }
-            
+
             await self?.download()
-            
+
             if self?.isCancelled ?? true {
                 self?.finish()
                 return
             }
-            
+
             if let metadata = self?.metadata {
                 await self?.delegate?.previewDownloaded(metadata: metadata)
             }
-            
+
             self?.finish()
         }
     }
-    
+
     override func cancel() {
         super.cancel()
-        
+
         task?.cancel()
         task = nil
     }
-    
-    private func download() async {
-        
+
+    nonisolated private func download() async {
+
         if metadata?.video ?? false {
             await dataService?.downloadVideoPreview(metadata: metadata)
         } else if metadata?.svg ?? false {
-            await dataService?.downloadSVGPreview(metadata: metadata)
-        } else if metadata != nil {
-            await dataService?.downloadPreview(metadata: metadata)
+            await dataService?.downloadSVGPreview(account: account!, metadata: metadata)
+        } else if metadata != nil && account != nil {
+            await dataService?.downloadPreview(account: account!, metadata: metadata)
         }
     }
 }
-

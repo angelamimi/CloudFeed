@@ -29,7 +29,7 @@ protocol DownloadDelegate: AnyObject {
 final class Download {
     var completed: Int64
     var total: Int64
-    
+
     init(completed: Int64, total: Int64) {
         self.completed = completed
         self.total = total
@@ -38,35 +38,36 @@ final class Download {
 
 @MainActor
 class DownloadViewModel: NSObject {
-    
+
     private let dataService: DataService
     private let coordinator: DownloadCoordinator
-    
+
     private let downloadManager: DownloadManager
-    
+
     private var shares: [Metadata] = []
     private let queue = DispatchQueue(label: "downloadQueue")
     private var downloadCount: Int = 0
     private var downloads = [String: Download]()
-    
+
     weak var delegate: DownloadDelegate?
-    
+
     init(dataService: DataService, delegate: DownloadDelegate, coordinator: DownloadCoordinator) {
         self.dataService = dataService
         self.delegate = delegate
         self.coordinator = coordinator
-        
+
         downloadManager = DownloadManager(dataService: dataService)
     }
-    
+
     func download(_ metadata: Metadata) {
         if dataService.store.fileExists(metadata) {
             coordinator.downloadComplete()
         } else {
-            downloadManager.download(metadata: metadata, delegate: self)
+            guard let account = Environment.current.currentUser?.account else { return }
+            downloadManager.download(account: account, metadata: metadata, delegate: self)
         }
     }
-    
+
     func cancelDownloads() {
         downloadManager.cancelAll()
         coordinator.downloadComplete()
@@ -74,13 +75,20 @@ class DownloadViewModel: NSObject {
 }
 
 extension DownloadViewModel: DownloadOperationDelegate {
-    
+
     func progress(metadata: Metadata, progress: Progress) {
         delegate?.progressUpdated(progress.fractionCompleted)
     }
 
     func downloaded(metadata: Metadata) {
-        dataService.savePreview(metadata: metadata)
-        coordinator.downloadComplete()
+
+        Task.detached { [weak self] in
+
+            await self?.dataService.savePreview(metadata: metadata)
+
+            await MainActor.run { [weak self] in
+                self?.coordinator.downloadComplete()
+            }
+        }
     }
 }

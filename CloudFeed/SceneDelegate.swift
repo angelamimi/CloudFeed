@@ -20,41 +20,44 @@
 //
 
 import UIKit
+import SwiftData
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-    
+
     private var appCoordinator: AppCoordinator!
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        
+
         guard let windowScene = scene as? UIWindowScene else { return }
         let window = UIWindow(windowScene: windowScene)
-        
+
         self.window = window
-        
+
         if ProcessInfo.processInfo.environment["XCInjectBundleInto"] == nil {
-            
-            appCoordinator = AppCoordinator(window: window)
-            
-            if let url = connectionOptions.urlContexts.first(where: { $0.url.scheme == Global.shared.widgetScheme })?.url {
-                appCoordinator.actionURL = url
+
+            Task { @MainActor [weak self] in
+                self?.appCoordinator = await AppCoordinator(window: window)
+
+                if let url = connectionOptions.urlContexts.first(where: { $0.url.scheme == Global.shared.widgetScheme })?.url {
+                    self?.appCoordinator.actionURL = url
+                }
+
+                self?.appCoordinator.start()
             }
-            
-            appCoordinator.start()
         } else {
             window.rootViewController = UINavigationController()
             self.window = window
             window.makeKeyAndVisible()
         }
     }
-    
+
     func sceneDidEnterBackground(_ scene: UIScene) {
 
         if appCoordinator.requiresPasscode(),
            let tabs = window?.rootViewController as? UITabBarController {
-            
+
             if let presented = tabs.presentedViewController {
                 presented.dismiss(animated: false, completion: { [weak self] in
                     _ = self?.appCoordinator.requiresPasscode(controller: tabs)
@@ -64,18 +67,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
         }
     }
-    
+
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        
+
         let urlContext = URLContexts.first(where: { $0.url.scheme == Global.shared.widgetScheme })
-        
+
         if let url = urlContext?.url {
             handleURL(url: url)
         }
     }
-    
+
     private func handleURL(url: URL) {
-        
+
         if let result = URLUtility.processActionURL(url: url) {
             if result.action == Global.WidgetAction.viewFavorite.rawValue {
                 appCoordinator.viewFavorite(account: result.account, ocId: result.ocId)
@@ -85,4 +88,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
 }
-

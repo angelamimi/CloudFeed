@@ -23,30 +23,30 @@ import UIKit
 
 @MainActor
 class PasscodeSettingsViewModel {
-    
+
     private let coordinator: SettingsCoordinator?
     private let dataService: DataService
-    
+
     init(coordinator: SettingsCoordinator?, dataService: DataService) {
         self.coordinator = coordinator
         self.dataService = dataService
     }
-    
+
     func editPasscode() {
         coordinator?.showPasscode(mode: .create)
     }
-    
+
     func setAppReset(_ appResetOnFailedAttempts: Bool) {
         if let account = Environment.current.currentUser?.account {
             dataService.store.setAppResetOnFailedAttempts(account, appResetOnFailedAttempts)
         }
     }
-    
+
     func getAppReset() -> Bool {
         if let account = Environment.current.currentUser?.account {
             return dataService.store.getAppResetOnFailedAttempts(account)
         }
-        
+
         return false
     }
 }
