@@ -45,6 +45,9 @@ class TableCell: UITableViewCell {
     @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var commentButton: UIButton!
 
+    @IBOutlet weak var typeLabel: UILabel!
+    @IBOutlet weak var typeContainerView: UIView!
+
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var createDateLabel: UILabel!
     @IBOutlet weak var nameLabel: UILabel!
@@ -285,6 +288,11 @@ class TableCell: UITableViewCell {
         actionStackView.layoutMargins = .zero
         actionStackView.insetsLayoutMarginsFromSafeArea = true
         actionStackView.isLayoutMarginsRelativeArrangement = false
+
+        typeContainerView.layer.borderColor = UIColor.label.cgColor
+        typeContainerView.layer.borderWidth = 1
+        typeContainerView.layer.cornerRadius = 4
+        typeContainerView.layer.backgroundColor = UIColor.systemBackground.cgColor
     }
 
     private func setImageViewHeightConstraint() {

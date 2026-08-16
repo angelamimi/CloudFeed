@@ -646,8 +646,10 @@ final class MediaViewModel {
 
             cell.createDateLabel.text = metadata.datePhotosOriginal.formatted(date: .long, time: .shortened)
             cell.dateLabel.text = metadata.date.formatted(date: .long, time: .shortened)
-            cell.nameLabel.text = metadata.fileNameView
             cell.ownerLabel.text = metadata.ownerDisplayName
+
+            cell.nameLabel.text = (metadata.fileNameView as NSString).deletingPathExtension
+            cell.typeLabel.text = metadata.fileExtension.uppercased()
 
             let width = metadata.width
             let height = metadata.height
