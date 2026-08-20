@@ -505,6 +505,8 @@ extension DatabaseManager {
                         model.width = remoteMetadata.width
                         model.height = remoteMetadata.height
 
+                        Self.logger.debug("Sync update for: \(localMetadata.fileNameView)")
+
                         modelContext.insert(model)
                     }
                 }
@@ -533,6 +535,8 @@ extension DatabaseManager {
             }
 
             if deletes.count > 0 {
+
+                Self.logger.debug("Sync delete count: \(deletes.count)")
 
                 let chunkSize = Global.shared.chunkSize
 

@@ -514,11 +514,60 @@ final class MediaViewModel {
     private func applyDatasourceChanges(add: [Metadata], update: [Metadata], delete: [Metadata.ID], refresh: Bool) {
 
         guard !add.isEmpty || !update.isEmpty || !delete.isEmpty else {
+            Self.logger.debug("No changes to apply to datasource.")
             delegate.dataSourceUpdated(refresh: refresh)
             return
         }
 
+        Self.logger.debug("Applying datasource changes. add: \(add.count) update: \(update.count) delete: \(delete.count)")
+
         var snapshot = tableMode ? tableDataSource.snapshot() : dataSource.snapshot()
+
+        if snapshot.numberOfItems(inSection: 0) == 0 {
+            if add.count > 0 {
+                for toAdd in add {
+                    self.metadatas[toAdd.id] = toAdd
+                    snapshot.appendItems([toAdd.id])
+                }
+
+                Self.logger.debug("Applying datasource changes. Insert only: \(add.count)")
+                applyReload(snapshot: snapshot, notify: true, refresh: refresh)
+            }
+            return
+        }
+
+        var deleteCount = 0
+        var insertCount = 0
+        var updateCount = 0
+
+        if add.count > 0 {
+
+            let sorted = self.metadatas.values.sorted(by: { $0.date > $1.date })
+
+            for toAdd in add {
+                if let next = sorted.first(where: { toAdd.date >= $0.date && toAdd.ocId != $0.ocId }) {
+                    if snapshot.sectionIdentifier(containingItem: next.id) == nil {
+
+                    } else {
+                        self.metadatas[toAdd.id] = toAdd
+                        snapshot.insertItems([toAdd.id], beforeItem: next.id)
+                        insertCount += 1
+                    }
+                } else {
+                    self.metadatas[toAdd.id] = toAdd
+                    snapshot.appendItems([toAdd.id])
+                    insertCount += 1
+                }
+            }
+        }
+
+        for toDelete in delete {
+            self.metadatas.removeValue(forKey: toDelete)
+            if snapshot.itemIdentifiers(inSection: 0).contains(toDelete) {
+                snapshot.deleteItems([toDelete])
+                deleteCount += 1
+            }
+        }
 
         for toUpdate in update {
             self.metadatas[toUpdate.id]?.etag = toUpdate.etag
@@ -533,39 +582,53 @@ final class MediaViewModel {
             self.metadatas[toUpdate.id]?.height = toUpdate.height
 
             snapshot.reconfigureItems([toUpdate.id])
+            updateCount += 1
         }
 
-        for toDelete in delete {
-            self.metadatas.removeValue(forKey: toDelete)
-            if snapshot.itemIdentifiers(inSection: 0).contains(toDelete) {
-                snapshot.deleteItems([toDelete])
-            }
+        Self.logger.debug("Applying datasource changes. Insert: \(insertCount) Update: \(updateCount) Delete: \(deleteCount)")
+
+        if insertCount > 0 || updateCount > 0 || deleteCount > 0 {
+            apply(snapshot: snapshot, animate: false, notify: true, refresh: refresh)
         }
+    }
 
-        if snapshot.numberOfItems(inSection: 0) == 0 {
-            for toAdd in add {
-                self.metadatas[toAdd.id] = toAdd
-                snapshot.appendItems([toAdd.id])
-            }
-        } else {
-            let sorted = self.metadatas.values.sorted(by: { $0.date > $1.date })
+    private func applyReload(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, notify: Bool, refresh: Bool) {
 
-            for toAdd in add {
-                if let next = sorted.first(where: { toAdd.date >= $0.date && toAdd.ocId != $0.ocId }) {
-                    if snapshot.sectionIdentifier(containingItem: next.id) == nil {
+        if tableMode && tableDataSource != nil {
+            reloadTable(snapshot: snapshot, notify: notify, refresh: refresh)
+        } else if tableMode == false && dataSource != nil {
+            reloadGrid(snapshot: snapshot, notify: notify, refresh: refresh)
+        }
+    }
 
-                    } else {
-                        self.metadatas[toAdd.id] = toAdd
-                        snapshot.insertItems([toAdd.id], beforeItem: next.id)
-                    }
+    private func reloadTable(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, notify: Bool, refresh: Bool) {
+
+        dataSourceQueue.async { [weak self] in
+            DispatchQueue.main.async { [weak self] in
+                if notify {
+                    self?.tableDataSource.applySnapshotUsingReloadData(snapshot, completion: { [weak self] in
+                        self?.delegate.dataSourceUpdated(refresh: refresh)
+                    })
                 } else {
-                    self.metadatas[toAdd.id] = toAdd
-                    snapshot.appendItems([toAdd.id])
+                    self?.tableDataSource.applySnapshotUsingReloadData(snapshot)
                 }
             }
         }
+    }
 
-        apply(snapshot: snapshot, animate: false, notify: true, refresh: refresh)
+    private func reloadGrid(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, notify: Bool, refresh: Bool) {
+
+        dataSourceQueue.async { [weak self] in
+            DispatchQueue.main.async { [weak self] in
+                if notify {
+                    self?.dataSource.applySnapshotUsingReloadData(snapshot, completion: { [weak self] in
+                        self?.delegate.dataSourceUpdated(refresh: refresh)
+                    })
+                } else {
+                    self?.dataSource.applySnapshotUsingReloadData(snapshot)
+                }
+            }
+        }
     }
 
     private func applyTable(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool, refresh: Bool) {
