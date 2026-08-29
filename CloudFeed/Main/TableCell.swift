@@ -36,7 +36,7 @@ class TableCell: UITableViewCell {
     @IBOutlet weak var ownerImageView: UIImageView!
     @IBOutlet weak var ownerLabel: UILabel!
 
-    @IBOutlet weak var previewImageView: UIImageView!
+    @IBOutlet weak var previewImageView: SizingImageView!
 
     @IBOutlet weak var livePhotoImageView: UIImageView!
     @IBOutlet weak var videoButton: UIButton!
@@ -104,12 +104,13 @@ class TableCell: UITableViewCell {
         sizeLabel.text = ""
         pixelSizeLabel.text = ""
 
-        setImageViewHeightConstraint()
-
         previewImageView.contentMode = .scaleAspectFill
+        previewImageView.alpha = 0
 
         activityIndicator.startAnimating()
         activityIndicator.isHidden = false
+
+        setImageViewHeightConstraint()
     }
 
     @objc func favoriteButtonTouched() {
@@ -150,19 +151,21 @@ class TableCell: UITableViewCell {
 
         activityIndicator.isHidden = true
 
-        if ImageUtility.ratioWithinThreshold(image?.size ?? .zero) == true {
-            previewImageView.contentMode = .scaleAspectFill
-        } else {
-            previewImageView.contentMode = .scaleAspectFit
-        }
-
         if image == nil {
             previewImageView.image = nil
         } else {
-            UIView.transition(with: previewImageView,
-                              duration: 0.3,
-                              options: .transitionCrossDissolve,
-                              animations: { [weak self] in self?.previewImageView.image = image })
+
+            if ImageUtility.ratioWithinThreshold(image!.size) {
+                previewImageView.contentMode = .scaleAspectFill
+            } else {
+                previewImageView.contentMode = .scaleAspectFit
+            }
+
+            previewImageView.image = image
+
+            UIView.animate(withDuration: 0.6, animations: { [weak self] in
+                self?.previewImageView.alpha = 1
+            })
         }
     }
 
@@ -196,6 +199,7 @@ class TableCell: UITableViewCell {
 
         previewImageView.image = UIImage(systemName: name, withConfiguration: config)
         previewImageView.contentMode = .center
+        previewImageView.alpha = 1
     }
 
     func playVideo(_ url: URL) {
@@ -261,6 +265,9 @@ class TableCell: UITableViewCell {
 
     private func initCell() {
 
+        accessibilityElements = [ownerImageView!, ownerLabel!, previewImageView!, favoriteButton!, shareButton!,
+                                 commentButton!, dateLabel!, createDateLabel!, nameLabel!, typeLabel!, sizeLabel!, pixelSizeLabel!]
+
         livePhotoImageView.isHidden = true
         videoButton.isHidden = true
 
@@ -270,7 +277,7 @@ class TableCell: UITableViewCell {
             videoButton.configuration = .filled()
             videoButton.tintColor = .label
             videoButton.configuration?.baseBackgroundColor = .systemBackground.withAlphaComponent(0.3)
-            videoButton.layer.cornerRadius = videoButton.frame.size.height / 2
+            videoButton.layer.cornerRadius = 20
             videoButton.layer.masksToBounds = true
         }
 
@@ -283,8 +290,6 @@ class TableCell: UITableViewCell {
         dateLabel.font = UIFont.preferredFont(forTextStyle: .footnote, compatibleWith: UITraitCollection(legibilityWeight: .bold))
         createDateLabel.font = UIFont.preferredFont(forTextStyle: .footnote, compatibleWith: UITraitCollection(legibilityWeight: .bold))
 
-        setImageViewHeightConstraint()
-
         actionStackView.layoutMargins = .zero
         actionStackView.insetsLayoutMarginsFromSafeArea = true
         actionStackView.isLayoutMarginsRelativeArrangement = false
@@ -293,6 +298,8 @@ class TableCell: UITableViewCell {
         typeContainerView.layer.borderWidth = 1
         typeContainerView.layer.cornerRadius = 4
         typeContainerView.layer.backgroundColor = UIColor.systemBackground.cgColor
+
+        setImageViewHeightConstraint()
     }
 
     private func setImageViewHeightConstraint() {
@@ -305,9 +312,6 @@ class TableCell: UITableViewCell {
 
         previewImageViewHeightConstraint?.constant = height
         previewImageViewMinHeightConstraint?.constant = height
-
-        previewImageViewHeightConstraint.priority = .required
-        previewImageViewMinHeightConstraint?.priority = .required
     }
 }
 

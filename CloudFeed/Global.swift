@@ -59,7 +59,7 @@ nonisolated final class Global: Sendable {
     //
     let fileCacheLimit: UInt = 500 //megabytes
     let cacheLimit           = 200
-    let sizeCacheLimit       = 300 * 1024 * 1024
+    let sizeCacheLimit       = 200 * 1024 * 1024
     let queueLimit           = 5
 
     // MARK: - Capabilities

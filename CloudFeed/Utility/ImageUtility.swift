@@ -35,8 +35,9 @@ nonisolated final class ImageUtility: NSObject {
         let previewSize = CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)
         let iconSize = CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon)
 
-        if let previewImage = await image.byPreparingThumbnail(ofSize: previewSize), //image.preparingThumbnail(of: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview)),
+        if let previewImage = await image.byPreparingThumbnail(ofSize: previewSize),
            let data = previewImage.jpegData(compressionQuality: 1.0) {
+
             do {
                 try data.write(to: URL(fileURLWithPath: previewPath))
             } catch {
@@ -44,8 +45,9 @@ nonisolated final class ImageUtility: NSObject {
             }
         }
 
-        if let iconImage = await image.byPreparingThumbnail(ofSize: iconSize), //image.preparingThumbnail(of: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon)),
+        if let iconImage = await image.byPreparingThumbnail(ofSize: iconSize),
            let data = iconImage.jpegData(compressionQuality: 0.7) {
+
             do {
                 try data.write(to: URL(fileURLWithPath: iconPath))
             } catch {
@@ -60,10 +62,10 @@ nonisolated final class ImageUtility: NSObject {
         guard metadata.svg else { return nil }
         guard let svgImage = SVGKImage(contentsOfFile: imagePath) else { return nil }
 
-        if let image = svgImage.uiImage {
+        if let uiImage = svgImage.uiImage, let data = uiImage.pngData(), let image = UIImage(data: data) {
 
-            let icon = await image.byPreparingThumbnail(ofSize: .init(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon))
-            let preview = await image.byPreparingThumbnail(ofSize: .init(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
+            let icon = await image.byPreparingThumbnail(ofSize: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon))
+            let preview = await image.byPreparingThumbnail(ofSize: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
 
             if !FileManager().fileExists(atPath: iconPath) {
                 try? icon?.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: iconPath))

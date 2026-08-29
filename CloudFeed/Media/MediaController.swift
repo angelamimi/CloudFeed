@@ -359,6 +359,9 @@ class MediaController: CollectionController {
             collectionView.isHidden = true
             viewModel.initDataSource(tableView: tableView)
             initTableView()
+            tableView.isPrefetchingEnabled = true
+            tableView.prefetchDataSource = self
+            tableView.selfSizingInvalidation = .enabledIncludingConstraints
         } else {
             registerCollectionCell("MainCollectionViewCell")
             initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
@@ -628,6 +631,17 @@ extension MediaController: UITableViewDelegate {
 
         tableView.deselectRow(at: indexPath, animated: false)
         openViewer(indexPath: indexPath)
+    }
+}
+
+extension MediaController: UITableViewDataSourcePrefetching {
+
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        viewModel.prefetch(indexPaths: indexPaths)
+    }
+
+    func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+        viewModel.cancel(indexPaths: indexPaths)
     }
 }
 

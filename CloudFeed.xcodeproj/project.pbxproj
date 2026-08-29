@@ -143,6 +143,7 @@
 		39E84B6B2B2B9BC000BEA453 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */; };
 		39EA902E2FA0094A0093D9EB /* RouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EA902D2FA0094A0093D9EB /* RouteView.swift */; };
 		39EED48A2B56F9C100475802 /* DatabaseManager+Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */; };
+		39F12AE1303742270078EA8F /* SizingImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39F12AE0303742270078EA8F /* SizingImageView.swift */; };
 		39F3F0BD2E9AC312006B1E66 /* Passcode.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39F3F0BC2E9AC312006B1E66 /* Passcode.storyboard */; };
 		39FA11A62D2AEA270054DFF6 /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 39FA11A52D2AEA270054DFF6 /* OpenSSL */; };
 		39FE2FE92C8B85F000CE51AC /* ControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39FE2FE82C8B85F000CE51AC /* ControlsView.xib */; };
@@ -329,6 +330,7 @@
 		39E84B6A2B2B9BC000BEA453 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		39EA902D2FA0094A0093D9EB /* RouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteView.swift; sourceTree = "<group>"; };
 		39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseManager+Avatar.swift"; sourceTree = "<group>"; };
+		39F12AE0303742270078EA8F /* SizingImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizingImageView.swift; sourceTree = "<group>"; };
 		39F3F0BC2E9AC312006B1E66 /* Passcode.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Passcode.storyboard; sourceTree = "<group>"; };
 		39FE2FE82C8B85F000CE51AC /* ControlsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ControlsView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -457,6 +459,7 @@
 		39271D7129DA664100522DFD /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				39F12AE0303742270078EA8F /* SizingImageView.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -935,6 +938,7 @@
 				39226A8E2FCCD8E0000BD795 /* DownloadAvatarOperation.swift in Sources */,
 				396A0DB32DE270C700B0EF87 /* ShareViewModel.swift in Sources */,
 				39E593792D25C3CF00BA3C9A /* LoginPollController.swift in Sources */,
+				39F12AE1303742270078EA8F /* SizingImageView.swift in Sources */,
 				398D14CC2B93B76700526E42 /* CacheManager.swift in Sources */,
 				39402AE12EA6B23E0091085D /* PasscodeViewModel.swift in Sources */,
 				395F3A1A2A9678340004FF32 /* Environment.swift in Sources */,
@@ -1420,7 +1424,7 @@
 			repositoryURL = "https://github.com/Nextcloud/NextcloudKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 7.4.3;
+				version = 7.5.0;
 			};
 		};
 		392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {

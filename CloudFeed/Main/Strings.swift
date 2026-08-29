@@ -236,6 +236,23 @@ extension Strings {
     public static let CommentsErrorDelete = NSLocalizedString("Comments.Error.Delete", comment: "")
     public static let CommentsErrorLoad = NSLocalizedString("Comments.Error.Load", comment: "")
 
+    //Social View
+    public static let SocialOwnerProfileImageLabel = NSLocalizedString("Social.Owner.Image.Label", comment: "")
+    public static let SocialVideoAction = NSLocalizedString("Social.Video.Action", comment: "")
+    public static let SocialCommentActionHint = NSLocalizedString("Social.Comment.Action.Hint", comment: "")
+    public static let SocialShareActionHint = NSLocalizedString("Social.Share.Action.Hint", comment: "")
+    public static let SocialFavAction = NSLocalizedString("Social.Fav.Action", comment: "")
+    public static let SocialFavActionHint = NSLocalizedString("Social.Fav.Action.Hint", comment: "")
+    public static let SocialNotFavAction = NSLocalizedString("Social.NotFav.Action", comment: "")
+    public static let SocialNotFavActionHint = NSLocalizedString("Social.NotFav.Action.Hint", comment: "")
+    public static let SocialFileTypeLabel = NSLocalizedString("Social.FileType.Label", comment: "")
+    public static let SocialFileNameLabel = NSLocalizedString("Social.FileName.Label", comment: "")
+    public static let SocialOwnerNameLabel = NSLocalizedString("Social.OwnerName.Label", comment: "")
+    public static let SocialModifiedDateLabel = NSLocalizedString("Social.ModifiedDate.Label", comment: "")
+    public static let SocialCreateDateLabel = NSLocalizedString("Social.CreateDate.Label", comment: "")
+    public static let SocialImageSizeLabel = NSLocalizedString("Social.ImageSize.Label", comment: "")
+    public static let SocialFileSizeLabel = NSLocalizedString("Social.FileSize.Label", comment: "")
+
     //Image Detail and EXIF
     public static let DetailTitle = NSLocalizedString("Detail.Title", comment: "")
     public static let DetailSectionGeneral = NSLocalizedString("Detail.Section.General", comment: "")

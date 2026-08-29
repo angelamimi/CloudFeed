@@ -3461,7 +3461,6 @@
       }
     },
     "Share.Action" : {
-      "comment" : "Sharing",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3490,6 +3489,174 @@
           }
         }
       }
+    },
+    "Social..Video.Action" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play video"
+          }
+        }
+      }
+    },
+    "Social.Comment.Action.Hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to open comments"
+          }
+        }
+      }
+    },
+    "Social.CreateDate.Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create date"
+          }
+        }
+      }
+    },
+    "Social.Fav.Action" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorite"
+          }
+        }
+      }
+    },
+    "Social.Fav.Action.Hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to remove from favorites"
+          }
+        }
+      }
+    },
+    "Social.FileName.Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File name"
+          }
+        }
+      }
+    },
+    "Social.FileSize.Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File size"
+          }
+        }
+      }
+    },
+    "Social.FileType.Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File type"
+          }
+        }
+      }
+    },
+    "Social.ImageSize.Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Image size"
+          }
+        }
+      }
+    },
+    "Social.ModifiedDate.Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last modified date"
+          }
+        }
+      }
+    },
+    "Social.NotFav.Action" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Favorite"
+          }
+        }
+      }
+    },
+    "Social.NotFav.Action.Hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to add to favorites"
+          }
+        }
+      }
+    },
+    "Social.Owner.Image.Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Owner profile image"
+          }
+        }
+      }
+    },
+    "Social.OwnerName.Label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Owner name"
+          }
+        }
+      }
+    },
+    "Social.Share.Action.Hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to share"
+          }
+        }
+      }
+    },
+    "Social.Video.Action" : {
+
     },
     "Switch.Value.Off" : {
       "localizations" : {

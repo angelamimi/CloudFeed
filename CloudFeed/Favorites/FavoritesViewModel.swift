@@ -417,40 +417,35 @@ final class FavoritesViewModel {
             return cell
         }
 
-        let cached = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag)
-
-        populateCell(account: account, metadata: metadata, cached: cached, cell: cell, indexPath: indexPath)
+        populateCell(account: account, metadata: metadata, cell: cell, indexPath: indexPath)
 
         return cell
     }
 
-    nonisolated private func populateCell(account: String, metadata: Metadata, cached: UIImage?, cell: CollectionViewCell, indexPath: IndexPath) {
+    private func populateCell(account: String, metadata: Metadata, cell: CollectionViewCell, indexPath: IndexPath) {
 
-        DispatchQueue.main.async {
-
-            if cell.isSelected == false {
-                cell.selected(false, removal: false)
-            }
-
-            cell.isAccessibilityElement = true
-            cell.accessibilityTraits = [.image]
-
-            if metadata.classFile == NKTypeClassFile.video.rawValue {
-                cell.showVideoIcon()
-                cell.accessibilityLabel = Strings.MediaVideo
-            } else if metadata.livePhoto {
-                cell.showLivePhotoIcon()
-                cell.accessibilityLabel = Strings.MediaLivePhoto
-            } else {
-                cell.resetStatusIcon()
-                cell.accessibilityLabel = Strings.MediaPhoto
-            }
+        if cell.isSelected == false {
+            cell.selected(false, removal: false)
         }
 
+        cell.isAccessibilityElement = true
+        cell.accessibilityTraits = [.image]
+
+        if metadata.classFile == NKTypeClassFile.video.rawValue {
+            cell.showVideoIcon()
+            cell.accessibilityLabel = Strings.MediaVideo
+        } else if metadata.livePhoto {
+            cell.showLivePhotoIcon()
+            cell.accessibilityLabel = Strings.MediaLivePhoto
+        } else {
+            cell.resetStatusIcon()
+            cell.accessibilityLabel = Strings.MediaPhoto
+        }
+
+        let cached = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag)
+
         if cached != nil {
-            DispatchQueue.main.async {
-                cell.setImage(cached)
-            }
+            cell.setImage(cached)
         } else {
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
 
@@ -458,36 +453,28 @@ final class FavoritesViewModel {
 
                 let image = UIImage(contentsOfFile: path)
 
-                DispatchQueue.main.async { [weak self] in
+                cell.imageStatus.tintColor = .white
+                cell.setImage(image)
 
-                    cell.imageStatus.tintColor = .white
-                    cell.setImage(image)
-
-                    if image != nil {
-                        self?.cacheManager.cache(metadata: metadata, image: image!)
-                    }
+                if image != nil {
+                    cacheManager.cache(metadata: metadata, image: image!)
                 }
             } else {
-                DispatchQueue.main.async { [weak self] in
-
-                    if self?.systemIconIds.contains(metadata.id) == true {
-                        cell.imageStatus.tintColor = .systemGray2
-                        if !metadata.video && !metadata.livePhoto {
-                            cell.imageStatus.isHidden = false
-                            cell.imageStatus.image = UIImage(systemName: "photo")
-                        }
-                    } else {
-                        if self?.pauseLoading == false {
-                            self?.cacheManager.download(account: account, metadata: metadata, delegate: self!)
-                        }
+                if systemIconIds.contains(metadata.id) == true {
+                    cell.imageStatus.tintColor = .systemGray2
+                    if !metadata.video && !metadata.livePhoto {
+                        cell.imageStatus.isHidden = false
+                        cell.imageStatus.image = UIImage(systemName: "photo")
+                    }
+                } else {
+                    if pauseLoading == false {
+                        cacheManager.download(account: account, metadata: metadata, delegate: self)
                     }
                 }
             }
         }
 
-        DispatchQueue.main.async { [weak self] in
-            self?.delegate.editCellUpdated(cell: cell, indexPath: indexPath)
-        }
+        delegate.editCellUpdated(cell: cell, indexPath: indexPath)
     }
 
     private func apply(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool, refresh: Bool, bulk: Bool = false, bulkError: Bool = false) {

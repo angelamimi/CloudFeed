@@ -48,15 +48,14 @@ final class MediaViewModel {
 
     private let dataSourceQueue = DispatchQueue(label: "datasource.queue")
 
-    private nonisolated let dataService: DataService
     private let coordinator: MediaCoordinator
     private weak var delegate: MediaDelegate!
 
+    private nonisolated let dataService: DataService
     private let cacheManager: CacheManager
 
     private var metadatas: [Metadata.ID: Metadata] = [:]
     private var systemIconIds: [Metadata.ID] = []
-
     private var fetchTask: Task<Void, Never>? {
         willSet {
             fetchTask?.cancel()
@@ -97,6 +96,32 @@ final class MediaViewModel {
         var snapshot = tableDataSource.snapshot()
         snapshot.appendSections([0])
         tableDataSource.applySnapshotUsingReloadData(snapshot)
+    }
+
+    func cancel(indexPaths: [IndexPath]) {
+        for indexPath in indexPaths {
+            if let metadata = getItemAtIndexPath(indexPath) {
+                cacheManager.cancel(ocId: metadata.ocId, etag: metadata.etag)
+            }
+        }
+    }
+
+    func prefetch(indexPaths: [IndexPath]) {
+
+        guard let account = Environment.current.currentUser?.account else { return }
+
+        for indexPath in indexPaths {
+
+            if let metadata = getItemAtIndexPath(indexPath),
+               cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag) == nil {
+
+                let path = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+
+                if !FileManager.default.fileExists(atPath: path) {
+                    cacheManager.download(account: account, metadata: metadata, delegate: self as DownloadPreviewOperationDelegate)
+                }
+            }
+        }
     }
 
     func share(metadatas: [Metadata]) {
@@ -434,18 +459,20 @@ final class MediaViewModel {
 
     func toggleFavorite(metadata: Metadata) {
 
-        Task { [weak self] in
+        Task.detached { [weak self] in
 
             let result = await self?.dataService.toggleFavoriteMetadata(metadata)
 
             if result == nil {
-                self?.delegate.favoriteUpdated(error: true)
-                self?.coordinator.showFavoriteUpdateFailedError()
+                await MainActor.run { [weak self] in
+                    self?.delegate.favoriteUpdated(error: true)
+                    self?.coordinator.showFavoriteUpdateFailedError()
+                }
             } else {
 
-                self?.metadatas[metadata.id]?.favorite = result!.favorite
-
                 await MainActor.run { [weak self] in
+
+                    self?.metadatas[metadata.id]?.favorite = result!.favorite
 
                     if self?.tableMode == false, var snapshot = self?.dataSource.snapshot() {
                         snapshot.reconfigureItems([metadata.id])
@@ -494,7 +521,7 @@ final class MediaViewModel {
 
         for local in locals {
             if let remote = remotes.first(where: { local.ocId == $0.ocId }) {
-                if remote.favorite != local.favorite || remote.etag != local.etag || remote.fileName != local.fileName {
+                if remote.favorite != local.favorite || remote.etag != local.etag || remote.fileNameView != local.fileNameView {
                     updates.append(remote)
                 }
             } else {
@@ -561,28 +588,33 @@ final class MediaViewModel {
             }
         }
 
-        for toDelete in delete {
-            self.metadatas.removeValue(forKey: toDelete)
-            if snapshot.itemIdentifiers(inSection: 0).contains(toDelete) {
-                snapshot.deleteItems([toDelete])
-                deleteCount += 1
+        if delete.count > 0 {
+            for toDelete in delete {
+                self.metadatas.removeValue(forKey: toDelete)
+                if snapshot.itemIdentifiers(inSection: 0).contains(toDelete) {
+                    snapshot.deleteItems([toDelete])
+                    deleteCount += 1
+                }
             }
         }
 
-        for toUpdate in update {
-            self.metadatas[toUpdate.id]?.etag = toUpdate.etag
-            self.metadatas[toUpdate.id]?.fileName = toUpdate.fileName
-            self.metadatas[toUpdate.id]?.fileNameView = toUpdate.fileNameView
-            self.metadatas[toUpdate.id]?.favorite = toUpdate.favorite
-            self.metadatas[toUpdate.id]?.date = toUpdate.date
-            self.metadatas[toUpdate.id]?.datePhotosOriginal = toUpdate.datePhotosOriginal
-            self.metadatas[toUpdate.id]?.hasPreview = toUpdate.hasPreview
-            self.metadatas[toUpdate.id]?.size = toUpdate.size
-            self.metadatas[toUpdate.id]?.width = toUpdate.width
-            self.metadatas[toUpdate.id]?.height = toUpdate.height
+        if update.count > 0 {
 
-            snapshot.reconfigureItems([toUpdate.id])
-            updateCount += 1
+            for toUpdate in update {
+                self.metadatas[toUpdate.id]?.etag = toUpdate.etag
+                self.metadatas[toUpdate.id]?.fileName = toUpdate.fileName
+                self.metadatas[toUpdate.id]?.fileNameView = toUpdate.fileNameView
+                self.metadatas[toUpdate.id]?.favorite = toUpdate.favorite
+                self.metadatas[toUpdate.id]?.date = toUpdate.date
+                self.metadatas[toUpdate.id]?.datePhotosOriginal = toUpdate.datePhotosOriginal
+                self.metadatas[toUpdate.id]?.hasPreview = toUpdate.hasPreview
+                self.metadatas[toUpdate.id]?.size = toUpdate.size
+                self.metadatas[toUpdate.id]?.width = toUpdate.width
+                self.metadatas[toUpdate.id]?.height = toUpdate.height
+
+                snapshot.reconfigureItems([toUpdate.id])
+                updateCount += 1
+            }
         }
 
         Self.logger.debug("Applying datasource changes. Insert: \(insertCount) Update: \(updateCount) Delete: \(deleteCount)")
@@ -687,48 +719,93 @@ final class MediaViewModel {
             return cell
         }
 
-        let cachedAvatar = cacheManager.cached(urlBase: metadata.urlBase, userId: metadata.ownerId)
-        let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag)
-
-        populateCell(metadata: metadata, account: account, cachedAvatar: cachedAvatar, cachedImage: cachedImage, cell: cell, indexPath: indexPath)
+        populateCell(metadata: metadata, account: account, cell: cell, indexPath: indexPath)
 
         return cell
     }
 
-    nonisolated private func populateCell(metadata: Metadata, account: String, cachedAvatar: UIImage?, cachedImage: UIImage?, cell: TableCell, indexPath: IndexPath) {
+    private func populateCell(metadata: Metadata, account: String, cell: TableCell, indexPath: IndexPath) {
 
-        DispatchQueue.main.async { [weak self] in
+        cell.isAccessibilityElement = false
 
-            cell.delegate = self!
-            cell.metadataId = metadata.id
+        cell.delegate = self
+        cell.metadataId = metadata.id
 
-            cell.setFavorite(metadata.favorite)
-            cell.setInfoVisibility(self?.metadataVisible == true)
-            cell.forVideo(metadata.video)
-            cell.forLivePhoto(metadata.livePhoto)
+        cell.setFavorite(metadata.favorite)
+        cell.setInfoVisibility(metadataVisible == true)
+        cell.forVideo(metadata.video)
+        cell.forLivePhoto(metadata.livePhoto)
 
-            cell.createDateLabel.text = metadata.datePhotosOriginal.formatted(date: .long, time: .shortened)
-            cell.dateLabel.text = metadata.date.formatted(date: .long, time: .shortened)
-            cell.ownerLabel.text = metadata.ownerDisplayName
+        let create = metadata.datePhotosOriginal.formatted(date: .long, time: .shortened)
+        cell.createDateLabel.accessibilityLabel = Strings.SocialCreateDateLabel
+        cell.createDateLabel.accessibilityValue = create
+        cell.createDateLabel.text = create
 
-            cell.nameLabel.text = (metadata.fileNameView as NSString).deletingPathExtension
-            cell.typeLabel.text = metadata.fileExtension.uppercased()
+        let modified = metadata.date.formatted(date: .long, time: .shortened)
+        cell.dateLabel.accessibilityLabel = Strings.SocialModifiedDateLabel
+        cell.dateLabel.accessibilityValue = modified
+        cell.dateLabel.text = modified
 
-            let width = metadata.width
-            let height = metadata.height
+        let owner = metadata.ownerDisplayName
+        cell.ownerLabel.accessibilityLabel = Strings.SocialOwnerNameLabel
+        cell.ownerLabel.accessibilityValue = owner
+        cell.ownerLabel.text = owner
 
-            if width > 0 && height > 0 {
-                let formattedWidth = String(format: "%.0f", width)
-                let formattedHeight = String(format: "%.0f", height)
-                let formattedPixels = "\(formattedWidth) x \(formattedHeight)"
+        let name = (metadata.fileNameView as NSString).deletingPathExtension
+        cell.nameLabel.accessibilityLabel = Strings.SocialFileNameLabel
+        cell.nameLabel.accessibilityValue = name
+        cell.nameLabel.text = name
 
-                cell.pixelSizeLabel.text = formattedPixels
-            }
+        let type = metadata.fileExtension.uppercased()
+        cell.typeLabel.accessibilityLabel = Strings.SocialFileTypeLabel
+        cell.typeLabel.accessibilityValue = type
+        cell.typeLabel.text = type
 
-            if metadata.size > 0 {
-                let formattedFileSize = ByteCountFormatter.string(fromByteCount: metadata.size, countStyle: .file)
-                cell.sizeLabel.text = formattedFileSize
-            }
+        cell.ownerImageView.accessibilityLabel = Strings.SocialOwnerProfileImageLabel
+
+        cell.videoButton.accessibilityLabel = Strings.SocialVideoAction
+
+        cell.favoriteButton.accessibilityHint = metadata.favorite ? Strings.SocialFavActionHint : Strings.SocialNotFavActionHint
+        cell.favoriteButton.accessibilityLabel = metadata.favorite ? Strings.SocialFavAction : Strings.SocialNotFavAction
+
+        cell.shareButton.accessibilityHint = Strings.SocialShareActionHint
+        cell.shareButton.accessibilityLabel = Strings.ShareAction
+
+        cell.commentButton.accessibilityHint = Strings.SocialCommentActionHint
+        cell.commentButton.accessibilityLabel = Strings.CommentsAction
+
+        if metadata.video {
+            cell.previewImageView.accessibilityLabel = Strings.MediaVideo
+        } else if metadata.livePhoto {
+            cell.previewImageView.accessibilityLabel = Strings.MediaLivePhoto
+        } else {
+            cell.previewImageView.accessibilityLabel = Strings.MediaPhoto
+        }
+
+        let width = metadata.width
+        let height = metadata.height
+
+        if width > 0 && height > 0 {
+            let formattedWidth = String(format: "%.0f", width)
+            let formattedHeight = String(format: "%.0f", height)
+            let formattedPixels = "\(formattedWidth) x \(formattedHeight)"
+
+            cell.pixelSizeLabel.isAccessibilityElement = true
+            cell.pixelSizeLabel.accessibilityLabel = Strings.SocialImageSizeLabel
+            cell.pixelSizeLabel.accessibilityValue = formattedPixels
+            cell.pixelSizeLabel.text = formattedPixels
+        } else {
+            cell.pixelSizeLabel.isAccessibilityElement = false
+        }
+
+        if metadata.size > 0 {
+            let formattedFileSize = ByteCountFormatter.string(fromByteCount: metadata.size, countStyle: .file)
+            cell.sizeLabel.isAccessibilityElement = true
+            cell.sizeLabel.accessibilityLabel = Strings.SocialFileSizeLabel
+            cell.sizeLabel.accessibilityValue = formattedFileSize
+            cell.sizeLabel.text = formattedFileSize
+        } else {
+            cell.sizeLabel.isAccessibilityElement = false
         }
 
         let ownerId = metadata.ownerId
@@ -737,10 +814,10 @@ final class MediaViewModel {
 
         } else {
 
+            let cachedAvatar = cacheManager.cached(urlBase: metadata.urlBase, userId: metadata.ownerId)
+
             if cachedAvatar != nil {
-                DispatchQueue.main.async {
-                    cell.ownerImageView?.image = cachedAvatar
-                }
+                cell.ownerImageView?.image = cachedAvatar
             } else {
 
                 let avatarPath = dataService.store.getAvatarPath(metadata.ownerId, metadata.urlBase)
@@ -749,110 +826,100 @@ final class MediaViewModel {
 
                     let image = UIImage(contentsOfFile: avatarPath)
 
-                    DispatchQueue.main.async { [weak self] in
-                        cell.ownerImageView?.image = image
+                    cell.ownerImageView?.image = image
 
-                        if image != nil {
-                            self?.cacheManager.cache(urlBase: metadata.urlBase, userId: metadata.ownerId, image: image!)
-                        }
+                    if image != nil {
+                        cacheManager.cache(urlBase: metadata.urlBase, userId: metadata.ownerId, image: image!)
                     }
                 } else {
-                    DispatchQueue.main.async { [weak self] in
-                        if self?.pauseLoading == false {
-                            self?.cacheManager.download(objectId: metadata.id, userId: metadata.ownerId, urlBase: metadata.urlBase, account: account, delegate: self!)
-                        }
-                    }
+                    cacheManager.download(objectId: metadata.id, userId: metadata.ownerId, urlBase: metadata.urlBase, account: account, delegate: self)
                 }
             }
         }
 
+        let cachedImage = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag)
+
         if cachedImage != nil {
-            DispatchQueue.main.async {
-                cell.setPreviewImage(cachedImage)
-            }
+            cell.setPreviewImage(cachedImage)
         } else {
 
             let path = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
 
             if FileManager.default.fileExists(atPath: path) {
 
-                let image = UIImage(contentsOfFile: path)
+                Task.detached { [weak self] in
 
-                DispatchQueue.main.async { [weak self] in
-                    cell.setPreviewImage(image)
+                    let image = await self?.loadImage(path)
 
-                    if image != nil {
-                        self?.cacheManager.cache(metadata: metadata, image: image!)
+                    await MainActor.run { [weak self] in
+                        cell.setPreviewImage(image)
+
+                        if image != nil {
+                            self?.cacheManager.cache(metadata: metadata, image: image!)
+                        }
                     }
                 }
+
             } else {
 
-                DispatchQueue.main.async { [weak self] in
+                if systemIconIds.contains(metadata.id) == true {
 
-                    if self?.systemIconIds.contains(metadata.id) == true {
-
-                        if metadata.video {
-                            cell.setSystemImage(name: "play")
-                        } else if metadata.image {
-                            cell.setSystemImage(name: "photo")
-                        }
-                    } else {
-
-                        if self?.pauseLoading == false {
-                            self?.cacheManager.download(account: account, metadata: metadata, delegate: self! as DownloadPreviewOperationDelegate)
-                        }
+                    if metadata.video {
+                        cell.setSystemImage(name: "play")
+                    } else if metadata.image {
+                        cell.setSystemImage(name: "photo")
                     }
+                } else {
+                    cacheManager.download(account: account, metadata: metadata, delegate: self as DownloadPreviewOperationDelegate)
                 }
             }
         }
 
-        DispatchQueue.main.async {
-            cell.invalidate()
-        }
+        cell.invalidate()
+    }
+
+    @concurrent private func loadImage(_ path: String) async -> UIImage? {
+        guard let image = UIImage(contentsOfFile: path) else { return nil }
+        return await image.byPreparingForDisplay()
     }
 
     private func initCell(metadataId: Metadata.ID, cell: CollectionViewCell, indexPath: IndexPath) -> CollectionViewCell {
 
-        guard let metadata = self.metadatas[metadataId],
+        guard let metadata = metadatas[metadataId],
               let account = Environment.current.currentUser?.account else {
             cell.isAccessibilityElement = false
             return cell
         }
 
-        let cached = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag)
-
-        populateCell(account: account, metadata: metadata, cached: cached, cell: cell, indexPath: indexPath)
+        populateCell(account: account, metadata: metadata, cell: cell, indexPath: indexPath)
 
         return cell
     }
 
-    nonisolated private func populateCell(account: String, metadata: Metadata, cached: UIImage?, cell: CollectionViewCell, indexPath: IndexPath) {
+    private func populateCell(account: String, metadata: Metadata, cell: CollectionViewCell, indexPath: IndexPath) {
 
-        DispatchQueue.main.async {
-
-            if cell.isSelected == false {
-                cell.selected(false, removal: false)
-            }
-
-            cell.isAccessibilityElement = true
-            cell.accessibilityTraits = [.image]
-
-            if metadata.video {
-                cell.showVideoIcon()
-                cell.accessibilityLabel = Strings.MediaVideo
-            } else if metadata.livePhoto {
-                cell.showLivePhotoIcon()
-                cell.accessibilityLabel = Strings.MediaLivePhoto
-            } else {
-                cell.resetStatusIcon()
-                cell.accessibilityLabel = Strings.MediaPhoto
-            }
+        if cell.isSelected == false {
+            cell.selected(false, removal: false)
         }
 
+        cell.isAccessibilityElement = true
+        cell.accessibilityTraits = [.image]
+
+        if metadata.video {
+            cell.showVideoIcon()
+            cell.accessibilityLabel = Strings.MediaVideo
+        } else if metadata.livePhoto {
+            cell.showLivePhotoIcon()
+            cell.accessibilityLabel = Strings.MediaLivePhoto
+        } else {
+            cell.resetStatusIcon()
+            cell.accessibilityLabel = Strings.MediaPhoto
+        }
+
+        let cached = cacheManager.cached(ocId: metadata.ocId, etag: metadata.etag)
+
         if cached != nil {
-            DispatchQueue.main.async {
-                cell.setImage(cached)
-            }
+            cell.setImage(cached)
         } else {
             let path = dataService.store.getIconPath(metadata.ocId, metadata.etag)
 
@@ -860,34 +927,30 @@ final class MediaViewModel {
 
                 let image = UIImage(contentsOfFile: path)
 
-                DispatchQueue.main.async { [weak self] in
-                    cell.imageStatus.tintColor = .white
-                    cell.setImage(image)
+                cell.imageStatus.tintColor = .white
+                cell.setImage(image)
 
-                    if image != nil {
-                        self?.cacheManager.cache(metadata: metadata, image: image!)
-                    }
+                if image != nil {
+                    cacheManager.cache(metadata: metadata, image: image!)
                 }
+
             } else {
-                DispatchQueue.main.async { [weak self] in
-                    if self?.systemIconIds.contains(metadata.id) == true {
-                        cell.imageStatus.tintColor = .systemGray2
-                        if !metadata.video && !metadata.livePhoto {
-                            cell.imageStatus.isHidden = false
-                            cell.imageStatus.image = UIImage(systemName: "photo")
-                        }
-                    } else {
-                        if self?.pauseLoading == false {
-                            self?.cacheManager.download(account: account, metadata: metadata, delegate: self! as DownloadPreviewOperationDelegate)
-                        }
+
+                if systemIconIds.contains(metadata.id) == true {
+                    cell.imageStatus.tintColor = .systemGray2
+                    if !metadata.video && !metadata.livePhoto {
+                        cell.imageStatus.isHidden = false
+                        cell.imageStatus.image = UIImage(systemName: "photo")
+                    }
+                } else {
+                    if pauseLoading == false {
+                        cacheManager.download(account: account, metadata: metadata, delegate: self as DownloadPreviewOperationDelegate)
                     }
                 }
             }
         }
 
-        DispatchQueue.main.async { [weak self] in
-            self?.delegate.selectCellUpdated(cell: cell, indexPath: indexPath)
-        }
+        delegate.selectCellUpdated(cell: cell, indexPath: indexPath)
     }
 
     private func handleToggleFavorite(metadataId: String) {
@@ -933,6 +996,7 @@ final class MediaViewModel {
     private func handlePreviewDownloaded(_ metadata: Metadata) {
 
         if tableMode && tableDataSource != nil {
+
             var snapshot = tableDataSource.snapshot()
             let displayed = snapshot.itemIdentifiers(inSection: 0)
 

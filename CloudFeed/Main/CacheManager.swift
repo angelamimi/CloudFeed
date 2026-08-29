@@ -22,11 +22,13 @@
 import UIKit
 import os.log
 
-nonisolated final class CacheManager {
+final class CacheManager {
 
-    private weak var dataService: DataService!
+    private let dataService: DataService
     private let cache: NSCache<NSString, UIImage>
     private let queue: OperationQueue
+
+    private var operations: [String: AsyncOperation] = [:]
 
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -54,8 +56,13 @@ nonisolated final class CacheManager {
         queue.cancelAllOperations()
     }
 
+    func cancel(ocId: String, etag: String) {
+        let key = ocId + etag
+        operations[key]?.cancel()
+    }
+
     func cache(metadata: Metadata, image: UIImage) {
-        cache.setObject(image, forKey: (metadata.ocId + metadata.etag) as NSString)
+        cache.setObject(image, forKey: (metadata.ocId + metadata.etag) as NSString, cost: cost(of: image))
     }
 
     func cache(urlBase: String, userId: String, image: UIImage) {
@@ -73,12 +80,28 @@ nonisolated final class CacheManager {
     }
 
     func download(account: String, metadata: Metadata, delegate: DownloadPreviewOperationDelegate) {
+        let id = metadata.ocId + metadata.etag
         let operation = DownloadPreviewOperation(account, metadata, dataService: dataService, delegate: delegate)
+        operation.completionBlock = { [weak self] in
+            self?.handleOperationCompletion(id: id)
+        }
         queue.addOperation(operation)
+        operations[id] = operation
     }
 
     func download(objectId: String, userId: String, urlBase: String, account: String, delegate: DownloadAvatarOperationDelegate) {
         let operation = DownloadAvatarOperation(objectId: objectId, userId: userId, urlBase: urlBase, account: account, dataService: dataService, delegate: delegate)
         queue.addOperation(operation)
+    }
+
+    private func cost(of image: UIImage) -> Int {
+        guard let cg = image.cgImage else { return 0 }
+        return cg.bytesPerRow * cg.height
+    }
+
+    nonisolated private func handleOperationCompletion(id: String) {
+        Task { @MainActor [weak self] in
+            self?.operations.removeValue(forKey: id)
+        }
     }
 }

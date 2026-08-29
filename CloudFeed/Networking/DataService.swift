@@ -389,7 +389,7 @@ nonisolated final class DataService: NSObject, Sendable {
                 let preview = await ImageUtility.imageFromVideo(url: url, size: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
                 try? preview?.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
 
-                let icon = preview?.preparingThumbnail(of: .init(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon))
+                let icon = preview?.preparingThumbnail(of: CGSize(width: Global.shared.sizeIcon, height: Global.shared.sizeIcon))
                 try? icon?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: iconPath))
             }
         }
