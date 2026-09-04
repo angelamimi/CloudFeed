@@ -26,7 +26,7 @@ import UIKit
 @MainActor
 protocol FavoritesDelegate: AnyObject {
     func fetching()
-    func dataSourceUpdated(refresh: Bool)
+    func dataSourceUpdated()
     func bulkEditFinished(error: Bool)
     func fetchResultReceived(resultItemCount: Int?)
     func editCellUpdated(cell: CollectionViewCell, indexPath: IndexPath)
@@ -178,7 +178,7 @@ final class FavoritesViewModel {
 
         snapshot.reconfigureItems(snapshot.itemIdentifiers(inSection: 0))
 
-        apply(snapshot: snapshot, animate: false, notify: false, refresh: false)
+        apply(snapshot: snapshot, animate: false, notify: false)
     }
 
     func filter(type: Global.FilterType, from: Date, to: Date) {
@@ -249,7 +249,7 @@ final class FavoritesViewModel {
     private func applyDatasourceChanges(add: [Metadata], update: [Metadata], delete: [Metadata.ID], refresh: Bool) {
 
         guard !add.isEmpty || !update.isEmpty || !delete.isEmpty else {
-            delegate.dataSourceUpdated(refresh: refresh)
+            delegate.dataSourceUpdated()
             return
         }
 
@@ -319,7 +319,7 @@ final class FavoritesViewModel {
         Self.logger.debug("Applying favorite datasource changes. Insert: \(insertCount) Update: \(updateCount) Delete: \(deleteCount)")
 
         if insertCount > 0 || updateCount > 0 || deleteCount > 0 {
-            apply(snapshot: snapshot, animate: false, notify: true, refresh: refresh)
+            apply(snapshot: snapshot, animate: false, notify: true)
         }
     }
 
@@ -344,7 +344,7 @@ final class FavoritesViewModel {
         }
 
         DispatchQueue.main.async { [weak self] in
-            self?.apply(snapshot: snapshot, animate: true, notify: false, refresh: false, bulk: true, bulkError: error)
+            self?.apply(snapshot: snapshot, animate: true, notify: false, bulk: true, bulkError: error)
         }
     }
 
@@ -355,7 +355,7 @@ final class FavoritesViewModel {
         var snapshot = dataSource.snapshot()
         snapshot.reconfigureItems(items)
 
-        apply(snapshot: snapshot, animate: false, notify: false, refresh: false)
+        apply(snapshot: snapshot, animate: false, notify: false)
     }
 
     func showViewerPager(currentIndex: Int, metadatas: [Metadata]) {
@@ -477,7 +477,7 @@ final class FavoritesViewModel {
         delegate.editCellUpdated(cell: cell, indexPath: indexPath)
     }
 
-    private func apply(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool, refresh: Bool, bulk: Bool = false, bulkError: Bool = false) {
+    private func apply(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool, bulk: Bool = false, bulkError: Bool = false) {
 
         dataSourceQueue.async { [weak self] in
             DispatchQueue.main.async { [weak self] in
@@ -487,7 +487,7 @@ final class FavoritesViewModel {
                     })
                 } else if notify {
                     self?.dataSource.apply(snapshot, animatingDifferences: animate, completion: { [weak self] in
-                        self?.delegate.dataSourceUpdated(refresh: refresh)
+                        self?.delegate.dataSourceUpdated()
                     })
                 } else {
                     self?.dataSource.apply(snapshot, animatingDifferences: animate)
@@ -502,7 +502,7 @@ final class FavoritesViewModel {
             DispatchQueue.main.async { [weak self] in
                 if notify {
                     self?.dataSource.applySnapshotUsingReloadData(snapshot, completion: { [weak self] in
-                        self?.delegate.dataSourceUpdated(refresh: refresh)
+                        self?.delegate.dataSourceUpdated()
                     })
                 } else {
                     self?.dataSource.applySnapshotUsingReloadData(snapshot)
@@ -525,11 +525,11 @@ extension FavoritesViewModel: DownloadPreviewOperationDelegate {
 
             if FileManager().fileExists(atPath: path) {
                 snapshot.reconfigureItems([metadata.id])
-                apply(snapshot: snapshot, animate: false, notify: false, refresh: false)
+                apply(snapshot: snapshot, animate: false, notify: false)
             } else {
                 systemIconIds.append(metadata.id)
                 snapshot.reconfigureItems([metadata.id])
-                apply(snapshot: snapshot, animate: false, notify: false, refresh: false)
+                apply(snapshot: snapshot, animate: false, notify: false)
             }
         }
     }

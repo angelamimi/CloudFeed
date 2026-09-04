@@ -94,6 +94,10 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
         return nil
     }
 
+    func fileExists(account: String, serverUrlFileName: String) async -> Bool {
+        return false
+    }
+
     func getCapabilitiesServerVersion(_ account: String) async -> String? {
         return ""
     }

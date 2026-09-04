@@ -329,7 +329,7 @@ class CollectionController: UIViewController {
         return false
     }
 
-    func displayResults(refresh: Bool, emptyViewTitle: String, emptyViewDescription: String) {
+    func displayResults(emptyViewTitle: String, emptyViewDescription: String) {
 
         let collectionCount = collectionView?.numberOfItems(inSection: 0) ?? 0
         let tableCount = tableView?.numberOfRows(inSection: 0) ?? 0
@@ -365,13 +365,6 @@ class CollectionController: UIViewController {
 
             if !isEditing {
                 delegate?.setTitle()
-            }
-
-            if refresh {
-                //When scrolled far in a long list, then filtered, the user ends up at a scroll position that
-                //doesn't display the newly filtered list. Screen appears blank. Enabling scroll to top may need
-                //more conditions around it or will scroll to top when the user is interacting with the list.
-                scrollToTop(false)
             }
         }
     }

@@ -314,11 +314,11 @@ class FavoritesController: CollectionController {
         }
     }
 
-    private func displayResults(refresh: Bool) {
+    private func displayResults() {
         if hasFilter() {
-            displayResults(refresh: refresh, emptyViewTitle: Strings.FavEmptyFilterTitle, emptyViewDescription: Strings.FavEmptyFilterDescription)
+            displayResults(emptyViewTitle: Strings.FavEmptyFilterTitle, emptyViewDescription: Strings.FavEmptyFilterDescription)
         } else {
-            displayResults(refresh: refresh, emptyViewTitle: Strings.FavEmptyTitle, emptyViewDescription: Strings.FavEmptyDescription)
+            displayResults(emptyViewTitle: Strings.FavEmptyTitle, emptyViewDescription: Strings.FavEmptyDescription)
         }
     }
 
@@ -395,7 +395,7 @@ extension FavoritesController: FavoritesDelegate {
         isEditing = false
         collectionView.allowsMultipleSelection = false
 
-        displayResults(refresh: false)
+        displayResults()
         reloadSection()
 
         if error {
@@ -419,7 +419,7 @@ extension FavoritesController: FavoritesDelegate {
 
         if resultItemCount == nil {
             viewModel.showLoadfailedError()
-            displayResults(refresh: false)
+            displayResults()
         }
 
         endRefreshing()
@@ -431,8 +431,8 @@ extension FavoritesController: FavoritesDelegate {
         }
     }
 
-    func dataSourceUpdated(refresh: Bool) {
-        displayResults(refresh: refresh)
+    func dataSourceUpdated() {
+        displayResults()
         refreshVisibleItems()
     }
 

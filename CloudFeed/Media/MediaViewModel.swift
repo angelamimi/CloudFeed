@@ -26,7 +26,7 @@ import UIKit
 
 @MainActor
 protocol MediaDelegate: AnyObject {
-    func dataSourceUpdated(refresh: Bool)
+    func dataSourceUpdated()
     func favoriteUpdated(error: Bool)
     func searching()
     func searchResultReceived(resultItemCount: Int?, retry: Bool)
@@ -295,7 +295,7 @@ final class MediaViewModel {
                 snapshot.reloadItems(snapshot.itemIdentifiers(inSection: 0))
             }
 
-            applyGrid(snapshot: snapshot, animate: false, notify: false, refresh: false)
+            applyGrid(snapshot: snapshot, animate: false, notify: false)
         }
 
         if tableMode == true, var snapshot = tableDataSource?.snapshot() {
@@ -309,9 +309,9 @@ final class MediaViewModel {
             }
 
             if reconfigure {
-                applyTable(snapshot: snapshot, animate: true, notify: false, refresh: false)
+                applyTable(snapshot: snapshot, animate: true, notify: false)
             } else {
-                applyTable(snapshot: snapshot, animate: false, notify: false, refresh: false)
+                applyTable(snapshot: snapshot, animate: false, notify: false)
             }
         }
     }
@@ -350,23 +350,23 @@ final class MediaViewModel {
 
     func filter(type: Global.FilterType, fromDate: Date, toDate: Date) {
         cancel()
-        sync(type: type, fromDate: fromDate, toDate: toDate, refresh: true)
+        sync(type: type, fromDate: fromDate, toDate: toDate)
     }
 
-    func sync(type: Global.FilterType, fromDate: Date, toDate: Date, refresh: Bool) {
+    func sync(type: Global.FilterType, fromDate: Date, toDate: Date) {
 
         guard let currentUser = Environment.current.currentUser,
               let currentServer = Environment.current.currentServer else { return }
 
         fetchTask = Task.detached { [weak self] in
-            await self?.sync(type: type, fromDate: fromDate, toDate: toDate, refresh: refresh, user: currentUser, server: currentServer)
+            await self?.sync(type: type, fromDate: fromDate, toDate: toDate, user: currentUser, server: currentServer)
         }
     }
 
-    @concurrent private func sync(type: Global.FilterType, fromDate: Date, toDate: Date, refresh: Bool, user: UserAccount, server: Server) async {
+    @concurrent private func sync(type: Global.FilterType, fromDate: Date, toDate: Date, user: UserAccount, server: Server) async {
 
         let update: @concurrent @Sendable () async -> Void = { [weak self] in
-            await self?.syncDatasource(type: type, fromDate: fromDate, toDate: toDate, refresh: refresh, user: user, server: server)
+            await self?.syncDatasource(type: type, fromDate: fromDate, toDate: toDate, user: user, server: server)
         }
 
         let finish: @concurrent @Sendable (_ error: Bool) async -> Void = { [weak self] error in
@@ -380,7 +380,7 @@ final class MediaViewModel {
         await dataService.syncMedia(currentUserAccount: user, currentServer: server, fromDate: fromDate, toDate: toDate, update: update, finish: finish)
     }
 
-    @concurrent private func syncDatasource(type: Global.FilterType, fromDate: Date, toDate: Date, refresh: Bool, user: UserAccount, server: Server) async {
+    @concurrent private func syncDatasource(type: Global.FilterType, fromDate: Date, toDate: Date, user: UserAccount, server: Server) async {
 
         let metadatas = await dataService.getMetadatas(currentUserAccount: user, currentServer: server, type: type, fromDate: fromDate, toDate: toDate)
         let currentCount = await self.metadatas.count
@@ -388,7 +388,7 @@ final class MediaViewModel {
         if metadatas.count > 0 && currentCount == 0 {
             await MainActor.run { [weak self] in
                 self?.delegate.searchResultReceived(resultItemCount: metadatas.count, retry: false)
-                self?.applyDatasourceChanges(add: metadatas, update: [], delete: [], refresh: refresh)
+                self?.applyDatasourceChanges(add: metadatas, update: [], delete: [])
             }
             return
         }
@@ -398,7 +398,7 @@ final class MediaViewModel {
 
         await MainActor.run { [weak self] in
             self?.delegate.searchResultReceived(resultItemCount: metadatas.count, retry: false)
-            self?.applyDatasourceChanges(add: syncResult.add, update: syncResult.update, delete: syncResult.delete, refresh: refresh)
+            self?.applyDatasourceChanges(add: syncResult.add, update: syncResult.update, delete: syncResult.delete)
         }
     }
 
@@ -425,7 +425,7 @@ final class MediaViewModel {
             var snapshot = dataSource.snapshot()
 
             snapshot.reconfigureItems(items)
-            applyGrid(snapshot: snapshot, animate: false, notify: false, refresh: false)
+            applyGrid(snapshot: snapshot, animate: false, notify: false)
         }
 
         if tableMode == true && tableDataSource != nil {
@@ -437,7 +437,7 @@ final class MediaViewModel {
             } else {
                 snapshot.reconfigureItems(items)
             }
-            applyTable(snapshot: snapshot, animate: false, notify: false, refresh: false)
+            applyTable(snapshot: snapshot, animate: false, notify: false)
         }
     }
 
@@ -477,14 +477,14 @@ final class MediaViewModel {
                     if self?.tableMode == false, var snapshot = self?.dataSource.snapshot() {
                         snapshot.reconfigureItems([metadata.id])
 
-                        self?.applyGrid(snapshot: snapshot, animate: false, notify: false, refresh: false)
+                        self?.applyGrid(snapshot: snapshot, animate: false, notify: false)
                         self?.delegate.favoriteUpdated(error: false)
                     }
 
                     if self?.tableMode == true, var snapshot = self?.tableDataSource.snapshot() {
                         snapshot.reconfigureItems([metadata.id])
 
-                        self?.applyTable(snapshot: snapshot, animate: false, notify: false, refresh: false)
+                        self?.applyTable(snapshot: snapshot, animate: false, notify: false)
                         self?.delegate.favoriteUpdated(error: false)
                     }
                 }
@@ -538,15 +538,15 @@ final class MediaViewModel {
         return (add: adds, update: updates, delete: deletes)
     }
 
-    private func applyDatasourceChanges(add: [Metadata], update: [Metadata], delete: [Metadata.ID], refresh: Bool) {
+    private func applyDatasourceChanges(add: [Metadata], update: [Metadata], delete: [Metadata.ID]) {
 
         guard !add.isEmpty || !update.isEmpty || !delete.isEmpty else {
             Self.logger.debug("No changes to apply to datasource.")
-            delegate.dataSourceUpdated(refresh: refresh)
+            delegate.dataSourceUpdated()
             return
         }
 
-        Self.logger.debug("Applying datasource changes. add: \(add.count) update: \(update.count) delete: \(delete.count)")
+        Self.logger.debug("Check for datasource changes. add: \(add.count) update: \(update.count) delete: \(delete.count)")
 
         var snapshot = tableMode ? tableDataSource.snapshot() : dataSource.snapshot()
 
@@ -558,7 +558,7 @@ final class MediaViewModel {
                 }
 
                 Self.logger.debug("Applying datasource changes. Insert only: \(add.count)")
-                applyReload(snapshot: snapshot, notify: true, refresh: refresh)
+                applyReload(snapshot: snapshot, notify: true)
             }
             return
         }
@@ -569,21 +569,48 @@ final class MediaViewModel {
 
         if add.count > 0 {
 
-            let sorted = self.metadatas.values.sorted(by: { $0.date > $1.date })
+            let sorted = self.metadatas.values.sorted(by: {
+                if $0.date == $1.date {
+                    return $0.fileNameView.localizedCaseInsensitiveCompare($1.fileNameView) == .orderedDescending
+                } else {
+                    return $0.date > $1.date
+                }
+            })
 
-            for toAdd in add {
-                if let next = sorted.first(where: { toAdd.date >= $0.date && toAdd.ocId != $0.ocId }) {
+            let sortedAdd = add.sorted(by: {
+                if $0.date == $1.date {
+                    return $0.fileNameView.localizedCaseInsensitiveCompare($1.fileNameView) == .orderedAscending
+                } else {
+                    return $0.date < $1.date
+                }
+            })
+
+            for toAdd in sortedAdd {
+
+                if let next = sorted.last(where: {
+                    toAdd.ocId != $0.ocId && ($0.date > toAdd.date || ($0.date == toAdd.date && $0.fileNameView.localizedCaseInsensitiveCompare(toAdd.fileNameView) == .orderedDescending))
+                }) {
+
+                    //Self.logger.debug("applyDatasourceChanges() - add: \(toAdd.fileNameView) \(toAdd.date.formatted(date: .abbreviated, time: .standard))")
+                    //Self.logger.debug("applyDatasourceChanges() - nxt: \(next.fileNameView) \(next.date.formatted(date: .abbreviated, time: .standard))")
+
                     if snapshot.sectionIdentifier(containingItem: next.id) == nil {
 
                     } else {
                         self.metadatas[toAdd.id] = toAdd
-                        snapshot.insertItems([toAdd.id], beforeItem: next.id)
+                        snapshot.insertItems([toAdd.id], afterItem: next.id)
                         insertCount += 1
                     }
                 } else {
+
+                    let ids = snapshot.itemIdentifiers
+                    let firstId = ids[0]
+
                     self.metadatas[toAdd.id] = toAdd
-                    snapshot.appendItems([toAdd.id])
+                    snapshot.insertItems([toAdd.id], beforeItem: firstId)
                     insertCount += 1
+
+                    //Self.logger.debug("applyDatasourceChanges() - top add: \(toAdd.fileNameView) \(toAdd.date.formatted(date: .abbreviated, time: .standard))")
                 }
             }
         }
@@ -620,26 +647,26 @@ final class MediaViewModel {
         Self.logger.debug("Applying datasource changes. Insert: \(insertCount) Update: \(updateCount) Delete: \(deleteCount)")
 
         if insertCount > 0 || updateCount > 0 || deleteCount > 0 {
-            apply(snapshot: snapshot, animate: false, notify: true, refresh: refresh)
+            apply(snapshot: snapshot, animate: false, notify: true)
         }
     }
 
-    private func applyReload(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, notify: Bool, refresh: Bool) {
+    private func applyReload(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, notify: Bool) {
 
         if tableMode && tableDataSource != nil {
-            reloadTable(snapshot: snapshot, notify: notify, refresh: refresh)
+            reloadTable(snapshot: snapshot, notify: notify)
         } else if tableMode == false && dataSource != nil {
-            reloadGrid(snapshot: snapshot, notify: notify, refresh: refresh)
+            reloadGrid(snapshot: snapshot, notify: notify)
         }
     }
 
-    private func reloadTable(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, notify: Bool, refresh: Bool) {
+    private func reloadTable(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, notify: Bool) {
 
         dataSourceQueue.async { [weak self] in
             DispatchQueue.main.async { [weak self] in
                 if notify {
                     self?.tableDataSource.applySnapshotUsingReloadData(snapshot, completion: { [weak self] in
-                        self?.delegate.dataSourceUpdated(refresh: refresh)
+                        self?.delegate.dataSourceUpdated()
                     })
                 } else {
                     self?.tableDataSource.applySnapshotUsingReloadData(snapshot)
@@ -648,13 +675,13 @@ final class MediaViewModel {
         }
     }
 
-    private func reloadGrid(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, notify: Bool, refresh: Bool) {
+    private func reloadGrid(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, notify: Bool) {
 
         dataSourceQueue.async { [weak self] in
             DispatchQueue.main.async { [weak self] in
                 if notify {
                     self?.dataSource.applySnapshotUsingReloadData(snapshot, completion: { [weak self] in
-                        self?.delegate.dataSourceUpdated(refresh: refresh)
+                        self?.delegate.dataSourceUpdated()
                     })
                 } else {
                     self?.dataSource.applySnapshotUsingReloadData(snapshot)
@@ -663,13 +690,13 @@ final class MediaViewModel {
         }
     }
 
-    private func applyTable(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool, refresh: Bool) {
+    private func applyTable(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool) {
 
         dataSourceQueue.async { [weak self] in
             DispatchQueue.main.async { [weak self] in
                 if notify {
                     self?.tableDataSource.apply(snapshot, animatingDifferences: animate, completion: { [weak self] in
-                        self?.delegate.dataSourceUpdated(refresh: refresh)
+                        self?.delegate.dataSourceUpdated()
                     })
                 } else {
                     self?.tableDataSource.apply(snapshot, animatingDifferences: animate)
@@ -678,13 +705,13 @@ final class MediaViewModel {
         }
     }
 
-    private func applyGrid(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool, refresh: Bool) {
+    private func applyGrid(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool) {
 
         dataSourceQueue.async { [weak self] in
             DispatchQueue.main.async { [weak self] in
                 if notify {
                     self?.dataSource.apply(snapshot, animatingDifferences: animate, completion: { [weak self] in
-                        self?.delegate.dataSourceUpdated(refresh: refresh)
+                        self?.delegate.dataSourceUpdated()
                     })
                 } else {
                     self?.dataSource.apply(snapshot, animatingDifferences: animate)
@@ -693,12 +720,12 @@ final class MediaViewModel {
         }
     }
 
-    private func apply(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool, refresh: Bool) {
+    private func apply(snapshot: NSDiffableDataSourceSnapshot<Int, Metadata.ID>, animate: Bool, notify: Bool) {
 
         if tableMode && tableDataSource != nil {
-            applyTable(snapshot: snapshot, animate: animate, notify: notify, refresh: refresh)
+            applyTable(snapshot: snapshot, animate: animate, notify: notify)
         } else if tableMode == false && dataSource != nil {
-            applyGrid(snapshot: snapshot, animate: animate, notify: notify, refresh: refresh)
+            applyGrid(snapshot: snapshot, animate: animate, notify: notify)
         }
     }
 
@@ -988,7 +1015,7 @@ final class MediaViewModel {
 
             if FileManager.default.fileExists(atPath: path) {
                 snapshot.reconfigureItems([metadata.id])
-                applyTable(snapshot: snapshot, animate: false, notify: false, refresh: false)
+                applyTable(snapshot: snapshot, animate: false, notify: false)
             }
         }
     }
@@ -1011,7 +1038,7 @@ final class MediaViewModel {
                     snapshot.reconfigureItems([metadata.id])
                 }
 
-                applyTable(snapshot: snapshot, animate: false, notify: false, refresh: false)
+                applyTable(snapshot: snapshot, animate: false, notify: false)
             }
         } else if tableMode == false && dataSource != nil {
 
@@ -1024,11 +1051,11 @@ final class MediaViewModel {
 
                 if FileManager.default.fileExists(atPath: path) {
                     snapshot.reconfigureItems([metadata.id])
-                    applyGrid(snapshot: snapshot, animate: false, notify: false, refresh: false)
+                    applyGrid(snapshot: snapshot, animate: false, notify: false)
                 } else {
                     systemIconIds.append(metadata.id)
                     snapshot.reconfigureItems([metadata.id])
-                    applyGrid(snapshot: snapshot, animate: false, notify: false, refresh: false)
+                    applyGrid(snapshot: snapshot, animate: false, notify: false)
                 }
             }
         }

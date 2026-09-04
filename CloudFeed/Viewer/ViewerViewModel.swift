@@ -126,10 +126,13 @@ final class ViewerViewModel {
             if !dataService.store.fileExists(metadata) {
                 await dataService.download(account: account, metadata: metadata, progressHandler: { _, _ in })
             }
+
+            if dataService.iconPreviewCheck(metadata: metadata) == false {
+                await dataService.savePreview(metadata: metadata)
+            }
         }
 
-        if dataService.store.fileExists(metadata) {
-            let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
+        if dataService.store.fileExists(metadata), let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView) {
             return autoreleasepool { () -> UIImage? in
                 return UIImage(contentsOfFile: imagePath)
             }

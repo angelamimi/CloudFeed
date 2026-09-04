@@ -122,7 +122,7 @@ class MediaController: CollectionController {
             //only scroll to item if not visible already
             if tableMode {
                 if tableView.indexPathsForVisibleRows?.contains(indexPath) == false {
-                    tableView.scrollToRow(at: indexPath, at: .top, animated: false)
+                    tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
                     viewModel.pauseLoading = false
                 }
             } else {
@@ -393,9 +393,9 @@ class MediaController: CollectionController {
         }
 
         if let from = filterFromDate, let to = filterToDate {
-            viewModel.sync(type: filterType, fromDate: from, toDate: to, refresh: false)
+            viewModel.sync(type: filterType, fromDate: from, toDate: to)
         } else {
-            viewModel.sync(type: filterType, fromDate: .distantPast, toDate: .distantFuture, refresh: false)
+            viewModel.sync(type: filterType, fromDate: .distantPast, toDate: .distantFuture)
         }
     }
 
@@ -443,11 +443,11 @@ class MediaController: CollectionController {
         viewModel.toggleFavorite(metadata: metadata)
     }
 
-    private func displayResults(refresh: Bool) {
+    private func displayResults() {
         if hasFilter() {
-            displayResults(refresh: refresh, emptyViewTitle: Strings.MediaEmptyFilterTitle, emptyViewDescription: Strings.MediaEmptyFilterDescription)
+            displayResults(emptyViewTitle: Strings.MediaEmptyFilterTitle, emptyViewDescription: Strings.MediaEmptyFilterDescription)
         } else {
-            displayResults(refresh: refresh, emptyViewTitle: Strings.MediaEmptyTitle, emptyViewDescription: Strings.MediaEmptyDescription)
+            displayResults(emptyViewTitle: Strings.MediaEmptyTitle, emptyViewDescription: Strings.MediaEmptyDescription)
         }
     }
 
@@ -507,7 +507,7 @@ extension MediaController: CollectionDelegate {
         if let fromDate = filterFromDate, let toDate = filterToDate {
             viewModel.filter(type: filterType, fromDate: fromDate, toDate: toDate)
         } else {
-            viewModel.sync(type: filterType, fromDate: .distantPast, toDate: .distantFuture, refresh: true)
+            viewModel.sync(type: filterType, fromDate: .distantPast, toDate: .distantFuture)
         }
     }
 
@@ -548,7 +548,7 @@ extension MediaController: MediaDelegate {
         hideActivityIndicator()
 
         if hasResults() == false {
-            displayResults(refresh: false)
+            displayResults()
         }
     }
 
@@ -558,8 +558,8 @@ extension MediaController: MediaDelegate {
         collectionView?.backgroundColor = .black
     }
 
-    func dataSourceUpdated(refresh: Bool) {
-        displayResults(refresh: refresh)
+    func dataSourceUpdated() {
+        displayResults()
         refreshVisibleItems()
     }
 
@@ -579,7 +579,7 @@ extension MediaController: MediaDelegate {
             if retry {
                 syncMedia()
             }
-            displayResults(refresh: false)
+            displayResults()
         }
 
         endRefreshing()

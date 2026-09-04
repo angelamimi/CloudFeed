@@ -25,7 +25,10 @@ struct DataLayerMetadataTests {
         let metadata4 = Metadata(ocId: "ocid4", account: "account1", classFile: Global.FileType.image.rawValue, fileName: "file4", serverUrl: "server1")
         let metadata5 = Metadata(ocId: "ocid5", account: "account2", classFile: Global.FileType.image.rawValue, fileName: "file4", serverUrl: "server2")
 
-        await databaseManager.syncMetadatas(local: [], remote: [metadata1, metadata2, metadata3, metadata4, metadata5], fromDate: .distantPast, toDate: .distantFuture)
+        let deletes = await databaseManager.syncMetadatas(local: [], remote: [metadata1, metadata2, metadata3, metadata4, metadata5], fromDate: .distantPast, toDate: .distantFuture)
+
+        #expect(deletes.count == 0)
+
         let current = await databaseManager.getMetadatas(account: "account1", startServerUrl: "server1", fromDate: .distantPast, toDate: .distantFuture)
 
         #expect(current.count == 4)
@@ -44,7 +47,10 @@ struct DataLayerMetadataTests {
         let metadata5 = Metadata(ocId: "ocid5", account: "account2", classFile: Global.FileType.image.rawValue, fileName: "file4", serverUrl: "server2")
 
         //Test insert
-        await databaseManager.syncMetadatas(local: [], remote: [metadata1, metadata2, metadata3, metadata4, metadata5], fromDate: .distantPast, toDate: .distantFuture)
+        let deletes = await databaseManager.syncMetadatas(local: [], remote: [metadata1, metadata2, metadata3, metadata4, metadata5], fromDate: .distantPast, toDate: .distantFuture)
+
+        #expect(deletes.count == 0)
+
         let addResults = await databaseManager.getMetadatas(account: "account1", startServerUrl: "server1", fromDate: .distantPast, toDate: .distantFuture)
 
         #expect(addResults.count == 4)
@@ -52,7 +58,10 @@ struct DataLayerMetadataTests {
         //Test update
         let updatedMetadata3 = Metadata(ocId: "ocid3", account: "account1", classFile: Global.FileType.image.rawValue, favorite: true, fileName: "file3", serverUrl: "server1")
 
-        await databaseManager.syncMetadatas(local: [metadata1, metadata2, metadata3, metadata4, metadata5], remote: [metadata1, metadata2, updatedMetadata3, metadata4, metadata5], fromDate: .distantPast, toDate: .distantFuture)
+        let deletesResult = await databaseManager.syncMetadatas(local: [metadata1, metadata2, metadata3, metadata4, metadata5], remote: [metadata1, metadata2, updatedMetadata3, metadata4, metadata5], fromDate: .distantPast, toDate: .distantFuture)
+
+        #expect(deletesResult.count == 0)
+
         let updateResults = await databaseManager.getMetadatas(account: "account1", startServerUrl: "server1", fromDate: .distantPast, toDate: .distantFuture)
 
         #expect(updateResults.count == 4)
@@ -62,19 +71,9 @@ struct DataLayerMetadataTests {
 
         //Test delete
         let toDeleteResults = await databaseManager.getMetadatas(account: "account1", startServerUrl: "server1", fromDate: .distantPast, toDate: .distantFuture)
-        await databaseManager.syncMetadatas(local: toDeleteResults, remote: [metadata2], fromDate: .distantPast, toDate: .distantFuture)
+        let deletesFromSync = await databaseManager.syncMetadatas(local: toDeleteResults, remote: [metadata2], fromDate: .distantPast, toDate: .distantFuture)
 
-        let result1 = await databaseManager.getMetadataFromOcId(metadata1.ocId)
-        #expect(result1 == nil)
-
-        let result2 = await databaseManager.getMetadataFromOcId(metadata2.ocId)
-        #expect(result2 != nil)
-
-        let result3 = await databaseManager.getMetadataFromOcId(metadata3.ocId)
-        #expect(result3 == nil)
-
-        let result4 = await databaseManager.getMetadataFromOcId(metadata4.ocId)
-        #expect(result4 == nil)
+        #expect(deletesFromSync.count == 3) //NOTE: Deletion is not done in syncMetadatas. Only the check for possible deletes.
     }
 
     /*@Test func processMetadatas() async throws {
@@ -141,7 +140,9 @@ struct DataLayerMetadataTests {
         let metadata7 = Metadata(ocId: "ocid7", account: account, classFile: Global.FileType.document.rawValue, date: dateFrom("01/01/2022"), fileName: "file7", serverUrl: serverUrl)
         let metadata8 = Metadata(ocId: "ocid8", account: account, classFile: Global.FileType.image.rawValue, date: dateFrom("01/01/2024"), fileName: "file8", serverUrl: serverUrl)
 
-        await databaseManager.syncMetadatas(local: [], remote: [metadata1, metadata2, metadata3, metadata4, metadata5, metadata6, metadata7, metadata8], fromDate: .distantPast, toDate: .distantFuture)
+        let deletes = await databaseManager.syncMetadatas(local: [], remote: [metadata1, metadata2, metadata3, metadata4, metadata5, metadata6, metadata7, metadata8], fromDate: .distantPast, toDate: .distantFuture)
+
+        #expect(deletes.count == 0)
 
         let metadatas = await databaseManager.getMetadatas(account: account, startServerUrl: serverUrl, fromDate: fromDate, toDate: toDate)
 
@@ -160,7 +161,8 @@ struct DataLayerMetadataTests {
         let metadata1 = Metadata(ocId: "ocid1", account: "account1", classFile: Global.FileType.image.rawValue, fileId: "123", fileName: "file1", livePhotoFile: "456", serverUrl: "testserver1.com")
         let metadata2 = Metadata(ocId: "ocid2", account: "account1", classFile: Global.FileType.video.rawValue, fileId: "456", fileName: "file2", livePhotoFile: "123", serverUrl: "testserver1.com")
 
-        await databaseManager.syncMetadatas(local: [], remote: [metadata1, metadata2], fromDate: .distantPast, toDate: .distantFuture)
+        let deletes = await databaseManager.syncMetadatas(local: [], remote: [metadata1, metadata2], fromDate: .distantPast, toDate: .distantFuture)
+        #expect(deletes.count == 0)
 
         let metadatas = await databaseManager.getMetadatas(account: "account1", startServerUrl: "testserver1.com", fromDate: .distantPast, toDate: .distantFuture)
         #expect(metadatas.count == 2)
@@ -274,7 +276,9 @@ struct DataLayerMetadataTests {
         }
 
         //Test setup
-        await databaseManager.syncMetadatas(local: [], remote: toProcess, fromDate: .distantPast, toDate: .distantFuture)
+        let deletes = await databaseManager.syncMetadatas(local: [], remote: toProcess, fromDate: .distantPast, toDate: .distantFuture)
+        #expect(deletes.count == 0)
+
         let results = await databaseManager.getMetadatas(account: account, startServerUrl: serverUrl, fromDate: .distantPast, toDate: .distantFuture)
         #expect(results.count == 220)
 
@@ -317,7 +321,9 @@ struct DataLayerMetadataTests {
         let metadata1 = Metadata(ocId: "ocid1", account: "account1", classFile: Global.FileType.video.rawValue, date: dateFrom("01/01/2001"), favorite: false, fileName: "file1", serverUrl: "testserver1.com")
         let metadata2 = Metadata(ocId: "ocid2", account: "account1", classFile: Global.FileType.video.rawValue, date: dateFrom("01/01/2001"), favorite: true, fileName: "file2", serverUrl: "testserver1.com")
 
-        await databaseManager.syncMetadatas(local: [], remote: [metadata1, metadata2], fromDate: .distantPast, toDate: .distantFuture)
+        let deletes = await databaseManager.syncMetadatas(local: [], remote: [metadata1, metadata2], fromDate: .distantPast, toDate: .distantFuture)
+        #expect(deletes.count == 0)
+
         let results = await databaseManager.getMetadatas(account: "account1", startServerUrl: "testserver1.com", fromDate: .distantPast, toDate: .distantFuture)
         #expect(results.count == 2)
 
@@ -342,7 +348,9 @@ struct DataLayerMetadataTests {
             toProcess.append(metadata)
         }
 
-        await databaseManager.syncMetadatas(local: [], remote: toProcess, fromDate: .distantPast, toDate: .distantFuture)
+        let deletes = await databaseManager.syncMetadatas(local: [], remote: toProcess, fromDate: .distantPast, toDate: .distantFuture)
+        #expect(deletes.count == 0)
+
         let current = await databaseManager.getMetadatas(account: account, startServerUrl: server, fromDate: .distantPast, toDate: .distantFuture)
         #expect(current.count == 200)
 
@@ -385,7 +393,9 @@ struct DataLayerMetadataTests {
             toProcess.append(metadata)
         }
 
-        await databaseManager.syncMetadatas(local: [], remote: toProcess, fromDate: .distantPast, toDate: .distantFuture)
+        let deletes = await databaseManager.syncMetadatas(local: [], remote: toProcess, fromDate: .distantPast, toDate: .distantFuture)
+        #expect(deletes.count == 0)
+
         let account1results = await databaseManager.getMetadatas(account: account, startServerUrl: server, fromDate: .distantPast, toDate: .distantFuture)
         #expect(account1results.count == 50)
 

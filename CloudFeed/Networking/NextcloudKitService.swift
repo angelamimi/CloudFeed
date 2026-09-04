@@ -41,6 +41,7 @@ nonisolated protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func checkServerStatus(url: String) async -> (serverVersion: Int?, errorCode: Int?)
 
     func readFolder(account: String, serverUrl: String, depth: String) async -> (account: String, metadatas: [Metadata], mediaFileCount: Int)?
+    func fileExists(account: String, serverUrlFileName: String) async -> Bool
     func download(account: String, metadata: Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @Sendable @escaping (_ metadata: Metadata, _ progress: Progress) -> Void) async
     func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etag: String) async
     func downloadAvatar(account: String, userId: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String?
@@ -238,6 +239,15 @@ nonisolated final class NextcloudKitService: NextcloudKitServiceProtocol {
         }
 
         return nil
+    }
+
+    func fileExists(account: String, serverUrlFileName: String) async -> Bool {
+
+        let requestBody = NKDataFileXML(nkCommonInstance: NextcloudKit.shared.nkCommonInstance).getRequestBodyFileExists().data(using: .utf8)
+
+        let results = await NextcloudKit.shared.readFileOrFolderAsync(serverUrlFileName: serverUrlFileName, depth: "0", requestBody: requestBody, account: account)
+
+        return results.error.errorCode == 404 ? false : true
     }
 
     // MARK: -

@@ -447,7 +447,7 @@ extension DatabaseManager {
         return nil
     }
 
-    func syncMetadatas(local: [Metadata], remote: [Metadata], fromDate: Date?, toDate: Date?) {
+    func syncMetadatas(local: [Metadata], remote: [Metadata], fromDate: Date?, toDate: Date?) -> [Metadata] {
 
         let remoteOcIds = Set(remote.map { $0.ocId })
         let localOcIds = Set(local.map { $0.ocId })
@@ -457,12 +457,12 @@ extension DatabaseManager {
         let toUpdateOcIds = Array(remoteOcIds.intersection(localOcIds))
 
         if toDeleteOcIds.isEmpty && toAddOcIds.isEmpty && toUpdateOcIds.isEmpty {
-            return
+            return []
         }
 
         syncMetadatasAdd(toAddOcIds: toAddOcIds, remote: remote)
         syncMetadatasUpdate(toUpdateOcIds: toUpdateOcIds, local: local, remote: remote)
-        syncMetadatasDelete(toDeleteOcIds: toDeleteOcIds, local: local, fromDate: fromDate, toDate: toDate)
+        return syncMetadatasDelete(toDeleteOcIds: toDeleteOcIds, local: local, fromDate: fromDate, toDate: toDate)
     }
 
     private func syncMetadatasAdd(toAddOcIds: [String], remote: [Metadata]) {
@@ -518,37 +518,46 @@ extension DatabaseManager {
         }
     }
 
-    private func syncMetadatasDelete(toDeleteOcIds: [String], local: [Metadata], fromDate: Date?, toDate: Date?) {
+    private func syncMetadatasDelete(toDeleteOcIds: [String], local: [Metadata], fromDate: Date?, toDate: Date?) -> [Metadata] {
+
+        var deletes: [Metadata] = []
 
         if toDeleteOcIds.count > 0 {
 
-            var deletes: [String] = []
-
             if fromDate != nil && toDate != nil {
                 for toDeleteOcId in toDeleteOcIds {
-                    if local.contains(where: { $0.ocId == toDeleteOcId && $0.date >= fromDate! && $0.date <= toDate! }) {
-                        deletes.append(toDeleteOcId)
+                    if let first = local.first(where: { $0.ocId == toDeleteOcId && $0.date >= fromDate! && $0.date <= toDate! }) {
+                        deletes.append(first)
                     }
                 }
             } else {
-                deletes = toDeleteOcIds
-            }
-
-            if deletes.count > 0 {
-
-                Self.logger.debug("Sync delete count: \(deletes.count)")
-
-                let chunkSize = Global.shared.chunkSize
-
-                for start in stride(from: 0, to: deletes.count, by: chunkSize) {
-                    let chunk = Array(deletes[start..<min(start + chunkSize, deletes.count)])
-                    try? modelContext.delete(model: MetadataModel.self, where: #Predicate {
-                        chunk.contains($0.ocId)
-                    })
+                for toDeleteOcId in toDeleteOcIds {
+                    if let first = local.first(where: { $0.ocId == toDeleteOcId }) {
+                        deletes.append(first)
+                    }
                 }
-
-                try? modelContext.save()
             }
+        }
+
+        return deletes
+    }
+
+    func deleteMetadatas(_ deletes: [String]) {
+
+        Self.logger.debug("Metadata verified delete count: \(deletes.count)")
+
+        if deletes.count > 0 {
+
+            let chunkSize = Global.shared.chunkSize
+
+            for start in stride(from: 0, to: deletes.count, by: chunkSize) {
+                let chunk = Array(deletes[start..<min(start + chunkSize, deletes.count)])
+                try? modelContext.delete(model: MetadataModel.self, where: #Predicate {
+                    chunk.contains($0.ocId)
+                })
+            }
+
+            try? modelContext.save()
         }
     }
 
@@ -590,7 +599,6 @@ extension DatabaseManager {
         let fetchDescriptor = FetchDescriptor<MetadataModel>(predicate: predicate)
 
         if let result = try? modelContext.fetch(fetchDescriptor), let metadataResult = result.first {
-            //return Metadata.init(model: metadataResult)
             return MetadataModel.build(model: metadataResult)
         }
 

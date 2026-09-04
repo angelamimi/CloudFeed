@@ -200,7 +200,7 @@ final class MockFavoritesDelegate: FavoritesDelegate {
     func bulkEditFinished(error: Bool) {}
     func editCellUpdated(cell: CloudFeed.CollectionViewCell, indexPath: IndexPath) {}
     func videoSelected() {}
-    func dataSourceUpdated(refresh: Bool) {}
+    func dataSourceUpdated() {}
 
     func fetchResultReceived(resultItemCount: Int?) {
         onFetchResultReceived(resultItemCount ?? -1)
@@ -215,7 +215,7 @@ final class MockMediaDelegate: MediaDelegate {
         self.onSearchResultReceived = onSearchResultReceived
     }
 
-    func dataSourceUpdated(refresh: Bool) {}
+    func dataSourceUpdated() {}
     func favoriteUpdated(error: Bool) {}
     func searching() {}
     func shareComplete() {}

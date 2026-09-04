@@ -314,15 +314,16 @@ nonisolated final class DataService: NSObject, Sendable {
         let serverUrlFileName = metadata.serverUrl + "/" + metadata.fileName
         let fileNameLocalPath = store.getCachePath(metadata.ocId, metadata.fileName)!
 
-        await nextcloudService.download(account: account, metadata: metadata, serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, progressHandler: progressHandler)
+        await nextcloudService.download(account: account, metadata: metadata, serverUrlFileName: serverUrlFileName,
+                                        fileNameLocalPath: fileNameLocalPath, progressHandler: progressHandler)
     }
 
     func downloadPreview(account: String, metadata: Metadata?) async {
 
         guard let metadata = metadata else { return }
 
-        let previewPath: String = store.getPreviewPath(metadata.ocId, metadata.etag)
-        let iconPath: String = store.getIconPath(metadata.ocId, metadata.etag)
+        let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
+        let iconPath = store.getIconPath(metadata.ocId, metadata.etag)
 
         await nextcloudService.downloadPreview(account: account, fileId: metadata.fileId,
                                                previewPath: previewPath, iconPath: iconPath, etag: metadata.etag)
@@ -408,6 +409,10 @@ nonisolated final class DataService: NSObject, Sendable {
         await ImageUtility.loadSVG(metadata: metadata!, imagePath: imagePath, iconPath: iconPath, previewPath: previewPath)
     }
 
+    func iconPreviewCheck(metadata: Metadata) -> Bool {
+        return store.previewExists(metadata.ocId, metadata.etag)
+    }
+
     func savePreview(metadata: Metadata) async {
 
         if store.fileExists(metadata),
@@ -463,8 +468,84 @@ nonisolated final class DataService: NSObject, Sendable {
 
         let local = await databaseManager.getMetadatas(account: account, startServerUrl: startServerUrl, fromDate: rangeFrom, toDate: rangeTo)
 
-        await databaseManager.syncMetadatas(local: local, remote: remoteMetadatas, fromDate: fromDate, toDate: toDate)
+        guard !Task.isCancelled else { return }
+
+        let deletes = await databaseManager.syncMetadatas(local: local, remote: remoteMetadatas, fromDate: fromDate, toDate: toDate)
+
+        guard !Task.isCancelled else { return }
+
+        await handleMetadataDeletes(account, deletes)
+
+        guard !Task.isCancelled else { return }
+
         await update()
+    }
+
+    private func handleMetadataDeletes(_ account: String, _ deletes: [Metadata]) async {
+
+        guard deletes.count > 0 else { return }
+
+        Self.logger.debug("Possible sync delete count: \(deletes.count)")
+
+        let chunkSize = Global.shared.queueLimit
+        var toDeleteIds: [String] = []
+
+        for start in stride(from: 0, to: deletes.count, by: chunkSize) {
+
+            guard !Task.isCancelled else { return }
+
+            let chunk = Array(deletes[start..<min(start + chunkSize, deletes.count)])
+
+            let results = await withTaskGroup(of: String.self) { group in
+
+                var chunkDeleteIds: [String] = []
+
+                for delete in chunk {
+
+                    guard !Task.isCancelled else { return [String]() }
+
+                    group.addTask { [weak self] in
+                        if let serverUrlFileName = self?.buildServerUrlFileName(delete) {
+                            let exists = await self?.nextcloudService.fileExists(account: account, serverUrlFileName: serverUrlFileName)
+                            return exists == false ? delete.ocId : ""
+                        }
+                        return ""
+                    }
+
+                    for await data in group {
+                        guard !Task.isCancelled else {
+                            group.cancelAll()
+                            break
+                        }
+                        if !data.isEmpty {
+                            chunkDeleteIds.append(data)
+                        }
+                    }
+                }
+
+                return chunkDeleteIds
+            }
+
+            if results.count > 0 {
+                toDeleteIds.append(contentsOf: results)
+            }
+        }
+
+        Self.logger.debug("Confirmed for deletion count: \(toDeleteIds.count)")
+
+        guard !Task.isCancelled else { return }
+
+        await databaseManager.deleteMetadatas(toDeleteIds)
+    }
+
+    private func buildServerUrlFileName(_ metadata: Metadata) -> String {
+        if metadata.fileName.isEmpty {
+            return metadata.serverUrl
+        } else if metadata.serverUrl.last == "/" {
+            return metadata.serverUrl + metadata.fileName
+        } else {
+            return metadata.serverUrl + "/" + metadata.fileName
+        }
     }
 
     private func getMediaPath() async -> String? {
