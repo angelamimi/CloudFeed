@@ -410,7 +410,6 @@ extension FavoritesController: FavoritesDelegate {
 
     func fetching() {
         if !isRefreshing() {
-            //activityIndicator.startAnimating()
             showActivityIndicator()
         }
     }

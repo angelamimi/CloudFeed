@@ -274,21 +274,48 @@ final class FavoritesViewModel {
 
         if add.count > 0 {
 
-            let sorted = self.metadatas.values.sorted(by: { $0.date > $1.date })
+            let sorted = self.metadatas.values.sorted(by: {
+                if $0.date == $1.date {
+                    return $0.fileNameView.localizedCaseInsensitiveCompare($1.fileNameView) == .orderedDescending
+                } else {
+                    return $0.date > $1.date
+                }
+            })
 
-            for toAdd in add {
-                self.metadatas[toAdd.id] = toAdd
-                if let next = sorted.first(where: { toAdd.date >= $0.date && toAdd.ocId != $0.ocId }) {
+            let sortedAdd = add.sorted(by: {
+                if $0.date == $1.date {
+                    return $0.fileNameView.localizedCaseInsensitiveCompare($1.fileNameView) == .orderedAscending
+                } else {
+                    return $0.date < $1.date
+                }
+            })
+
+            for toAdd in sortedAdd {
+
+                if let next = sorted.last(where: {
+                    toAdd.ocId != $0.ocId && ($0.date > toAdd.date || ($0.date == toAdd.date && $0.fileNameView.localizedCaseInsensitiveCompare(toAdd.fileNameView) == .orderedDescending))
+                }) {
+
+                    //Self.logger.debug("Fav.applyDatasourceChanges() - add: \(toAdd.fileNameView) \(toAdd.date.formatted(date: .abbreviated, time: .standard))")
+                    //Self.logger.debug("Fav.applyDatasourceChanges() - nxt: \(next.fileNameView) \(next.date.formatted(date: .abbreviated, time: .standard))")
+
                     if snapshot.sectionIdentifier(containingItem: next.id) == nil {
 
                     } else {
                         self.metadatas[toAdd.id] = toAdd
-                        snapshot.insertItems([toAdd.id], beforeItem: next.id)
+                        snapshot.insertItems([toAdd.id], afterItem: next.id)
                         insertCount += 1
                     }
                 } else {
-                    snapshot.appendItems([toAdd.id])
+
+                    let ids = snapshot.itemIdentifiers
+                    let firstId = ids[0]
+
+                    self.metadatas[toAdd.id] = toAdd
+                    snapshot.insertItems([toAdd.id], beforeItem: firstId)
                     insertCount += 1
+
+                    //Self.logger.debug("Fav.applyDatasourceChanges() - top add: \(toAdd.fileNameView) \(toAdd.date.formatted(date: .abbreviated, time: .standard))")
                 }
             }
         }
