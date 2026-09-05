@@ -189,7 +189,6 @@ class SettingsController: UIViewController {
             viewModel.addAccount()
         } else {
             setServerInfo()
-            //startActivityIndicator()
             showActivityIndicator()
 
             Task { [weak self] in
@@ -305,7 +304,7 @@ class SettingsController: UIViewController {
 
             guard self?.tableView.window != nil else { return }
 
-            self?.tableView.reloadData()
+            self?.tableView.reloadSections(IndexSet([0, 3]), with: .fade)
 
             self?.hideActivityIndicator()
 
@@ -359,7 +358,6 @@ extension SettingsController: UITableViewDelegate, UITableViewDataSource {
             } else if indexPath.section == 3 && indexPath.item == 0 {
                 acknowledgements()
             } else if indexPath.section == 4 && indexPath.item == 0 {
-                //startActivityIndicator()
                 showActivityIndicator()
                 viewModel.clearCache(notify: true, update: true)
             } else if indexPath.section == 4 && indexPath.item == 1 {
@@ -748,7 +746,6 @@ extension SettingsController: SettingsDelegate {
 
     func userChangeError() {
         DispatchQueue.main.async { [weak self] in
-            //self?.stopActivityIndicator()
             self?.hideActivityIndicator()
             self?.viewModel.showProfileLoadfailedError()
         }
@@ -780,7 +777,7 @@ extension SettingsController: SettingsDelegate {
 
         DispatchQueue.main.async { [weak self] in
             if self?.tableView.window != nil {
-                self?.tableView.reloadData()
+                self?.tableView.reloadSections(IndexSet(integer: 4), with: .fade)
             }
         }
     }

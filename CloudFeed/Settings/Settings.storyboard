@@ -364,19 +364,13 @@
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gKx-sO-EbR" userLabel="Name Label">
-                                                    <rect key="frame" x="8" y="173" width="337" height="27"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="syz-iK-DWu"/>
-                                                    </constraints>
+                                                    <rect key="frame" x="8" y="173" width="337" height="19"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0xh-Ae-GcS" userLabel="Email Label">
                                                     <rect key="frame" x="8" y="200" width="337" height="0.0"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="neK-3h-oD9"/>
-                                                    </constraints>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
                                                     <color key="textColor" systemColor="secondaryLabelColor"/>
                                                     <nil key="highlightedColor"/>
@@ -384,7 +378,7 @@
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="gKx-sO-EbR" firstAttribute="leading" secondItem="a8Z-ao-YNc" secondAttribute="leading" constant="8" id="3di-v8-dlF"/>
-                                                <constraint firstItem="0xh-Ae-GcS" firstAttribute="top" secondItem="gKx-sO-EbR" secondAttribute="bottom" id="5JR-Mc-Z1r"/>
+                                                <constraint firstItem="0xh-Ae-GcS" firstAttribute="top" secondItem="gKx-sO-EbR" secondAttribute="bottom" constant="8" id="5JR-Mc-Z1r"/>
                                                 <constraint firstAttribute="bottom" secondItem="0xh-Ae-GcS" secondAttribute="bottom" id="Abs-fw-LeH"/>
                                                 <constraint firstItem="gKx-sO-EbR" firstAttribute="top" secondItem="caQ-Jq-qnc" secondAttribute="bottom" constant="15" id="Ch5-wq-USr"/>
                                                 <constraint firstAttribute="trailing" secondItem="0xh-Ae-GcS" secondAttribute="trailing" constant="8" id="GR3-Wb-M1y"/>

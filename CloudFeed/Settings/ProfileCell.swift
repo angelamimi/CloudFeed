@@ -39,17 +39,35 @@ class ProfileCell: UITableViewCell {
 
     func updateProfileImage(_ image: UIImage?) {
 
-        if image == nil {
-            let configuration = UIImage.SymbolConfiguration(pointSize: 40, weight: .ultraLight)
-            profileImageView.image = UIImage(systemName: "person.crop.circle.fill", withConfiguration: configuration)?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
-        } else {
-            profileImageView.image = image
-        }
+        UIView.transition(with: profileImageView, duration: 0.3, options: .transitionCrossDissolve, animations: { [weak self] in
+            if image == nil {
+                let configuration = UIImage.SymbolConfiguration(pointSize: 150, weight: .ultraLight)
+                self?.profileImageView.contentMode = .center
+                self?.profileImageView.image = UIImage(systemName: "person.crop.circle.fill", withConfiguration: configuration)?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
+            } else {
+                self?.profileImageView.contentMode = .scaleAspectFill
+                self?.profileImageView.image = image
+            }
+        })
     }
 
     func updateProfile(_ email: String, fullName name: String) {
-        profileNameLabel.text = name
-        profileEmailLabel.text = email
+
+        if email.isEmpty && name.isEmpty {
+            profileNameLabel.isHidden = true
+            profileEmailLabel.isHidden = true
+            return
+        }
+
+        UIView.transition(with: profileNameLabel, duration: 0.3, options: .transitionCrossDissolve, animations: { [weak self] in
+            self?.profileNameLabel.text = name
+            self?.profileNameLabel.isHidden = false
+        })
+
+        UIView.transition(with: profileEmailLabel, duration: 0.3, options: .transitionCrossDissolve, animations: { [weak self] in
+            self?.profileEmailLabel.text = email
+            self?.profileEmailLabel.isHidden = false
+        })
     }
 
     private func initCell() {
