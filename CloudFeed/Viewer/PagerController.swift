@@ -340,20 +340,16 @@ class PagerController: UIViewController {
     }
 
     private func showTitle() {
-        if hideStatusBar && navigationController?.isNavigationBarHidden == true {
-            hideStatusBar = false
-            navigationController?.setNavigationBarHidden(false, animated: false)
-            navigationController?.navigationBar.sizeToFit() //ensure large title is visible
-            setTypeContainerView()
-        }
+        hideStatusBar = false
+        navigationController?.setNavigationBarHidden(false, animated: false)
+        navigationController?.navigationBar.sizeToFit() //ensure large title is visible
+        setTypeContainerView()
     }
 
     private func hideTitle() {
-        if hideStatusBar == false && navigationController?.isNavigationBarHidden == false {
-            hideStatusBar = true
-            navigationController?.setNavigationBarHidden(true, animated: false)
-            hideType()
-        }
+        hideStatusBar = true
+        navigationController?.setNavigationBarHidden(true, animated: false)
+        hideType()
     }
 
     private func showType() {

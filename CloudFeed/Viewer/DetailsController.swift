@@ -121,6 +121,7 @@ class DetailsController: UIViewController {
 
         guard let detailView = Bundle.main.loadNibNamed("DetailView", owner: self, options: nil)?.first as? DetailView else { return }
 
+        detailView.popover = true
         detailView.delegate = self
 
         self.detailView = detailView

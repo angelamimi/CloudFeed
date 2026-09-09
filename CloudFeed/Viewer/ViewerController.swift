@@ -1426,6 +1426,8 @@ class ViewerController: UIViewController {
         detailViewWidthConstraint?.constant = size.width
         detailViewHeightConstraint?.constant = size.height
 
+        detailViewHeightConstraint?.priority = .defaultLow
+
         view.layoutIfNeeded()
     }
 
@@ -1581,6 +1583,8 @@ class ViewerController: UIViewController {
 
         detailViewWidthConstraint?.constant = trailingOffset
         detailViewHeightConstraint?.constant = height
+
+        detailViewHeightConstraint?.priority = .required
 
         imageViewTopConstraint.constant = 0
 

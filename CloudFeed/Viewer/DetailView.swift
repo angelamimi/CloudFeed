@@ -38,7 +38,8 @@ class DetailView: UIView {
 
     @IBOutlet weak var metadataCollectionViewHeightConstraint: NSLayoutConstraint!
 
-    @IBOutlet weak var mapView: MKMapView!
+    var mapView: MKMapView?
+    //var metadataButton: UIButton?
     @IBOutlet weak var metadataButton: UIButton!
 
     @IBOutlet weak var fillerView: UIView!
@@ -62,6 +63,7 @@ class DetailView: UIView {
     var url: URL?
 
     weak var delegate: DetailViewDelegate?
+    var popover: Bool = false
 
     private var dataSource: UICollectionViewDiffableDataSource<Int, Int>!
     private var exifTitles: [Int: ExifTitle] = [:]
@@ -93,9 +95,7 @@ class DetailView: UIView {
         if metadata!.video {
             populateVideoDetails()
         } else {
-            Task.detached { [weak self] in
-                await self?.populateImageDetails()
-            }
+            populateImageDetails()
         }
     }
 
@@ -116,8 +116,11 @@ class DetailView: UIView {
             contentStackViewBottomConstraint?.isActive = true
         }
 
-        metadataButton.configuration?.title = Strings.DetailAll
-        metadataButton.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
+        metadataButton?.configuration?.baseForegroundColor = .tintColor
+        metadataButton?.configuration?.baseBackgroundColor = .systemGray5.withAlphaComponent(0.5)
+        metadataButton?.configuration?.title = Strings.DetailAll
+        metadataButton?.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
+        metadataButton?.setContentHuggingPriority(.required, for: .vertical)
 
         cameraStackView.clipsToBounds = true
         cameraStackView.layer.cornerRadius = 8
@@ -135,13 +138,7 @@ class DetailView: UIView {
 
         resetLabels()
 
-        mapView.layer.cornerRadius = 8
-        mapView.delegate = self
-        mapView.alpha = 0
-
         initMetadataCollectionView()
-
-        mapView.setCameraZoomRange(.init(maxCenterCoordinateDistance: 500), animated: false)
     }
 
     private func initMetadataCollectionView() {
@@ -232,13 +229,16 @@ class DetailView: UIView {
         typeLabel.accessibilityValue = type
 
         if metadata!.video {
+            typeImageView.isHidden = false
             typeImageView.image = UIImage(systemName: "video")
             typeImageView.accessibilityLabel = Strings.DetailVideoTypeVideo
         } else if metadata!.livePhoto {
+            typeImageView.isHidden = false
             typeImageView.image = UIImage(systemName: "livephoto")
             typeImageView.accessibilityLabel = Strings.DetailVideoTypeLive
         } else {
             typeImageView.isHidden = true
+            typeImageView.image = nil
         }
     }
 
@@ -254,17 +254,22 @@ class DetailView: UIView {
             return
         }
 
-        resetLabels()
+        if !popover {
+            resetLabels()
+        }
+
+        layoutIfNeeded()
 
         let asset = AVAsset(url: url!)
-
         populateVideoDetail(metadata: metadata!, asset: asset)
         populateVideoMetadata(asset: asset)
     }
 
-    private func populateImageDetails() async {
+    private func populateImageDetails() {
 
-        resetLabels()
+        if !popover {
+            resetLabels()
+        }
 
         guard let metadata = self.metadata else { return }
 
@@ -287,7 +292,7 @@ class DetailView: UIView {
         let imagePropertyDict = NSMutableDictionary(dictionary: imageProperties)
 
         populateImageSizeInfoFromProperties(pixelProperties: imagePropertyDict, sizeProperties: properties)
-        await populateImageLocationInfo(imageProperties: imagePropertyDict)
+        populateImageLocationInfo(imageProperties: imagePropertyDict)
 
         var camera: String? = ""
         if let tiff = imagePropertyDict[kCGImagePropertyTIFFDictionary] as? [NSString: AnyObject] {
@@ -297,14 +302,14 @@ class DetailView: UIView {
         if let exif = imagePropertyDict[kCGImagePropertyExifDictionary] as? [NSString: AnyObject] {
             populateImageExifInfo(exif, camera)
         } else {
+            setMakeModelText(Strings.DetailCameraNone)
+            setLensText(Strings.DetailLensNone)
             populateEmptyExif()
         }
     }
 
     private func populateLocationFromMetadata(_ metadata: Metadata) {
-        Task.detached { [weak self] in
-            await self?.showLocation(latitudeValue: metadata.latitude, longitudeValue: metadata.longitude)
-        }
+        showLocation(latitudeValue: metadata.latitude, longitudeValue: metadata.longitude)
     }
 
     private func populateEmptyExif() {
@@ -367,7 +372,7 @@ class DetailView: UIView {
         })
     }
 
-    private func populateImageLocationInfo(imageProperties: NSMutableDictionary) async {
+    private func populateImageLocationInfo(imageProperties: NSMutableDictionary) {
 
         guard let gpsData = imageProperties[kCGImagePropertyGPSDictionary] as? [NSString: AnyObject] else {
             if metadata != nil {
@@ -477,8 +482,8 @@ class DetailView: UIView {
 
         if fileSize != nil {
             formattedFileSize = ByteCountFormatter.string(fromByteCount: fileSize!, countStyle: .file)
-        } else if metadata!.size > 0 {
-            formattedFileSize = ByteCountFormatter.string(fromByteCount: metadata!.size, countStyle: .file)
+        } else if let size = metadata?.size, size > 0 {
+            formattedFileSize = ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
         }
 
         let finalFormattedSize: String
@@ -533,8 +538,7 @@ class DetailView: UIView {
 
         exifTitles.removeAll()
 
-        lensLabel.text = lensText
-        lensLabel.accessibilityValue = lensText
+        setLensText(lensText)
 
         if let iso = exif[kCGImagePropertyExifISOSpeedRatings] as? [Int] {
             if iso.isEmpty || iso.count == 0 {
@@ -631,22 +635,27 @@ class DetailView: UIView {
 
         exifTitles.removeAll()
 
-        Task { [weak self] in
+        let videoLengthLabel = Strings.DetailVideoLength
+        let videoSpeedLabel = Strings.DetailVideoSpeed
+
+        Task.detached { [weak self] in
 
             let duration = try? await asset.load(.duration)
 
             let seconds = duration?.seconds
+            var titles: [Int: ExifTitle] = [:]
 
             if seconds == nil || seconds! == 0 {
-                self?.exifTitles[0] = ExifTitle(title: "-")
+                titles[0] = ExifTitle(title: "-")
             } else {
                 let duration = Duration.seconds(seconds!)
-                let formatted = duration.formatted(.time(pattern: .hourMinuteSecond(padHourToLength: 1, fractionalSecondsLength: 0)))
+                let formatted = duration.formatted(.units(allowed: [.hours, .minutes, .seconds], width: .narrow))
+                //let formatted = duration.formatted(.time(pattern: .hourMinuteSecond(padHourToLength: 1, fractionalSecondsLength: 0)))
 
-                self?.exifTitles[0] = ExifTitle(title: formatted, accessibilityLabel: Strings.DetailVideoLength, accessibilityValue: formatted)
+                titles[0] = ExifTitle(title: formatted, accessibilityLabel: videoLengthLabel, accessibilityValue: formatted)
             }
 
-            self?.exifTitles[1] = ExifTitle(title: "|")
+            titles[1] = ExifTitle(title: "|")
 
             if let videoTrack = try? await asset.loadTracks(withMediaType: .video).first {
 
@@ -656,26 +665,76 @@ class DetailView: UIView {
                     let displayFrameRate = Float(round(100 * frameRate!) / 100)
                     let formatted = "\(displayFrameRate) FPS"
 
-                    self?.exifTitles[2] = ExifTitle(title: formatted, accessibilityLabel: Strings.DetailVideoSpeed, accessibilityValue: formatted)
+                    titles[2] = ExifTitle(title: formatted, accessibilityLabel: videoSpeedLabel, accessibilityValue: formatted)
                 }
 
                 await self?.populateVideoSize(metadata: metadata, videoTrack: videoTrack)
             } else {
-                self?.exifTitles[2] = ExifTitle(title: "-")
+                titles[2] = ExifTitle(title: "-")
             }
 
-            self?.bind()
+            await MainActor.run { [weak self] in
+                self?.exifTitles = titles
+                self?.bind()
+            }
         }
     }
 
     private func populateVideoMetadata(asset: AVAsset) {
 
-        Task { [weak self] in
+        Task.detached { [weak self] in
+
+            guard let track = try await asset.loadTracks(withMediaType: .video).first else { return }
+
+            var lens: String?
+
+            if #available(iOS 26, *),
+               let metadata = try? await track.load(.metadata),
+               let first = metadata.first(where: { $0.identifier == .quickTimeMetadataCameraLensModel }) {
+
+                lens = try? await first.load(.stringValue)
+            }
+
+            await MainActor.run { [weak self] in
+                self?.populateVideoLens(lens: lens)
+            }
+
+            if let descriptions = try? await track.load(.formatDescriptions), let desc = descriptions.first {
+
+                var codec: String?
+                let code = CMFormatDescriptionGetMediaSubType(desc)
+
+                switch code {
+                case kCMVideoCodecType_HEVC: codec = "HEVC"
+                case kCMVideoCodecType_HEVCWithAlpha: codec = "HEVC"
+                case kCMVideoCodecType_DolbyVisionHEVC: codec = "HEVC"
+                case kCMVideoCodecType_H264: codec = "H.264"
+                case kCMVideoCodecType_VP9: codec = "VP9"
+                case kCMVideoCodecType_AV1: codec = "AV1"
+                case kCMVideoCodecType_MPEG2Video: codec = "MPEG-2"
+                case kCMVideoCodecType_MPEG4Video: codec = "MPEG-4"
+                default:
+                    let b3 = UInt8((code >> 24) & 0xFF)
+                    let b2 = UInt8((code >> 16) & 0xFF)
+                    let b1 = UInt8((code >> 8) & 0xFF)
+                    let b0 = UInt8(code & 0xFF)
+                    codec = String(bytes: [b3, b2, b1, b0], encoding: .ascii)?.trimmingCharacters(in: .whitespaces)
+                }
+
+                if codec != nil && codec?.isEmpty == false {
+                    await MainActor.run { [weak self] in
+                        self?.typeLabel.text = codec
+                        self?.typeLabel.accessibilityValue = codec
+                    }
+                }
+            }
+        }
+
+        Task.detached { [weak self] in
 
             guard let avMetadataItems: [AVMetadataItem]? = try? await asset.load(.metadata) else { return }
             var make: String?
             var model: String?
-            //var software: String?
             var location: CLLocation?
 
             for item in avMetadataItems! {
@@ -685,19 +744,23 @@ class DetailView: UIView {
                 switch keyName {
                 case .commonKeyLocation:
                     location = await self?.parseLocation(item: item)
-                //case .commonKeySoftware:
-                    //software = try? await item.load(.stringValue)
-                //case .commonKeyCreationDate:
+                case .quickTimeMetadataKeyMake:
+                    make = try? await item.load(.stringValue)
                 case .commonKeyMake:
                     make = try? await item.load(.stringValue)
+                case .quickTimeMetadataKeyModel:
+                    model = try? await item.load(.stringValue)
                 case .commonKeyModel:
                     model = try? await item.load(.stringValue)
-                default: ()
+                default:
+                    continue
                 }
             }
 
-            self?.populateVideoCameraMakeModel(make: make, model: model)
-            await self?.populateVideoLocation(location: location)
+            await MainActor.run { [weak self] in
+                self?.populateVideoCameraMakeModel(make: make, model: model)
+                self?.populateVideoLocation(location: location)
+            }
         }
     }
 
@@ -719,7 +782,7 @@ class DetailView: UIView {
         return nil
     }
 
-    private func populateVideoSize(metadata: Metadata, videoTrack: AVAssetTrack) async {
+    @concurrent private func populateVideoSize(metadata: Metadata, videoTrack: AVAssetTrack) async {
 
         var formattedFileSize: String?
         var rawSize = try? await videoTrack.load(.naturalSize).applying(videoTrack.load(.preferredTransform))
@@ -745,6 +808,11 @@ class DetailView: UIView {
         }
     }
 
+    private func populateVideoLens(lens: String?) {
+        let text = lens == nil || lens?.isEmpty == true ? Strings.DetailLensNone : lens
+        setLensText(text!)
+    }
+
     private func populateVideoCameraMakeModel(make: String?, model: String?) {
 
         if hasText(make) && hasText(model) {
@@ -758,12 +826,12 @@ class DetailView: UIView {
         }
     }
 
-    private func populateVideoLocation(location: CLLocation?) async {
-
+    private func populateVideoLocation(location: CLLocation?) {
         if let videoLocation = location {
-            await showLocation(latitudeValue: videoLocation.coordinate.latitude, longitudeValue: videoLocation.coordinate.longitude)
+            showLocation(latitudeValue: videoLocation.coordinate.latitude, longitudeValue: videoLocation.coordinate.longitude)
         } else {
-            await setMapHidden(true)
+            removeMap()
+            delegate?.detailsLoaded()
         }
     }
 
@@ -775,18 +843,26 @@ class DetailView: UIView {
         }
     }
 
-    private func setFileSizeText(_ text: String) {
+    private func setLensText(_ text: String) {
+        DispatchQueue.main.async { [weak self] in
+            self?.lensLabel.text = text
+            self?.lensLabel.accessibilityLabel = Strings.DetailLensDescription
+            self?.lensLabel.accessibilityValue = text
+        }
+    }
+
+    nonisolated private func setFileSizeText(_ text: String) {
         DispatchQueue.main.async { [weak self] in
             self?.sizeLabel.text = text
             self?.sizeLabel.accessibilityValue = text
         }
     }
 
-    private func hasText(_ value: String?) -> Bool {
+    nonisolated private func hasText(_ value: String?) -> Bool {
         return value != nil && !value!.isEmpty
     }
 
-    private func hasSize(_ size: CGSize?) -> Bool {
+    nonisolated private func hasSize(_ size: CGSize?) -> Bool {
         return size != nil && size!.width > 0 && size!.height > 0
     }
 
@@ -812,41 +888,64 @@ class DetailView: UIView {
         return formattedDate
     }
 
-    private func showLocation(latitudeValue: Double?, longitudeValue: Double?) async {
+    private func showLocation(latitudeValue: Double?, longitudeValue: Double?) {
 
         guard let latitude = latitudeValue, let longitude = longitudeValue, !(latitude == 0 && longitude == 0) else {
-            await setMapHidden(true)
-            return
-        }
-
-        await setMapHidden(false)
-        await addMapAnnotation(latitude: latitude, longitude: longitude)
-    }
-
-    private func setMapHidden(_ hidden: Bool) async {
-
-        if mapView.isHidden == hidden {
+            removeMap()
             delegate?.detailsLoaded()
             return
         }
 
-        mapView.isHidden = hidden
-        contentStackView.setNeedsLayout()
+        createMap(latitude: latitude, longitude: longitude)
+    }
 
-        await withCheckedContinuation { continuation in
-            UIView.animate(withDuration: 0.2, animations: { [weak self] in
-                self?.contentStackView.layoutIfNeeded()
-            }, completion: { [weak self] _ in
-                UIView.animate(withDuration: 0.4, animations: { [weak self] in
-                    self?.mapView.alpha = 1
-                })
+    private func removeMap() {
+        if let map = mapView {
+            contentStackView.removeArrangedSubview(map)
+            map.removeFromSuperview()
+        }
+        mapView = nil
+    }
+
+    private func createMap(latitude: Double, longitude: Double) {
+
+        if mapView == nil {
+
+            mapView = MKMapView()
+
+            guard let mapView = self.mapView else {
+                delegate?.detailsLoaded()
+                return
+            }
+
+            mapView.isPitchEnabled = false
+            mapView.isZoomEnabled = false
+            mapView.isScrollEnabled = false
+
+            mapView.translatesAutoresizingMaskIntoConstraints = false
+            mapView.heightAnchor.constraint(equalToConstant: 140).isActive = true
+            mapView.setContentCompressionResistancePriority(.required, for: .vertical)
+
+            mapView.layer.cornerRadius = 8
+            mapView.delegate = self
+            mapView.setCameraZoomRange(.init(maxCenterCoordinateDistance: 500), animated: false)
+
+            if contentStackView.arrangedSubviews.count == 4 {
+                contentStackView.insertArrangedSubview(mapView, at: 2)
+            }
+        }
+
+        Task.detached { [weak self] in
+
+            await self?.addMapAnnotation(latitude: latitude, longitude: longitude)
+
+            await MainActor.run { [weak self] in
                 self?.delegate?.detailsLoaded()
-                continuation.resume()
-            })
+            }
         }
     }
 
-    private func addMapAnnotation(latitude: Double, longitude: Double) async {
+    @concurrent private func addMapAnnotation(latitude: Double, longitude: Double) async {
 
         let annotation = MKPointAnnotation()
 
@@ -863,9 +962,13 @@ class DetailView: UIView {
             annotation.title = locationName
         }
 
-        mapView.removeAnnotations(mapView.annotations)
-        mapView.setRegion(region, animated: false)
-        mapView.addAnnotation(annotation)
+        await MainActor.run { [weak self] in
+            if let annotations = self?.mapView?.annotations {
+                self?.mapView?.removeAnnotations(annotations)
+                self?.mapView?.setRegion(region, animated: false)
+                self?.mapView?.addAnnotation(annotation)
+            }
+        }
     }
 
     private func getSizeForVideoAt(_ indexPath: IndexPath, _ collectionView: UICollectionView) -> CGSize {
@@ -980,7 +1083,7 @@ extension DetailView: UICollectionViewDelegateFlowLayout {
     }
 }
 
-private class ExifTitle {
+nonisolated private class ExifTitle {
 
     var title: String?
     var accessibilityLabel: String?
