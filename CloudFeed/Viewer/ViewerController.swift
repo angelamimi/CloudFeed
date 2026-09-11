@@ -1775,14 +1775,12 @@ extension ViewerController: VLCMediaThumbnailerDelegate {
 
     nonisolated func mediaThumbnailer(_ mediaThumbnailer: VLCMediaThumbnailer, didFinishThumbnail thumbnail: CGImage) {
 
-        DispatchQueue.main.async { [weak self] in
+        let image = UIImage(cgImage: thumbnail)
 
+        DispatchQueue.main.async { [weak self] in
             if let metadata = self?.metadata {
-                autoreleasepool {
-                    let image = UIImage(cgImage: thumbnail)
-                    self?.imageView.image = image
-                    self?.viewModel.saveVideoPreview(metadata: metadata, image: image)
-                }
+                self?.imageView.image = image
+                self?.viewModel.saveVideoPreview(metadata: metadata, image: image)
             }
         }
     }

@@ -75,7 +75,7 @@ nonisolated final class ImageUtility: NSObject {
                 try? preview?.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
             }
 
-            return image
+            return preview
         }
 
         return nil
@@ -85,16 +85,15 @@ nonisolated final class ImageUtility: NSObject {
 
         guard metadata.gif else { return nil }
 
-        return autoreleasepool { () -> UIImage? in
-            let gif: UIImage?
-            if let fileData = FileManager().contents(atPath: imagePath) {
-                gif = buildGIFImage(with: fileData)
-            } else {
-                gif = UIImage(contentsOfFile: imagePath)
-            }
+        let gif: UIImage?
 
-            return gif
+        if let fileData = FileManager().contents(atPath: imagePath) {
+            gif = buildGIFImage(with: fileData)
+        } else {
+            gif = UIImage(contentsOfFile: imagePath)
         }
+
+        return await gif?.byPreparingThumbnail(ofSize: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
     }
 
     private static func buildGIFImage(with data: Data, repeatCount: Int = 0) -> UIImage? {

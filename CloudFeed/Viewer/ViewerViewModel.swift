@@ -109,7 +109,7 @@ final class ViewerViewModel {
             let previewPath = dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
             let imagePath = dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!
 
-            await ImageUtility.loadSVG(metadata: metadata, imagePath: imagePath, iconPath: iconPath, previewPath: previewPath)
+            return await ImageUtility.loadSVG(metadata: metadata, imagePath: imagePath, iconPath: iconPath, previewPath: previewPath)
 
         } else if metadata.gif {
 
@@ -141,7 +141,7 @@ final class ViewerViewModel {
     }
 
     func saveVideoPreview(metadata: Metadata, image: UIImage) {
-        Task { [weak self] in
+        Task.detached { [weak self] in
             await self?.dataService.saveVideoPreview(metadata: metadata, image: image)
         }
     }

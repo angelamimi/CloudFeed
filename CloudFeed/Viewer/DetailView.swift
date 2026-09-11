@@ -33,32 +33,23 @@ protocol DetailViewDelegate: AnyObject {
 class DetailView: UIView {
 
     @IBOutlet weak var contentStackView: UIStackView!
-    @IBOutlet weak var contentStackViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var contentStackViewBottomConstraint: NSLayoutConstraint!
-
     @IBOutlet weak var metadataCollectionViewHeightConstraint: NSLayoutConstraint!
 
-    var mapView: MKMapView?
-    //var metadataButton: UIButton?
     @IBOutlet weak var metadataButton: UIButton!
-
     @IBOutlet weak var fillerView: UIView!
-
-    @IBOutlet weak var metadataStackView: UIStackView!
     @IBOutlet weak var metadataCollectionView: UICollectionView!
-
     @IBOutlet weak var fileDateLabel: UILabel!
     @IBOutlet weak var fileNameLabel: UILabel!
     @IBOutlet weak var cameraStackView: UIStackView!
     @IBOutlet weak var cameraLabel: UILabel!
-
     @IBOutlet weak var typeView: UIView!
     @IBOutlet weak var typeLabel: UILabel!
     @IBOutlet weak var typeImageView: UIImageView!
-
     @IBOutlet weak var lensLabel: UILabel!
     @IBOutlet weak var sizeLabel: UILabel!
 
+    var mapView: MKMapView?
     var metadata: Metadata?
     var url: URL?
 
@@ -79,6 +70,11 @@ class DetailView: UIView {
         MainActor.assumeIsolated { [weak self] in
             self?.initView()
         }
+    }
+
+    @MainActor
+    deinit {
+        mapView?.delegate = nil
     }
 
     func height() -> CGFloat {
@@ -110,17 +106,11 @@ class DetailView: UIView {
 
     private func initElements() {
 
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            //needed to get the actual height of detail view for popover
-            contentStackViewHeightConstraint?.isActive = false
-            contentStackViewBottomConstraint?.isActive = true
-        }
-
-        metadataButton?.configuration?.baseForegroundColor = .tintColor
-        metadataButton?.configuration?.baseBackgroundColor = .systemGray5.withAlphaComponent(0.5)
-        metadataButton?.configuration?.title = Strings.DetailAll
-        metadataButton?.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
-        metadataButton?.setContentHuggingPriority(.required, for: .vertical)
+        metadataButton.configuration?.baseForegroundColor = .tintColor
+        metadataButton.configuration?.baseBackgroundColor = .systemGray5.withAlphaComponent(0.5)
+        metadataButton.configuration?.title = Strings.DetailAll
+        metadataButton.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
+        metadataButton.setContentHuggingPriority(.required, for: .vertical)
 
         cameraStackView.clipsToBounds = true
         cameraStackView.layer.cornerRadius = 8
@@ -475,9 +465,7 @@ class DetailView: UIView {
 
             formattedPixels = "\(formattedWidth) x \(formattedHeight)"
 
-            let megaPixels: Double = Double(width! * height!) / 1000000
-
-            formattedMegaPixels = megaPixels < 1 ? String(format: "%.1f MP", megaPixels) : "\(Int(megaPixels)) MP"
+            formattedMegaPixels = formatMegaPixels(width: width!, height: height!)
         }
 
         if fileSize != nil {
@@ -802,9 +790,11 @@ class DetailView: UIView {
         } else if hasText(formattedFileSize) && !hasSize(rawSize) {
             setFileSizeText(formattedFileSize!)
         } else if !hasText(formattedFileSize) && hasSize(rawSize) {
-            setFileSizeText("\(abs(Int(rawSize!.width))) x \(abs(Int(rawSize!.height)))")
+            let resolution = formatResolution(rawSize!.width, rawSize!.height)
+            setFileSizeText("\(resolution) • \(abs(Int(rawSize!.width))) x \(abs(Int(rawSize!.height)))")
         } else {
-            setFileSizeText("\(abs(Int(rawSize!.width))) x \(abs(Int(rawSize!.height))) • \(formattedFileSize!)")
+            let resolution = formatResolution(rawSize!.width, rawSize!.height)
+            setFileSizeText("\(resolution) • \(abs(Int(rawSize!.width))) x \(abs(Int(rawSize!.height))) • \(formattedFileSize!)")
         }
     }
 
@@ -1052,6 +1042,42 @@ class DetailView: UIView {
         } else {
             return true
         }
+    }
+
+    nonisolated private func formatMegaPixels(width: Double, height: Double) -> String {
+
+        let megaPixels: Double = Double(width * height) / 1000000
+
+        return megaPixels < 1 ? String(format: "%.1f MP", megaPixels) : "\(Int(megaPixels)) MP"
+    }
+
+    nonisolated private func formatResolution(_ width: CGFloat, _ height: CGFloat) -> String {
+
+        let resolution: String
+        let pixels = width * height
+
+        switch pixels {
+        case _ where pixels >= 33_177_600: //7680×4320 or higher
+            resolution = "8K"
+        case _ where pixels >= 8_294_400: //3840×2160
+            resolution = "4K"
+        case _ where pixels >= 3_686_400: //2560×1440
+            resolution = "1440p"
+        case _ where pixels >= 2_073_600: //1920×1080
+            resolution = "1080p"
+        case _ where pixels >= 921_600: //1280×720
+            resolution = "720p"
+        case _ where pixels >= 307_200: //640×480
+            resolution = "480p"
+        case _ where pixels >= 230_400: //640×360
+            resolution = "360p"
+        case _ where pixels >= 76_800: //320×240
+            resolution = "240p"
+        default:
+            resolution = "120p"
+        }
+
+        return resolution
     }
 }
 
