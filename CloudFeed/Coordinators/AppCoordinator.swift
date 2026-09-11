@@ -66,8 +66,7 @@ final class AppCoordinator: NSObject, Coordinator {
                     Environment.current.setCurrentUser(account: activeAccount.account, user: activeAccount.user, userId: activeAccount.userId)
                     urlBase = activeAccount.urlBase
                 } else {
-                    //store.deleteAllChainStore() //no account. make sure keychain is clear
-                    self?.store.deleteAllChainStore()
+                    self?.store.deleteAllChainStore() //no account. make sure keychain is clear
                 }
 
                 if let userAccount = Environment.current.currentUser {

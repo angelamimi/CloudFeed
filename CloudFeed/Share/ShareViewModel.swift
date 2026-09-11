@@ -107,11 +107,8 @@ class ShareViewModel: NSObject {
         coordinator.shareComplete()
         coordinator.share(urls)
     }
-}
 
-extension ShareViewModel: DownloadOperationDelegate {
-
-    func progress(metadata: Metadata, progress: Progress) {
+    private func handleProgress(metadata: Metadata, progress: Progress) {
 
         if let download = downloads[metadata.ocId] {
             var progressToAdd: Double
@@ -129,12 +126,27 @@ extension ShareViewModel: DownloadOperationDelegate {
         }
     }
 
-    func downloaded(metadata: Metadata) {
+    private func handleDownloaded(metadata: Metadata) {
         queue.sync {
             downloadCount -= 1
             if downloadCount == 0 {
                 downloadsComplete()
             }
+        }
+    }
+}
+
+extension ShareViewModel: DownloadOperationDelegate {
+
+    func progress(metadata: Metadata, progress: Progress) {
+        DispatchQueue.main.async { [weak self] in
+            self?.handleProgress(metadata: metadata, progress: progress)
+        }
+    }
+
+    func downloaded(metadata: Metadata) {
+        DispatchQueue.main.async { [weak self] in
+            self?.handleDownloaded(metadata: metadata)
         }
     }
 }

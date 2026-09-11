@@ -22,8 +22,7 @@
 import UIKit
 import os.log
 
-@MainActor
-protocol DownloadPreviewOperationDelegate: AnyObject {
+nonisolated protocol DownloadPreviewOperationDelegate: AnyObject {
     func previewDownloaded(metadata: Metadata)
 }
 
@@ -64,7 +63,7 @@ nonisolated class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable 
             }
 
             if let metadata = self?.metadata {
-                await self?.delegate?.previewDownloaded(metadata: metadata)
+                self?.delegate?.previewDownloaded(metadata: metadata)
             }
 
             self?.finish()

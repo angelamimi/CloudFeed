@@ -22,8 +22,7 @@
 import UIKit
 import os.log
 
-@MainActor
-protocol DownloadAvatarOperationDelegate: AnyObject {
+nonisolated protocol DownloadAvatarOperationDelegate: AnyObject {
     func avatarDownloaded(id: String)
 }
 
@@ -53,7 +52,7 @@ nonisolated class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
 
     override func main() {
 
-        task = Task { [weak self] in
+        task = Task.detached { [weak self] in
 
             if self?.isCancelled ?? true {
                 self?.finish()
@@ -68,7 +67,7 @@ nonisolated class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
             }
 
             if let objId = self?.objectId {
-                await self?.delegate?.avatarDownloaded(id: objId)
+                self?.delegate?.avatarDownloaded(id: objId)
             }
 
             self?.finish()

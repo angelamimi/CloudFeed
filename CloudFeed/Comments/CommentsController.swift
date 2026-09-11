@@ -145,7 +145,7 @@ class CommentsController: UIViewController {
         commentTextField.layer.cornerCurve = .continuous
     }
 
-    private func handleCommenterAvaterLoaded() {
+    private func handleCommenterAvatarLoaded() {
         if let userAccount = Environment.current.currentUser,
            let server = Environment.current.currentServer,
            let image = viewModel?.getCommenterAvatar(userId: userAccount.userId, urlBase: server.urlBase) {
@@ -335,6 +335,8 @@ extension CommentsController: CommentsDelegate {
 extension CommentsController: DownloadAvatarOperationDelegate {
 
     func avatarDownloaded(id: String) {
-        handleCommenterAvaterLoaded()
+        DispatchQueue.main.async { [weak self] in
+            self?.handleCommenterAvatarLoaded()
+        }
     }
 }
