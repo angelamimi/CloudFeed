@@ -152,11 +152,8 @@ class CollectionLayout: UICollectionViewFlowLayout {
             attributes.frame = insetFrame
             cache.append(attributes)
 
-            //contentHeight = max(contentHeight, frame.maxY)
-            //contentHeight = frame.maxY
             yOffset[column] = yOffset[column] + cellHeight
 
-            //section 0
             columnHeights[0][column] = attributes.frame.maxY + cellPadding
 
             let maxFromColumnHeights = columnHeights[0].max()

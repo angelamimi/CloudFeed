@@ -495,7 +495,6 @@ final class DetailViewModel: NSObject {
         }
 
         if let maxAperture = data[kCGImagePropertyExifMaxApertureValue] as? Double {
-            //details[.exif]?.addDetail(title: Strings.DetailMaxAperture, detail: String(format: "%.3f", maxAperture))
             details[.exif]?.addDetail(title: Strings.DetailMaxAperture, detail: maxAperture.formatted(FloatingPointFormatStyle()))
         }
 

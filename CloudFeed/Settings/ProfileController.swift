@@ -70,7 +70,7 @@ final class ProfileController: UIViewController {
     }
 
     private func requestProfile() {
-        //startActivityIndicator()
+
         showActivityIndicator()
 
         Task { [weak self] in
@@ -88,7 +88,6 @@ final class ProfileController: UIViewController {
             activityIndicatorView.startAnimating()
 
             let spinner = UIBarButtonItem(customView: activityIndicatorView)
-            //navigationItem.rightBarButtonItems?.append(spinner)
             navigationItem.setRightBarButton(spinner, animated: false)
         }
 
@@ -223,7 +222,6 @@ extension ProfileController: AccountDelegate {
 
     func userChanged() {
         DispatchQueue.main.async { [weak self] in
-            //self?.stopActivityIndicator()
             self?.hideActivityIndicator()
             self?.navigationController?.popViewController(animated: true)
             self?.viewModel?.lockCheck()
@@ -232,7 +230,6 @@ extension ProfileController: AccountDelegate {
 
     func userChangeError() {
         DispatchQueue.main.async { [weak self] in
-            //self?.stopActivityIndicator()
             self?.hideActivityIndicator()
             self?.viewModel?.showProfileLoadfailedError()
         }
@@ -243,7 +240,6 @@ extension ProfileController: ProfileDelegate {
 
     func beginSwitchingAccounts() {
         DispatchQueue.main.async { [weak self] in
-            //self?.startActivityIndicator()
             self?.showActivityIndicator()
         }
     }
@@ -264,7 +260,6 @@ extension ProfileController: ProfileDelegate {
             guard self?.tableView.window != nil else { return }
 
             self?.tableView.reloadData()
-            //self?.stopActivityIndicator()
             self?.hideActivityIndicator()
 
             if self?.profileName.isEmpty == true && self?.profileEmail.isEmpty == true {

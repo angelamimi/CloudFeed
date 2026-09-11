@@ -47,12 +47,8 @@ class ControlsView: UIView {
     @IBOutlet weak var audioTrackView: UIVisualEffectView!
     @IBOutlet weak var volumeView: UIVisualEffectView!
     @IBOutlet weak var controlsView: UIVisualEffectView!
-    //@IBOutlet weak var timeView: UIVisualEffectView!
-    //@IBOutlet weak var horizontalTimeView: UIVisualEffectView!
 
     @IBOutlet weak var controlsStackView: UIStackView!
-
-    //@IBOutlet weak var horizontalTimeViewHeightConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var controlsViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var controlsStackViewTopConstraint: NSLayoutConstraint!
@@ -209,7 +205,6 @@ class ControlsView: UIView {
     }
 
     func setTime(time: String) {
-        //timeButton.configuration?.title = time
         timeButton.accessibilityLabel = Strings.ControlsCurrentTime.appending(" ").appending(time)
 
         let timeString = AttributedString(NSAttributedString(string: time, attributes: [.foregroundColor: UIColor.white]))
@@ -217,7 +212,6 @@ class ControlsView: UIView {
     }
 
     func setRemainingTime(time: String) {
-       // totalTimeButton.configuration?.title = time
         totalTimeButton.accessibilityLabel = Strings.ControlsRemainingTime.appending(" ").appending(time)
 
         let timeString = AttributedString(NSAttributedString(string: time, attributes: [.foregroundColor: UIColor.white]))
@@ -733,9 +727,6 @@ class ControlsView: UIView {
 
         timeButton.accessibilityHint = Strings.ControlsCurrentTimeHint
         totalTimeButton.accessibilityHint = Strings.ControlsRemainingTimeHint
-
-        //timeButton.maximumContentSizeCategory = .accessibilityExtraLarge
-        //totalTimeButton.maximumContentSizeCategory = .accessibilityExtraLarge
 
         drawControlsCorners()
 
