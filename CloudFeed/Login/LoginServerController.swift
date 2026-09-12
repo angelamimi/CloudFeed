@@ -26,6 +26,7 @@ class LoginServerController: UIViewController {
     @IBOutlet weak var logoImageView: UIImageView!
     @IBOutlet weak var serverURLLabel: UILabel!
     @IBOutlet weak var serverURLTextField: UITextField!
+    @IBOutlet weak var underlineView: UIView!
     @IBOutlet weak var serverURLButton: UIButton!
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var centerConstraint: NSLayoutConstraint!
@@ -55,7 +56,9 @@ class LoginServerController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
 
-        if parent != nil && parent!.isBeingPresented {
+        let hasParent = parent != nil && parent!.isBeingPresented
+
+        if hasParent {
             serverURLLabel.textColor = .label
             logoImageView.isHidden = true
             closeButton.isHidden = false
@@ -65,12 +68,9 @@ class LoginServerController: UIViewController {
 
         centerOffset = centerConstraint.constant
 
-        serverURLTextField.layer.cornerRadius = 16
-        serverURLTextField.layer.cornerCurve = .continuous
-        serverURLTextField.layer.borderColor = UIColor.tertiaryLabel.cgColor
-        serverURLTextField.layer.borderWidth = 1
-        serverURLTextField.layer.masksToBounds = true
-        serverURLTextField.layer.cornerCurve = .continuous
+        serverURLTextField.attributedPlaceholder = NSAttributedString(string: Strings.LoginServerPlaceholder, attributes: [.foregroundColor: hasParent ? UIColor.lightGray.withAlphaComponent(0.5) : UIColor.darkGray])
+        serverURLTextField.textColor = hasParent ? .label : .white
+        underlineView.backgroundColor = hasParent ? .label : .white
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -92,6 +92,7 @@ class LoginServerController: UIViewController {
     }
 
     @objc private func willEnterForeground() {
+        serverURLTextField.setNeedsLayout()
         serverURLTextField.resignFirstResponder()
     }
 

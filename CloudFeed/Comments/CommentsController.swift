@@ -134,12 +134,20 @@ class CommentsController: UIViewController {
     }
 
     private func initTextField() {
+
         commentTextField.placeholder = Strings.CommentsPlaceholder
         commentTextField.delegate = self
         commentTextField.addTarget(self, action: #selector(limitText), for: .editingChanged)
 
+        commentTextField.backgroundColor = .systemBackground
+        commentTextField.borderStyle = .none
+        commentTextField.leftViewMode = .always
+        commentTextField.rightViewMode = .always
+        commentTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 8))
+        commentTextField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 8))
+
         commentTextField.layer.cornerRadius = 16
-        commentTextField.layer.borderColor = UIColor.tertiaryLabel.cgColor
+        commentTextField.layer.borderColor = UIColor.lightGray.cgColor
         commentTextField.layer.borderWidth = 1
         commentTextField.layer.masksToBounds = true
         commentTextField.layer.cornerCurve = .continuous

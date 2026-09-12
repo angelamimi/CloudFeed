@@ -103,6 +103,7 @@ extension Strings {
     public static let LoginServerConnectionErrorMessage = NSLocalizedString("Login.ServerConnection.Error.Message", comment: "")
     public static let LoginServerLabel = NSLocalizedString("Login.Server.Label", comment: "")
     public static let LoginServerButton = NSLocalizedString("Login.Server.Button", comment: "")
+    public static let LoginServerPlaceholder = NSLocalizedString("Login.Server.Placeholder", comment: "")
     public static let LoginServerTitle = NSLocalizedString("Login.Server.Title", comment: "")
     public static let LoginPoll = NSLocalizedString("Login.Poll", comment: "")
     public static let LoginViewCertificate = NSLocalizedString("Login.ViewCertificate", comment: "")

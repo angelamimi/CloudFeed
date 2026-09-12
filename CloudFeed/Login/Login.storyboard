@@ -32,13 +32,12 @@
                                 <constraints>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="500" id="8FG-hw-943"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="5lc-xR-qdM">
-                                <rect key="frame" x="16" y="492" width="361" height="40"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" textAlignment="natural" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="5lc-xR-qdM">
+                                <rect key="frame" x="16" y="476" width="361" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="500" id="L3U-N4-DGy"/>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="40" id="St5-Oj-wP6"/>
@@ -50,8 +49,16 @@
                                     <action selector="doneEditing:" destination="l5S-b9-HY7" eventType="editingDidEndOnExit" id="EwH-qz-9fb"/>
                                 </connections>
                             </textField>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3Zv-1n-5z3">
+                                <rect key="frame" x="16" y="516" width="361" height="1"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="500" id="gLt-6b-3JM"/>
+                                    <constraint firstAttribute="height" constant="1" id="mAe-mM-0zb"/>
+                                </constraints>
+                            </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FS8-r7-fs8">
-                                <rect key="frame" x="327" y="548" width="50" height="34"/>
+                                <rect key="frame" x="327" y="532" width="50" height="34"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" id="6O0-CM-FUe"/>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="34" id="x53-LG-c6e"/>
@@ -63,7 +70,7 @@
                                 </connections>
                             </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="CloudFeedLogo" translatesAutoresizingMaskIntoConstraints="NO" id="FMb-SM-BA9">
-                                <rect key="frame" x="66.666666666666686" y="230" width="260" height="216"/>
+                                <rect key="frame" x="66.666666666666686" y="210" width="260" height="216"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="260" id="DPY-f3-gT5"/>
@@ -76,16 +83,20 @@
                         <constraints>
                             <constraint firstItem="b0c-1J-USh" firstAttribute="centerY" secondItem="rAn-vz-zlk" secondAttribute="centerY" constant="50" id="3kZ-0o-fiF"/>
                             <constraint firstItem="FMb-SM-BA9" firstAttribute="centerX" secondItem="rAn-vz-zlk" secondAttribute="centerX" id="B6r-bp-A5x"/>
+                            <constraint firstItem="3Zv-1n-5z3" firstAttribute="leading" secondItem="7Ac-rJ-Q7i" secondAttribute="leading" priority="999" constant="16" id="Dyu-SO-TGm"/>
                             <constraint firstItem="b0c-1J-USh" firstAttribute="centerX" secondItem="rAn-vz-zlk" secondAttribute="centerX" id="En1-Nd-M7f"/>
-                            <constraint firstItem="5lc-xR-qdM" firstAttribute="top" secondItem="b0c-1J-USh" secondAttribute="bottom" constant="16" id="O26-w7-sNt"/>
+                            <constraint firstItem="3Zv-1n-5z3" firstAttribute="top" secondItem="5lc-xR-qdM" secondAttribute="bottom" id="HjN-qk-kAc"/>
+                            <constraint firstItem="3Zv-1n-5z3" firstAttribute="centerX" secondItem="rAn-vz-zlk" secondAttribute="centerX" id="N5i-xG-pLF"/>
+                            <constraint firstItem="5lc-xR-qdM" firstAttribute="top" secondItem="b0c-1J-USh" secondAttribute="bottom" id="O26-w7-sNt"/>
                             <constraint firstItem="SEo-cy-bwf" firstAttribute="leading" secondItem="7Ac-rJ-Q7i" secondAttribute="leading" constant="16" id="UHl-Eb-7nX"/>
                             <constraint firstItem="5lc-xR-qdM" firstAttribute="centerX" secondItem="rAn-vz-zlk" secondAttribute="centerX" id="XPc-ub-4SQ"/>
                             <constraint firstItem="b0c-1J-USh" firstAttribute="leading" secondItem="rAn-vz-zlk" secondAttribute="leading" priority="999" constant="16" id="bw0-vn-HFN"/>
+                            <constraint firstItem="7Ac-rJ-Q7i" firstAttribute="trailing" secondItem="3Zv-1n-5z3" secondAttribute="trailing" priority="999" constant="16" id="dCA-aJ-Ex0"/>
                             <constraint firstItem="5lc-xR-qdM" firstAttribute="leading" secondItem="7Ac-rJ-Q7i" secondAttribute="leading" priority="999" constant="16" id="eKr-g8-42x"/>
                             <constraint firstItem="FS8-r7-fs8" firstAttribute="top" secondItem="5lc-xR-qdM" secondAttribute="bottom" constant="16" id="fT2-eA-Nqm"/>
                             <constraint firstAttribute="trailing" secondItem="b0c-1J-USh" secondAttribute="trailing" priority="999" constant="16" id="jKj-H0-gA3"/>
                             <constraint firstItem="FS8-r7-fs8" firstAttribute="trailing" secondItem="5lc-xR-qdM" secondAttribute="trailing" id="orB-xN-k3N"/>
-                            <constraint firstItem="b0c-1J-USh" firstAttribute="top" secondItem="FMb-SM-BA9" secondAttribute="bottom" constant="30" id="r87-rb-Ay6"/>
+                            <constraint firstItem="b0c-1J-USh" firstAttribute="top" secondItem="FMb-SM-BA9" secondAttribute="bottom" constant="50" id="r87-rb-Ay6"/>
                             <constraint firstItem="7Ac-rJ-Q7i" firstAttribute="trailing" secondItem="5lc-xR-qdM" secondAttribute="trailing" priority="999" constant="16" id="xPv-hy-cZp"/>
                             <constraint firstItem="SEo-cy-bwf" firstAttribute="top" secondItem="7Ac-rJ-Q7i" secondAttribute="top" id="ycQ-G3-m0a"/>
                         </constraints>
@@ -98,6 +109,7 @@
                         <outlet property="serverURLButton" destination="FS8-r7-fs8" id="u0p-VB-ffD"/>
                         <outlet property="serverURLLabel" destination="b0c-1J-USh" id="El0-hj-dho"/>
                         <outlet property="serverURLTextField" destination="5lc-xR-qdM" id="oEj-mi-lEO"/>
+                        <outlet property="underlineView" destination="3Zv-1n-5z3" id="sse-yE-DMh"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W2M-Dt-9fx" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

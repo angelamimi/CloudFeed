@@ -2403,6 +2403,17 @@
         }
       }
     },
+    "Login.Server.Placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "example.server.com"
+          }
+        }
+      }
+    },
     "Login.Server.Title" : {
       "localizations" : {
         "en" : {
