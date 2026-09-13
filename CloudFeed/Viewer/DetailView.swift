@@ -239,8 +239,10 @@ class DetailView: UIView {
 
     private func populateVideoDetails() {
 
-        guard url != nil else {
-            populateLocationFromMetadata(metadata!)
+        guard let metadata = self.metadata else { return }
+
+        guard let fileUrl = url else {
+            populateLocationFromMetadata(metadata)
             return
         }
 
@@ -250,9 +252,19 @@ class DetailView: UIView {
 
         layoutIfNeeded()
 
-        let asset = AVAsset(url: url!)
-        populateVideoDetail(metadata: metadata!, asset: asset)
-        populateVideoMetadata(asset: asset)
+        Task.detached { [weak self] in
+            await self?.populateVideoDetailsFromUrl(url: fileUrl, metadata: metadata)
+        }
+    }
+
+    @concurrent private func populateVideoDetailsFromUrl(url: URL, metadata: Metadata) async {
+
+        let asset = AVAsset(url: url)
+
+        await MainActor.run { [weak self] in
+            self?.populateVideoDetail(metadata: metadata, asset: asset)
+            self?.populateVideoMetadata(asset: asset)
+        }
     }
 
     private func populateImageDetails() {
@@ -263,38 +275,51 @@ class DetailView: UIView {
 
         guard let metadata = self.metadata else { return }
 
-        guard url != nil else {
+        guard let fileUrl = url else {
             populateImageSizeInfoFromMetadata(metadata)
             populateLocationFromMetadata(metadata)
             populateExifFromMetadata(metadata)
             return
         }
 
-        guard let originalSource = CGImageSourceCreateWithURL(url! as CFURL, nil),
+        Task.detached { [weak self] in
+            await self?.populateImageDetailsFromUrl(url: fileUrl, metadata: metadata)
+        }
+    }
+
+    @concurrent private func populateImageDetailsFromUrl(url: URL, metadata: Metadata) async {
+
+        guard let originalSource = CGImageSourceCreateWithURL(url as CFURL, nil),
               let fileProperties = CGImageSourceCopyProperties(originalSource, nil),
               let imageProperties = CGImageSourceCopyPropertiesAtIndex(originalSource, 0, nil) else {
-            populateLocationFromMetadata(metadata)
-            populateEmptyExif()
+
+            await MainActor.run { [weak self] in
+                self?.populateLocationFromMetadata(metadata)
+                self?.populateEmptyExif()
+            }
             return
         }
 
-        let properties = NSMutableDictionary(dictionary: fileProperties)
-        let imagePropertyDict = NSMutableDictionary(dictionary: imageProperties)
+        await MainActor.run { [weak self] in
 
-        populateImageSizeInfoFromProperties(pixelProperties: imagePropertyDict, sizeProperties: properties)
-        populateImageLocationInfo(imageProperties: imagePropertyDict)
+            let properties = NSMutableDictionary(dictionary: fileProperties)
+            let imagePropertyDict = NSMutableDictionary(dictionary: imageProperties)
 
-        var camera: String? = ""
-        if let tiff = imagePropertyDict[kCGImagePropertyTIFFDictionary] as? [NSString: AnyObject] {
-            camera = populateImageTiffInfo(tiff)
-        }
+            self?.populateImageSizeInfoFromProperties(pixelProperties: imagePropertyDict, sizeProperties: properties)
+            self?.populateImageLocationInfo(imageProperties: imagePropertyDict)
 
-        if let exif = imagePropertyDict[kCGImagePropertyExifDictionary] as? [NSString: AnyObject] {
-            populateImageExifInfo(exif, camera)
-        } else {
-            setMakeModelText(Strings.DetailCameraNone)
-            setLensText(Strings.DetailLensNone)
-            populateEmptyExif()
+            var camera: String? = ""
+            if let tiff = imagePropertyDict[kCGImagePropertyTIFFDictionary] as? [NSString: AnyObject] {
+                camera = self?.populateImageTiffInfo(tiff) ?? ""
+            }
+
+            if let exif = imagePropertyDict[kCGImagePropertyExifDictionary] as? [NSString: AnyObject] {
+                self?.populateImageExifInfo(exif, camera)
+            } else {
+                self?.setMakeModelText(Strings.DetailCameraNone)
+                self?.setLensText(Strings.DetailLensNone)
+                self?.populateEmptyExif()
+            }
         }
     }
 

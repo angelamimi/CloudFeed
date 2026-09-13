@@ -1225,8 +1225,7 @@ class ViewerController: UIViewController {
 
     private func initDetailView() {
 
-        guard let detailView = Bundle.main.loadNibNamed("DetailView", owner: self, options: nil)?.first as? DetailView else { return }
-
+        guard let detailView = Bundle.main.loadNibNamed("DetailView", owner: self)?.first as? DetailView else { return }
         detailView.delegate = self
 
         self.detailView = detailView
