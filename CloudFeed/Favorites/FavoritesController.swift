@@ -150,6 +150,7 @@ class FavoritesController: CollectionController {
         viewModel.updateLayoutType(layout)
         initTitle(allowEdit: true, allowSelect: true, layoutType: layout)
         updateLayoutType(layout)
+        setTitle()
     }
 
     override func zoomInGrid() {
@@ -255,8 +256,8 @@ class FavoritesController: CollectionController {
         let metadata = viewModel.getItemAtIndexPath(indexPath)
 
         guard metadata != nil && (metadata!.classFile == NKTypeClassFile.image.rawValue
-                || metadata!.classFile == NKTypeClassFile.audio.rawValue
-                || metadata!.classFile == NKTypeClassFile.video.rawValue) else { return }
+                                  || metadata!.classFile == NKTypeClassFile.audio.rawValue
+                                  || metadata!.classFile == NKTypeClassFile.video.rawValue) else { return }
 
         let metadatas = viewModel.getItems()
         viewModel.showViewerPager(currentIndex: indexPath.item, metadatas: metadatas)

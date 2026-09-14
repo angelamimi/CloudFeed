@@ -171,6 +171,7 @@ class MediaController: CollectionController {
         viewModel.updateLayoutType(layout)
         initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())
         updateLayoutType(layout)
+        setTitle()
     }
 
     override func zoomInGrid() {
