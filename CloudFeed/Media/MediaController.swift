@@ -49,6 +49,11 @@ class MediaController: CollectionController {
 
         initTitle(allowEdit: false, allowSelect: tableMode == false, layoutType: viewModel.getLayoutType())
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
+
+        navigationController?.navigationBar.prefersLargeTitles = true
+        tableView.contentInsetAdjustmentBehavior = .never
+
+        setTitle()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -245,21 +250,25 @@ class MediaController: CollectionController {
 
         tableCleanup()
 
-        setTitle("")
         viewModel.resetDataSource()
 
         viewModel.updateCollectionType(Global.shared.layoutCollectionGrid)
         tableMode = false
+
+        setTitle("")
+
         initView()
         fetch()
     }
 
     override func switchToSocial() {
-        setTitle("")
+
         viewModel.resetDataSource()
 
         viewModel.updateCollectionType(Global.shared.layoutCollectionSocial)
         tableMode = true
+
+        setTitle("")
 
         let type = viewModel.getSocialType()
         compactMode = type == Global.shared.layoutSocialTypeCompact

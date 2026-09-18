@@ -285,18 +285,6 @@ class FavoritesController: CollectionController {
         viewModel.reload()
     }
 
-    private func getVisibleItemData() -> (toDate: Date?, name: String?) {
-
-        let visibleIndexes = collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-
-        if let first = visibleIndexes?.first,
-           let firstMetadata = viewModel.getItemAtIndexPath(first) {
-            return (firstMetadata.date, firstMetadata.fileNameView)
-        }
-
-        return (nil, nil)
-    }
-
     private func shareMenuAction(metadata: Metadata) -> UIAction {
         return UIAction(title: Strings.ShareAction, image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
             self?.share([metadata])

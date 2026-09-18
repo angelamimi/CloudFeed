@@ -697,7 +697,7 @@ class DetailView: UIView {
 
         Task.detached { [weak self] in
 
-            guard let track = try await asset.loadTracks(withMediaType: .video).first else { return }
+            guard let track = try? await asset.loadTracks(withMediaType: .video).first else { return }
 
             var lens: String?
 

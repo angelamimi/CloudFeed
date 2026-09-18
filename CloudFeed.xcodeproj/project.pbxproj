@@ -47,7 +47,6 @@
 		3927356F29BD1E820058796A /* MediaController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927356E29BD1E820058796A /* MediaController.swift */; };
 		3927357229BD1E820058796A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3927357029BD1E820058796A /* Main.storyboard */; };
 		3927357729BD1E830058796A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3927357529BD1E830058796A /* LaunchScreen.storyboard */; };
-		3927359C29BD3D510058796A /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3927359B29BD3D510058796A /* NextcloudKit */; };
 		392735A029BD69EA0058796A /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927359F29BD69EA0058796A /* DatabaseManager.swift */; };
 		392735A229BD6A4F0058796A /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735A129BD6A4F0058796A /* Global.swift */; };
 		392735AB29BE2DAA0058796A /* DatabaseManager+Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735AA29BE2DAA0058796A /* DatabaseManager+Account.swift */; };
@@ -62,6 +61,8 @@
 		39411FBC2DD7B1A000DBFA18 /* ProgressView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 39411FBB2DD7B1A000DBFA18 /* ProgressView.xib */; };
 		39411FBE2DD8CA0D00DBFA18 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39411FBD2DD8CA0D00DBFA18 /* DownloadManager.swift */; };
 		39411FC02DD8CAE900DBFA18 /* DownloadPreviewOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39411FBF2DD8CAE900DBFA18 /* DownloadPreviewOperation.swift */; };
+		394729CB3058C9210053F033 /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 394729CA3058C9210053F033 /* NextcloudKit */; };
+		394729CD3058C9500053F033 /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 394729CC3058C9500053F033 /* NextcloudKit */; };
 		394F70102DB9579B00A34FEC /* ProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394F700F2DB9579B00A34FEC /* ProfileController.swift */; };
 		394F70122DB957EC00A34FEC /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394F70112DB957EC00A34FEC /* ProfileViewModel.swift */; };
 		395C14E52B1C03FF00074EB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 395C14E42B1C03FF00074EB8 /* Assets.xcassets */; };
@@ -90,7 +91,6 @@
 		397DFD902F3521DD00F291B0 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3927359F29BD69EA0058796A /* DatabaseManager.swift */; };
 		397DFD912F3521F600F291B0 /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735A129BD6A4F0058796A /* Global.swift */; };
 		397DFD922F35220B00F291B0 /* DatabaseManager+Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39EED4892B56F9C100475802 /* DatabaseManager+Avatar.swift */; };
-		397DFD942F3522B600F291B0 /* NextcloudKit in Frameworks */ = {isa = PBXBuildFile; productRef = 397DFD932F3522B600F291B0 /* NextcloudKit */; };
 		397DFD952F352A6400F291B0 /* StoreUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392735B229BE402D0058796A /* StoreUtility.swift */; };
 		397DFD972F352C0800F291B0 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 397DFD962F352C0800F291B0 /* KeychainAccess */; };
 		397F14072F1E7B7600EFC1AC /* DownloadController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397F14062F1E7B7600EFC1AC /* DownloadController.swift */; };
@@ -371,9 +371,9 @@
 			files = (
 				39C1B6A02EE23CB2006003D2 /* VLCKitSPM in Frameworks */,
 				392718662C35A181001C57C0 /* SVGKitSwift in Frameworks */,
+				394729CD3058C9500053F033 /* NextcloudKit in Frameworks */,
 				392735B029BE3DED0058796A /* KeychainAccess in Frameworks */,
 				39FA11A62D2AEA270054DFF6 /* OpenSSL in Frameworks */,
-				3927359C29BD3D510058796A /* NextcloudKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -382,8 +382,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				397DFD972F352C0800F291B0 /* KeychainAccess in Frameworks */,
-				397DFD942F3522B600F291B0 /* NextcloudKit in Frameworks */,
 				39638E3A2F61E4C100E11CC4 /* SVGKitSwift in Frameworks */,
+				394729CB3058C9210053F033 /* NextcloudKit in Frameworks */,
 				397F142F2F26C3A500EFC1AC /* SwiftUI.framework in Frameworks */,
 				397F142E2F26C3A500EFC1AC /* WidgetKit.framework in Frameworks */,
 			);
@@ -700,11 +700,11 @@
 			);
 			name = CloudFeed;
 			packageProductDependencies = (
-				3927359B29BD3D510058796A /* NextcloudKit */,
 				392735AF29BE3DED0058796A /* KeychainAccess */,
 				392718652C35A181001C57C0 /* SVGKitSwift */,
 				39FA11A52D2AEA270054DFF6 /* OpenSSL */,
 				39C1B69F2EE23CB2006003D2 /* VLCKitSPM */,
+				394729CC3058C9500053F033 /* NextcloudKit */,
 			);
 			productName = CloudFeed;
 			productReference = 3927356729BD1E820058796A /* CloudFeed.app */;
@@ -748,9 +748,9 @@
 			);
 			name = WidgetExtension;
 			packageProductDependencies = (
-				397DFD932F3522B600F291B0 /* NextcloudKit */,
 				397DFD962F352C0800F291B0 /* KeychainAccess */,
 				39638E392F61E4C100E11CC4 /* SVGKitSwift */,
+				394729CA3058C9210053F033 /* NextcloudKit */,
 			);
 			productName = WidgetExtension;
 			productReference = 397F142D2F26C3A500EFC1AC /* WidgetExtension.appex */;
@@ -788,11 +788,11 @@
 			);
 			mainGroup = 3927355E29BD1E820058796A;
 			packageReferences = (
-				3927359A29BD3D510058796A /* XCRemoteSwiftPackageReference "NextcloudKit" */,
 				392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */,
 				39FA11A42D2AEA270054DFF6 /* XCRemoteSwiftPackageReference "OpenSSL" */,
 				39C1B69E2EE23CB2006003D2 /* XCRemoteSwiftPackageReference "vlckit-spm" */,
+				394729C93058C8780053F033 /* XCRemoteSwiftPackageReference "NextcloudKit" */,
 			);
 			productRefGroup = 3927356829BD1E820058796A /* Products */;
 			projectDirPath = "";
@@ -1182,7 +1182,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CloudFeed/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Cloud Feed";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "CloudFeed needs permission to save photos and videos to your library";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -1223,7 +1225,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CloudFeed/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Cloud Feed";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "CloudFeed needs permission to save photos and videos to your library";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -1419,20 +1423,20 @@
 				kind = branch;
 			};
 		};
-		3927359A29BD3D510058796A /* XCRemoteSwiftPackageReference "NextcloudKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Nextcloud/NextcloudKit.git";
-			requirement = {
-				kind = exactVersion;
-				version = 7.6.0;
-			};
-		};
 		392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 4.2.2;
+			};
+		};
+		394729C93058C8780053F033 /* XCRemoteSwiftPackageReference "NextcloudKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nextcloud/NextcloudKit/";
+			requirement = {
+				kind = exactVersion;
+				version = 7.6.0;
 			};
 		};
 		39C1B69E2EE23CB2006003D2 /* XCRemoteSwiftPackageReference "vlckit-spm" */ = {
@@ -1459,25 +1463,25 @@
 			package = 39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */;
 			productName = SVGKitSwift;
 		};
-		3927359B29BD3D510058796A /* NextcloudKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 3927359A29BD3D510058796A /* XCRemoteSwiftPackageReference "NextcloudKit" */;
-			productName = NextcloudKit;
-		};
 		392735AF29BE3DED0058796A /* KeychainAccess */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 392735AE29BE3DED0058796A /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
 		};
+		394729CA3058C9210053F033 /* NextcloudKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 394729C93058C8780053F033 /* XCRemoteSwiftPackageReference "NextcloudKit" */;
+			productName = NextcloudKit;
+		};
+		394729CC3058C9500053F033 /* NextcloudKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 394729C93058C8780053F033 /* XCRemoteSwiftPackageReference "NextcloudKit" */;
+			productName = NextcloudKit;
+		};
 		39638E392F61E4C100E11CC4 /* SVGKitSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 39271D7629DB341B00522DFD /* XCRemoteSwiftPackageReference "SVGKit" */;
 			productName = SVGKitSwift;
-		};
-		397DFD932F3522B600F291B0 /* NextcloudKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 3927359A29BD3D510058796A /* XCRemoteSwiftPackageReference "NextcloudKit" */;
-			productName = NextcloudKit;
 		};
 		397DFD962F352C0800F291B0 /* KeychainAccess */ = {
 			isa = XCSwiftPackageProductDependency;

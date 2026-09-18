@@ -138,9 +138,17 @@ class CollectionController: UIViewController {
     }
 
     func setTitle(_ title: String) {
+
         navigationItem.title = title
-        navigationItem.largeTitleDisplayMode = title.isEmpty ? .automatic : .always
+
+        if tableMode {
+            navigationItem.largeTitleDisplayMode = .never
+        } else {
+            navigationItem.largeTitleDisplayMode = title.isEmpty ? .automatic : .always
+        }
+
         navigationController?.navigationBar.prefersLargeTitles = title.isEmpty ? false : true
+        navigationController?.navigationBar.sizeToFit()
     }
 
     func resetFilter() {

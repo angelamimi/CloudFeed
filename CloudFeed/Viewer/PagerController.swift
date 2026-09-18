@@ -472,7 +472,7 @@ class PagerController: UIViewController {
 
         guard presentedViewController != nil else { return }
 
-        presentedViewController?.dismiss(animated: true, completion: {
+        presentedViewController?.dismiss(animated: true, completion: { [weak self] in
             DispatchQueue.main.async { [weak self] in
                 self?.presentAllDetailsPopover(metadata: metadata)
             }

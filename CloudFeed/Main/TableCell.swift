@@ -33,6 +33,7 @@ protocol TableCellDelegate: AnyObject {
 
 class TableCell: UITableViewCell {
 
+    @IBOutlet weak var ownerStackView: UIStackView!
     @IBOutlet weak var ownerImageView: UIImageView!
     @IBOutlet weak var ownerLabel: UILabel!
 
@@ -63,6 +64,8 @@ class TableCell: UITableViewCell {
     @IBOutlet weak var infoStackView: UIStackView!
     @IBOutlet weak var dataStackView: UIStackView!
 
+    @IBOutlet weak var fillerView: UIView!
+
     @IBOutlet weak var previewImageViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var previewImageViewMinHeightConstraint: NSLayoutConstraint!
 
@@ -81,6 +84,13 @@ class TableCell: UITableViewCell {
             self?.initCell()
             self?.initActions()
         }
+    }
+
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+
+        invalidateIntrinsicContentSize()
+        layoutIfNeeded()
     }
 
     override func prepareForReuse() {

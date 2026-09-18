@@ -427,7 +427,7 @@ class PasscodeController: UIViewController {
         Task { [weak self] in
 
             while countdown >= 0 {
-                try await Task.sleep(for: .seconds(1))
+                try? await Task.sleep(for: .seconds(1))
                 countdown -= 1
                 if countdown <= 0 {
                     self?.removePasscodeWait()
