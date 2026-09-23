@@ -33,6 +33,8 @@ protocol TableCellDelegate: AnyObject {
 
 class TableCell: UITableViewCell {
 
+    @IBOutlet weak var contentStackView: UIStackView!
+
     @IBOutlet weak var ownerStackView: UIStackView!
     @IBOutlet weak var ownerImageView: UIImageView!
     @IBOutlet weak var ownerLabel: UILabel!
@@ -60,11 +62,8 @@ class TableCell: UITableViewCell {
     @IBOutlet weak var createStackView: UIStackView!
 
     @IBOutlet weak var actionStackView: UIStackView!
-    @IBOutlet weak var bottomStackView: UIStackView!
     @IBOutlet weak var infoStackView: UIStackView!
     @IBOutlet weak var dataStackView: UIStackView!
-
-    @IBOutlet weak var fillerView: UIView!
 
     @IBOutlet weak var previewImageViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var previewImageViewMinHeightConstraint: NSLayoutConstraint!
@@ -84,13 +83,6 @@ class TableCell: UITableViewCell {
             self?.initCell()
             self?.initActions()
         }
-    }
-
-    override func willMove(toSuperview newSuperview: UIView?) {
-        super.willMove(toSuperview: newSuperview)
-
-        invalidateIntrinsicContentSize()
-        layoutIfNeeded()
     }
 
     override func prepareForReuse() {
@@ -150,11 +142,6 @@ class TableCell: UITableViewCell {
             activityIndicator.isHidden = false
             delegate?.videoForMetadata(metadataId: metadataId ?? "")
         }
-    }
-
-    func invalidate() {
-        bottomStackView.invalidateIntrinsicContentSize()
-        invalidateIntrinsicContentSize()
     }
 
     func setPreviewImage(_ image: UIImage?) {
@@ -299,10 +286,6 @@ class TableCell: UITableViewCell {
 
         dateLabel.font = UIFont.preferredFont(forTextStyle: .footnote, compatibleWith: UITraitCollection(legibilityWeight: .bold))
         createDateLabel.font = UIFont.preferredFont(forTextStyle: .footnote, compatibleWith: UITraitCollection(legibilityWeight: .bold))
-
-        actionStackView.layoutMargins = .zero
-        actionStackView.insetsLayoutMarginsFromSafeArea = true
-        actionStackView.isLayoutMarginsRelativeArrangement = false
 
         typeContainerView.layer.borderColor = UIColor.label.cgColor
         typeContainerView.layer.borderWidth = 1

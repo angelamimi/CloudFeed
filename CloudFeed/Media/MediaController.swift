@@ -51,7 +51,6 @@ class MediaController: CollectionController {
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
 
         navigationController?.navigationBar.prefersLargeTitles = true
-        tableView.contentInsetAdjustmentBehavior = .never
 
         setTitle()
     }

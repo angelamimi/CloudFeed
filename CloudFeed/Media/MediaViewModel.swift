@@ -901,8 +901,6 @@ final class MediaViewModel {
                 }
             }
         }
-
-        cell.invalidate()
     }
 
     @concurrent private func loadImage(_ path: String) async -> UIImage? {
