@@ -64,8 +64,7 @@ extension MediaCoordinator {
 
         if let sheet = controller.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
-            sheet.prefersEdgeAttachedInCompactHeight = true
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            sheet.preferredCornerRadius = 16
         }
 
         let viewModel = CommentsViewModel(dataService: dataService, delegate: controller, cacheManager: cacheManager, metadata: metadata)
@@ -93,9 +92,6 @@ extension MediaCoordinator {
 
         if let sheet = filterController.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-            sheet.prefersEdgeAttachedInCompactHeight = true
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
             sheet.prefersGrabberVisible = true
         }
 

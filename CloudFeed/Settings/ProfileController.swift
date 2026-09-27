@@ -73,9 +73,7 @@ final class ProfileController: UIViewController {
 
         showActivityIndicator()
 
-        Task { [weak self] in
-            await self?.viewModel?.requestProfile()
-        }
+        viewModel?.requestProfile()
     }
 
     func showActivityIndicator() {
@@ -221,27 +219,21 @@ extension ProfileController: UITableViewDelegate, UITableViewDataSource {
 extension ProfileController: AccountDelegate {
 
     func userChanged() {
-        DispatchQueue.main.async { [weak self] in
-            self?.hideActivityIndicator()
-            self?.navigationController?.popViewController(animated: true)
-            self?.viewModel?.lockCheck()
-        }
+        hideActivityIndicator()
+        navigationController?.popViewController(animated: true)
+        viewModel?.lockCheck()
     }
 
     func userChangeError() {
-        DispatchQueue.main.async { [weak self] in
-            self?.hideActivityIndicator()
-            self?.viewModel?.showProfileLoadfailedError()
-        }
+        hideActivityIndicator()
+        viewModel?.showProfileLoadfailedError()
     }
 }
 
 extension ProfileController: ProfileDelegate {
 
     func beginSwitchingAccounts() {
-        DispatchQueue.main.async { [weak self] in
-            self?.showActivityIndicator()
-        }
+        showActivityIndicator()
     }
 
     func noAccountsFound() {
@@ -250,21 +242,18 @@ extension ProfileController: ProfileDelegate {
 
     func profileResultReceived(profile: Profile?) {
 
-        self.profileName = profile?.name ?? ""
-        self.profileEmail = profile?.email ?? ""
-        self.profileImage = profile?.image
-        self.mediaPath = profile?.mediaPath ?? ""
+        profileName = profile?.name ?? ""
+        profileEmail = profile?.email ?? ""
+        profileImage = profile?.image
+        mediaPath = profile?.mediaPath ?? ""
 
-        DispatchQueue.main.async { [weak self] in
+        guard tableView.window != nil else { return }
 
-            guard self?.tableView.window != nil else { return }
+        tableView.reloadData()
+        hideActivityIndicator()
 
-            self?.tableView.reloadData()
-            self?.hideActivityIndicator()
-
-            if self?.profileName.isEmpty == true && self?.profileEmail.isEmpty == true {
-                self?.viewModel?.showProfileLoadfailedError()
-            }
+        if profileName.isEmpty == true && profileEmail.isEmpty == true {
+            viewModel?.showProfileLoadfailedError()
         }
     }
 }

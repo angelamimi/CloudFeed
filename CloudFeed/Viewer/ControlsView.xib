@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="25098" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="landscape" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="25073"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -13,7 +13,6 @@
             <connections>
                 <outlet property="audioTrackButton" destination="OYM-Gd-I7P" id="2G3-dv-RJM"/>
                 <outlet property="audioTrackView" destination="q2D-Dm-4a7" id="saO-EW-mVh"/>
-                <outlet property="audioViewLeadingConstraint" destination="zLJ-WQ-mKO" id="UCb-gX-r3k"/>
                 <outlet property="captionsButton" destination="JAq-bM-gDn" id="36X-Jy-Gxk"/>
                 <outlet property="captionsButtonWidthConstraint" destination="Xa8-94-aGK" id="dKc-wB-WjY"/>
                 <outlet property="controlsStackView" destination="Wmb-p0-zvf" id="2wW-Ed-Cfu"/>
@@ -37,7 +36,6 @@
                 <outlet property="volumeStackView" destination="cN2-xs-hWm" id="9Sa-Hv-NLY"/>
                 <outlet property="volumeTopConstraint" destination="8z1-X0-k3d" id="hHA-ks-TtJ"/>
                 <outlet property="volumeView" destination="NBR-iP-9gV" id="O8q-Lw-W6n"/>
-                <outlet property="volumeViewTrailingConstraint" destination="2qC-ai-TtE" id="YOV-mk-NJO"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
@@ -194,7 +192,7 @@
                     <blurEffect style="prominent"/>
                 </visualEffectView>
                 <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NBR-iP-9gV" userLabel="Volume Visual Effect View">
-                    <rect key="frame" x="533" y="67" width="50" height="50"/>
+                    <rect key="frame" x="525" y="67" width="50" height="50"/>
                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="se5-JG-BBz">
                         <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -239,7 +237,7 @@
                     <blurEffect style="prominent"/>
                 </visualEffectView>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="fru-9w-RdC" userLabel="Top Stack View">
-                    <rect key="frame" x="59" y="67" width="50" height="50"/>
+                    <rect key="frame" x="67" y="67" width="50" height="50"/>
                     <subviews>
                         <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vu6-Dx-Gnc" userLabel="Route Visual Effect View">
                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
@@ -301,9 +299,7 @@
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NBR-iP-9gV" secondAttribute="trailing" constant="16" id="2qC-ai-TtE">
-                    <variation key="heightClass=compact" constant="0.0"/>
-                </constraint>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="NBR-iP-9gV" secondAttribute="trailing" constant="8" id="2qC-ai-TtE"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="4wa-M8-UL0"/>
                 <constraint firstItem="NBR-iP-9gV" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="8z1-X0-k3d"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="9tG-4w-mP1"/>
@@ -311,24 +307,20 @@
                 <constraint firstItem="fru-9w-RdC" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="8" id="Kir-AX-bjw"/>
                 <constraint firstItem="AXL-dv-8Qn" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" priority="750" id="a5f-HK-ZzW"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="AXL-dv-8Qn" secondAttribute="trailing" priority="750" id="syX-KT-Ztl"/>
-                <constraint firstItem="fru-9w-RdC" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="8" id="zLJ-WQ-mKO">
-                    <variation key="heightClass=compact-widthClass=compact" constant="0.0"/>
-                    <variation key="heightClass=compact-widthClass=regular" constant="0.0"/>
-                    <variation key="heightClass=regular-widthClass=compact" constant="16"/>
-                </constraint>
+                <constraint firstItem="fru-9w-RdC" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="8" id="zLJ-WQ-mKO"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <point key="canvasLocation" x="376.76056338028172" y="-429.00763358778624"/>
         </view>
     </objects>
     <resources>
-        <image name="backward" catalog="system" width="128" height="76"/>
-        <image name="captions.bubble" catalog="system" width="128" height="110"/>
-        <image name="forward" catalog="system" width="128" height="76"/>
-        <image name="gauge.with.dots.needle.100percent" catalog="system" width="128" height="123"/>
-        <image name="play.circle.fill" catalog="system" width="128" height="123"/>
-        <image name="speaker.wave.2" catalog="system" width="128" height="88"/>
-        <image name="waveform" catalog="system" width="125" height="128"/>
+        <image name="backward" catalog="system" width="128" height="80"/>
+        <image name="captions.bubble" catalog="system" width="128" height="114"/>
+        <image name="forward" catalog="system" width="128" height="80"/>
+        <image name="gauge.with.dots.needle.100percent" catalog="system" width="128" height="128"/>
+        <image name="play.circle.fill" catalog="system" width="128" height="128"/>
+        <image name="speaker.wave.2" catalog="system" width="128" height="92"/>
+        <image name="waveform" catalog="system" width="121" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

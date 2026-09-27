@@ -34,6 +34,7 @@ protocol MediaDelegate: AnyObject {
     func videoSelected()
     func videoPlay(indexPath: IndexPath)
     func syncComplete()
+    func liveLoadComplete(videoMetadata: Metadata, indexPath: IndexPath)
 }
 
 @MainActor
@@ -204,16 +205,45 @@ final class MediaViewModel {
         return items
     }
 
-    func fileExists(_ metadata: Metadata) -> Bool {
+    func handleLivePhoto(metadata: Metadata, account: String) {
+        Task.detached { [weak self] in
+            await self?.loadLivePhoto(metadata: metadata, account: account)
+        }
+    }
+
+    @concurrent func loadLivePhoto(metadata: Metadata, account: String) async {
+
+        if let videoMetadata = await getMetadataLivePhoto(metadata: metadata) {
+
+            if fileExists(videoMetadata) == true {
+
+                await MainActor.run { [weak self] in
+                    if let indexPath = self?.tableDataSource.indexPath(for: metadata.id) {
+                        self?.delegate.liveLoadComplete(videoMetadata: videoMetadata, indexPath: indexPath)
+                    }
+                }
+            } else {
+
+                await downloadLivePhotoVideo(metadata: videoMetadata, account: account)
+
+                await MainActor.run { [weak self] in
+                    if let indexPath = self?.tableDataSource.indexPath(for: metadata.id) {
+                        self?.delegate.liveLoadComplete(videoMetadata: videoMetadata, indexPath: indexPath)
+                    }
+                }
+            }
+        }
+    }
+
+    nonisolated func fileExists(_ metadata: Metadata) -> Bool {
         return dataService.store.fileExists(metadata)
     }
 
-    func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
+    @concurrent func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
         return await dataService.getMetadataLivePhoto(metadata: metadata)
     }
 
-    func downloadLivePhotoVideo(metadata: Metadata) async {
-        guard let account = Environment.current.currentUser?.account else { return }
+    @concurrent func downloadLivePhotoVideo(metadata: Metadata, account: String) async {
         await dataService.download(account: account, metadata: metadata, progressHandler: { _, _ in })
     }
 

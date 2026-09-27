@@ -102,13 +102,16 @@ extension MainCoordinator {
         }
     }
 
-    private func clearMediaController() {
+    private func clearMediaController(resetTableMode: Bool) {
 
         if let nav = tabBarController?.viewControllers?[0] as? UINavigationController {
             nav.popToRootViewController(animated: false)
         }
 
         if let media = getMediaController() {
+            if resetTableMode {
+                media.setTableMode()
+            }
             media.clear()
         }
     }
@@ -301,7 +304,7 @@ extension MainCoordinator: CacheDelegate {
     }
 
     func cacheCleared() {
-        clearMediaController()
+        clearMediaController(resetTableMode: false)
         clearFavoritesController()
     }
 }
@@ -327,14 +330,12 @@ extension MainCoordinator: ResetApplicationDelegate {
 
                 nav.popToRootViewController(animated: true)
 
-                DispatchQueue.main.async { [weak self] in
-                    self?.clearSettingsController(notify: false, reload: reload)
-                    self?.clearMediaController()
-                    self?.clearFavoritesController()
+                self?.clearSettingsController(notify: false, reload: reload)
+                self?.clearMediaController(resetTableMode: true)
+                self?.clearFavoritesController()
 
-                    if let blur = self?.tabBarController?.view.viewWithTag(blurTag) {
-                        blur.removeFromSuperview()
-                    }
+                if let blur = self?.tabBarController?.view.viewWithTag(blurTag) {
+                    blur.removeFromSuperview()
                 }
             } else if let splitController = self?.tabBarController?.selectedViewController as? UISplitViewController {
 
@@ -342,14 +343,12 @@ extension MainCoordinator: ResetApplicationDelegate {
 
                     controller.navigationController?.popToRootViewController(animated: false)
 
-                    DispatchQueue.main.async { [weak self] in
-                        self?.clearSettingsController(notify: false, reload: controller is SettingsController)
-                        self?.clearMediaController()
-                        self?.clearFavoritesController()
+                    self?.clearSettingsController(notify: false, reload: controller is SettingsController)
+                    self?.clearMediaController(resetTableMode: true)
+                    self?.clearFavoritesController()
 
-                        if let blur = self?.tabBarController?.view.viewWithTag(blurTag) {
-                            blur.removeFromSuperview()
-                        }
+                    if let blur = self?.tabBarController?.view.viewWithTag(blurTag) {
+                        blur.removeFromSuperview()
                     }
                 }
             }

@@ -43,6 +43,8 @@ class CommentsController: UIViewController {
     var metadata: Metadata?
     var viewModel: CommentsViewModel?
 
+    private let bottomMargin: CGFloat = 16
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -73,6 +75,8 @@ class CommentsController: UIViewController {
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+
+        setBottomMargin()
 
         viewModel?.initDatasource(tableView)
 
@@ -243,7 +247,7 @@ class CommentsController: UIViewController {
 
     @objc private func keyboardWillShow(notification: Notification) {
 
-        guard bottomStackViewBottomConstraint.constant == 0 else { return }
+        guard bottomStackViewBottomConstraint.constant <= bottomMargin else { return }
 
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
            let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
@@ -264,14 +268,15 @@ class CommentsController: UIViewController {
 
     @objc private func keyboardWillBeHidden(notification: Notification) {
 
-        guard bottomStackViewBottomConstraint.constant != 0 else { return }
+        guard bottomStackViewBottomConstraint.constant > bottomMargin else { return }
 
         if let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
            let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
 
             noCommentsStackViewCenterYConstraint.constant = 0
             activityIndicatorCenterYConstraint.constant = 0
-            bottomStackViewBottomConstraint.constant = 0
+
+            setBottomMargin()
 
             let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
 
@@ -284,6 +289,14 @@ class CommentsController: UIViewController {
     private func startActivityIndicator() {
         noCommentsStackView.isHidden = true
         activityIndicator.isHidden = false
+    }
+
+    private func setBottomMargin() {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            bottomStackViewBottomConstraint.constant = bottomMargin
+        } else {
+            bottomStackViewBottomConstraint.constant = 0
+        }
     }
 }
 

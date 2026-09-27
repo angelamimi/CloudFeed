@@ -65,6 +65,9 @@ class TableCell: UITableViewCell {
     @IBOutlet weak var infoStackView: UIStackView!
     @IBOutlet weak var dataStackView: UIStackView!
 
+    @IBOutlet weak var videoButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var videoButtonHeightConstraint: NSLayoutConstraint!
+
     @IBOutlet weak var previewImageViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var previewImageViewMinHeightConstraint: NSLayoutConstraint!
 
@@ -82,6 +85,14 @@ class TableCell: UITableViewCell {
         MainActor.assumeIsolated { [weak self] in
             self?.initCell()
             self?.initActions()
+        }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        if #unavailable(iOS 26) {
+            roundVideoButton()
         }
     }
 
@@ -274,8 +285,8 @@ class TableCell: UITableViewCell {
             videoButton.configuration = .filled()
             videoButton.tintColor = .label
             videoButton.configuration?.baseBackgroundColor = .systemBackground.withAlphaComponent(0.3)
-            videoButton.layer.cornerRadius = 20
             videoButton.layer.masksToBounds = true
+            roundVideoButton()
         }
 
         videoButton.configuration?.image = UIImage(systemName: "play")
@@ -293,6 +304,13 @@ class TableCell: UITableViewCell {
         typeContainerView.layer.backgroundColor = UIColor.systemBackground.cgColor
 
         setImageViewHeightConstraint()
+    }
+
+    private func roundVideoButton() {
+        let max = max(videoButton.frame.width, videoButton.frame.height)
+        videoButton.layer.cornerRadius = max / 2
+        videoButtonWidthConstraint.constant = max
+        videoButtonHeightConstraint.constant = max
     }
 
     private func setImageViewHeightConstraint() {

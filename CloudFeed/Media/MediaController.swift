@@ -143,6 +143,11 @@ class MediaController: CollectionController {
         setTitle()
     }
 
+    func setTableMode() {
+        tableMode = viewModel.getCollectionType() == Global.shared.layoutCollectionSocial
+        viewModel.tableMode = tableMode
+    }
+
     override func menuTapped() {
         super.menuTapped()
         tableCleanup()
@@ -309,42 +314,25 @@ class MediaController: CollectionController {
     }
 
     private func handleLongPressLivePhoto(_ metadata: Metadata, _ cell: TableCell) {
-
-        Task { [weak self] in
-
-            if let videoMetadata = await self?.viewModel.getMetadataLivePhoto(metadata: metadata) {
-
-                if self?.viewModel.fileExists(videoMetadata) == true {
-                    self?.playLiveVideo(videoMetadata, cell)
-                } else {
-                    await self?.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
-                    self?.playLiveVideo(videoMetadata, cell)
-                }
-            }
-        }
+        guard let account = Environment.current.currentUser?.account else { return }
+        viewModel.handleLivePhoto(metadata: metadata, account: account)
     }
 
     private func playVideo(_ url: URL, _ cell: TableCell) {
-
-        DispatchQueue.main.async {
-            cell.playVideo(url)
-        }
+        cell.playVideo(url)
     }
 
     private func playLiveVideo(_ videoMetadata: Metadata, _ cell: TableCell) {
 
-        DispatchQueue.main.async { [weak self] in
+        var videoUrl: URL?
 
-            var videoUrl: URL?
+        if viewModel.fileExists(videoMetadata) == true,
+           let path = viewModel.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
+            videoUrl = URL(fileURLWithPath: path)
+        }
 
-            if self?.viewModel.fileExists(videoMetadata) == true,
-               let path = self?.viewModel.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
-                videoUrl = URL(fileURLWithPath: path)
-            }
-
-            if let url = videoUrl {
-                cell.playLiveVideo(url)
-            }
+        if let url = videoUrl {
+            cell.playLiveVideo(url)
         }
     }
 
@@ -358,9 +346,7 @@ class MediaController: CollectionController {
 
     private func initView() {
 
-        tableMode = viewModel.getCollectionType() == Global.shared.layoutCollectionSocial
-
-        viewModel.tableMode = tableMode
+        setTableMode()
 
         if tableMode {
             registerTableCell()
@@ -622,6 +608,12 @@ extension MediaController: MediaDelegate {
 
                 self?.playVideo(videoURL, cell)
             }
+        }
+    }
+
+    func liveLoadComplete(videoMetadata: Metadata, indexPath: IndexPath) {
+        if let cell = tableView.cellForRow(at: indexPath) as? TableCell {
+            playLiveVideo(videoMetadata, cell)
         }
     }
 }

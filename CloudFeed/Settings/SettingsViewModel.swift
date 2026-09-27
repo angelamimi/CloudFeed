@@ -51,11 +51,11 @@ final class SettingsViewModel: ProfileViewModel {
 
     func clearCache(notify: Bool, update: Bool) {
 
-        Task { [weak self] in
+        guard let account = Environment.current.currentUser?.account else { return }
 
-            if let account = Environment.current.currentUser?.account {
-                await self?.dataService.clearDatabase(account: account, removeAccount: false)
-            }
+        Task.detached { [weak self] in
+
+            await self?.dataService.clearDatabase(account: account, removeAccount: false)
 
             await self?.dataService.store.clearCache()
 
@@ -63,21 +63,25 @@ final class SettingsViewModel: ProfileViewModel {
                 if update {
                     await self?.updateServer()
                 }
-                self?.coordinator.cacheCleared()
-                self?.settingsDelegate.cacheCleared()
+
+                await MainActor.run { [weak self] in
+                    self?.coordinator.cacheCleared()
+                    self?.settingsDelegate.cacheCleared()
+                }
             }
         }
     }
 
     func reset() {
 
-        Task { [weak self] in
+        Task.detached { [weak self] in
 
             await self?.dataService.reset()
 
-            Environment.current.clear()
-
-            self?.resetDelegate.reset()
+            await MainActor.run { [weak self] in
+                Environment.current.clear()
+                self?.resetDelegate.reset()
+            }
         }
     }
 
@@ -91,11 +95,14 @@ final class SettingsViewModel: ProfileViewModel {
 
     func calculateCacheSize() {
 
-        let dir = dataService.store.cacheDirectory
+        Task.detached { [weak self] in
 
-        Task { [weak self] in
-            if let totalSize = await self?.dataService.store.getDirectorySize(directory: dir) {
-                self?.settingsDelegate.cacheCalculated(cacheSize: totalSize)
+            if let dir = self?.dataService.store.cacheDirectory,
+               let totalSize = await self?.dataService.store.getDirectorySize(directory: dir) {
+
+                await MainActor.run { [weak self] in
+                    self?.settingsDelegate.cacheCalculated(cacheSize: totalSize)
+                }
             }
         }
     }

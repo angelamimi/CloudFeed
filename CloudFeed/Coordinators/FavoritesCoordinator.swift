@@ -73,9 +73,6 @@ extension FavoritesCoordinator {
 
         if let sheet = filterController.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-            sheet.prefersEdgeAttachedInCompactHeight = true
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
             sheet.prefersGrabberVisible = true
         }
 

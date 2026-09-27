@@ -156,6 +156,14 @@ nonisolated struct StoreUtility: Sendable {
         return UserDefaults(suiteName: Global.shared.groupIdentifier)
     }
 
+    func removeUserDefaults() {
+        if let defaults = getUserDefaults() {
+            for key in defaults.dictionaryRepresentation().keys {
+                defaults.removeObject(forKey: key)
+            }
+        }
+    }
+
     func getWidgetFavoriteLastImageDate() -> Date? {
         return getUserDefaults()?.value(forKey: "Favorites_lastImageDate") as? Date
     }

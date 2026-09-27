@@ -191,9 +191,7 @@ class SettingsController: UIViewController {
             setServerInfo()
             showActivityIndicator()
 
-            Task { [weak self] in
-                await self?.viewModel.requestProfile()
-            }
+            viewModel.requestProfile()
         }
     }
 
@@ -300,17 +298,18 @@ class SettingsController: UIViewController {
         self.serverTotalSize = profile?.quotaTotal
         self.serverUsingSize = profile?.quotaUsed
 
-        DispatchQueue.main.async { [weak self] in
+        guard tableView.window != nil else { return }
 
-            guard self?.tableView.window != nil else { return }
+        if mode == .all {
+            tableView.reloadSections(IndexSet([0, 3]), with: .fade)
+        } else {
+            tableView.reloadSections(IndexSet([0]), with: .fade)
+        }
 
-            self?.tableView.reloadSections(IndexSet([0, 3]), with: .fade)
+        hideActivityIndicator()
 
-            self?.hideActivityIndicator()
-
-            if self?.profileName.isEmpty == true && self?.profileEmail.isEmpty == true {
-                self?.showProfileLoadfailedError()
-            }
+        if profileName.isEmpty == true && profileEmail.isEmpty == true {
+            showProfileLoadfailedError()
         }
     }
 }
@@ -745,40 +744,30 @@ extension SettingsController: ProfileDelegate {
 extension SettingsController: SettingsDelegate {
 
     func userChangeError() {
-        DispatchQueue.main.async { [weak self] in
-            self?.hideActivityIndicator()
-            self?.viewModel.showProfileLoadfailedError()
-        }
+        hideActivityIndicator()
+        viewModel.showProfileLoadfailedError()
     }
 
     func userChanged() {
-        DispatchQueue.main.async { [weak self] in
-            self?.hideActivityIndicator()
-            self?.clear(notify: true, reload: true)
-            self?.viewModel.userAccountChanged()
-            self?.viewModel?.lockCheck()
-        }
+        hideActivityIndicator()
+        clear(notify: true, reload: true)
+        viewModel.userAccountChanged()
+        viewModel?.lockCheck()
     }
 
     func cacheCleared() {
-
         setServerInfo()
-
         calculateCacheSize()
-
-        DispatchQueue.main.async { [weak self] in
-            self?.hideActivityIndicator()
-        }
+        hideActivityIndicator()
     }
 
     func cacheCalculated(cacheSize: Int64) {
 
         cacheSizeDescription = ByteCountFormatter.string(fromByteCount: cacheSize, countStyle: .file)
 
-        DispatchQueue.main.async { [weak self] in
-            if self?.tableView.window != nil {
-                self?.tableView.reloadSections(IndexSet(integer: 4), with: .fade)
-            }
+        if tableView.window != nil {
+            let section = mode == .all ? 4 : 0
+            tableView.reloadSections(IndexSet(integer: section), with: .fade)
         }
     }
 }

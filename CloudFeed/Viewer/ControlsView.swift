@@ -53,9 +53,6 @@ class ControlsView: UIView {
     @IBOutlet weak var controlsViewTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var controlsStackViewTopConstraint: NSLayoutConstraint!
 
-    @IBOutlet weak var timeSliderLeadingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var timeSliderTrailingConstraint: NSLayoutConstraint!
-
     @IBOutlet weak var audioTrackButton: UIButton!
 
     @IBOutlet weak var volumeSlider: UISlider!
@@ -76,9 +73,6 @@ class ControlsView: UIView {
 
     @IBOutlet weak var speedButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var captionsButtonWidthConstraint: NSLayoutConstraint!
-
-    @IBOutlet weak var volumeViewTrailingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var audioViewLeadingConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var routeButton: RouteView!
 
@@ -137,18 +131,6 @@ class ControlsView: UIView {
         }
 
         return nil
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        if #unavailable(iOS 26) {
-            audioViewLeadingConstraint.constant = 0
-            volumeViewTrailingConstraint.constant = 0
-        } else if UIDevice.current.userInterfaceIdiom == .pad {
-            audioViewLeadingConstraint.constant = 8
-            volumeViewTrailingConstraint.constant = 8
-        }
     }
 
     func reset() {
@@ -711,7 +693,8 @@ class ControlsView: UIView {
             if #available(iOS 26, *) {
                 controlsStackView.cornerConfiguration = .corners(radius: 0)
             } else {
-                controlsStackView.layer.cornerRadius = 0
+                controlsStackView.clipsToBounds = true
+                controlsStackView.layer.cornerRadius = UIDevice.current.userInterfaceIdiom == .pad ? 8 : 0
             }
         }
     }
@@ -763,7 +746,7 @@ class ControlsView: UIView {
                 volumeView.cornerConfiguration = .capsule()
             } else {
                 volumeView.clipsToBounds = true
-                volumeView.layer.cornerRadius = 8
+                volumeView.layer.cornerRadius = volumeView.frame.height / 2
             }
         } else {
             volumeView.effect = .none
@@ -779,7 +762,7 @@ class ControlsView: UIView {
                 audioTrackView.cornerConfiguration = .capsule()
             } else {
                 audioTrackView.clipsToBounds = true
-                audioTrackView.layer.cornerRadius = 8
+                audioTrackView.layer.cornerRadius = audioTrackView.frame.height / 2
             }
         } else {
             audioTrackView.backgroundColor = .clear
@@ -794,7 +777,7 @@ class ControlsView: UIView {
                 routeView.cornerConfiguration = .capsule()
             } else {
                 routeView.clipsToBounds = true
-                routeView.layer.cornerRadius = 8
+                routeView.layer.cornerRadius = routeView.frame.height / 2
             }
         } else {
             routeView.backgroundColor = .clear

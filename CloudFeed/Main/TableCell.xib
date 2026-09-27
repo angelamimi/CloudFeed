@@ -20,7 +20,7 @@
                     <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="lWU-3t-mgD">
                         <rect key="frame" x="0.0" y="0.0" width="635" height="703.66666666666663"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="IVU-RH-TYQ" userLabel="Owner Stack View">
+                            <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="IVU-RH-TYQ" userLabel="Owner Stack View">
                                 <rect key="frame" x="0.0" y="0.0" width="635" height="48"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="252" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="PQt-7l-m33">
@@ -34,13 +34,13 @@
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" text="Label" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Mg-Qh-dt8">
-                                        <rect key="frame" x="56" y="8" width="579" height="40"/>
+                                        <rect key="frame" x="56" y="18" width="571" height="20.333333333333329"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <edgeInsets key="layoutMargins" top="8" left="8" bottom="0.0" right="0.0"/>
+                                <edgeInsets key="layoutMargins" top="8" left="8" bottom="0.0" right="8"/>
                             </stackView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="3d8-WV-mtd" customClass="SizingImageView" customModule="CloudFeed" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="56" width="635" height="400"/>
@@ -162,7 +162,7 @@
                                                 <rect key="frame" x="578.33333333333337" y="0.0" width="32.666666666666629" height="20.333333333333332"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="999" horizontalCompressionResistancePriority="999" text="EXT" textAlignment="right" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FbG-yd-0f2">
-                                                        <rect key="frame" x="4.0000000000000018" y="2" width="24.666666666666671" height="16.333333333333329"/>
+                                                        <rect key="frame" x="4.0000000000000018" y="2" width="24.666666666666671" height="16.333333333333332"/>
                                                         <edgeInsets key="layoutMargins" top="2" left="2" bottom="2" right="2"/>
                                                         <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                                         <nil key="textColor"/>
@@ -219,21 +219,15 @@
                             <constraint firstAttribute="width" constant="30" id="wGQ-IO-VKl"/>
                         </constraints>
                     </imageView>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2MC-uv-poa">
-                        <rect key="frame" x="8" y="413.66666666666669" width="43.333333333333336" height="34.333333333333314"/>
+                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2MC-uv-poa">
+                        <rect key="frame" x="8" y="408" width="43.333333333333336" height="40"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="30" id="72g-Tz-UGN"/>
-                            <constraint firstAttribute="width" constant="30" id="Xfk-Dg-RGc"/>
+                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="40" id="aHk-90-BzG"/>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="40" id="syy-xN-dvd"/>
                         </constraints>
                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <state key="normal" title="Button"/>
                         <buttonConfiguration key="configuration" style="plain" image="play" catalog="system"/>
-                        <variation key="default">
-                            <mask key="constraints">
-                                <exclude reference="Xfk-Dg-RGc"/>
-                                <exclude reference="72g-Tz-UGN"/>
-                            </mask>
-                        </variation>
                     </button>
                     <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="JBK-cc-mvx">
                         <rect key="frame" x="299" y="237.66666666666663" width="37" height="37"/>
@@ -246,7 +240,6 @@
                     <constraint firstItem="lWU-3t-mgD" firstAttribute="leading" secondItem="JZa-ks-yJd" secondAttribute="leading" identifier="Content Stack View Leading" id="JF2-90-cXa"/>
                     <constraint firstItem="lWU-3t-mgD" firstAttribute="top" secondItem="JZa-ks-yJd" secondAttribute="top" identifier="Content Stack View Top" id="KqS-Oz-zZY"/>
                     <constraint firstAttribute="trailing" secondItem="lWU-3t-mgD" secondAttribute="trailing" identifier="Content Stack View Trailing" id="ON6-tC-VMn"/>
-                    <constraint firstItem="2MC-uv-poa" firstAttribute="leading" secondItem="JZa-ks-yJd" secondAttribute="leading" id="WO3-yk-n50"/>
                     <constraint firstItem="JBK-cc-mvx" firstAttribute="centerX" secondItem="3d8-WV-mtd" secondAttribute="centerX" id="WaC-OH-pqm"/>
                     <constraint firstItem="3d8-WV-mtd" firstAttribute="top" secondItem="KWo-7n-1wf" secondAttribute="top" constant="-8" id="boY-3t-RMi"/>
                     <constraint firstItem="JBK-cc-mvx" firstAttribute="centerY" secondItem="3d8-WV-mtd" secondAttribute="centerY" id="cWA-xk-vT2"/>
@@ -257,7 +250,6 @@
                 <variation key="default">
                     <mask key="constraints">
                         <exclude reference="boY-3t-RMi"/>
-                        <exclude reference="WO3-yk-n50"/>
                     </mask>
                 </variation>
             </tableViewCellContentView>
@@ -287,6 +279,8 @@
                 <outlet property="typeContainerView" destination="Zzx-99-9gb" id="LFN-gw-8aI"/>
                 <outlet property="typeLabel" destination="FbG-yd-0f2" id="mkf-yv-lkQ"/>
                 <outlet property="videoButton" destination="2MC-uv-poa" id="m6B-Ir-YdJ"/>
+                <outlet property="videoButtonHeightConstraint" destination="aHk-90-BzG" id="55y-0o-ds7"/>
+                <outlet property="videoButtonWidthConstraint" destination="syy-xN-dvd" id="vDy-Ov-hec"/>
             </connections>
             <point key="canvasLocation" x="382.44274809160305" y="260.56338028169017"/>
         </tableViewCell>
