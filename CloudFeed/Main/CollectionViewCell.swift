@@ -81,32 +81,27 @@ class CollectionViewCell: UICollectionViewCell {
 
     func setImage(_ image: UIImage?) {
 
-        DispatchQueue.main.async { [weak self] in
-
-            guard image != nil else {
-                self?.imageView.image = nil
-                self?.imageView.backgroundColor = .secondarySystemBackground
-                return
-            }
-
-            let backgroundColor: UIColor
-
-            if ImageUtility.ratioWithinThreshold(self?.imageView.image?.size ?? .zero) == true {
-                self?.imageView.contentMode = .scaleAspectFill
-                backgroundColor = .secondarySystemBackground
-            } else {
-                self?.imageView.contentMode = .scaleAspectFit
-                backgroundColor = .systemBackground
-            }
-
-            if let imageView = self?.imageView {
-                UIView.transition(with: imageView,
-                                  duration: 0.5,
-                                  options: .transitionCrossDissolve,
-                                  animations: { [weak self] in self?.imageView.image = image },
-                                  completion: { [weak self] _ in self?.imageView.backgroundColor = backgroundColor })
-            }
+        guard image != nil else {
+            imageView.image = nil
+            imageView.backgroundColor = .secondarySystemBackground
+            return
         }
+
+        let backgroundColor: UIColor
+
+        if ImageUtility.ratioWithinThreshold(imageView.image?.size ?? .zero) == true {
+            imageView.contentMode = .scaleAspectFill
+            backgroundColor = .secondarySystemBackground
+        } else {
+            imageView.contentMode = .scaleAspectFit
+            backgroundColor = .systemBackground
+        }
+
+        UIView.transition(with: imageView,
+                          duration: 0.5,
+                          options: .transitionCrossDissolve,
+                          animations: { [weak self] in self?.imageView.image = image },
+                          completion: { [weak self] _ in self?.imageView.backgroundColor = backgroundColor })
     }
 
     private func initCell() {

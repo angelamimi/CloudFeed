@@ -32,7 +32,6 @@ protocol ControlsDelegate: AnyObject {
 
     func volumeButtonTapped()
     func playButtonTapped()
-    func fullScreenButtonTapped()
 
     func captionsSelected(subtitleIndex: Int32)
     func audioTrackSelected(audioTrackIndex: Int32)
@@ -82,8 +81,45 @@ class ControlsView: UIView {
     private var volume: Int = 100 // 0% for mute, 100% for full volume
     private var isPlaying: Bool = false
     private var length: Double = 0
+    private var volumeTimer: Timer?
     private let skipSeconds: Double = 10.0
     private let endSeconds: Float = 10.0
+
+    @IBAction func verticalTimeSliderTouchUp(_ sender: Any, event: UIEvent) {
+        timeSliderTouchUp(sender, event: event)
+    }
+
+    @IBAction func verticalTimeSliderTouchDown(_ sender: Any, event: UIEvent) {
+        timeSliderTouchDown(sender, event: event)
+    }
+
+    @IBAction func verticalTimeSliderValueChanged(_ sender: Any, event: UIEvent) {
+        timeSliderValueChanged(sender, event: event)
+    }
+
+    @IBAction func horizontalTimeSliderTouchUp(_ sender: Any, event: UIEvent) {
+        timeSliderTouchUp(sender, event: event)
+    }
+
+    @IBAction func horizontalTimeSliderTouchDown(_ sender: Any, event: UIEvent) {
+        timeSliderTouchDown(sender, event: event)
+    }
+
+    @IBAction func horizontalTimeSliderValueChanged(_ sender: Any, event: UIEvent) {
+        timeSliderValueChanged(sender, event: event)
+    }
+
+    @IBAction func volumeSliderTouchUp(_ sender: Any, event: UIEvent) {
+        volumeTouchUp(sender, event: event)
+    }
+
+    @IBAction func volumeSliderTouchDown(_ sender: Any, event: UIEvent) {
+        volumeTouchDown(sender, event: event)
+    }
+
+    @IBAction func volumeSliderValueChanged(_ sender: Any, event: UIEvent) {
+        volumeValueChanged(sender, event: event)
+    }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -98,6 +134,10 @@ class ControlsView: UIView {
         self.init(frame: frame)
         self.styleHasBackground = style
         commonInit()
+    }
+
+    isolated deinit {
+        cleanupVolumeTimer()
     }
 
     private func commonInit() {
@@ -332,7 +372,7 @@ class ControlsView: UIView {
         }
     }
 
-    @objc private func volumeChanged() {
+    private func volumeChanged() {
 
         delegate?.volumeChanged(volume: volumeSlider.value)
 
@@ -343,11 +383,11 @@ class ControlsView: UIView {
         }
     }
 
-    @objc private func timeChanged(_ timeSlider: UISlider) {
+    private func timeChanged(_ timeSlider: UISlider) {
         delegate?.timeChanged(time: timeSlider.value)
     }
 
-    @objc private func showVolumeFinished() {
+    private func showVolumeFinished() {
         UIView.transition(with: volumeSlider, duration: 0.5, options: .curveLinear,
                           animations: { [weak self] in
             self?.volumeSlider.isHidden = true
@@ -356,14 +396,30 @@ class ControlsView: UIView {
         })
     }
 
-    @objc private func volumeButtonTapped() {
+    private func cleanupVolumeTimer() {
+        volumeTimer?.invalidate()
+        volumeTimer = nil
+    }
+
+    private func setupVolumeTimer() {
+
+        cleanupVolumeTimer()
+
+        volumeTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: false) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.showVolumeFinished()
+            }
+        }
+    }
+
+    private func volumeButtonTapped() {
 
         if volumeSlider.isHidden {
             volumeSlider.isHidden = false
 
             volumeStackView.layoutMargins.left = 16
 
-            perform(#selector(showVolumeFinished), with: nil, afterDelay: 4.0)
+            setupVolumeTimer()
 
         } else {
 
@@ -378,14 +434,16 @@ class ControlsView: UIView {
                 setVolumeButton(mute: true)
                 volumeSlider.value = 0
             }
+
+            setupVolumeTimer()
         }
     }
 
-    @objc private func skipBackButtonTapped() {
+    private func skipBackButtonTapped() {
         skip(forward: false)
     }
 
-    @objc private func playButtonTapped() {
+    private func playButtonTapped() {
 
         delegate?.playButtonTapped()
 
@@ -396,121 +454,34 @@ class ControlsView: UIView {
         }
     }
 
-    @objc private func skipForwardButtonTapped() {
+    private func skipForwardButtonTapped() {
         skip(forward: true)
     }
 
-    @objc private func fullScreenButtonTapped() {
-        delegate?.fullScreenButtonTapped()
-    }
-
-    @objc private func volumeButtonDown() {
+    private func volumeButtonDown() {
         highlightButton(button: volumeButton)
     }
 
-    @objc private func skipBackButtonDown() {
+    private func skipBackButtonDown() {
         highlightButton(button: skipBackButton)
     }
 
-    @objc private func skipForwardButtonDown() {
+    private func skipForwardButtonDown() {
         highlightButton(button: skipForwardButton)
     }
 
-    @objc private func playButtonDown() {
+    private func playButtonDown() {
         highlightButton(button: playButton)
     }
 
-    @objc private func timeSliderPan(panGesture: UIPanGestureRecognizer) {
-
-        guard let timeSlider = panGesture.view as? UISlider else { return }
-
-        switch panGesture.state {
-        case .began:
-            delegate?.beganTracking()
-        case .changed:
-
-            let location = panGesture.location(in: timeSlider)
-            var value = Float(location.x / timeSlider.frame.width)
-
-            if value < timeSlider.minimumValue {
-                value = 0
-            } else if value > timeSlider.maximumValue {
-                value = timeSlider.maximumValue
-            }
-
-            timeSlider.value = value
-
-            if length > 0 {
-                setTimeLabelFromPosition(value)
-            }
-
-        case .ended,
-             .cancelled:
-            delegate?.timeChanged(time: timeSlider.value)
-        default:
-            break
-        }
-    }
-
-    @objc private func timeSliderTapped(tapGesture: UITapGestureRecognizer) {
-
-        guard let timeSlider = tapGesture.view as? UISlider else { return }
-
-        let location = tapGesture.location(in: timeSlider)
-        let value = Float(location.x / timeSlider.frame.width)
-
-        if value >= timeSlider.minimumValue && value <= timeSlider.maximumValue {
-            timeSlider.value = value
-            delegate?.timeChanged(time: value)
-            setTimeLabelFromPosition(value)
-        }
-    }
-
-    @objc private func volumeSliderPan(panGesture: UIPanGestureRecognizer) {
-
-        switch panGesture.state {
-        case .began:
-            break
-        case .changed:
-
-            let location = panGesture.location(in: volumeView)
-            var value = Float(location.x / volumeSlider.frame.width) * 100
-
-            if value < volumeSlider.minimumValue {
-                value = 0
-            } else if value > volumeSlider.maximumValue {
-                value = volumeSlider.maximumValue
-            }
-
-            volumeSlider.value = value
-
-        case .ended,
-             .cancelled:
-            volumeChanged()
-        default:
-            break
-        }
-    }
-
-    @objc private func volumeSliderTapped(tapGesture: UITapGestureRecognizer) {
-
-        let location = tapGesture.location(in: volumeView)
-        let value = Float(location.x / volumeSlider.frame.width) * 100
-
-        if value >= volumeSlider.minimumValue && value <= volumeSlider.maximumValue {
-            volumeSlider.value = value
-            volumeChanged()
-        }
-    }
-
-    @objc private func timeButtonTapped(tapGesture: UITapGestureRecognizer) {
+    private func timeButtonTapped() {
         horizontalTimeSlider.value = 0
         verticalTimeSlider.value = 0
         setTimeLabelFromPosition(0)
         delegate?.timeChanged(time: 0)
     }
 
-    @objc private func totalTimeButtonTapped(tapGesture: UITapGestureRecognizer) {
+    private func totalTimeButtonTapped() {
 
         guard length > 0 else { return }
 
@@ -634,53 +605,100 @@ class ControlsView: UIView {
         delegate?.speedRateChanged(rate: rate)
     }
 
-    private func buildSpeedRateMenu(currentRate: Float) -> UIMenu {
-
-        let action025 = UIAction(title: Strings.ControlsSpeedRate025, state: currentRate == 0.25 ? .on : .off) { [weak self] _ in
-            self?.speedRateChanged(rate: 0.25)
+    private func timeSliderTouchUp(_ sender: Any, event: UIEvent) {
+        if let timeSlider = sender as? UISlider {
+            setTimeLabelFromPosition(timeSlider.value)
+            delegate?.timeChanged(time: timeSlider.value)
         }
+    }
 
-        let action050 = UIAction(title: Strings.ControlsSpeedRate05, state: currentRate == 0.5 ? .on : .off) { [weak self] _ in
-            self?.speedRateChanged(rate: 0.5)
+    private func timeSliderTouchDown(_ sender: Any, event: UIEvent) {
+
+        delegate?.beganTracking()
+
+        if let timeSlider = sender as? UISlider, let location = event.allTouches?.first?.location(in: timeSlider) {
+
+            var value = Float(location.x / timeSlider.frame.width)
+
+            if value < timeSlider.minimumValue {
+                value = 0
+            } else if value > timeSlider.maximumValue {
+                value = timeSlider.maximumValue
+            }
+
+            timeSlider.value = value
+            setTimeLabelFromPosition(value)
+            delegate?.timeChanged(time: value)
         }
+    }
 
-        let action075 = UIAction(title: Strings.ControlsSpeedRate075, state: currentRate == 0.75 ? .on : .off) { [weak self] _ in
-            self?.speedRateChanged(rate: 0.75)
+    private func timeSliderValueChanged(_ sender: Any, event: UIEvent) {
+        if length > 0, let timeSlider = sender as? UISlider {
+            setTimeLabelFromPosition(timeSlider.value)
         }
+    }
 
-        let action1 = UIAction(title: Strings.ControlsSpeedRate1, state: currentRate == 1.0 ? .on : .off) { [weak self] _ in
-            self?.speedRateChanged(rate: 1.0)
+    private func volumeTouchDown(_ sender: Any, event: UIEvent) {
+
+        if let slider = sender as? UISlider, let location = event.allTouches?.first?.location(in: slider) {
+
+            let value = Float(location.x / slider.frame.width) * 100
+
+            if value >= slider.minimumValue && value <= slider.maximumValue {
+                slider.value = value
+                volumeChanged()
+            }
         }
+    }
 
-        let action125 = UIAction(title: Strings.ControlsSpeedRate125, state: currentRate == 1.25 ? .on : .off) { [weak self] _ in
-            self?.speedRateChanged(rate: 1.25)
-        }
+    private func volumeTouchUp(_ sender: Any, event: UIEvent) {
+        volumeChanged()
+    }
 
-        let action150 = UIAction(title: Strings.ControlsSpeedRate15, state: currentRate == 1.5 ? .on : .off) { [weak self] _ in
-            self?.speedRateChanged(rate: 1.50)
-        }
-
-        let action175 = UIAction(title: Strings.ControlsSpeedRate175, state: currentRate == 1.75 ? .on : .off) { [weak self] _ in
-            self?.speedRateChanged(rate: 1.75)
-        }
-
-        let action2 = UIAction(title: Strings.ControlsSpeedRate2, state: currentRate == 2.0 ? .on : .off) { [weak self] _ in
-            self?.speedRateChanged(rate: 2.0)
-        }
-
-        let speedMenu = UIMenu(title: Strings.ControlsSpeedRateTitle,
-                               image: nil,
-                               options: [.singleSelection],
-                               children: [action025, action050, action075, action1, action125, action150, action175, action2])
-
-        return speedMenu
+    private func volumeValueChanged(_ sender: Any, event: UIEvent) {
+        volumeChanged()
     }
 
     private func onTraitChange() {
-        drawControlsCorners()
+        setControlsCorners()
     }
 
-    private func drawControlsCorners() {
+    private func initControls() {
+
+        setControlsAccessibility()
+        setControlsCorners()
+        initControlsBackground()
+        initControlsConfigurations()
+        initControlsActions()
+
+        if #available(iOS 26, *) {
+            volumeSlider.sliderStyle = .thumbless
+            horizontalTimeSlider.sliderStyle = .thumbless
+            verticalTimeSlider.sliderStyle = .thumbless
+        }
+
+        setTime(time: "00:00")
+        setRemainingTime(time: "00:00")
+
+        disableSeek()
+        disableCaptions()
+        disableAudioTracks()
+    }
+
+    private func setControlsAccessibility() {
+
+        horizontalTimeSlider.accessibilityLabel = Strings.ControlsTime
+        verticalTimeSlider.accessibilityLabel = Strings.ControlsTime
+        speedButton.accessibilityLabel = Strings.ControlsSpeed
+        volumeSlider.accessibilityLabel = Strings.ControlsVolume
+        volumeButton.accessibilityLabel = Strings.ControlsVolume
+        audioTrackButton.accessibilityLabel = Strings.ControlsAudioTrack
+
+        timeButton.accessibilityHint = Strings.ControlsCurrentTimeHint
+        totalTimeButton.accessibilityHint = Strings.ControlsRemainingTimeHint
+    }
+
+    private func setControlsCorners() {
 
         if traitCollection.verticalSizeClass == .compact {
             if #available(iOS 26, *) {
@@ -699,19 +717,7 @@ class ControlsView: UIView {
         }
     }
 
-    private func initControls() {
-
-        horizontalTimeSlider.accessibilityLabel = Strings.ControlsTime
-        verticalTimeSlider.accessibilityLabel = Strings.ControlsTime
-        speedButton.accessibilityLabel = Strings.ControlsSpeed
-        volumeSlider.accessibilityLabel = Strings.ControlsVolume
-        volumeButton.accessibilityLabel = Strings.ControlsVolume
-        audioTrackButton.accessibilityLabel = Strings.ControlsAudioTrack
-
-        timeButton.accessibilityHint = Strings.ControlsCurrentTimeHint
-        totalTimeButton.accessibilityHint = Strings.ControlsRemainingTimeHint
-
-        drawControlsCorners()
+    private func initControlsBackground() {
 
         controlsView.effect = .none
 
@@ -720,19 +726,6 @@ class ControlsView: UIView {
         } else {
             controlsStackView.backgroundColor = .clear
         }
-
-        volumeButton.configurationUpdateHandler = { button in
-
-            button.configuration?.background.backgroundColor = .clear
-
-            if button.isSelected {
-                button.configuration?.image = UIImage(systemName: "speaker.slash")
-            } else {
-                button.configuration?.image = UIImage(systemName: "speaker.wave.2")
-            }
-        }
-
-        volumeButton.configuration?.image = UIImage(systemName: "speaker.wave.2")
 
         volumeButton.configuration?.background.backgroundColorTransformer = .init { _ in
             return .clear
@@ -782,15 +775,29 @@ class ControlsView: UIView {
         } else {
             routeView.backgroundColor = .clear
         }
+    }
 
-        let disabledForegroundColor: UIColor = styleHasBackground ? .white.withAlphaComponent(0.3) : .gray.withAlphaComponent(0.8)
+    private func initControlsConfigurations() {
+
+        let disabledColor: UIColor = styleHasBackground ? .white.withAlphaComponent(0.3) : .gray.withAlphaComponent(0.8)
+
+        volumeButton.configurationUpdateHandler = { button in
+
+            button.configuration?.background.backgroundColor = .clear
+
+            if button.isSelected {
+                button.configuration?.image = UIImage(systemName: "speaker.slash")
+            } else {
+                button.configuration?.image = UIImage(systemName: "speaker.wave.2")
+            }
+        }
 
         volumeButton.configuration = .plain()
         volumeButton.configuration?.baseForegroundColor = .white
         volumeButton.configuration?.image = UIImage(systemName: "speaker.wave.2")
         volumeButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20)
         volumeButton.configuration?.imageColorTransformer = UIConfigurationColorTransformer({ [weak volumeButton] baseColor in
-            return volumeButton?.state == .disabled ? disabledForegroundColor : baseColor
+            return volumeButton?.state == .disabled ? disabledColor : baseColor
         })
 
         playButton.configuration = .plain()
@@ -798,7 +805,7 @@ class ControlsView: UIView {
         playButton.configuration?.image = UIImage(systemName: "play.circle.fill")
         playButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 46)
         playButton.configuration?.imageColorTransformer = UIConfigurationColorTransformer({ [weak playButton] baseColor in
-            return playButton?.state == .disabled ? disabledForegroundColor : baseColor
+            return playButton?.state == .disabled ? disabledColor : baseColor
         })
 
         skipBackButton.configuration = .plain()
@@ -806,7 +813,7 @@ class ControlsView: UIView {
         skipBackButton.configuration?.image = UIImage(systemName: "backward.fill")
         skipBackButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20)
         skipBackButton.configuration?.imageColorTransformer = UIConfigurationColorTransformer({ [weak skipBackButton] baseColor in
-            return skipBackButton?.state == .disabled ? disabledForegroundColor : baseColor
+            return skipBackButton?.state == .disabled ? disabledColor : baseColor
         })
 
         skipForwardButton.configuration = .plain()
@@ -814,7 +821,7 @@ class ControlsView: UIView {
         skipForwardButton.configuration?.image = UIImage(systemName: "forward.fill")
         skipForwardButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20)
         skipForwardButton.configuration?.imageColorTransformer = UIConfigurationColorTransformer({ [weak skipForwardButton] baseColor in
-            return skipForwardButton?.state == .disabled ? disabledForegroundColor : baseColor
+            return skipForwardButton?.state == .disabled ? disabledColor : baseColor
         })
 
         captionsButton.configuration = .plain()
@@ -822,7 +829,7 @@ class ControlsView: UIView {
         captionsButton.configuration?.image = UIImage(systemName: "captions.bubble")
         captionsButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20)
         captionsButton.configuration?.imageColorTransformer = UIConfigurationColorTransformer({ [weak captionsButton] baseColor in
-            return captionsButton?.state == .disabled ? disabledForegroundColor : baseColor
+            return captionsButton?.state == .disabled ? disabledColor : baseColor
         })
 
         speedButton.configuration = .plain()
@@ -830,7 +837,7 @@ class ControlsView: UIView {
         speedButton.configuration?.image = UIImage(systemName: "gauge.with.dots.needle.100percent")
         speedButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20)
         speedButton.configuration?.imageColorTransformer = UIConfigurationColorTransformer({ [weak speedButton] baseColor in
-            return speedButton?.state == .disabled ? disabledForegroundColor : baseColor
+            return speedButton?.state == .disabled ? disabledColor : baseColor
         })
 
         audioTrackButton.configuration = .plain()
@@ -838,7 +845,7 @@ class ControlsView: UIView {
         audioTrackButton.configuration?.image = UIImage(systemName: "waveform")
         audioTrackButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20)
         audioTrackButton.configuration?.imageColorTransformer = UIConfigurationColorTransformer({ [weak audioTrackButton] baseColor in
-            return audioTrackButton?.state == .disabled ? disabledForegroundColor : baseColor
+            return audioTrackButton?.state == .disabled ? disabledColor : baseColor
         })
 
         let timeString = AttributedString(NSAttributedString(string: "", attributes: [.foregroundColor: UIColor.white]))
@@ -850,7 +857,7 @@ class ControlsView: UIView {
         timeButton.configuration?.contentInsets = .zero
         timeButton.isEnabled = false
         timeButton.configurationUpdateHandler = { button in
-            let titleColor: UIColor = button.state == .disabled ? disabledForegroundColor : .white
+            let titleColor: UIColor = button.state == .disabled ? disabledColor : .white
             button.configuration?.attributedTitle?.foregroundColor = titleColor
         }
 
@@ -861,7 +868,7 @@ class ControlsView: UIView {
         totalTimeButton.configuration?.contentInsets = .zero
         totalTimeButton.isEnabled = false
         totalTimeButton.configurationUpdateHandler = { button in
-            let titleColor: UIColor = button.state == .disabled ? disabledForegroundColor : .white
+            let titleColor: UIColor = button.state == .disabled ? disabledColor : .white
             button.configuration?.attributedTitle?.foregroundColor = titleColor
         }
 
@@ -871,76 +878,147 @@ class ControlsView: UIView {
         captionsButton.configuration?.contentInsets = .zero
         speedButton.configuration?.contentInsets = .zero
 
-        horizontalTimeSlider.minimumTrackTintColor = .white
-        horizontalTimeSlider.maximumTrackTintColor = .tintColor
-        horizontalTimeSlider.tintColor = disabledForegroundColor
-
-        if #available(iOS 26, *) {
-            horizontalTimeSlider.sliderStyle = .thumbless
-        }
-
-        verticalTimeSlider.minimumTrackTintColor = .white
-        verticalTimeSlider.maximumTrackTintColor = .tintColor
-        verticalTimeSlider.tintColor = disabledForegroundColor
-
-        if #available(iOS 26, *) {
-            verticalTimeSlider.sliderStyle = .thumbless
-        }
-
-        volumeSlider.minimumTrackTintColor = .white
-        volumeSlider.maximumTrackTintColor = .tintColor
-        volumeSlider.tintColor = disabledForegroundColor
-
-        if #available(iOS 26, *) {
-            volumeSlider.sliderStyle = .thumbless
-        }
-
         audioTrackButton.configuration?.image = UIImage(systemName: "waveform")
         audioTrackButton.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20)
 
-        volumeSlider.addTarget(self, action: #selector(volumeChanged), for: .valueChanged)
+        horizontalTimeSlider.minimumTrackTintColor = .white
+        horizontalTimeSlider.maximumTrackTintColor = .tintColor
+        horizontalTimeSlider.tintColor = disabledColor
 
-        horizontalTimeSlider.addTarget(self, action: #selector(timeChanged(_:)), for: .valueChanged)
-        verticalTimeSlider.addTarget(self, action: #selector(timeChanged(_:)), for: .valueChanged)
+        verticalTimeSlider.minimumTrackTintColor = .white
+        verticalTimeSlider.maximumTrackTintColor = .tintColor
+        verticalTimeSlider.tintColor = disabledColor
 
-        volumeButton.addTarget(self, action: #selector(volumeButtonTapped), for: .touchUpInside)
-        skipBackButton.addTarget(self, action: #selector(skipBackButtonTapped), for: .touchUpInside)
-        playButton.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
-        skipForwardButton.addTarget(self, action: #selector(skipForwardButtonTapped), for: .touchUpInside)
+        volumeSlider.minimumTrackTintColor = .white
+        volumeSlider.maximumTrackTintColor = .tintColor
+        volumeSlider.tintColor = disabledColor
+    }
 
-        volumeButton.addTarget(self, action: #selector(volumeButtonDown), for: .touchDown)
-        skipBackButton.addTarget(self, action: #selector(skipBackButtonDown), for: .touchDown)
-        skipForwardButton.addTarget(self, action: #selector(skipForwardButtonDown), for: .touchDown)
-        playButton.addTarget(self, action: #selector(playButtonDown), for: .touchDown)
+    private func initControlsActions() {
 
         speedButton.showsMenuAsPrimaryAction = true
         speedButton.menu = buildSpeedRateMenu(currentRate: 1.0)
 
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(timeSliderPan(panGesture:)))
-        horizontalTimeSlider.addGestureRecognizer(panGesture)
-        verticalTimeSlider.addGestureRecognizer(panGesture)
+        let volumeAction = UIAction { [weak self] _ in
+            self?.volumeChanged()
+            self?.setupVolumeTimer()
+        }
+        volumeSlider.addAction(volumeAction, for: .valueChanged)
 
-        let tapTime = UITapGestureRecognizer(target: self, action: #selector(timeSliderTapped(tapGesture:)))
-        horizontalTimeSlider.addGestureRecognizer(tapTime)
-        verticalTimeSlider.addGestureRecognizer(tapTime)
+        let verticalTimeAction = UIAction { [weak self] _ in
+            if let slider = self?.verticalTimeSlider {
+                self?.timeChanged(slider)
+            }
+        }
+        verticalTimeSlider.addAction(verticalTimeAction, for: .valueChanged)
 
-        let panVolume = UIPanGestureRecognizer(target: self, action: #selector(volumeSliderPan(panGesture:)))
-        volumeView.addGestureRecognizer(panVolume)
+        let horizontalTimeAction = UIAction { [weak self] _ in
+            if let slider = self?.horizontalTimeSlider {
+                self?.timeChanged(slider)
+            }
+        }
+        horizontalTimeSlider.addAction(horizontalTimeAction, for: .valueChanged)
 
-        let tapVolume = UITapGestureRecognizer(target: self, action: #selector(volumeSliderTapped(tapGesture:)))
-        volumeView.addGestureRecognizer(tapVolume)
+        let volumeButtonAction = UIAction { [weak self] _ in
+            self?.volumeButtonTapped()
+        }
 
-        let tapBeginning = UITapGestureRecognizer(target: self, action: #selector(timeButtonTapped(tapGesture:)))
-        timeButton.addGestureRecognizer(tapBeginning)
+        volumeButton.addAction(volumeButtonAction, for: .touchUpInside)
 
-        let tapEnd = UITapGestureRecognizer(target: self, action: #selector(totalTimeButtonTapped(tapGesture:)))
-        totalTimeButton.addGestureRecognizer(tapEnd)
+        let skipBackButtonAction = UIAction { [weak self] _ in
+            self?.skipBackButtonTapped()
+        }
 
-        setTime(time: "00:00")
-        setRemainingTime(time: "00:00")
+        skipBackButton.addAction(skipBackButtonAction, for: .touchUpInside)
 
-        disableSeek()
-        disableCaptions()
-        disableAudioTracks()
+        let playButtonAction = UIAction { [weak self] _ in
+            self?.playButtonTapped()
+        }
+
+        playButton.addAction(playButtonAction, for: .touchUpInside)
+
+        let skipForwardButtonAction = UIAction { [weak self] _ in
+            self?.skipForwardButtonTapped()
+        }
+
+        skipForwardButton.addAction(skipForwardButtonAction, for: .touchUpInside)
+
+        let volumeButtonDownAction = UIAction { [weak self] _ in
+            self?.volumeButtonDown()
+        }
+
+        volumeButton.addAction(volumeButtonDownAction, for: .touchDown)
+
+        let skipBackButtonDownAction = UIAction { [weak self] _ in
+            self?.skipBackButtonDown()
+        }
+
+        skipBackButton.addAction(skipBackButtonDownAction, for: .touchDown)
+
+        let skipForwardButtonDownAction = UIAction { [weak self] _ in
+            self?.skipForwardButtonDown()
+        }
+
+        skipForwardButton.addAction(skipForwardButtonDownAction, for: .touchDown)
+
+        let playButtonDownAction = UIAction { [weak self] _ in
+            self?.playButtonDown()
+        }
+
+        playButton.addAction(playButtonDownAction, for: .touchDown)
+
+        let timeButtonAction = UIAction { [weak self] _ in
+            self?.timeButtonTapped()
+        }
+
+        timeButton.addAction(timeButtonAction, for: .touchUpInside)
+
+        let totalTimeButtonAction = UIAction { [weak self] _ in
+            self?.totalTimeButtonTapped()
+        }
+
+        totalTimeButton.addAction(totalTimeButtonAction, for: .touchUpInside)
+    }
+
+    private func buildSpeedRateMenu(currentRate: Float) -> UIMenu {
+
+        let action025 = UIAction(title: Strings.ControlsSpeedRate025, state: currentRate == 0.25 ? .on : .off) { [weak self] _ in
+            self?.speedRateChanged(rate: 0.25)
+        }
+
+        let action050 = UIAction(title: Strings.ControlsSpeedRate05, state: currentRate == 0.5 ? .on : .off) { [weak self] _ in
+            self?.speedRateChanged(rate: 0.5)
+        }
+
+        let action075 = UIAction(title: Strings.ControlsSpeedRate075, state: currentRate == 0.75 ? .on : .off) { [weak self] _ in
+            self?.speedRateChanged(rate: 0.75)
+        }
+
+        let action1 = UIAction(title: Strings.ControlsSpeedRate1, state: currentRate == 1.0 ? .on : .off) { [weak self] _ in
+            self?.speedRateChanged(rate: 1.0)
+        }
+
+        let action125 = UIAction(title: Strings.ControlsSpeedRate125, state: currentRate == 1.25 ? .on : .off) { [weak self] _ in
+            self?.speedRateChanged(rate: 1.25)
+        }
+
+        let action150 = UIAction(title: Strings.ControlsSpeedRate15, state: currentRate == 1.5 ? .on : .off) { [weak self] _ in
+            self?.speedRateChanged(rate: 1.50)
+        }
+
+        let action175 = UIAction(title: Strings.ControlsSpeedRate175, state: currentRate == 1.75 ? .on : .off) { [weak self] _ in
+            self?.speedRateChanged(rate: 1.75)
+        }
+
+        let action2 = UIAction(title: Strings.ControlsSpeedRate2, state: currentRate == 2.0 ? .on : .off) { [weak self] _ in
+            self?.speedRateChanged(rate: 2.0)
+        }
+
+        let speedMenu = UIMenu(title: Strings.ControlsSpeedRateTitle,
+                               image: nil,
+                               options: [.singleSelection],
+                               children: [action025, action050, action075, action1, action125, action150, action175, action2])
+
+        return speedMenu
     }
 }

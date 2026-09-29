@@ -206,10 +206,8 @@ class ViewerController: UIViewController {
             scrollDownDetails()
             return true
         } else {
-            DispatchQueue.main.async { [weak self] in
-                self?.pinchRecognizer?.isEnabled = true
-                self?.hideDetails(animate: true, status: .title)
-            }
+            pinchRecognizer?.isEnabled = true
+            hideDetails(animate: true, status: .title)
             return false
         }
     }
@@ -270,7 +268,7 @@ class ViewerController: UIViewController {
         if controlsView != nil {
             coordinator.animate(alongsideTransition: { [weak self] _ in
                 self?.controlsView?.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-            }, completion: nil)
+            })
         }
 
         if isPad() {
@@ -284,10 +282,8 @@ class ViewerController: UIViewController {
             coordinator.animate(alongsideTransition: { [weak self] _ in
                 self?.imageViewHeightConstraint.constant = size.height
             }, completion: { [weak self] _ in
-                DispatchQueue.main.async { [weak self] in
-                    self?.handlePopover()
-                    self?.layout(rotated: true)
-                }
+                self?.handlePopover()
+                self?.layout(rotated: true)
             })
         } else {
 
@@ -298,7 +294,7 @@ class ViewerController: UIViewController {
                     coordinator.animate(alongsideTransition: { [weak self] _ in
                         self?.imageViewHeightConstraint.constant = size.height
                         self?.imageView.center = CGPoint(x: size.width / 2, y: size.height / 2)
-                    }, completion: nil)
+                    })
                 }
             }
         }
@@ -546,12 +542,6 @@ class ViewerController: UIViewController {
                 await self?.setImage(image: image!)
             }
 
-            self?.handleImageLoadComplete(metadata: metadata)
-        }
-    }
-
-    private func handleImageLoadComplete(metadata: Metadata) {
-        DispatchQueue.main.async { [weak self] in
             self?.activityIndicator.stopAnimating()
         }
     }
@@ -1673,10 +1663,6 @@ extension ViewerController: ControlsDelegate {
     func playButtonTapped() {
         playPause()
     }
-
-    func fullScreenButtonTapped() {
-        hideAll()
-    }
 }
 
 extension ViewerController: VLCMediaPlayerDelegate {
@@ -1751,7 +1737,7 @@ extension ViewerController: VLCCustomDialogRendererProtocol {
     }
 
     nonisolated func showError(withTitle error: String, message: String) {
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             Self.logger.error("showError() - ERROR: \(error) MESSAGE: \(message)")
             self?.delegate?.videoError()
         }
@@ -1776,7 +1762,7 @@ extension ViewerController: VLCMediaThumbnailerDelegate {
 
         let image = UIImage(cgImage: thumbnail)
 
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             if let metadata = self?.metadata {
                 self?.imageView.image = image
                 self?.viewModel.saveVideoPreview(metadata: metadata, image: image)

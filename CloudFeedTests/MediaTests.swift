@@ -208,7 +208,6 @@ final class MockFavoritesDelegate: FavoritesDelegate {
 }
 
 final class MockMediaDelegate: MediaDelegate {
-
     let onSearchResultReceived: ((Int) -> Void)
 
     init(onSearchResultReceived: @escaping ((Int) -> Void)) {
@@ -225,6 +224,7 @@ final class MockMediaDelegate: MediaDelegate {
     func videoPlay(indexPath: IndexPath) {}
     func dumpComplete() {}
     func syncComplete() {}
+    func liveLoadComplete(videoMetadata: CloudFeed.Metadata, indexPath: IndexPath) {}
 
     func searchResultReceived(resultItemCount: Int?, retry: Bool) {
         onSearchResultReceived(resultItemCount ?? -1)

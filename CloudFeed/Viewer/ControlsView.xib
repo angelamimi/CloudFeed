@@ -55,7 +55,13 @@
                                     <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TQa-8z-Wo6" userLabel="Time Slider">
                                         <rect key="frame" x="8" y="8" width="508" height="0.0"/>
                                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <gestureRecognizers/>
                                         <variation key="heightClass=compact" hidden="YES"/>
+                                        <connections>
+                                            <action selector="verticalTimeSliderTouchDown:event:" destination="-1" eventType="touchDown" id="Of2-qa-UrN"/>
+                                            <action selector="verticalTimeSliderTouchUp:event:" destination="-1" eventType="touchUpInside" id="iFJ-sM-ISh"/>
+                                            <action selector="verticalTimeSliderValueChanged:event:" destination="-1" eventType="valueChanged" id="dH3-A3-nfr"/>
+                                        </connections>
                                     </slider>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="05Y-Dk-tB3">
                                         <rect key="frame" x="8" y="8" width="508" height="50"/>
@@ -72,6 +78,11 @@
                                                 <rect key="frame" x="106.66666666666663" y="16" width="320" height="34"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <variation key="heightClass=compact" hidden="NO"/>
+                                                <connections>
+                                                    <action selector="horizontalTimeSliderTouchDown:event:" destination="-1" eventType="touchDown" id="YwU-dW-Qx6"/>
+                                                    <action selector="horizontalTimeSliderTouchUp:event:" destination="-1" eventType="touchUpInside" id="7i1-q8-gGm"/>
+                                                    <action selector="horizontalTimeSliderValueChanged:event:" destination="-1" eventType="valueChanged" id="ltC-9v-irU"/>
+                                                </connections>
                                             </slider>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZMD-Vw-KCm">
                                                 <rect key="frame" x="442.66666666666669" y="16" width="65.333333333333314" height="34"/>
@@ -206,6 +217,11 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="Z6X-nJ-poU"/>
                                         </constraints>
+                                        <connections>
+                                            <action selector="volumeSliderTouchDown:event:" destination="-1" eventType="touchDown" id="cyh-sJ-ge1"/>
+                                            <action selector="volumeSliderTouchUp:event:" destination="-1" eventType="touchUpInside" id="F7d-Cr-BC2"/>
+                                            <action selector="volumeSliderValueChanged:event:" destination="-1" eventType="valueChanged" id="h8T-Lj-cWg"/>
+                                        </connections>
                                     </slider>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="meV-1j-cr0" userLabel="Volume Button">
                                         <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>

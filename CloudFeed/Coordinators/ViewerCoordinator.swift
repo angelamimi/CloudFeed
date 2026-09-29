@@ -59,11 +59,9 @@ extension ViewerCoordinator: DownloadCoordinatorDelegate {
     func downloadComplete() {
 
         if let pager = navigationController.topViewController as? PagerController {
-            DispatchQueue.main.async { [weak self] in
-                self?.navigationController.dismiss(animated: false, completion: {
-                    pager.reload()
-                })
-            }
+            navigationController.dismiss(animated: false, completion: {
+                pager.reload()
+            })
         }
     }
 }
