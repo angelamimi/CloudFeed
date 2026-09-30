@@ -30,15 +30,22 @@ protocol DownloadableCoordinator: AnyObject {
 }
 
 @MainActor
+protocol ViewerViewModelDelegate: AnyObject {
+    func playLiveVideo(url: URL)
+}
+
+@MainActor
 final class ViewerViewModel {
 
     let metadata: Metadata
     let dataService: DataService
     private weak var coordinator: DownloadableCoordinator?
+    private weak var delegate: ViewerViewModelDelegate?
 
-    init(dataService: DataService, metadata: Metadata) {
+    init(dataService: DataService, metadata: Metadata, delegate: ViewerViewModelDelegate) {
         self.metadata = metadata
         self.dataService = dataService
+        self.delegate = delegate
     }
 
     init(coordinator: DownloadableCoordinator, dataService: DataService, metadata: Metadata) {
@@ -180,5 +187,42 @@ final class ViewerViewModel {
 
     func getVideoControlsStyleBackground() -> Bool {
         return dataService.getVideoControlsStyleBackground() ?? true
+    }
+
+    func playLiveVideo(metadata: Metadata) {
+
+        let currentAccount = Environment.current.currentUser?.account
+
+        Task.detached { [weak self] in
+
+            if let videoMetadata = await self?.dataService.getMetadataLivePhoto(metadata: metadata) {
+
+                var url: URL?
+
+                if self?.dataService.store.fileExists(videoMetadata) == true {
+
+                    if let cachePath = self?.dataService.store.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
+                        url = URL(fileURLWithPath: cachePath)
+                    }
+                } else {
+
+                    if let account = currentAccount {
+
+                        await self?.downloadLivePhotoVideo(account: account, metadata: videoMetadata)
+
+                        if self?.dataService.store.fileExists(videoMetadata) == true,
+                           let cachePath = self?.dataService.store.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
+                            url = URL(fileURLWithPath: cachePath)
+                        }
+                    }
+                }
+
+                if let videoUrl = url {
+                    await MainActor.run { [weak self] in
+                        self?.delegate?.playLiveVideo(url: videoUrl)
+                    }
+                }
+            }
+        }
     }
 }

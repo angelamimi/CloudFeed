@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="25098" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="25073"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -74,16 +74,16 @@
                                 </connections>
                             </containerView>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JXg-Td-c2k">
-                                <rect key="frame" x="16" y="126" width="74" height="28"/>
+                                <rect key="frame" x="16" y="126" width="74.666666666666671" height="28"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="6nl-cL-Uk2">
-                                    <rect key="frame" x="0.0" y="0.0" width="74" height="28"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="74.666666666666671" height="28"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="dVb-KH-5ZJ">
                                             <rect key="frame" x="8.0000000000000036" y="4" width="58.333333333333343" height="20"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="livephoto" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="sTO-t1-vNV" userLabel="Status Image View">
-                                                    <rect key="frame" x="0.0" y="-3.5527136788005009e-15" width="20" height="20.333333333333336"/>
+                                                    <rect key="frame" x="0.0" y="-0.3333333333333357" width="20" height="21"/>
                                                     <color key="tintColor" systemColor="labelColor"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="20" id="eHZ-v0-8B1"/>
@@ -123,6 +123,11 @@
                             <constraint firstAttribute="trailing" secondItem="KTH-42-4fp" secondAttribute="trailing" id="pB0-Lo-afp"/>
                             <constraint firstItem="KTH-42-4fp" firstAttribute="top" secondItem="f2H-lf-EFR" secondAttribute="top" id="uZ4-ac-OA9"/>
                         </constraints>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="Mol-bu-bO0" appends="YES" id="mqy-Em-fFP"/>
+                            <outletCollection property="gestureRecognizers" destination="70m-PA-R9q" appends="YES" id="AGL-H3-o2C"/>
+                            <outletCollection property="gestureRecognizers" destination="Flb-gn-AG2" appends="YES" id="gs1-MH-D31"/>
+                        </connections>
                     </view>
                     <connections>
                         <outlet property="statusContainerView" destination="JXg-Td-c2k" id="C8O-M9-QLZ"/>
@@ -130,6 +135,21 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xaq-6M-BwX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <swipeGestureRecognizer direction="up" id="Flb-gn-AG2">
+                    <connections>
+                        <action selector="viewSwipeUp:" destination="1kM-MI-ZQ8" id="Qyo-Mr-J4g"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="down" id="70m-PA-R9q">
+                    <connections>
+                        <action selector="viewSwipeDown:" destination="1kM-MI-ZQ8" id="Zro-0e-9Ff"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="Mol-bu-bO0">
+                    <connections>
+                        <action selector="viewLongPress:" destination="1kM-MI-ZQ8" id="i4i-Vk-vC7"/>
+                    </connections>
+                </pongPressGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="1628" y="675"/>
         </scene>
@@ -267,18 +287,18 @@
         </scene>
     </scenes>
     <resources>
-        <image name="livephoto" catalog="system" width="128" height="124"/>
+        <image name="livephoto" catalog="system" width="128" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="tertiaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29803921568627451" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

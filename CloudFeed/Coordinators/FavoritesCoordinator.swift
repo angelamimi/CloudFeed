@@ -38,7 +38,7 @@ extension FavoritesCoordinator {
 
     func getPreviewController(metadata: Metadata) -> PreviewController {
         let previewController = PreviewController(metadata: metadata)
-        previewController.viewModel = ViewerViewModel(dataService: dataService, metadata: metadata)
+        previewController.viewModel = ViewerViewModel(dataService: dataService, metadata: metadata, delegate: previewController)
         return previewController
     }
 

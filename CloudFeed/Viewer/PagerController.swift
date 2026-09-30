@@ -29,6 +29,18 @@ class PagerController: UIViewController {
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var statusContainerView: UIVisualEffectView!
 
+    @IBAction func viewLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        handleLongPress(gestureRecognizer: gestureRecognizer)
+    }
+
+    @IBAction func viewSwipeUp(_ gestureRecognizer: UISwipeGestureRecognizer) {
+        handleSwipeUp()
+    }
+
+    @IBAction func viewSwipeDown(_ gestureRecognizer: UISwipeGestureRecognizer) {
+        handleSwipeDown()
+    }
+
     var coordinator: PagerCoordinator!
     var viewModel: PagerViewModel!
     var status: Global.ViewerStatus = .title
@@ -67,8 +79,6 @@ class PagerController: UIViewController {
 
         pageViewController?.delegate = viewModel
         pageViewController?.dataSource = viewModel
-
-        initGestureRecognizers()
 
         let metadata = viewModel.currentMetadata()
 
@@ -203,7 +213,12 @@ class PagerController: UIViewController {
             button.configuration?.titleAlignment = .center
 
             button.configuration?.baseForegroundColor = .label
-            button.addTarget(self, action: #selector(titleButtonTapped), for: .touchUpInside)
+
+            let action = UIAction { [weak self] _ in
+                self?.showInfo()
+            }
+
+            button.addAction(action, for: .touchUpInside)
 
             navigationItem.titleView = button
         }
@@ -224,29 +239,6 @@ class PagerController: UIViewController {
 
         statusLabel.text = Strings.LiveTitle
         statusLabel.accessibilityLabel = Strings.ViewerLabelLivePhoto
-    }
-
-    private func initGestureRecognizers() {
-
-        if let pageView = pageViewController?.view {
-
-            let longPress = UILongPressGestureRecognizer()
-            longPress.delaysTouchesBegan = true
-            longPress.minimumPressDuration = 0.3
-            longPress.delegate = self
-            longPress.addTarget(self, action: #selector(handleLongPress(gestureRecognizer:)))
-
-            pageView.addGestureRecognizer(longPress)
-        }
-
-        let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
-        swipeUpRecognizer.direction = .up
-
-        let swipeDownRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
-        swipeDownRecognizer.direction = .down
-
-        view.addGestureRecognizer(swipeUpRecognizer)
-        view.addGestureRecognizer(swipeDownRecognizer)
     }
 
     private func willEnterForegroundNotification() {
@@ -290,18 +282,19 @@ class PagerController: UIViewController {
         menuButton.tintColor = .label
 
         if #available(iOS 26, *) {
-            DispatchQueue.main.async { [weak self] in
-                self?.navigationItem.rightBarButtonItems = [menuButton]
-            }
+            navigationItem.rightBarButtonItems = [menuButton]
         } else {
-            let detailsButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "info.circle"), target: self, action: #selector(showInfo))
+
+            let showInfoAction = UIAction { [weak self] _ in
+                self?.showInfo()
+            }
+
+            let detailsButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "info.circle"), primaryAction: showInfoAction)
 
             detailsButton.tintColor = .label
 
-            DispatchQueue.main.async { [weak self] in
-                self?.navigationItem.leftBarButtonItems = []
-                self?.navigationItem.rightBarButtonItems = [menuButton, detailsButton]
-            }
+            navigationItem.leftBarButtonItems = []
+            navigationItem.rightBarButtonItems = [menuButton, detailsButton]
         }
     }
 
@@ -319,24 +312,6 @@ class PagerController: UIViewController {
 
     private func showComments(_ metadata: Metadata) {
         viewModel.showComments(metadata)
-    }
-
-    private func getVideoURL(metadata: Metadata) -> URL? {
-
-        if viewModel.dataService.store.fileExists(metadata) {
-            return URL(fileURLWithPath: viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!)
-        }
-        return nil
-    }
-
-    private func playLiveVideoFromMetadata(controller: ViewerController, metadata: Metadata) {
-
-        DispatchQueue.main.async { [weak self] in
-
-            if let url = self?.getVideoURL(metadata: metadata) {
-                controller.playLivePhoto(url)
-            }
-        }
     }
 
     private func showTitle() {
@@ -425,46 +400,63 @@ class PagerController: UIViewController {
         present(controller, animated: true)
     }
 
-    @objc private func titleButtonTapped() {
-        showInfo()
+    private func handleSwipeUp() {
+
+        if currentViewController?.handleSwipeUp() ?? false {
+
+            updateStatus(status: .details)
+            hideType()
+
+            if isPad() && presentedViewController == nil {
+                presentDetailPopover()
+            }
+        }
     }
 
-    @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
+    private func handleSwipeDown() {
 
-        if swipeGesture.direction == .up {
+        if isPad() {
 
-            if currentViewController?.handleSwipeUp() ?? false {
+            let previousStatus = status
 
-                updateStatus(status: .details)
-                hideType()
+            updateStatus(status: .title)
+            presentedViewController?.dismiss(animated: true)
 
-                if isPad() && presentedViewController == nil {
-                    presentDetailPopover()
-                }
+            if previousStatus != .fullscreen && previousStatus != .title {
+                currentViewController?.handlePadSwipeDown()
             }
-
         } else {
-
-            if isPad() {
-
-                let previousStatus = status
-
+            let scrolledOnly = currentViewController?.handleSwipeDown() ?? false
+            if !scrolledOnly {
                 updateStatus(status: .title)
-                presentedViewController?.dismiss(animated: true)
-
-                if previousStatus != .fullscreen && previousStatus != .title {
-                    currentViewController?.handlePadSwipeDown()
-                }
-            } else {
-                let scrolledOnly = currentViewController?.handleSwipeDown() ?? false
-                if !scrolledOnly {
-                    updateStatus(status: .title)
-                    currentViewController?.setImageViewBackgroundColor()
-                    view.backgroundColor = .systemBackground
-                }
+                currentViewController?.setImageViewBackgroundColor()
+                view.backgroundColor = .systemBackground
             }
+        }
 
-            setTypeContainerView()
+        setTypeContainerView()
+    }
+
+    private func handleLongPress(gestureRecognizer: UILongPressGestureRecognizer) {
+
+        guard status != .details else { return }
+        guard let currentViewController = currentViewController else { return }
+
+        if !currentViewController.metadata.livePhoto { return }
+
+        if gestureRecognizer.state == .began {
+
+            hideType()
+
+            currentViewController.updateViewConstraints()
+
+            viewModel.playLiveVideo(metadata: currentViewController.metadata)
+
+        } else if gestureRecognizer.state == .ended {
+            if status == .title {
+                showType()
+            }
+            currentViewController.liveLongPressEnded()
         }
     }
 
@@ -531,7 +523,7 @@ class PagerController: UIViewController {
         view.backgroundColor = currentViewController?.isZoomed() == true ? .black : .systemBackground
     }
 
-    @objc private func showInfo() {
+    private func showInfo() {
 
         hideType()
         hideStatusBar = true
@@ -625,6 +617,10 @@ extension PagerController: ViewerDelegate {
 
 extension PagerController: PagerViewModelDelegate {
 
+    func playLiveVideo(url: URL) {
+        currentViewController?.playLivePhoto(url)
+    }
+
     func finishedPaging(metadata: Metadata) {
 
         DispatchQueue.main.async { [weak self] in
@@ -664,42 +660,6 @@ extension PagerController: PagerViewModelDelegate {
     func saveFavoriteError() {
         DispatchQueue.main.async { [weak self] in
             self?.coordinator.showFavoriteUpdateFailedError()
-        }
-    }
-}
-
-extension PagerController: UIGestureRecognizerDelegate {
-
-    @objc private func handleLongPress(gestureRecognizer: UITapGestureRecognizer) {
-
-        guard status != .details else { return }
-        guard let currentViewController = currentViewController else { return }
-
-        if !currentViewController.metadata.livePhoto { return }
-
-        if gestureRecognizer.state == .began {
-
-            hideType()
-
-            currentViewController.updateViewConstraints()
-
-            Task { [weak self] in
-
-                if let videoMetadata = await self?.viewModel.getMetadataLivePhoto(metadata: currentViewController.metadata) {
-
-                    if self?.viewModel.dataService.store.fileExists(videoMetadata) == true {
-                        self?.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
-                    } else {
-                        await self?.viewModel.downloadLivePhotoVideo(metadata: videoMetadata)
-                        self?.playLiveVideoFromMetadata(controller: currentViewController, metadata: videoMetadata)
-                    }
-                }
-            }
-        } else if gestureRecognizer.state == .ended {
-            if status == .title {
-                showType()
-            }
-            currentViewController.liveLongPressEnded()
         }
     }
 }

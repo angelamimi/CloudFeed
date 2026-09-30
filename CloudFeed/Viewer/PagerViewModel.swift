@@ -26,6 +26,7 @@ protocol PagerViewModelDelegate: AnyObject {
     func finishedPaging(metadata: Metadata)
     func finishedUpdatingFavorite(isFavorite: Bool)
     func saveFavoriteError()
+    func playLiveVideo(url: URL)
 }
 
 @MainActor
@@ -106,6 +107,38 @@ final class PagerViewModel: NSObject {
     func downloadImage(metadata: Metadata) {
         if !dataService.store.fileExists(metadata) {
             pagerCoordinator?.download(metadata)
+        }
+    }
+
+    func playLiveVideo(metadata: Metadata) {
+
+        Task.detached { [weak self] in
+
+            if let videoMetadata = await self?.dataService.getMetadataLivePhoto(metadata: metadata) {
+
+                var url: URL?
+
+                if self?.dataService.store.fileExists(videoMetadata) == true {
+
+                    if let cachePath = self?.dataService.store.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
+                        url = URL(fileURLWithPath: cachePath)
+                    }
+                } else {
+
+                    await self?.downloadLivePhotoVideo(metadata: videoMetadata)
+
+                    if self?.dataService.store.fileExists(videoMetadata) == true,
+                       let cachePath = self?.dataService.store.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
+                        url = URL(fileURLWithPath: cachePath)
+                    }
+                }
+
+                if let videoUrl = url {
+                    await MainActor.run { [weak self] in
+                        self?.delegate?.playLiveVideo(url: videoUrl)
+                    }
+                }
+            }
         }
     }
 }

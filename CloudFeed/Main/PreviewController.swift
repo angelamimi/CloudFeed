@@ -81,17 +81,6 @@ class PreviewController: UIViewController {
         }
     }
 
-    func playLivePhoto(_ url: URL) {
-
-        let player = AVPlayer(url: url)
-        let avpController = AVPlayerViewController()
-
-        avpController.player = player
-
-        setupVideoController(avpController: avpController, autoPlay: true)
-        activityIndicator.stopAnimating()
-    }
-
     private func loadVideo() {
 
         Task { [weak self] in
@@ -118,44 +107,8 @@ class PreviewController: UIViewController {
     private func loadLiveVideo() {
 
         guard let currentMetadata = metadata else { return }
-        guard let account = Environment.current.currentUser?.account else { return }
 
-        Task.detached { [weak self] in
-
-            if let videoMetadata = await self?.viewModel.getMetadataLivePhoto(metadata: currentMetadata) {
-
-                if await self?.viewModel.dataService.store.fileExists(videoMetadata) == true {
-                    DispatchQueue.main.async { [weak self] in
-                        self?.playLiveVideoFromMetadata(videoMetadata)
-                    }
-                } else {
-                    await self?.viewModel.downloadLivePhotoVideo(account: account, metadata: videoMetadata)
-
-                    DispatchQueue.main.async { [weak self] in
-                        self?.playLiveVideoFromMetadata(videoMetadata)
-                        self?.activityIndicator.stopAnimating()
-                    }
-                }
-            }
-        }
-    }
-
-    private func playLiveVideoFromMetadata(_ metadata: Metadata) {
-
-        let urlVideo = getVideoURL(metadata: metadata)
-
-        if let url = urlVideo {
-            playLivePhoto(url)
-        }
-    }
-
-    private func getVideoURL(metadata: Metadata) -> URL? {
-
-        if viewModel.dataService.store.fileExists(metadata) {
-            return URL(fileURLWithPath: viewModel.dataService.store.getCachePath(metadata.ocId, metadata.fileNameView)!)
-        }
-
-        return nil
+        viewModel.playLiveVideo(metadata: currentMetadata)
     }
 
     private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
@@ -250,5 +203,23 @@ class PreviewController: UIViewController {
         ])
 
         activityIndicator.stopAnimating()
+    }
+
+    func handlePlayLivePhoto(_ url: URL) {
+
+        let player = AVPlayer(url: url)
+        let avpController = AVPlayerViewController()
+
+        avpController.player = player
+
+        setupVideoController(avpController: avpController, autoPlay: true)
+        activityIndicator.stopAnimating()
+    }
+}
+
+extension PreviewController: ViewerViewModelDelegate {
+
+    func playLiveVideo(url: URL) {
+        handlePlayLivePhoto(url)
     }
 }
