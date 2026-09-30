@@ -39,6 +39,10 @@ class CollectionController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var emptyView: EmptyView!
 
+    @IBAction func tableViewLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        handleTableLongPress(gesture: gestureRecognizer)
+    }
+
     private var refreshControl = UIRefreshControl()
 
     var filterFromDate: Date?
@@ -124,7 +128,7 @@ class CollectionController: UIViewController {
     func showInfo() {}
     func switchToGrid() {}
     func switchToSocial() {}
-    @objc func handleTableLongPress(sender: UITapGestureRecognizer) {}
+    func handleTableLongPress(gesture: UILongPressGestureRecognizer) {}
     @objc func menuTapped() {}
 
     func registerCollectionCell(_ cellIdentifier: String) {
@@ -209,6 +213,10 @@ class CollectionController: UIViewController {
 
     func initCollectionView(layoutType: String, columnCount: Int) {
 
+        let action = UIAction { [weak self] _ in
+            self?.refresh()
+        }
+
         let layout = CollectionLayout()
         layout.delegate = self
         layout.numberOfColumns = columnCount
@@ -216,8 +224,7 @@ class CollectionController: UIViewController {
         collectionView.collectionViewLayout = layout
 
         collectionView.refreshControl = UIRefreshControl()
-        collectionView.refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
-
+        collectionView.refreshControl?.addAction(action, for: .valueChanged)
         collectionView.isPrefetchingEnabled = false
 
         if #available(iOS 26, *) {
@@ -227,15 +234,12 @@ class CollectionController: UIViewController {
 
     func initTableView() {
 
+        let action = UIAction { [weak self] _ in
+            self?.refresh()
+        }
+
         tableView.refreshControl = UIRefreshControl()
-        tableView.refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
-
-        let longPress = UILongPressGestureRecognizer()
-        longPress.delaysTouchesBegan = true
-        longPress.minimumPressDuration = 0.3
-        longPress.addTarget(self, action: #selector(handleTableLongPress(sender:)))
-
-        tableView.addGestureRecognizer(longPress)
+        tableView.refreshControl?.addAction(action, for: .valueChanged)
     }
 
     func initTitle(allowEdit: Bool, allowSelect: Bool, layoutType: String) {
@@ -377,7 +381,7 @@ class CollectionController: UIViewController {
         }
     }
 
-    @objc private func refresh() {
+    private func refresh() {
         delegate?.refresh()
     }
 

@@ -281,11 +281,11 @@ class MediaController: CollectionController {
         fetch()
     }
 
-    override func handleTableLongPress(sender: UITapGestureRecognizer) {
+    override func handleTableLongPress(gesture: UILongPressGestureRecognizer) {
 
-        if sender.state == .ended || sender.state == .cancelled {
+        if gesture.state == .ended || gesture.state == .cancelled {
 
-            let touchPoint = sender.location(in: tableView)
+            let touchPoint = gesture.location(in: tableView)
 
             if let indexPath = tableView.indexPathForRow(at: touchPoint),
                let cell = tableView.cellForRow(at: indexPath) as? TableCell,
@@ -298,9 +298,9 @@ class MediaController: CollectionController {
                 }
             }
 
-        } else if sender.state == .began {
+        } else if gesture.state == .began {
 
-            let touchPoint = sender.location(in: tableView)
+            let touchPoint = gesture.location(in: tableView)
 
             if let indexPath = tableView.indexPathForRow(at: touchPoint),
                let cell = tableView.cellForRow(at: indexPath) as? TableCell,
