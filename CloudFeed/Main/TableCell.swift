@@ -126,19 +126,19 @@ class TableCell: UITableViewCell {
         setImageViewHeightConstraint()
     }
 
-    @objc func favoriteButtonTouched() {
+    func favoriteButtonTouched() {
         delegate?.toggleFavoriteForMetadata(metadataId: metadataId ?? "")
     }
 
-    @objc func shareButtonTouched() {
+    func shareButtonTouched() {
         delegate?.shareForMetadata(metadataId: metadataId ?? "")
     }
 
-    @objc func commentButtonTouched() {
+    func commentButtonTouched() {
         delegate?.commentForMetadata(metadataId: metadataId ?? "")
     }
 
-    @objc func videoButtonTouched() {
+    func videoButtonTouched() {
 
         if let player = mediaPlayer {
             if player.isPlaying {
@@ -265,10 +265,26 @@ class TableCell: UITableViewCell {
     }
 
     private func initActions() {
-        favoriteButton.addTarget(self, action: #selector(favoriteButtonTouched), for: .touchUpInside)
-        shareButton.addTarget(self, action: #selector(shareButtonTouched), for: .touchUpInside)
-        commentButton.addTarget(self, action: #selector(commentButtonTouched), for: .touchUpInside)
-        videoButton.addTarget(self, action: #selector(videoButtonTouched), for: .touchUpInside)
+
+        let favoriteAction = UIAction { [weak self] _ in
+            self?.favoriteButtonTouched()
+        }
+        favoriteButton.addAction(favoriteAction, for: .touchUpInside)
+
+        let shareAction = UIAction { [weak self] _ in
+            self?.shareButtonTouched()
+        }
+        shareButton.addAction(shareAction, for: .touchUpInside)
+
+        let commentAction = UIAction { [weak self] _ in
+            self?.commentButtonTouched()
+        }
+        commentButton.addAction(commentAction, for: .touchUpInside)
+
+        let videoAction = UIAction { [weak self] _ in
+            self?.videoButtonTouched()
+        }
+        videoButton.addAction(videoAction, for: .touchUpInside)
     }
 
     private func initCell() {
