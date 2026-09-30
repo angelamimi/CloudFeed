@@ -1436,7 +1436,7 @@
 			repositoryURL = "https://github.com/nextcloud/NextcloudKit/";
 			requirement = {
 				kind = exactVersion;
-				version = 7.6.0;
+				version = 7.6.1;
 			};
 		};
 		39C1B69E2EE23CB2006003D2 /* XCRemoteSwiftPackageReference "vlckit-spm" */ = {

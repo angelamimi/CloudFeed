@@ -44,6 +44,27 @@ class ViewerController: UIViewController {
     @IBOutlet weak var imageViewLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageViewTrailingConstraint: NSLayoutConstraint!
 
+    @IBOutlet weak var pinchRecognizer: UIPinchGestureRecognizer!
+    @IBOutlet weak var panRecognizer: UIPanGestureRecognizer!
+    @IBOutlet weak var singleTapRecognizer: UITapGestureRecognizer!
+    @IBOutlet weak var doubleTapRecognizer: UITapGestureRecognizer!
+
+    @IBAction func imageViewPinch(_ gestureRecognizer: UIPinchGestureRecognizer) {
+        handlePinch(pinchGesture: gestureRecognizer)
+    }
+
+    @IBAction func imageViewPan(_ gestureRecognizer: UIPanGestureRecognizer) {
+        handlePan(panGesture: gestureRecognizer)
+    }
+
+    @IBAction func imageViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        handleSingleTap()
+    }
+
+    @IBAction func imageViewDoubleTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        handleDoubleTap()
+    }
+
     private weak var detailView: DetailView?
     private weak var detailViewTopConstraint: NSLayoutConstraint?
     private weak var detailViewWidthConstraint: NSLayoutConstraint?
@@ -60,10 +81,6 @@ class ViewerController: UIViewController {
     var center: CGPoint?
 
     private var avpLayer: AVPlayerLayer?
-    private var pinchRecognizer: UIPinchGestureRecognizer?
-    private var panRecognizer: UIPanGestureRecognizer?
-    private var doubleTapRecognizer: UITapGestureRecognizer?
-    private var singleTapRecognizer: UITapGestureRecognizer?
     private var initialCenter: CGPoint = .zero
     private var size = CGSize.zero
     private var disappearing = false
@@ -82,7 +99,8 @@ class ViewerController: UIViewController {
         super.viewDidLoad()
 
         initImageAccessibility()
-        initGestureRecognizers()
+
+        singleTapRecognizer?.require(toFail: doubleTapRecognizer!)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -594,37 +612,6 @@ class ViewerController: UIViewController {
         }
     }
 
-    private func initGestureRecognizers() {
-
-        pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(pinchGesture:)))
-
-        pinchRecognizer?.delaysTouchesBegan = false
-        pinchRecognizer?.delaysTouchesEnded = false
-
-        panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(panGesture:)))
-
-        panRecognizer?.delaysTouchesBegan = false
-        panRecognizer?.delaysTouchesEnded = false
-
-        doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap))
-        doubleTapRecognizer?.numberOfTapsRequired = 2
-
-        singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap(tapGesture:)))
-        singleTapRecognizer?.numberOfTapsRequired = 1
-        singleTapRecognizer?.require(toFail: doubleTapRecognizer!)
-
-        doubleTapRecognizer?.cancelsTouchesInView = false
-        singleTapRecognizer?.cancelsTouchesInView = false
-
-        imageView.addGestureRecognizer(pinchRecognizer!)
-        imageView.addGestureRecognizer(panRecognizer!)
-        imageView.addGestureRecognizer(doubleTapRecognizer!)
-        imageView.addGestureRecognizer(singleTapRecognizer!)
-
-        panRecognizer?.isEnabled = false
-        panRecognizer?.delegate = self
-    }
-
     private func initImageAccessibility() {
 
         let attributedValue = NSMutableAttributedString(string: metadata.fileNameView, attributes: [.accessibilitySpeechSpellOut: true])
@@ -678,7 +665,7 @@ class ViewerController: UIViewController {
         }
     }
 
-    @objc private func handleSingleTap(tapGesture: UITapGestureRecognizer) {
+    private func handleSingleTap() {
 
         if isPad() {
 
@@ -717,7 +704,7 @@ class ViewerController: UIViewController {
         }
     }
 
-    @objc private func handleDoubleTap() {
+    private func handleDoubleTap() {
 
         let details = detailsVisible()
         guard !details || isPad() else { return }
@@ -766,7 +753,7 @@ class ViewerController: UIViewController {
         }
     }
 
-    @objc private func handlePan(panGesture: UIPanGestureRecognizer) {
+    private func handlePan(panGesture: UIPanGestureRecognizer) {
 
         if let view = panGesture.view {
 
@@ -796,7 +783,7 @@ class ViewerController: UIViewController {
         }
     }
 
-    @objc private func handlePinch(pinchGesture: UIPinchGestureRecognizer) {
+    private func handlePinch(pinchGesture: UIPinchGestureRecognizer) {
 
         guard let view = pinchGesture.view else { return }
 
@@ -1598,22 +1585,6 @@ class ViewerController: UIViewController {
 
     private func updateContentMode(contentMode: UIView.ContentMode) {
         imageView.contentMode = contentMode
-    }
-}
-
-extension ViewerController: UIGestureRecognizerDelegate {
-
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-
-        guard metadata.video else { return false }
-
-        if gestureRecognizer is UITapGestureRecognizer && otherGestureRecognizer is UITapGestureRecognizer
-            && gestureRecognizer.state == .ended && otherGestureRecognizer.state == .ended {
-            //Allow both video layer and video container to receive tap events
-            return true
-        }
-
-        return false
     }
 }
 

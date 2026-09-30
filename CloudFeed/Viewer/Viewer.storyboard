@@ -26,6 +26,12 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="300" id="u4l-oU-PNv"/>
                                 </constraints>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="Flf-9Z-dEX" appends="YES" id="g0M-2v-RFr"/>
+                                    <outletCollection property="gestureRecognizers" destination="wzL-w7-elc" appends="YES" id="i0V-Mr-ZCu"/>
+                                    <outletCollection property="gestureRecognizers" destination="EgT-el-gvH" appends="YES" id="Keh-ut-TCD"/>
+                                    <outletCollection property="gestureRecognizers" destination="dv0-1b-F49" appends="YES" id="0Zb-rD-UCT"/>
+                                </connections>
                             </imageView>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="kG3-WY-mSO">
                                 <rect key="frame" x="186.66666666666666" y="139" width="20" height="22"/>
@@ -48,14 +54,38 @@
                     </view>
                     <connections>
                         <outlet property="activityIndicator" destination="kG3-WY-mSO" id="ONA-0w-Df9"/>
+                        <outlet property="doubleTapRecognizer" destination="dv0-1b-F49" id="5le-2I-Ike"/>
                         <outlet property="imageView" destination="gnc-Wf-rti" id="Cuh-lC-UtQ"/>
                         <outlet property="imageViewHeightConstraint" destination="u4l-oU-PNv" id="bfm-zB-LO9"/>
                         <outlet property="imageViewLeadingConstraint" destination="2t2-uN-rfx" id="81I-DN-W3U"/>
                         <outlet property="imageViewTopConstraint" destination="qvw-9n-KQ1" id="DLB-Km-L48"/>
                         <outlet property="imageViewTrailingConstraint" destination="fni-Al-I0J" id="3sR-Q9-UIm"/>
+                        <outlet property="panRecognizer" destination="wzL-w7-elc" id="NmE-lb-jAb"/>
+                        <outlet property="pinchRecognizer" destination="Flf-9Z-dEX" id="S2b-5s-EoV"/>
+                        <outlet property="singleTapRecognizer" destination="EgT-el-gvH" id="rmL-Gb-tBl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5UU-cJ-G65" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <pinchGestureRecognizer delaysTouchesEnded="NO" id="Flf-9Z-dEX">
+                    <connections>
+                        <action selector="imageViewPinch:" destination="Q4I-Mx-Pce" id="bYZ-eA-9eC"/>
+                    </connections>
+                </pinchGestureRecognizer>
+                <panGestureRecognizer enabled="NO" delaysTouchesEnded="NO" minimumNumberOfTouches="1" id="wzL-w7-elc">
+                    <connections>
+                        <action selector="imageViewPan:" destination="Q4I-Mx-Pce" id="rCt-Ij-abO"/>
+                    </connections>
+                </panGestureRecognizer>
+                <tapGestureRecognizer cancelsTouchesInView="NO" id="EgT-el-gvH">
+                    <connections>
+                        <action selector="imageViewTap:" destination="Q4I-Mx-Pce" id="D6M-Hc-qDi"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer cancelsTouchesInView="NO" numberOfTapsRequired="2" id="dv0-1b-F49">
+                    <connections>
+                        <action selector="imageViewDoubleTap:" destination="Q4I-Mx-Pce" id="W9l-SA-a3H"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="1628.2442748091603" y="-94.366197183098592"/>
         </scene>
@@ -74,9 +104,9 @@
                                 </connections>
                             </containerView>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JXg-Td-c2k">
-                                <rect key="frame" x="16" y="126" width="74.666666666666671" height="28"/>
+                                <rect key="frame" x="16" y="126" width="74" height="28"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="6nl-cL-Uk2">
-                                    <rect key="frame" x="0.0" y="0.0" width="74.666666666666671" height="28"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="74" height="28"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="dVb-KH-5ZJ">
