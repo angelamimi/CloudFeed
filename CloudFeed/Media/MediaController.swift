@@ -148,11 +148,6 @@ class MediaController: CollectionController {
         viewModel.tableMode = tableMode
     }
 
-    override func menuTapped() {
-        super.menuTapped()
-        tableCleanup()
-    }
-
     override func resetFilter() {
         super.resetFilter()
         initTitle(allowEdit: false, allowSelect: true, layoutType: viewModel.getLayoutType())

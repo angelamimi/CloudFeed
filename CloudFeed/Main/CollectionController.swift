@@ -115,21 +115,20 @@ class CollectionController: UIViewController {
 
     func zoomInGrid() {}
     func zoomOutGrid() {}
-    @objc func filter() {}
+    func filter() {}
     func edit() {}
     func resetEdit() {}
-    @objc func endEdit() {}
+    func endEdit() {}
     func select() {}
     func updateLayout(_ layout: String) {}
     func updateMediaType(_ type: Global.FilterType) {}
     func setMediaDirectory() {}
-    @objc func cancel() {}
+    func cancel() {}
     func setMetadataVisibility(_ visible: Bool) {}
     func showInfo() {}
     func switchToGrid() {}
     func switchToSocial() {}
     func handleTableLongPress(gesture: UILongPressGestureRecognizer) {}
-    @objc func menuTapped() {}
 
     func registerCollectionCell(_ cellIdentifier: String) {
         let nib = UINib(nibName: "CollectionViewCell", bundle: nil)
@@ -247,6 +246,9 @@ class CollectionController: UIViewController {
         navigationItem.title = ""
 
         let filterButtonImage: UIImage?
+        let filterAction = UIAction { [weak self] _ in
+            self?.filter()
+        }
 
         if hasFilter() {
             filterButtonImage = UIImage(systemName: "calendar.badge.checkmark")?.applyingSymbolConfiguration(.init(paletteColors: [.systemGreen, .label]))
@@ -255,8 +257,8 @@ class CollectionController: UIViewController {
         }
 
         let menu = initMenu(allowEdit: allowEdit, allowSelect: allowSelect, layoutType: layoutType, filterType: filterType)
-        let menuButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "ellipsis"), target: self, action: nil, menu: menu)
-        let filterButton = UIBarButtonItem(title: nil, image: filterButtonImage, target: self, action: #selector(filter))
+        let menuButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "ellipsis"), menu: menu)
+        let filterButton = UIBarButtonItem(title: nil, image: filterButtonImage, primaryAction: filterAction)
 
         menuButton.tintColor = .label
         filterButton.tintColor = .label
@@ -319,8 +321,16 @@ class CollectionController: UIViewController {
 
     private func titleBeginEditMode(editTitle: String) {
 
-        let cancelButton = UIBarButtonItem(title: Strings.TitleCancel, image: nil, target: self, action: #selector(cancel))
-        let actionButton = UIBarButtonItem(title: editTitle, image: nil, target: self, action: #selector(endEdit))
+        let finishEditAction = UIAction { [weak self] _ in
+            self?.endEdit()
+        }
+
+        let cancelAction = UIAction { [weak self] _ in
+            self?.cancel()
+        }
+
+        let cancelButton = UIBarButtonItem(title: Strings.TitleCancel, image: nil, primaryAction: cancelAction)
+        let actionButton = UIBarButtonItem(title: editTitle, image: nil, primaryAction: finishEditAction)
 
         navigationItem.rightBarButtonItems = []
         navigationItem.rightBarButtonItem = actionButton
