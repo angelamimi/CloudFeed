@@ -52,9 +52,9 @@ class LoginServerController: UIViewController {
         serverURLLabel.text = Strings.LoginServerLabel
         serverURLButton.configuration?.title = Strings.LoginServerButton
 
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main, using: keyboardWillShow(notification:))
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main, using: keyboardWillHide(notification:))
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main, using: willEnterForeground(notification:))
 
         let hasParent = parent != nil && parent!.isBeingPresented
 
@@ -91,46 +91,62 @@ class LoginServerController: UIViewController {
         return false
     }
 
-    @objc private func willEnterForeground() {
-        serverURLTextField.setNeedsLayout()
-        serverURLTextField.resignFirstResponder()
+    nonisolated private func willEnterForeground(notification: Notification) {
+        Task { @MainActor [weak self] in
+            self?.serverURLTextField.setNeedsLayout()
+            self?.serverURLTextField.resignFirstResponder()
+        }
     }
 
-    @objc private func keyboardWillShow(notification: Notification) {
+    nonisolated private func keyboardWillShow(notification: Notification) {
 
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
            let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
            let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
 
-            let bottom = serverURLButton.frame.maxY + 16
-
-            if bottom > keyboardFrame.minY {
-
-                let shift = bottom - keyboardFrame.minY
-
-                centerConstraint.constant = centerOffset - shift
-
-                let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
-
-                UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options) { [weak self] in
-                    self?.view.layoutIfNeeded()
-                }
+            Task { @MainActor [weak self] in
+                self?.handleKeyboardWillShow(keyboardFrame: keyboardFrame, animationDuration: animationDuration, animationCurve: animationCurve)
             }
         }
     }
 
-    @objc private func keyboardWillBeHidden(notification: Notification) {
+    nonisolated private func keyboardWillHide(notification: Notification) {
 
         if let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
            let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
 
-            centerConstraint.constant = centerOffset
+            Task { @MainActor [weak self] in
+                self?.handleKeyboardWillHide(animationDuration: animationDuration, animationCurve: animationCurve)
+            }
+        }
+    }
+
+    private func handleKeyboardWillShow(keyboardFrame: CGRect, animationDuration: NSNumber, animationCurve: NSNumber) {
+
+        let bottom = serverURLButton.frame.maxY + 16
+
+        if bottom > keyboardFrame.minY {
+
+            let shift = bottom - keyboardFrame.minY
+
+            centerConstraint.constant = centerOffset - shift
 
             let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
 
             UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options) { [weak self] in
                 self?.view.layoutIfNeeded()
             }
+        }
+    }
+
+    private func handleKeyboardWillHide(animationDuration: NSNumber, animationCurve: NSNumber) {
+
+        centerConstraint.constant = centerOffset
+
+        let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
+
+        UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options) { [weak self] in
+            self?.view.layoutIfNeeded()
         }
     }
 
