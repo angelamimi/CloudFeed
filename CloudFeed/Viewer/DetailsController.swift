@@ -36,6 +36,14 @@ class DetailsController: UIViewController {
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var scrollView: UIScrollView!
 
+    @IBAction func viewSwipeUp(_ gestureRecognizer: UISwipeGestureRecognizer) {
+        close()
+    }
+
+    @IBAction func viewSwipeDown(_ gestureRecognizer: UISwipeGestureRecognizer) {
+        close()
+    }
+
     private weak var detailView: DetailView!
 
     var metadata: Metadata?
@@ -53,11 +61,13 @@ class DetailsController: UIViewController {
 
         titleLabel.text = Strings.DetailTitle
 
-        closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
+        let closeAction = UIAction { [weak self] _ in
+            self?.close()
+        }
+
+        closeButton.addAction(closeAction, for: .touchUpInside)
 
         initDetailView()
-
-        addGestures()
         bindDetailView()
     }
 
@@ -98,11 +108,7 @@ class DetailsController: UIViewController {
         animateDetailView()
     }
 
-    @objc private func handleSwipe(swipeGesture: UISwipeGestureRecognizer) {
-        close()
-    }
-
-    @objc func close() {
+    func close() {
         delegate?.dismissingDetails()
         dismiss(animated: true)
     }
@@ -142,18 +148,6 @@ class DetailsController: UIViewController {
         detailView.fillerView.isHidden = true
 
         detailView.populateDetails()
-    }
-
-    private func addGestures() {
-
-        let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
-        let swipeDownRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(swipeGesture:)))
-
-        swipeUpRecognizer.direction = .up
-        swipeDownRecognizer.direction = .down
-
-        view.addGestureRecognizer(swipeUpRecognizer)
-        view.addGestureRecognizer(swipeDownRecognizer)
     }
 
     private func setPreferredSize() {

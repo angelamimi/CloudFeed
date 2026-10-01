@@ -104,7 +104,7 @@
                                 </connections>
                             </containerView>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JXg-Td-c2k">
-                                <rect key="frame" x="16" y="126" width="74" height="28"/>
+                                <rect key="frame" x="16" y="126" width="74.333333333333329" height="28"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="6nl-cL-Uk2">
                                     <rect key="frame" x="0.0" y="0.0" width="74" height="28"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -295,6 +295,10 @@
                             <constraint firstItem="IA9-sT-gKp" firstAttribute="leading" secondItem="rK7-NA-i7O" secondAttribute="leading" id="YnQ-lU-uiA"/>
                             <constraint firstItem="rK7-NA-i7O" firstAttribute="trailing" secondItem="RFa-97-UBf" secondAttribute="trailing" constant="16" id="hve-sh-uoI"/>
                         </constraints>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="n1U-Mk-CHw" appends="YES" id="ctB-O7-7eh"/>
+                            <outletCollection property="gestureRecognizers" destination="bcF-6q-6e5" appends="YES" id="pfR-X9-hEl"/>
+                        </connections>
                     </view>
                     <connections>
                         <outlet property="closeButton" destination="gju-BR-3tj" id="b5R-cm-9Tc"/>
@@ -304,6 +308,16 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xdP-Yo-YSL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <swipeGestureRecognizer direction="up" id="bcF-6q-6e5">
+                    <connections>
+                        <action selector="viewSwipeUp:" destination="hrv-vF-nQR" id="nj1-Qk-CGr"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="down" id="n1U-Mk-CHw">
+                    <connections>
+                        <action selector="viewSwipeDown:" destination="hrv-vF-nQR" id="IlJ-ic-UMk"/>
+                    </connections>
+                </swipeGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="2930.5343511450383" y="-92.253521126760575"/>
         </scene>
