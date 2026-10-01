@@ -55,16 +55,20 @@ class FilterMonthCell: UICollectionViewCell {
         monthButton.configuration?.title = month
     }
 
-    @objc func monthButtonTouched(_ sender: UIButton) {
+    func monthButtonTouched(_ sender: UIButton) {
         delegate?.monthSelected(month: sender.tag, selected: sender.isSelected)
     }
 
     private func initCell() {
 
+        let monthAction = UIAction { [weak self] action in
+            if let sender = action.sender as? UIButton {
+                self?.monthButtonTouched(sender)
+            }
+        }
+        monthButton.addAction(monthAction, for: .touchUpInside)
+
         monthButton.configuration = .plain()
-
-        monthButton.addTarget(self, action: #selector(monthButtonTouched(_:)), for: .touchUpInside)
-
         monthButton.configuration?.baseForegroundColor = traitCollection.userInterfaceStyle == .dark ? .white : .black
 
         monthButton.configurationUpdateHandler = { [weak self] button in

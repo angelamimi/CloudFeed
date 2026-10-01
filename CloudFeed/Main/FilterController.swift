@@ -53,17 +53,7 @@ class FilterController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        filterButton.configuration?.title = Strings.MediaFilter
-        removeFilterButton.configuration?.title = Strings.MediaRemoveFilter
-
-        dateSectionLabel.text = Strings.MediaFilterSectionDates
-        presetsSectionLabel.text = Strings.MediaFilterSectionPresets
-
-        toLabel.text = Strings.FilterLabelDateTo
-        fromLabel.text = Strings.FilterLabelDateFrom
-
-        filterButton.addTarget(self, action: #selector(executeFilter), for: .touchUpInside)
-        removeFilterButton.addTarget(self, action: #selector(executeRemoveFilter), for: .touchUpInside)
+        initControls()
 
         initDataSource()
 
@@ -81,11 +71,7 @@ class FilterController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        DispatchQueue.main.async { [weak self] in
-            if let height = self?.actionStackView.frame.height {
-                self?.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: height + 16, right: 0)
-            }
-        }
+        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: actionStackView.frame.height + 16, right: 0)
     }
 
     func setFilterable(filterable: Filterable) {
@@ -102,7 +88,7 @@ class FilterController: UIViewController {
         }
     }
 
-    @objc private func executeFilter() {
+    private func executeFilter() {
 
         let calender = Calendar.current
         let fromComponents = calender.dateComponents([.year, .month, .day], from: fromDatePicker.date)
@@ -115,7 +101,7 @@ class FilterController: UIViewController {
         filterable?.filter(from: calender.date(from: fromComponents)!, to: calender.date(from: toComponents)!)
     }
 
-    @objc private func executeRemoveFilter() {
+    private func executeRemoveFilter() {
         filterable?.removeFilter()
     }
 
@@ -125,6 +111,29 @@ class FilterController: UIViewController {
             snapshot.reloadSections([0, 1])
             presetsDataSource.apply(snapshot, animatingDifferences: false)
         }
+    }
+
+    private func initControls() {
+
+        filterButton.configuration?.title = Strings.MediaFilter
+        removeFilterButton.configuration?.title = Strings.MediaRemoveFilter
+
+        dateSectionLabel.text = Strings.MediaFilterSectionDates
+        presetsSectionLabel.text = Strings.MediaFilterSectionPresets
+
+        toLabel.text = Strings.FilterLabelDateTo
+        fromLabel.text = Strings.FilterLabelDateFrom
+
+        let filterAction = UIAction { [weak self] _ in
+            self?.executeFilter()
+        }
+
+        let removeAction = UIAction { [weak self] _ in
+            self?.executeRemoveFilter()
+        }
+
+        filterButton.addAction(filterAction, for: .touchUpInside)
+        removeFilterButton.addAction(removeAction, for: .touchUpInside)
     }
 
     private func initDataSource() {

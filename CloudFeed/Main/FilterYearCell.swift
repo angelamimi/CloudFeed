@@ -55,16 +55,20 @@ class FilterYearCell: UICollectionViewCell {
         yearButton.configuration?.title = year.description
     }
 
-    @objc func yearButtonTouched(_ sender: UIButton) {
+    func yearButtonTouched(_ sender: UIButton) {
         delegate?.yearSelected(year: sender.tag, selected: sender.isSelected)
     }
 
     private func initCell() {
 
+        let yearAction = UIAction { [weak self] action in
+            if let sender = action.sender as? UIButton {
+                self?.yearButtonTouched(sender)
+            }
+        }
+        yearButton.addAction(yearAction, for: .touchUpInside)
+
         yearButton.configuration = .plain()
-
-        yearButton.addTarget(self, action: #selector(yearButtonTouched(_:)), for: .touchUpInside)
-
         yearButton.configuration?.baseForegroundColor = traitCollection.userInterfaceStyle == .dark ? .white : .black
 
         yearButton.configurationUpdateHandler = { [weak self] button in
