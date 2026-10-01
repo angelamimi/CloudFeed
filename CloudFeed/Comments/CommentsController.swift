@@ -39,6 +39,14 @@ class CommentsController: UIViewController {
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var bottomStackViewBottomConstraint: NSLayoutConstraint!
 
+    @IBAction func viewTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        dismissKeyboard()
+    }
+
+    @IBAction func errorViewTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        errorStackViewTapped()
+    }
+
     var editCommentId: String?
     var metadata: Metadata?
     var viewModel: CommentsViewModel?
@@ -48,12 +56,51 @@ class CommentsController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        initControls()
+
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: nil, using: keyboardWillShow(notification:))
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: nil, using: keyboardWillHide(notification:))
+
+        viewModel?.initDatasource(tableView)
+
+        viewModel?.loadComments()
+        loadAvatar()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    func close() {
+        dismiss(animated: true)
+    }
+
+    func endEdit() {
+        editCommentId = nil
+        commentTextField.text = ""
         cancelButton.isHidden = true
-        cancelButton.configuration?.title = Strings.CancelAction
-        cancelButton.addTarget(self, action: #selector(endEdit), for: .touchUpInside)
+        errorStackView.isHidden = true
+        resignFirstResponder()
+    }
+
+    private func initControls() {
 
         titleLabel.text = Strings.CommentsTitle
-        closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
+
+        let cancelAction = UIAction { [weak self] _ in
+            self?.endEdit()
+        }
+
+        cancelButton.isHidden = true
+        cancelButton.configuration?.title = Strings.CancelAction
+        cancelButton.addAction(cancelAction, for: .touchUpInside)
+
+        let closeAction = UIAction { [weak self] _ in
+            self?.close()
+        }
+
+        closeButton.addAction(closeAction, for: .touchUpInside)
 
         initTextField()
 
@@ -67,66 +114,26 @@ class CommentsController: UIViewController {
 
         errorStackView.isHidden = true
         errorStackView.isUserInteractionEnabled = true
-        let errorTapGesture = UITapGestureRecognizer(target: self, action: #selector(errorStackViewTapped))
-        errorStackView.addGestureRecognizer(errorTapGesture)
-
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        view.addGestureRecognizer(tapGesture)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
 
         setBottomMargin()
-
-        viewModel?.initDatasource(tableView)
-
-        loadComments()
-        loadAvatar()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
-    }
-
-    @objc func close() {
-        dismiss(animated: true)
-    }
-
-    @objc func endEdit() {
-        editCommentId = nil
-        commentTextField.text = ""
-        cancelButton.isHidden = true
-        errorStackView.isHidden = true
-        resignFirstResponder()
-    }
-
-    @objc private func limitText() {
+    private func limitText() {
         if let text = commentTextField.text, text.count > 1_000 {
             commentTextField.text = String(text.prefix(1_000))
         }
     }
 
-    @objc private func errorStackViewTapped() {
+    private func errorStackViewTapped() {
         errorStackView.isHidden = true
     }
 
-    private func loadComments() {
-        Task { [weak self] in
-            await self?.viewModel?.loadComments()
-        }
-    }
-
     private func addComment(_ commentText: String?) {
-        Task { [weak self] in
-            await self?.viewModel?.addComment(commentText: commentText)
-        }
+        viewModel?.addComment(commentText: commentText)
     }
 
     private func updateComment(_ commentId: String, _ commentText: String?) {
-        Task { [weak self] in
-            await self?.viewModel?.updateComment(commentId: commentId, commentText: commentText)
-        }
+        viewModel?.updateComment(commentId: commentId, commentText: commentText)
     }
 
     private func loadAvatar() {
@@ -141,7 +148,11 @@ class CommentsController: UIViewController {
 
         commentTextField.placeholder = Strings.CommentsPlaceholder
         commentTextField.delegate = self
-        commentTextField.addTarget(self, action: #selector(limitText), for: .editingChanged)
+
+        let editAction = UIAction { [weak self] _ in
+            self?.limitText()
+        }
+        commentTextField.addAction(editAction, for: .editingChanged)
 
         commentTextField.backgroundColor = .systemBackground
         commentTextField.borderStyle = .none
@@ -174,6 +185,7 @@ class CommentsController: UIViewController {
         } else {
             commentTextField.text = ""
             errorStackView.isHidden = true
+            viewModel?.loadComments()
         }
     }
 
@@ -185,6 +197,7 @@ class CommentsController: UIViewController {
             errorStackView.isHidden = false
         } else {
             errorStackView.isHidden = true
+            viewModel?.loadComments()
         }
     }
 
@@ -196,6 +209,7 @@ class CommentsController: UIViewController {
             errorStackView.isHidden = false
         } else {
             errorStackView.isHidden = true
+            viewModel?.loadComments()
         }
     }
 
@@ -241,48 +255,62 @@ class CommentsController: UIViewController {
         }
     }
 
-    @objc private func dismissKeyboard() {
+    private func dismissKeyboard() {
         commentTextField.resignFirstResponder()
     }
 
-    @objc private func keyboardWillShow(notification: Notification) {
-
-        guard bottomStackViewBottomConstraint.constant <= bottomMargin else { return }
+    nonisolated private func keyboardWillShow(notification: Notification) {
 
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
            let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
            let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
 
-            let offset = -(keyboardFrame.height / 2)
-
-            noCommentsStackViewCenterYConstraint.constant = offset
-            activityIndicatorCenterYConstraint.constant = offset
-            bottomStackViewBottomConstraint.constant = keyboardFrame.height
-
-            let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
-
-            UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options,
-                           animations: { [weak self] in self?.view.layoutIfNeeded() })
+            Task { @MainActor [weak self] in
+                self?.handleKeyboardWillShow(keyboardFrame: keyboardFrame, animationDuration: animationDuration, animationCurve: animationCurve)
+            }
         }
     }
 
-    @objc private func keyboardWillBeHidden(notification: Notification) {
-
-        guard bottomStackViewBottomConstraint.constant > bottomMargin else { return }
+    nonisolated private func keyboardWillHide(notification: Notification) {
 
         if let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
            let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
 
-            noCommentsStackViewCenterYConstraint.constant = 0
-            activityIndicatorCenterYConstraint.constant = 0
-
-            setBottomMargin()
-
-            let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
-
-            UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options) { [weak self] in
-                self?.view.layoutIfNeeded()
+            Task { @MainActor [weak self] in
+                self?.handleKeyboardWillHide(animationDuration: animationDuration, animationCurve: animationCurve)
             }
+        }
+    }
+
+    private func handleKeyboardWillShow(keyboardFrame: CGRect, animationDuration: NSNumber, animationCurve: NSNumber) {
+
+        guard bottomStackViewBottomConstraint.constant <= bottomMargin else { return }
+
+        let offset = -(keyboardFrame.height / 2)
+
+        noCommentsStackViewCenterYConstraint.constant = offset
+        activityIndicatorCenterYConstraint.constant = offset
+        bottomStackViewBottomConstraint.constant = keyboardFrame.height
+
+        let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
+
+        UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options,
+                       animations: { [weak self] in self?.view.layoutIfNeeded() })
+    }
+
+    private func handleKeyboardWillHide(animationDuration: NSNumber, animationCurve: NSNumber) {
+
+        guard bottomStackViewBottomConstraint.constant > bottomMargin else { return }
+
+        noCommentsStackViewCenterYConstraint.constant = 0
+        activityIndicatorCenterYConstraint.constant = 0
+
+        setBottomMargin()
+
+        let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
+
+        UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options) { [weak self] in
+            self?.view.layoutIfNeeded()
         }
     }
 
@@ -356,8 +384,6 @@ extension CommentsController: CommentsDelegate {
 extension CommentsController: DownloadAvatarOperationDelegate {
 
     func avatarDownloaded(id: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.handleCommenterAvatarLoaded()
-        }
+        handleCommenterAvatarLoaded()
     }
 }

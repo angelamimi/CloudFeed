@@ -438,6 +438,9 @@
                                     </button>
                                 </subviews>
                                 <edgeInsets key="layoutMargins" top="0.0" left="0.0" bottom="0.0" right="0.0"/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="CRQ-18-SPE" appends="YES" id="41g-5j-MnM"/>
+                                </connections>
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="a8N-4T-Vyw"/>
@@ -458,6 +461,9 @@
                             <constraint firstItem="cWO-Wn-7S4" firstAttribute="leading" secondItem="a8N-4T-Vyw" secondAttribute="leading" constant="16" id="pLu-uD-Je3"/>
                             <constraint firstItem="5fT-QZ-S1d" firstAttribute="centerY" secondItem="btd-yL-RE8" secondAttribute="centerY" id="uNC-eD-Gav"/>
                         </constraints>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="j5P-Qn-H76" appends="YES" id="Rax-eP-SiV"/>
+                        </connections>
                     </view>
                     <nil key="simulatedTopBarMetrics"/>
                     <nil key="simulatedBottomBarMetrics"/>
@@ -481,6 +487,16 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8jM-5X-Cdi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="CRQ-18-SPE">
+                    <connections>
+                        <action selector="errorViewTap:" destination="Xtf-aV-3MI" id="EXa-sH-B1A"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="j5P-Qn-H76">
+                    <connections>
+                        <action selector="viewTap:" destination="Xtf-aV-3MI" id="TzI-5I-DaW"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="413" y="-385"/>
         </scene>

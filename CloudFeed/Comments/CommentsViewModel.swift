@@ -34,7 +34,7 @@ protocol CommentsDelegate: AnyObject {
 @MainActor
 final class CommentsViewModel {
 
-    private let dataService: DataService
+    private nonisolated let dataService: DataService
     private let metadata: Metadata
 
     private var tableDataSource: UITableViewDiffableDataSource<Int, FileComment.ID>!
@@ -54,50 +54,76 @@ final class CommentsViewModel {
         return comments[commentId]?.message
     }
 
-    func loadComments() async {
+    func loadComments() {
 
-        if let account = Environment.current.currentUser?.account,
-           let comments = await dataService.getComments(fileId: metadata.fileId, account: account) {
-
-            DispatchQueue.main.async { [weak self] in
-                self?.showComments(comments)
-            }
-        } else {
+        guard let account = Environment.current.currentUser?.account else {
             delegate.loadComplete(count: nil)
+            return
+        }
+
+        let fileId = metadata.fileId
+
+        Task.detached { [weak self] in
+
+            let comments = await self?.dataService.getComments(fileId: fileId, account: account)
+
+            await MainActor.run { [weak self] in
+                if comments == nil {
+                    self?.delegate.loadComplete(count: nil)
+                } else {
+                    self?.showComments(comments!)
+                }
+            }
         }
     }
 
-    func addComment(commentText: String?) async {
+    func addComment(commentText: String?) {
 
         guard let text = commentText?.trimmingCharacters(in: .whitespacesAndNewlines), text.isEmpty == false else {
             delegate.addComplete(error: true)
             return
         }
 
-        let error = await dataService.addComment(fileId: metadata.fileId, account: metadata.account, message: text)
+        let fileId = metadata.fileId
+        let account = metadata.account
 
-        if error {
-            delegate.addComplete(error: true)
-        } else {
-            delegate.updateComplete(error: false)
-            await loadComments()
+        Task.detached { [weak self] in
+
+            let error = await self?.dataService.addComment(fileId: fileId, account: account, message: text)
+
+            await MainActor.run { [weak self] in
+
+                if error == nil || error == true {
+                    self?.delegate.addComplete(error: true)
+                } else {
+                    self?.delegate.addComplete(error: false)
+                }
+            }
         }
     }
 
-    func updateComment(commentId: String, commentText: String?) async {
+    func updateComment(commentId: String, commentText: String?) {
 
         guard let text = commentText?.trimmingCharacters(in: .whitespacesAndNewlines), text.isEmpty == false else {
             delegate.updateComplete(error: true)
             return
         }
 
-        let error = await dataService.updateComment(fileId: metadata.fileId, account: metadata.account, messageId: commentId, message: text)
+        let fileId = metadata.fileId
+        let account = metadata.account
 
-        if error {
-            delegate.updateComplete(error: true)
-        } else {
-            delegate.updateComplete(error: false)
-            await loadComments()
+        Task.detached { [weak self] in
+
+            let error = await self?.dataService.updateComment(fileId: fileId, account: account, messageId: commentId, message: text)
+
+            await MainActor.run { [weak self] in
+
+                if error == nil || error == true {
+                    self?.delegate.updateComplete(error: true)
+                } else {
+                    self?.delegate.updateComplete(error: false)
+                }
+            }
         }
     }
 
@@ -137,11 +163,12 @@ final class CommentsViewModel {
 
     func loadCommenterAvatar(userId: String, urlBase: String, account: String, delegate: DownloadAvatarOperationDelegate) -> UIImage? {
 
-        let avatarPath = dataService.store.getAvatarPath(userId, urlBase)
-
         if let cachedAvatar = cacheManager.cached(urlBase: urlBase, userId: userId) {
             return cachedAvatar
         } else {
+
+            let avatarPath = dataService.store.getAvatarPath(userId, urlBase)
+
             if FileManager.default.fileExists(atPath: avatarPath) {
 
                 let image = UIImage(contentsOfFile: avatarPath)
@@ -233,19 +260,24 @@ final class CommentsViewModel {
 
     private func handleDeleteCommentAction(commentId: String) {
 
+        guard let account = Environment.current.currentUser?.account else {
+            delegate.deleteComplete(error: true)
+            return
+        }
+
+        let fileId = metadata.fileId
+
         delegate.deleteBegin()
 
-        Task { [weak self] in
+        Task.detached { [weak self] in
 
-            if let account = Environment.current.currentUser?.account, let fileId = self?.metadata.fileId {
+            let error = await self?.dataService.deleteComment(fileId: fileId, account: account, messageId: commentId)
 
-                let error = await self?.dataService.deleteComment(fileId: fileId, account: account, messageId: commentId)
-
+            await MainActor.run { [weak self] in
                 if error == nil || error == true {
                     self?.delegate.deleteComplete(error: true)
                 } else {
                     self?.delegate.deleteComplete(error: false)
-                    await self?.loadComments()
                 }
             }
         }
