@@ -109,8 +109,13 @@ class DetailView: UIView {
         metadataButton.configuration?.baseForegroundColor = .tintColor
         metadataButton.configuration?.baseBackgroundColor = .systemGray5.withAlphaComponent(0.5)
         metadataButton.configuration?.title = Strings.DetailAll
-        metadataButton.addTarget(self, action: #selector(showAllDetails), for: .touchUpInside)
         metadataButton.setContentHuggingPriority(.required, for: .vertical)
+
+        let showAllAction = UIAction { [weak self] _ in
+            self?.showAllDetails()
+        }
+
+        metadataButton.addAction(showAllAction, for: .touchUpInside)
 
         cameraStackView.clipsToBounds = true
         cameraStackView.layer.cornerRadius = 8
@@ -191,7 +196,7 @@ class DetailView: UIView {
         lensLabel.accessibilityValue = Strings.DetailLensNone
     }
 
-    @objc private func showAllDetails() {
+    private func showAllDetails() {
         if metadata != nil {
             delegate?.showAllDetails(metadata: metadata!)
         }

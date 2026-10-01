@@ -91,8 +91,16 @@ extension PasscodeSettingsController: UITableViewDelegate, UITableViewDataSource
         if indexPath.section == 0 && indexPath.item == 0 {
             config.text = Strings.SettingsItemEditPasscode
         } else if indexPath.section == 0 && indexPath.item == 1 {
+
             let resetSwitch = UISwitch()
-            resetSwitch.addTarget(self, action: #selector(resetSwitchChanged(_:)), for: .valueChanged)
+
+            let switchAction = UIAction { [weak self] action in
+                if let sender = action.sender as? UISwitch {
+                    self?.resetSwitchChanged(sender)
+                }
+            }
+
+            resetSwitch.addAction(switchAction, for: .valueChanged)
             resetSwitch.isOn = viewModel?.getAppReset() ?? false
 
             config.text = Strings.SettingsItemResetAppPasscode
@@ -116,9 +124,7 @@ extension PasscodeSettingsController: UITableViewDelegate, UITableViewDataSource
         return UITableView.automaticDimension
     }
 
-    @objc private func resetSwitchChanged(_ sender: UISwitch) {
-        guard let cell = sender.superview as? UITableViewCell else { return }
-        guard let resetSwitch = cell.accessoryView as? UISwitch else { return }
-        viewModel?.setAppReset(resetSwitch.isOn)
+    private func resetSwitchChanged(_ sender: UISwitch) {
+        viewModel?.setAppReset(sender.isOn)
     }
 }
