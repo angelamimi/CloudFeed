@@ -33,6 +33,10 @@ class ProgressView: UIView {
     @IBOutlet weak var cancelLabel: UILabel!
     @IBOutlet weak var progressView: UIProgressView!
 
+    @IBAction func stackViewTapped(_ gestureRecognizer: UITapGestureRecognizer) {
+        tapped()
+    }
+
     weak var delegate: ProgressDelegate?
 
     override init(frame: CGRect) {
@@ -57,8 +61,11 @@ class ProgressView: UIView {
         cancelLabel.text = cancel
     }
 
+    func setProgress(_ progress: Float) {
+        progressView.progress = progress
+    }
+
     private func initView() {
-        stackView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
 
         if #available(iOS 26.0, *) {
             stackView.cornerConfiguration = .corners(radius: .containerConcentric(minimum: 20))
@@ -84,12 +91,7 @@ class ProgressView: UIView {
         ])
     }
 
-    @objc
-    func tapped() {
+    private func tapped() {
         delegate?.progressCancelled()
-    }
-
-    func setProgress(_ progress: Float) {
-        progressView.progress = progress
     }
 }
