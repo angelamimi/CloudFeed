@@ -50,87 +50,54 @@ class PickerController: UIViewController {
         navigationController?.setNavigationBarHidden(false, animated: false)
         navigationController?.navigationBar.prefersLargeTitles = true
 
-        if navigationItem.rightBarButtonItem == nil {
-            let item = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel))
-            item.tintColor = .label
-            navigationItem.setRightBarButton(item, animated: true)
-        }
-
-        selectButton.configuration?.title = Strings.SelectAction
-        selectButton.addTarget(self, action: #selector(selected), for: .touchUpInside)
+        initActions()
 
         UIAccessibility.post(notification: .screenChanged, argument: navigationItem.rightBarButtonItem)
-    }
-
-    @objc func selected() {
-        if let account = Environment.current.currentUser?.account {
-            Task { [weak self] in
-                await self?.viewModel?.updateAccountMediaPath(account: account, serverUrl: self?.serverUrl ?? "")
-                self?.delegate?.select()
-            }
-        }
-    }
-
-    @objc func cancel() {
-        delegate?.cancel()
     }
 
     override func viewWillAppear(_ animated: Bool) {
 
         activityIndicator.startAnimating()
 
-        showFolderData()
+        loadFolderData()
     }
 
-    private func getRootMetadata(folderLocation: String) async -> Metadata? {
-        if let results = await viewModel?.readFolder(folderLocation, "", depth: "0"),
-           let metadata = results.metadatas.first {
-            return metadata
+    func selected() {
+        if let account = Environment.current.currentUser?.account {
+            viewModel?.updateAccountMediaPath(account: account, serverUrl: serverUrl)
         }
-        return nil
     }
 
-    private func showFolderData() {
+    func cancel() {
+        delegate?.cancel()
+    }
 
-        Task { [weak self] in
+    private func loadFolderData() {
 
-            if self?.serverUrl.isEmpty == true {
-
-                if let folderLocation = self?.viewModel?.getHomeServer(),
-                   let metadata = await self?.getRootMetadata(folderLocation: folderLocation) {
-
-                    let results = await self?.viewModel?.readFolder(folderLocation, metadata.fileId, depth: "1")
-
-                    self?.navigationItem.title = Strings.SettingsLabelNextcloud
-                    self?.metadata = metadata
-                    self?.serverUrl = folderLocation
-                    self?.metadatas = results?.metadatas ?? []
-                    self?.mediaFileCount = results?.mediaFileCount ?? 0
-
-                    self?.tableView.reloadData()
-                }
-            } else {
-                if let folderLocation = self?.serverUrl {
-
-                    if folderLocation == self?.viewModel?.getHomeServer() {
-                        self?.navigationItem.title = Strings.SettingsLabelNextcloud
-                    } else {
-                        self?.navigationItem.title = self?.metadata?.fileNameView ?? ""
-                    }
-
-                    if let fileId = self?.metadata?.fileId {
-                        let results = await self?.viewModel?.readFolder(folderLocation, fileId, depth: "1")
-                        self?.metadatas = results?.metadatas ?? []
-                        self?.mediaFileCount = results?.mediaFileCount ?? 0
-                        self?.tableView.reloadData()
-                    }
-                }
-            }
-
-            DispatchQueue.main.async { [weak self] in
-                self?.activityIndicator.stopAnimating()
-            }
+        if serverUrl.isEmpty {
+            viewModel?.readRoot()
+        } else {
+            viewModel?.readFolder(serverUrl, metadata)
         }
+    }
+
+    private func initActions() {
+
+        if navigationItem.rightBarButtonItem == nil {
+            let cancelAction = UIAction { [weak self] _ in
+                self?.cancel()
+            }
+            let item = UIBarButtonItem(title: nil, image: .init(systemName: "xmark"), primaryAction: cancelAction)
+            item.tintColor = .label
+            navigationItem.setRightBarButton(item, animated: true)
+        }
+
+        selectButton.configuration?.title = Strings.SelectAction
+
+        let selectAction = UIAction { [weak self] _ in
+            self?.selected()
+        }
+        selectButton.addAction(selectAction, for: .touchUpInside)
     }
 }
 
@@ -219,5 +186,40 @@ extension PickerController: UITableViewDataSource {
         cell.contentConfiguration = config
 
         return cell
+    }
+}
+
+extension PickerController: PickerViewModelDelegate {
+
+    func mediaPathUpdated() {
+        delegate?.select()
+    }
+
+    func rootLoaded(metadata: Metadata, folderLocation: String, metadatas: [Metadata]?, mediaFileCount: Int?) {
+
+        navigationItem.title = Strings.SettingsLabelNextcloud
+
+        self.metadata = metadata
+        self.serverUrl = folderLocation
+        self.metadatas = metadatas ?? []
+        self.mediaFileCount = mediaFileCount ?? 0
+
+        tableView.reloadData()
+        activityIndicator.stopAnimating()
+    }
+
+    func folderLoaded(isHome: Bool, metadatas: [Metadata]?, mediaFileCount: Int?) {
+
+        if isHome {
+            navigationItem.title = Strings.SettingsLabelNextcloud
+        } else {
+            navigationItem.title = metadata?.fileNameView ?? ""
+        }
+
+        self.metadatas = metadatas ?? []
+        self.mediaFileCount = mediaFileCount ?? 0
+
+        tableView.reloadData()
+        activityIndicator.stopAnimating()
     }
 }

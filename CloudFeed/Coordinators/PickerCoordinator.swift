@@ -42,7 +42,7 @@ final class PickerCoordinator {
     func start(_ serverUrl: String? = nil) {
         let pickerNavigationController = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(identifier: "PickerNavController") as UINavigationController
         if let picker = pickerNavigationController.viewControllers[0] as? PickerController {
-            picker.viewModel = PickerViewModel(coordinator: self, dataService: dataService)
+            picker.viewModel = PickerViewModel(coordinator: self, dataService: dataService, delegate: picker)
             picker.delegate = self
             navigationController.present(pickerNavigationController, animated: true)
         }
@@ -50,7 +50,7 @@ final class PickerCoordinator {
 
     func open(_ serverUrl: String, _ metadata: Metadata) {
         let picker = UIStoryboard(name: "Settings", bundle: nil).instantiateViewController(identifier: "PickerController") as PickerController
-        picker.viewModel = PickerViewModel(coordinator: self, dataService: dataService)
+        picker.viewModel = PickerViewModel(coordinator: self, dataService: dataService, delegate: picker)
         picker.serverUrl = serverUrl
         picker.metadata = metadata
         picker.delegate = self
