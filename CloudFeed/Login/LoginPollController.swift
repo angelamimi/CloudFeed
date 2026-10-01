@@ -41,8 +41,16 @@ final class LoginPollController: UIViewController {
         cancelButton.titleLabel?.text = Strings.CancelAction
         retryButton.titleLabel?.text = Strings.RetryAction
 
-        retryButton.addTarget(self, action: #selector(retryLogin), for: .touchUpInside)
-        cancelButton.addTarget(self, action: #selector(cancelLogin), for: .touchUpInside)
+        let retryAction = UIAction { [weak self] _ in
+            self?.retryLogin()
+        }
+
+        let cancelAction = UIAction { [weak self] _ in
+            self?.cancelLogin()
+        }
+
+        retryButton.addAction(retryAction, for: .touchUpInside)
+        cancelButton.addAction(cancelAction, for: .touchUpInside)
 
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
             DispatchQueue.main.async { [weak self] in
@@ -63,13 +71,13 @@ final class LoginPollController: UIViewController {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
 
-    @objc private func retryLogin() {
+    private func retryLogin() {
         if let login = self.login, let url = URL(string: login) {
             UIApplication.shared.open(url)
         }
     }
 
-    @objc private func cancelLogin() {
+    private func cancelLogin() {
         navigationController?.popViewController(animated: true)
     }
 
