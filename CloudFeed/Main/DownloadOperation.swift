@@ -64,7 +64,9 @@ nonisolated class DownloadOperation: AsyncOperation, @unchecked Sendable {
             }
 
             if let metadata = self?.metadata {
-                self?.delegate?.downloaded(metadata: metadata)
+                await MainActor.run { [weak self] in
+                    self?.delegate?.downloaded(metadata: metadata)
+                }
             }
 
             self?.finish()

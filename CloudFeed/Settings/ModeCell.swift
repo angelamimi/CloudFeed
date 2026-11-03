@@ -21,12 +21,6 @@
 
 import UIKit
 
-@MainActor
-protocol ModeDelegate: AnyObject {
-    func selectionChangedDark()
-    func selectionChangedLight()
-}
-
 class ModeCell: UITableViewCell {
 
     @IBOutlet weak var darkCheckImageView: UIImageView!
@@ -36,7 +30,7 @@ class ModeCell: UITableViewCell {
     @IBOutlet weak var darkStackView: UIStackView!
     @IBOutlet weak var lightStackView: UIStackView!
 
-    weak var delegate: ModeDelegate?
+    var style: UIUserInterfaceStyle?
 
     nonisolated override func awakeFromNib() {
         super.awakeFromNib()
@@ -46,34 +40,25 @@ class ModeCell: UITableViewCell {
         }
     }
 
-    func setStyle(style: UIUserInterfaceStyle?) {
-        if style == nil {
+    func setStyle(style: UIUserInterfaceStyle) {
 
-        } else if style == .light {
+        self.style = style
+
+        if style == .light {
             setLightChecked()
+            accessibilityLabel = Strings.SettingsLabelLight
         } else if style == .dark {
             setDarkChecked()
+            accessibilityLabel = Strings.SettingsLabelDark
         }
     }
 
-    @objc
-    private func lightStackViewTapped() {
-        setLightChecked()
-        delegate?.selectionChangedLight()
-    }
-
-    @objc
-    private func darkStackViewTapped() {
-        setDarkChecked()
-        delegate?.selectionChangedDark()
-    }
-
-    private func setDarkChecked() {
+    func setDarkChecked() {
         darkCheckImageView.image = UIImage(systemName: "checkmark.circle.fill")
         lightCheckImageView.image = UIImage(systemName: "circle")
     }
 
-    private func setLightChecked() {
+    func setLightChecked() {
         darkCheckImageView.image = UIImage(systemName: "circle")
         lightCheckImageView.image = UIImage(systemName: "checkmark.circle.fill")
     }
@@ -83,18 +68,8 @@ class ModeCell: UITableViewCell {
         darkLabel.text = Strings.SettingsLabelDark
         lightLabel.text = Strings.SettingsLabelLight
 
-        darkStackView.isAccessibilityElement = true
-        darkStackView.accessibilityTraits = [.button]
-        darkStackView.accessibilityLabel = Strings.SettingsLabelDark
-
-        lightStackView.isAccessibilityElement = true
-        lightStackView.accessibilityTraits = [.button]
-        lightStackView.accessibilityLabel = Strings.SettingsLabelLight
-
-        let lightTap = UITapGestureRecognizer(target: self, action: #selector(lightStackViewTapped))
-        lightStackView.addGestureRecognizer(lightTap)
-
-        let darkTap = UITapGestureRecognizer(target: self, action: #selector(darkStackViewTapped))
-        darkStackView.addGestureRecognizer(darkTap)
+        isAccessibilityElement = true
+        accessibilityTraits = [.button]
+        accessibilityHint = Strings.SettingsDisplayModeToggleHint
     }
 }

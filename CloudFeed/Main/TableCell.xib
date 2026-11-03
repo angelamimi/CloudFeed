@@ -17,7 +17,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="635" height="664"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="lWU-3t-mgD">
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="lWU-3t-mgD">
                         <rect key="frame" x="0.0" y="0.0" width="635" height="703.66666666666663"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="IVU-RH-TYQ" userLabel="Owner Stack View">
@@ -30,7 +30,7 @@
                                         </accessibility>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="40" identifier="Owner Image Height" id="JEn-Sz-QHS"/>
-                                            <constraint firstAttribute="width" constant="40" id="z2W-C7-rCd"/>
+                                            <constraint firstAttribute="width" constant="40" identifier="Owner Image Width" id="z2W-C7-rCd"/>
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" text="Label" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Mg-Qh-dt8">
@@ -42,7 +42,7 @@
                                 </subviews>
                                 <edgeInsets key="layoutMargins" top="8" left="8" bottom="0.0" right="8"/>
                             </stackView>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="3d8-WV-mtd" customClass="SizingImageView" customModule="CloudFeed" customModuleProvider="target">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="3d8-WV-mtd" customClass="SizingImageView" customModule="CloudFeed" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="56" width="635" height="400"/>
                                 <color key="tintColor" systemColor="labelColor"/>
                                 <accessibility key="accessibilityConfiguration">
@@ -152,7 +152,7 @@
                                                     </mask>
                                                 </variation>
                                             </imageView>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="998" verticalCompressionResistancePriority="1000" text="" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QXX-ga-OpO">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" text="" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QXX-ga-OpO">
                                                 <rect key="frame" x="28" y="2.3333333333333703" width="542.33333333333337" height="15.666666666666664"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                                 <nil key="textColor"/>
@@ -239,7 +239,7 @@
                     <constraint firstItem="KWo-7n-1wf" firstAttribute="centerX" secondItem="PQt-7l-m33" secondAttribute="centerX" id="HhC-YB-Kss"/>
                     <constraint firstItem="lWU-3t-mgD" firstAttribute="leading" secondItem="JZa-ks-yJd" secondAttribute="leading" identifier="Content Stack View Leading" id="JF2-90-cXa"/>
                     <constraint firstItem="lWU-3t-mgD" firstAttribute="top" secondItem="JZa-ks-yJd" secondAttribute="top" identifier="Content Stack View Top" id="KqS-Oz-zZY"/>
-                    <constraint firstAttribute="trailing" secondItem="lWU-3t-mgD" secondAttribute="trailing" identifier="Content Stack View Trailing" id="ON6-tC-VMn"/>
+                    <constraint firstItem="lWU-3t-mgD" firstAttribute="trailing" secondItem="JZa-ks-yJd" secondAttribute="trailing" identifier="Content Stack View Trailing" id="ON6-tC-VMn"/>
                     <constraint firstItem="JBK-cc-mvx" firstAttribute="centerX" secondItem="3d8-WV-mtd" secondAttribute="centerX" id="WaC-OH-pqm"/>
                     <constraint firstItem="3d8-WV-mtd" firstAttribute="top" secondItem="KWo-7n-1wf" secondAttribute="top" constant="-8" id="boY-3t-RMi"/>
                     <constraint firstItem="JBK-cc-mvx" firstAttribute="centerY" secondItem="3d8-WV-mtd" secondAttribute="centerY" id="cWA-xk-vT2"/>

@@ -67,7 +67,9 @@ nonisolated class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
             }
 
             if let objId = self?.objectId {
-                self?.delegate?.avatarDownloaded(id: objId)
+                await MainActor.run { [weak self] in
+                    self?.delegate?.avatarDownloaded(id: objId)
+                }
             }
 
             self?.finish()

@@ -3106,6 +3106,17 @@
         }
       }
     },
+    "Settings.Display.ModeToggleHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to toggle display mode"
+          }
+        }
+      }
+    },
     "Settings.Item.Acknowledgements" : {
       "localizations" : {
         "en" : {

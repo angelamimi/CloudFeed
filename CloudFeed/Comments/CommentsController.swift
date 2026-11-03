@@ -24,6 +24,7 @@ import UIKit
 class CommentsController: UIViewController {
 
     @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var titleStackView: UIStackView!
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var profileImageView: UIImageView!
@@ -31,13 +32,17 @@ class CommentsController: UIViewController {
     @IBOutlet weak var addCommentStackView: UIStackView!
     @IBOutlet weak var noCommentsStackView: UIStackView!
     @IBOutlet weak var noCommentsStackViewCenterYConstraint: NSLayoutConstraint!
+    @IBOutlet weak var noCommentsImageView: UIImageView!
     @IBOutlet weak var noCommentsLabel: UILabel!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityIndicatorCenterYConstraint: NSLayoutConstraint!
     @IBOutlet weak var errorStackView: UIStackView!
     @IBOutlet weak var errorLabel: UILabel!
+    @IBOutlet weak var submitButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
+    @IBOutlet weak var actionStackView: UIStackView!
     @IBOutlet weak var bottomStackViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var bottomStackView: UIStackView!
 
     @IBAction func viewTap(_ gestureRecognizer: UITapGestureRecognizer) {
         dismissKeyboard()
@@ -51,24 +56,53 @@ class CommentsController: UIViewController {
     var metadata: Metadata?
     var viewModel: CommentsViewModel?
 
-    private let bottomMargin: CGFloat = 16
+    private let isPad = UIDevice.current.userInterfaceIdiom == .pad
+    private var isTransitioning = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         initControls()
 
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: nil, using: keyboardWillShow(notification:))
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: nil, using: keyboardWillHide(notification:))
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { [weak self] notification in
+            self?.keyboardWillShow(notification: notification)
+        }
+
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillChangeFrameNotification, object: nil, queue: .main) { [weak self] notification in
+            self?.keyboardWillChangeFrame(notification: notification)
+        }
+
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { [weak self] notification in
+            self?.keyboardWillHide(notification: notification)
+        }
+
+        setNoCommentsViewVisibility()
 
         viewModel?.initDatasource(tableView)
 
         viewModel?.loadComments()
         loadAvatar()
+
+        closeButton.configuration?.contentInsets = .zero
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        isTransitioning = true
+
+        coordinator.animate(alongsideTransition: { [weak self] _ in
+            self?.noCommentsStackView.isHidden = true
+            self?.errorStackView.isHidden = true
+        }, completion: { [weak self] _ in
+            self?.isTransitioning = false
+            self?.handleViewDidTransition()
+        })
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
@@ -79,34 +113,30 @@ class CommentsController: UIViewController {
     func endEdit() {
         editCommentId = nil
         commentTextField.text = ""
-        cancelButton.isHidden = true
+        actionStackView.isHidden = true
         errorStackView.isHidden = true
         resignFirstResponder()
     }
 
     private func initControls() {
 
-        titleLabel.text = Strings.CommentsTitle
+        let cancelAction = UIAction { [weak self] _ in self?.endEdit() }
+        let closeAction = UIAction { [weak self] _ in self?.close() }
+        let submitAction = UIAction { [weak self] _ in self?.submitComment() }
 
-        let cancelAction = UIAction { [weak self] _ in
-            self?.endEdit()
-        }
-
-        cancelButton.isHidden = true
-        cancelButton.configuration?.title = Strings.CancelAction
         cancelButton.addAction(cancelAction, for: .touchUpInside)
-
-        let closeAction = UIAction { [weak self] _ in
-            self?.close()
-        }
-
         closeButton.addAction(closeAction, for: .touchUpInside)
+        submitButton.addAction(submitAction, for: .touchUpInside)
 
         initTextField()
 
         profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
         profileImageView.layer.masksToBounds = true
 
+        titleLabel.text = Strings.CommentsTitle
+        cancelButton.configuration?.title = Strings.CancelAction
+
+        actionStackView.isHidden = true
         noCommentsLabel.text = Strings.CommentsEmpty
         noCommentsStackView.isHidden = true
         tableView.isHidden = true
@@ -114,8 +144,6 @@ class CommentsController: UIViewController {
 
         errorStackView.isHidden = true
         errorStackView.isUserInteractionEnabled = true
-
-        setBottomMargin()
     }
 
     private func limitText() {
@@ -168,6 +196,12 @@ class CommentsController: UIViewController {
         commentTextField.layer.cornerCurve = .continuous
     }
 
+    private func handleViewDidTransition() {
+        if noCommentsStackView.isHidden == false {
+            setNoCommentsViewVisibility()
+        }
+    }
+
     private func handleCommenterAvatarLoaded() {
         if let userAccount = Environment.current.currentUser,
            let server = Environment.current.currentServer,
@@ -191,14 +225,14 @@ class CommentsController: UIViewController {
 
     private func handleCommentUpdateComplete(error: Bool) {
 
-        if error {
+        //if error {
             activityIndicator.isHidden = true
             errorLabel.text = Strings.CommentsErrorUpdate
             errorStackView.isHidden = false
-        } else {
+        /*} else {
             errorStackView.isHidden = true
             viewModel?.loadComments()
-        }
+        }*/
     }
 
     private func handleCommentDeleteComplete(error: Bool) {
@@ -221,7 +255,7 @@ class CommentsController: UIViewController {
         commentTextField.text = viewModel?.getCommentById(commentId)
         commentTextField.becomeFirstResponder()
         editCommentId = commentId
-        cancelButton.isHidden = false
+        actionStackView.isHidden = false
         errorStackView.isHidden = true
     }
 
@@ -237,7 +271,7 @@ class CommentsController: UIViewController {
         } else if count == 0 {
             tableView.isHidden = true
             titleLabel.text = "\(Strings.CommentsTitle)(0)"
-            noCommentsStackView.isHidden = false
+            setNoCommentsViewVisibility()
         } else {
             tableView.isHidden = false
             noCommentsStackView.isHidden = true
@@ -248,7 +282,7 @@ class CommentsController: UIViewController {
             } else {
                 editCommentId = nil
                 errorStackView.isHidden = true
-                cancelButton.isHidden = true
+                actionStackView.isHidden = true
             }
 
             titleLabel.text = "\(Strings.CommentsTitle)(\(count!))"
@@ -261,57 +295,133 @@ class CommentsController: UIViewController {
 
     nonisolated private func keyboardWillShow(notification: Notification) {
 
-        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
-           let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
-           let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
+        if let screen = notification.object as? UIScreen,
+           let endKeyboardFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
+           let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue,
+           let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt {
 
             Task { @MainActor [weak self] in
-                self?.handleKeyboardWillShow(keyboardFrame: keyboardFrame, animationDuration: animationDuration, animationCurve: animationCurve)
+                guard self?.isTransitioning == false else { return }
+                self?.handleKeyboardWillShow(screen: screen, endKeyboardFrame: endKeyboardFrame, animationDuration: animationDuration, animationCurve: animationCurve)
+            }
+        }
+    }
+
+    nonisolated private func keyboardWillChangeFrame(notification: Notification) {
+
+        if let screen = notification.object as? UIScreen,
+           let beginKeyboardFrame = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue,
+           let endKeyboardFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
+           let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue,
+           let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt {
+
+            Task { @MainActor [weak self] in
+                self?.handleKeyboardWillChangeFrame(screen: screen, beginKeyboardFrame: beginKeyboardFrame, endKeyboardFrame: endKeyboardFrame, animationDuration: animationDuration, animationCurve: animationCurve)
             }
         }
     }
 
     nonisolated private func keyboardWillHide(notification: Notification) {
 
-        if let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber,
-           let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber {
+        if let screen = notification.object as? UIScreen,
+           let beginKeyboardFrame = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue,
+           let endKeyboardFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
+           let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue,
+           let animationCurve = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt {
 
             Task { @MainActor [weak self] in
-                self?.handleKeyboardWillHide(animationDuration: animationDuration, animationCurve: animationCurve)
+                guard self?.isTransitioning == false else { return }
+                self?.handleKeyboardWillHide(screen: screen, beginKeyboardFrame: beginKeyboardFrame, endKeyboardFrame: endKeyboardFrame, animationDuration: animationDuration, animationCurve: animationCurve)
             }
         }
     }
 
-    private func handleKeyboardWillShow(keyboardFrame: CGRect, animationDuration: NSNumber, animationCurve: NSNumber) {
+    private func handleKeyboardWillShow(screen: UIScreen, endKeyboardFrame: CGRect, animationDuration: Double, animationCurve: UInt) {
 
-        guard bottomStackViewBottomConstraint.constant <= bottomMargin else { return }
+        let convertedEndKeyboardFrame = screen.coordinateSpace.convert(endKeyboardFrame, to: view)
+        let overlap = max(0, view.bounds.maxY - convertedEndKeyboardFrame.minY)
 
-        let offset = -(keyboardFrame.height / 2)
+        if availableTopSpace() > convertedEndKeyboardFrame.minY {
+            return
+        }
 
-        noCommentsStackViewCenterYConstraint.constant = offset
-        activityIndicatorCenterYConstraint.constant = offset
-        bottomStackViewBottomConstraint.constant = keyboardFrame.height
-
-        let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
-
-        UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options,
-                       animations: { [weak self] in self?.view.layoutIfNeeded() })
+        if moveConstraints(overlap: overlap) {
+            animateLayout(animationDuration: animationDuration, animationCurve: animationCurve)
+        } else if tableView.isHidden && noCommentsStackView.isHidden {
+            setNoCommentsViewVisibility()
+        }
     }
 
-    private func handleKeyboardWillHide(animationDuration: NSNumber, animationCurve: NSNumber) {
+    private func handleKeyboardWillChangeFrame(screen: UIScreen, beginKeyboardFrame: CGRect, endKeyboardFrame: CGRect, animationDuration: Double, animationCurve: UInt) {
 
-        guard bottomStackViewBottomConstraint.constant > bottomMargin else { return }
+        let convertedEndKeyboardFrame = screen.coordinateSpace.convert(endKeyboardFrame, to: view)
+        var overlap = max(0, view.bounds.maxY - convertedEndKeyboardFrame.minY)
 
-        noCommentsStackViewCenterYConstraint.constant = 0
-        activityIndicatorCenterYConstraint.constant = 0
+        if convertedEndKeyboardFrame.height == 0 {
+            return
+        } else if availableTopSpace() > convertedEndKeyboardFrame.minY {
+            if isTransitioning {
+                overlap = view.frame.height / 2
+            } else {
+                return
+            }
+        }
 
-        setBottomMargin()
+        if moveConstraints(overlap: overlap) {
+            noCommentsStackView.isHidden = true
+            animateLayout(animationDuration: animationDuration, animationCurve: animationCurve)
+        }
+    }
 
-        let options = UIView.AnimationOptions(rawValue: animationCurve.uintValue)
+    private func handleKeyboardWillHide(screen: UIScreen, beginKeyboardFrame: CGRect, endKeyboardFrame: CGRect, animationDuration: Double, animationCurve: UInt) {
 
-        UIView.animate(withDuration: TimeInterval(animationDuration.doubleValue), delay: 0, options: options) { [weak self] in
+        let convertedBeginKeyboardFrame = screen.coordinateSpace.convert(beginKeyboardFrame, to: view)
+        let convertedEndKeyboardFrame = screen.coordinateSpace.convert(endKeyboardFrame, to: view)
+
+        if convertedEndKeyboardFrame.height != convertedBeginKeyboardFrame.height {
+            return //keyboard is still transitioning. sometimes called after rotate. return
+        }
+
+        noCommentsStackViewCenterYConstraint.constant = -16
+        activityIndicatorCenterYConstraint.constant = -16
+        bottomStackViewBottomConstraint.constant = 0
+
+        let options = UIView.AnimationOptions(rawValue: animationCurve << 16)
+
+        UIView.animate(withDuration: TimeInterval(animationDuration == 0 ? 0.2 : animationDuration), delay: .zero, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: options) { [weak self] in
             self?.view.layoutIfNeeded()
         }
+    }
+
+    private func moveConstraints(overlap: CGFloat) -> Bool {
+
+        let diff = ((getCommentHeight() + 32) - getTitleHeight()) / 2
+
+        if overlap == 0 {
+            guard bottomStackViewBottomConstraint.constant != 0 else { return false }
+            noCommentsStackViewCenterYConstraint.constant = -16
+            activityIndicatorCenterYConstraint.constant = -16
+            bottomStackViewBottomConstraint.constant = 0
+        } else {
+            guard bottomStackViewBottomConstraint.constant != overlap else { return false }
+            let offset = -(overlap / 2)
+            noCommentsStackViewCenterYConstraint.constant = offset - diff
+            activityIndicatorCenterYConstraint.constant = offset - diff
+            bottomStackViewBottomConstraint.constant = overlap
+        }
+
+        return true
+    }
+
+    private func animateLayout(animationDuration: Double, animationCurve: UInt) {
+
+        let options = UIView.AnimationOptions(rawValue: animationCurve << 16)
+        let duration = animationDuration == 0 ? 0.2 : animationDuration
+
+        UIView.animate(withDuration: TimeInterval(duration), delay: .zero,
+                       usingSpringWithDamping: 1, initialSpringVelocity: 1, options: options,
+                       animations: { [weak self] in self?.view.layoutIfNeeded() },
+                       completion: { [weak self] _ in self?.setNoCommentsViewVisibility() })
     }
 
     private func startActivityIndicator() {
@@ -319,12 +429,68 @@ class CommentsController: UIViewController {
         activityIndicator.isHidden = false
     }
 
-    private func setBottomMargin() {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            bottomStackViewBottomConstraint.constant = bottomMargin
+    private func setNoCommentsViewVisibility(bottomStackViewTop: CGFloat? = nil) {
+
+        guard !isTransitioning else { return }
+
+        let emptyItemsHeight = noCommentsLabel.frame.height + 8 + noCommentsImageView.frame.height
+        let noCommentsStackViewIsHidden = tableView.isHidden && errorStackView.isHidden ? false : true
+        let availableSpace: CGFloat
+
+        if bottomStackViewTop == nil {
+            availableSpace = bottomStackView.frame.minY - titleStackView.frame.maxY
         } else {
-            bottomStackViewBottomConstraint.constant = 0
+            availableSpace = bottomStackViewTop! - titleStackView.frame.maxY
         }
+
+        if availableSpace <= noCommentsLabel.frame.height {
+            noCommentsStackView.isHidden = true
+        } else if availableSpace <= emptyItemsHeight {
+            noCommentsStackView.isHidden = noCommentsStackViewIsHidden
+            noCommentsImageView.isHidden = true
+        } else {
+            noCommentsStackView.isHidden = noCommentsStackViewIsHidden
+            noCommentsImageView.isHidden = false
+        }
+    }
+
+    private func availableTopSpace() -> CGFloat {
+        let titleHeight = getTitleHeight()
+        let bottomHeight = getCommentHeight()
+        let height = titleHeight + bottomHeight
+        return height //lose size during transition so can't rely on view heights directly
+    }
+
+    private func getTitleHeight() -> CGFloat {
+        let lineHeight = titleLabel.font.lineHeight
+        let titleHeight = lineHeight + 24 + 16
+        return max(titleHeight, titleStackView.frame.height)
+    }
+
+    private func getCommentHeight() -> CGFloat {
+        if let lineHeight = commentTextField.font?.lineHeight {
+            let bottomHeight = max(lineHeight, commentTextField.frame.height)
+            return max(bottomHeight, commentTextField.frame.height)
+        }
+        return commentTextField.frame.height
+    }
+
+    private func submitComment() {
+        guard let text = commentTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines), text.isEmpty == false else { return }
+        submitComment(text)
+    }
+
+    private func submitComment(_ text: String) {
+
+        if let commentId = editCommentId {
+            startActivityIndicator()
+            updateComment(commentId, text)
+        } else {
+            startActivityIndicator()
+            addComment(text)
+        }
+
+        errorStackView.isHidden = true
     }
 }
 
@@ -340,15 +506,7 @@ extension CommentsController: UITextFieldDelegate {
 
         guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), text.isEmpty == false else { return false }
 
-        if let commentId = editCommentId {
-            startActivityIndicator()
-            updateComment(commentId, textField.text)
-        } else {
-            startActivityIndicator()
-            addComment(textField.text)
-        }
-
-        errorStackView.isHidden = true
+        submitComment(text)
 
         return true
     }

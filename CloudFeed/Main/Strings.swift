@@ -83,6 +83,7 @@ extension Strings {
     public static let SettingsLabelQuotaTotalUnknown = NSLocalizedString("Settings.Label.QuotaTotalUnknown", comment: "")
     public static let SettingsLabelQuotaTotalUnlimited = NSLocalizedString("Settings.Label.QuotaTotalUnlimited", comment: "")
     public static let SettingsMenuAddAccount = NSLocalizedString("Settings.Menu.AddAccount", comment: "")
+    public static let SettingsDisplayModeToggleHint = NSLocalizedString("Settings.Display.ModeToggleHint", comment: "")
 
     //Profile
     public static let ProfileNavTitle = NSLocalizedString("Profile.Nav.Title", comment: "")

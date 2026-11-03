@@ -62,6 +62,10 @@ extension MediaCoordinator {
 
         let controller = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "CommentsController") as CommentsController
 
+        if #available(iOS 26.1, *) { //forces an opaque background rather than glass effect
+            controller.presentationController?.backgroundEffect = UIColorEffect(color: .systemBackground)
+        }
+
         if let sheet = controller.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
             sheet.preferredCornerRadius = 16

@@ -96,6 +96,11 @@ class TableCell: UITableViewCell {
         }
     }
 
+    override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
+        contentStackView.layoutIfNeeded() //wasn't following cell width on rotation. force layout.
+        return super.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: horizontalFittingPriority, verticalFittingPriority: verticalFittingPriority)
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
 
