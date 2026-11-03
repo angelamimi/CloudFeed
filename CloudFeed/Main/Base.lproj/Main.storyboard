@@ -444,21 +444,22 @@
                                         <rect key="frame" x="0.0" y="139" width="393" height="50"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aue-Ou-Y1P">
-                                                <rect key="frame" x="16" y="0.0" width="24" height="50"/>
+                                                <rect key="frame" x="16" y="0.0" width="48" height="50"/>
                                                 <color key="tintColor" systemColor="labelColor"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain">
-                                                    <directionalEdgeInsets key="contentInsets" top="0.0" leading="0.0" bottom="0.0" trailing="24"/>
+                                                    <directionalEdgeInsets key="contentInsets" top="0.0" leading="48" bottom="0.0" trailing="0.0"/>
                                                 </buttonConfiguration>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K1M-9h-QWm">
-                                                <rect key="frame" x="347.33333333333331" y="8" width="45.666666666666686" height="34.333333333333336"/>
-                                                <color key="tintColor" systemColor="labelColor"/>
+                                                <rect key="frame" x="342.66666666666669" y="8" width="34.333333333333314" height="34.333333333333336"/>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <color key="tintColor" systemColor="tintColor"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="plain" image="arrow.up" catalog="system"/>
+                                                <buttonConfiguration key="configuration" style="tinted" image="arrow.right" catalog="system" cornerStyle="capsule"/>
                                             </button>
                                         </subviews>
-                                        <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="0.0"/>
+                                        <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
                                     </stackView>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -536,7 +537,7 @@
         <segue reference="Oc2-G2-8qL"/>
     </inferredMetricsTieBreakers>
     <resources>
-        <image name="arrow.up" catalog="system" width="114" height="128"/>
+        <image name="arrow.right" catalog="system" width="128" height="99"/>
         <image name="calendar" catalog="system" width="128" height="111"/>
         <image name="exclamationmark.circle" catalog="system" width="128" height="128"/>
         <image name="person.crop.circle" catalog="system" width="128" height="128"/>
@@ -556,6 +557,9 @@
         </systemColor>
         <systemColor name="systemWhiteColor">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="tintColor">
+            <color red="0.0" green="0.53333333329999999" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

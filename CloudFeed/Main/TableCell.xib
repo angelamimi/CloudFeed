@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="25098" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="25408" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="25073"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="25407"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -235,23 +235,17 @@
                     </activityIndicatorView>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="KWo-7n-1wf" firstAttribute="top" secondItem="PQt-7l-m33" secondAttribute="bottom" constant="16" id="8ar-bP-Fnp"/>
+                    <constraint firstItem="KWo-7n-1wf" firstAttribute="top" secondItem="3d8-WV-mtd" secondAttribute="top" constant="8" id="HNa-0B-lQc"/>
                     <constraint firstItem="KWo-7n-1wf" firstAttribute="centerX" secondItem="PQt-7l-m33" secondAttribute="centerX" id="HhC-YB-Kss"/>
                     <constraint firstItem="lWU-3t-mgD" firstAttribute="leading" secondItem="JZa-ks-yJd" secondAttribute="leading" identifier="Content Stack View Leading" id="JF2-90-cXa"/>
                     <constraint firstItem="lWU-3t-mgD" firstAttribute="top" secondItem="JZa-ks-yJd" secondAttribute="top" identifier="Content Stack View Top" id="KqS-Oz-zZY"/>
                     <constraint firstItem="lWU-3t-mgD" firstAttribute="trailing" secondItem="JZa-ks-yJd" secondAttribute="trailing" identifier="Content Stack View Trailing" id="ON6-tC-VMn"/>
                     <constraint firstItem="JBK-cc-mvx" firstAttribute="centerX" secondItem="3d8-WV-mtd" secondAttribute="centerX" id="WaC-OH-pqm"/>
-                    <constraint firstItem="3d8-WV-mtd" firstAttribute="top" secondItem="KWo-7n-1wf" secondAttribute="top" constant="-8" id="boY-3t-RMi"/>
                     <constraint firstItem="JBK-cc-mvx" firstAttribute="centerY" secondItem="3d8-WV-mtd" secondAttribute="centerY" id="cWA-xk-vT2"/>
                     <constraint firstItem="2MC-uv-poa" firstAttribute="bottom" secondItem="3d8-WV-mtd" secondAttribute="bottom" constant="-8" id="ir0-G7-e9m"/>
                     <constraint firstItem="lWU-3t-mgD" firstAttribute="bottom" secondItem="JZa-ks-yJd" secondAttribute="bottom" priority="999" identifier="Content Stack View Bottom" id="jwl-bR-i14"/>
                     <constraint firstItem="2MC-uv-poa" firstAttribute="leading" secondItem="3d8-WV-mtd" secondAttribute="leading" constant="8" id="k2k-hc-rt3"/>
                 </constraints>
-                <variation key="default">
-                    <mask key="constraints">
-                        <exclude reference="boY-3t-RMi"/>
-                    </mask>
-                </variation>
             </tableViewCellContentView>
             <connections>
                 <outlet property="actionStackView" destination="BJQ-3V-Th6" id="qI4-Af-qe8"/>

@@ -82,8 +82,6 @@ class CommentsController: UIViewController {
 
         viewModel?.loadComments()
         loadAvatar()
-
-        closeButton.configuration?.contentInsets = .zero
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
@@ -144,6 +142,11 @@ class CommentsController: UIViewController {
 
         errorStackView.isHidden = true
         errorStackView.isUserInteractionEnabled = true
+
+        submitButton.layer.cornerRadius = submitButton.frame.size.width / 2
+        submitButton.layer.masksToBounds = true
+
+        closeButton.configuration?.contentInsets = .zero
     }
 
     private func limitText() {
@@ -225,14 +228,14 @@ class CommentsController: UIViewController {
 
     private func handleCommentUpdateComplete(error: Bool) {
 
-        //if error {
+        if error {
             activityIndicator.isHidden = true
             errorLabel.text = Strings.CommentsErrorUpdate
             errorStackView.isHidden = false
-        /*} else {
+        } else {
             errorStackView.isHidden = true
             viewModel?.loadComments()
-        }*/
+        }
     }
 
     private func handleCommentDeleteComplete(error: Bool) {
