@@ -1112,17 +1112,13 @@ extension MediaViewModel: TableCellDelegate {
 extension MediaViewModel: DownloadPreviewOperationDelegate {
 
     func previewDownloaded(metadata: Metadata) {
-        DispatchQueue.main.async { [weak self] in
-            self?.handlePreviewDownloaded(metadata)
-        }
+        handlePreviewDownloaded(metadata)
     }
 }
 
 extension MediaViewModel: DownloadAvatarOperationDelegate {
 
     func avatarDownloaded(id: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.handleAvatarDownloaded(id)
-        }
+        handleAvatarDownloaded(id)
     }
 }

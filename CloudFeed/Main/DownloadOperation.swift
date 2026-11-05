@@ -82,7 +82,9 @@ nonisolated class DownloadOperation: AsyncOperation, @unchecked Sendable {
 
     private func download() async {
         await dataService?.download(account: account!, metadata: metadata!, progressHandler: { [weak self] metadata, progress in
-            self?.delegate?.progress(metadata: metadata, progress: progress)
+            Task { @MainActor [weak self] in
+                self?.delegate?.progress(metadata: metadata, progress: progress)
+            }
         })
     }
 }

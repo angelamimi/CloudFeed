@@ -53,7 +53,7 @@ final class LoginPollController: UIViewController {
         cancelButton.addAction(cancelAction, for: .touchUpInside)
 
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            DispatchQueue.main.async { [weak self] in
+            Task { @MainActor [weak self] in
                 self?.willEnterForegroundNotification()
             }
         }

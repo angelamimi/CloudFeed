@@ -77,9 +77,7 @@ class DownloadViewModel: NSObject {
 extension DownloadViewModel: DownloadOperationDelegate {
 
     func progress(metadata: Metadata, progress: Progress) {
-        DispatchQueue.main.async { [weak self] in
-            self?.delegate?.progressUpdated(progress.fractionCompleted)
-        }
+        delegate?.progressUpdated(progress.fractionCompleted)
     }
 
     func downloaded(metadata: Metadata) {

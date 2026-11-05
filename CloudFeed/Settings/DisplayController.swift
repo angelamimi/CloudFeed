@@ -49,7 +49,7 @@ final class DisplayController: UIViewController {
 
     private func initObservers() {
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            DispatchQueue.main.async { [weak self] in
+            Task { @MainActor [weak self] in
                 self?.willEnterForegroundNotification()
             }
         }

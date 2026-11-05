@@ -139,14 +139,10 @@ class ShareViewModel: NSObject {
 extension ShareViewModel: DownloadOperationDelegate {
 
     func progress(metadata: Metadata, progress: Progress) {
-        DispatchQueue.main.async { [weak self] in
-            self?.handleProgress(metadata: metadata, progress: progress)
-        }
+        handleProgress(metadata: metadata, progress: progress)
     }
 
     func downloaded(metadata: Metadata) {
-        DispatchQueue.main.async { [weak self] in
-            self?.handleDownloaded(metadata: metadata)
-        }
+        handleDownloaded(metadata: metadata)
     }
 }

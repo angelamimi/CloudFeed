@@ -101,7 +101,7 @@ class CollectionController: UIViewController {
 
     private func initObservers() {
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            DispatchQueue.main.async { [weak self] in
+            Task { @MainActor [weak self] in
                 self?.willEnterForegroundNotification()
             }
         }
@@ -463,18 +463,14 @@ class CollectionController: UIViewController {
     private func compactTable() {
         compactMode = true
         let menu = initMenu(allowEdit: false, allowSelect: false, layoutType: "", filterType: filterType)
-        DispatchQueue.main.async { [weak self] in
-            self?.navigationItem.rightBarButtonItems?[0].menu = menu
-        }
+        navigationItem.rightBarButtonItems?[0].menu = menu
         setMetadataVisibility(false)
     }
 
     private func expandTable() {
         compactMode = false
         let menu = initMenu(allowEdit: false, allowSelect: false, layoutType: "", filterType: filterType)
-        DispatchQueue.main.async { [weak self] in
-            self?.navigationItem.rightBarButtonItems?[0].menu = menu
-        }
+        navigationItem.rightBarButtonItems?[0].menu = menu
         setMetadataVisibility(true)
     }
 

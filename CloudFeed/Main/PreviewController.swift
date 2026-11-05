@@ -150,27 +150,7 @@ class PreviewController: UIViewController {
                 showImage()
             }
         } else {
-            loadImage(metadata: metadata)
-        }
-    }
-
-    private func loadImage(metadata: Metadata) {
-
-        Task { [weak self] in
-
-            await self?.viewModel.downloadPreview(metadata)
-
-            if let previewPath = self?.viewModel.getPreviewPath(metadata),
-               let image = UIImage(contentsOfFile: previewPath) {
-                DispatchQueue.main.async { [weak self] in
-                    self?.imageView.image = image
-                    self?.showImage()
-                }
-            } else {
-                DispatchQueue.main.async { [weak self] in
-                    self?.activityIndicator.stopAnimating() //load failed. stop the spinner
-                }
-            }
+            viewModel.downloadPreview(metadata)
         }
     }
 
@@ -178,11 +158,11 @@ class PreviewController: UIViewController {
 
         guard let account = Environment.current.currentUser?.account else { return }
 
-        Task { [weak self] in
+        Task.detached { [weak self] in
 
             guard let image = await self?.viewModel.loadImage(account: account, metadata: metadata) else { return }
 
-            DispatchQueue.main.async { [weak self] in
+            await MainActor.run { [weak self] in
                 self?.imageView.image = image
                 self?.showImage()
             }
@@ -221,5 +201,16 @@ extension PreviewController: ViewerViewModelDelegate {
 
     func playLiveVideo(url: URL) {
         handlePlayLivePhoto(url)
+    }
+
+    func previewDownloaded(metadata: Metadata, path: String?) {
+
+        if let previewPath = path,
+           let image = UIImage(contentsOfFile: previewPath) {
+            imageView.image = image
+            showImage()
+        } else {
+            activityIndicator.stopAnimating() //load failed. stop the spinner
+        }
     }
 }

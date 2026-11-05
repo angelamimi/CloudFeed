@@ -818,13 +818,13 @@ class DetailView: UIView {
         if !hasText(formattedFileSize) && !hasSize(rawSize) {
 
         } else if hasText(formattedFileSize) && !hasSize(rawSize) {
-            setFileSizeText(formattedFileSize!)
+            await setFileSizeText(formattedFileSize!)
         } else if !hasText(formattedFileSize) && hasSize(rawSize) {
             let resolution = formatResolution(rawSize!.width, rawSize!.height)
-            setFileSizeText("\(resolution) • \(abs(Int(rawSize!.width))) x \(abs(Int(rawSize!.height)))")
+            await setFileSizeText("\(resolution) • \(abs(Int(rawSize!.width))) x \(abs(Int(rawSize!.height)))")
         } else {
             let resolution = formatResolution(rawSize!.width, rawSize!.height)
-            setFileSizeText("\(resolution) • \(abs(Int(rawSize!.width))) x \(abs(Int(rawSize!.height))) • \(formattedFileSize!)")
+            await setFileSizeText("\(resolution) • \(abs(Int(rawSize!.width))) x \(abs(Int(rawSize!.height))) • \(formattedFileSize!)")
         }
     }
 
@@ -856,23 +856,19 @@ class DetailView: UIView {
     }
 
     private func setMakeModelText(_ text: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.cameraLabel.text = text
-            self?.cameraLabel.accessibilityLabel = Strings.DetailCameraDescription
-            self?.cameraLabel.accessibilityValue = text
-        }
+        cameraLabel.text = text
+        cameraLabel.accessibilityLabel = Strings.DetailCameraDescription
+        cameraLabel.accessibilityValue = text
     }
 
     private func setLensText(_ text: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.lensLabel.text = text
-            self?.lensLabel.accessibilityLabel = Strings.DetailLensDescription
-            self?.lensLabel.accessibilityValue = text
-        }
+        lensLabel.text = text
+        lensLabel.accessibilityLabel = Strings.DetailLensDescription
+        lensLabel.accessibilityValue = text
     }
 
-    nonisolated private func setFileSizeText(_ text: String) {
-        DispatchQueue.main.async { [weak self] in
+    nonisolated private func setFileSizeText(_ text: String) async {
+        await MainActor.run { [weak self] in
             self?.sizeLabel.text = text
             self?.sizeLabel.accessibilityValue = text
         }

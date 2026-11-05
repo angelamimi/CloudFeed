@@ -103,7 +103,7 @@ class LoginCoordinator: Coordinator {
 extension LoginCoordinator: CertificateDelegate {
 
     nonisolated func certificateDisplayError() {
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.showCertificateDisplayError()
         }
     }

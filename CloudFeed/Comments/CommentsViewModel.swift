@@ -314,8 +314,6 @@ extension CommentsViewModel: CommentCellDelegate {
 extension CommentsViewModel: DownloadAvatarOperationDelegate {
 
     func avatarDownloaded(id: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.handleAvatarDownloaded(id)
-        }
+        handleAvatarDownloaded(id)
     }
 }

@@ -370,9 +370,7 @@ final class FavoritesViewModel {
             }
         }
 
-        DispatchQueue.main.async { [weak self] in
-            self?.apply(snapshot: snapshot, animate: true, notify: false, bulk: true, bulkError: error)
-        }
+        apply(snapshot: snapshot, animate: true, notify: false, bulk: true, bulkError: error)
     }
 
     func refreshItems(_ refreshItems: [IndexPath]) {

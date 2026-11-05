@@ -78,10 +78,8 @@ extension ShareCoordinator {
             }
         }
 
-        DispatchQueue.main.async { [weak self] in
-            self?.navigationController.dismiss(animated: false, completion: { [weak self] in
-                self?.navigationController.present(activity, animated: true)
-            })
-        }
+        navigationController.dismiss(animated: false, completion: { [weak self] in
+            self?.navigationController.present(activity, animated: true)
+        })
     }
 }

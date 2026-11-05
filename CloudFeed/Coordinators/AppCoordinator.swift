@@ -264,13 +264,13 @@ extension AppCoordinator: NextcloudKitServiceDelegate {
     }
 
     nonisolated func serverError(error: Int) {
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.showServerError(error: error)
         }
     }
 
     nonisolated func serverCertificateUntrusted(host: String) {
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.showUntrustedWarningPrompt(host: host)
         }
     }
@@ -279,7 +279,7 @@ extension AppCoordinator: NextcloudKitServiceDelegate {
 extension AppCoordinator: CertificateDelegate {
 
     nonisolated func certificateDisplayError() {
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.showCertificateDisplayError()
         }
     }

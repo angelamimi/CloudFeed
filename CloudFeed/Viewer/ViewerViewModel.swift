@@ -32,6 +32,7 @@ protocol DownloadableCoordinator: AnyObject {
 @MainActor
 protocol ViewerViewModelDelegate: AnyObject {
     func playLiveVideo(url: URL)
+    func previewDownloaded(metadata: Metadata, path: String?)
 }
 
 @MainActor
@@ -83,9 +84,20 @@ final class ViewerViewModel {
         return dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
     }
 
-    func downloadPreview(_ metadata: Metadata) async {
+    func downloadPreview(_ metadata: Metadata) {
+
         guard let account = Environment.current.currentUser?.account else { return }
-        await dataService.downloadPreview(account: account, metadata: metadata)
+
+        Task.detached { [weak self] in
+
+            await self?.dataService.downloadPreview(account: account, metadata: metadata)
+
+            let path = self?.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
+
+            await MainActor.run { [weak self] in
+                self?.delegate?.previewDownloaded(metadata: metadata, path: path)
+            }
+        }
     }
 
     func downloadImage(metadata: Metadata) {

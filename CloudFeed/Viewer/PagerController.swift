@@ -166,9 +166,7 @@ class PagerController: UIViewController {
         }
 
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-            DispatchQueue.main.async { [weak self] in
-                self?.willEnterForegroundNotification()
-            }
+            self?.willEnterForegroundNotification()
         }
     }
 
@@ -241,7 +239,13 @@ class PagerController: UIViewController {
         statusLabel.accessibilityLabel = Strings.ViewerLabelLivePhoto
     }
 
-    private func willEnterForegroundNotification() {
+    nonisolated private func willEnterForegroundNotification() {
+        Task { @MainActor [weak self] in
+            self?.willEnterForeground()
+        }
+    }
+
+    private func willEnterForeground() {
         if isViewLoaded && view.window != nil {
             currentViewController?.willEnterForeground()
         }
@@ -465,9 +469,7 @@ class PagerController: UIViewController {
         guard presentedViewController != nil else { return }
 
         presentedViewController?.dismiss(animated: true, completion: { [weak self] in
-            DispatchQueue.main.async { [weak self] in
-                self?.presentAllDetailsPopover(metadata: metadata)
-            }
+            self?.presentAllDetailsPopover(metadata: metadata)
         })
     }
 
@@ -623,17 +625,14 @@ extension PagerController: PagerViewModelDelegate {
 
     func finishedPaging(metadata: Metadata) {
 
-        DispatchQueue.main.async { [weak self] in
+        setTypeContainerView()
 
-            self?.setTypeContainerView()
-
-            if #unavailable(iOS 26) {
-                self?.navigationItem.title = self?.getFileName(metadata)
-                self?.navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
-                self?.navigationController?.navigationBar.sizeToFit()
-            } else {
-                self?.initButtonTitle(metadata: metadata)
-            }
+        if #unavailable(iOS 26) {
+            navigationItem.title = getFileName(metadata)
+            navigationItem.prompt = metadata.creationDate.formatted(date: .abbreviated, time: .shortened)
+            navigationController?.navigationBar.sizeToFit()
+        } else {
+            initButtonTitle(metadata: metadata)
         }
 
         setMenu(isFavorite: metadata.favorite)
@@ -658,8 +657,6 @@ extension PagerController: PagerViewModelDelegate {
     }
 
     func saveFavoriteError() {
-        DispatchQueue.main.async { [weak self] in
-            self?.coordinator.showFavoriteUpdateFailedError()
-        }
+        coordinator.showFavoriteUpdateFailedError()
     }
 }
