@@ -318,9 +318,7 @@ nonisolated final class DataService: NSObject, Sendable {
                                         fileNameLocalPath: fileNameLocalPath, progressHandler: progressHandler)
     }
 
-    func downloadPreview(account: String, metadata: Metadata?) async {
-
-        guard let metadata = metadata else { return }
+    func downloadPreview(account: String, metadata: Metadata) async {
 
         let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
         let iconPath = store.getIconPath(metadata.ocId, metadata.etag)
@@ -342,14 +340,12 @@ nonisolated final class DataService: NSObject, Sendable {
         return nil
     }
 
-    func downloadVideoFrame(metadata: Metadata, url: URL, size: CGSize) async -> UIImage? {
+    func downloadVideoFrame(metadata: Metadata, url: URL, size: CGSize) async {
 
         let path = store.getImagePath(metadata.ocId, metadata.etag)
 
         if FileManager().fileExists(atPath: path) {
-            return autoreleasepool { () -> UIImage? in
-                return UIImage(contentsOfFile: path)
-            }
+
         } else {
             let image = await ImageUtility.imageFromVideo(url: url, size: size)
             try? image?.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
@@ -360,8 +356,6 @@ nonisolated final class DataService: NSObject, Sendable {
 
                 await ImageUtility.saveImageAtPaths(image: image!, previewPath: previewPath, iconPath: iconPath)
             }
-
-            return image
         }
     }
 
@@ -376,16 +370,14 @@ nonisolated final class DataService: NSObject, Sendable {
         await ImageUtility.saveImageAtPaths(image: image, previewPath: previewPath, iconPath: iconPath)
     }
 
-    func downloadVideoPreview(metadata: Metadata?) async {
+    func downloadVideoPreview(account: String, metadata: Metadata) async {
 
-        guard metadata != nil else { return }
+        let iconPath = store.getIconPath(metadata.ocId, metadata.etag)
+        let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
 
-        let iconPath = store.getIconPath(metadata!.ocId, metadata!.etag)
-        let previewPath = store.getPreviewPath(metadata!.ocId, metadata!.etag)
+        if !FileManager().fileExists(atPath: iconPath) {
 
-        if metadata!.video && !FileManager().fileExists(atPath: iconPath) {
-
-            if let url = await getDirectDownload(metadata: metadata!) {
+            if let url = await getDirectDownload(metadata: metadata, account: account) {
 
                 let preview = await ImageUtility.imageFromVideo(url: url, size: CGSize(width: Global.shared.sizePreview, height: Global.shared.sizePreview))
                 try? preview?.jpegData(compressionQuality: 1)?.write(to: URL(fileURLWithPath: previewPath))
@@ -396,17 +388,15 @@ nonisolated final class DataService: NSObject, Sendable {
         }
     }
 
-    func downloadSVGPreview(account: String, metadata: Metadata?) async {
+    func downloadSVGPreview(account: String, metadata: Metadata) async {
 
-        guard metadata != nil else { return }
+        await download(account: account, metadata: metadata, progressHandler: { _, _ in })
 
-        await download(account: account, metadata: metadata!, progressHandler: { _, _ in })
+        let iconPath = store.getIconPath(metadata.ocId, metadata.etag)
+        let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
+        let imagePath = store.getCachePath(metadata.ocId, metadata.fileNameView)!
 
-        let iconPath = store.getIconPath(metadata!.ocId, metadata!.etag)
-        let previewPath = store.getPreviewPath(metadata!.ocId, metadata!.etag)
-        let imagePath = store.getCachePath(metadata!.ocId, metadata!.fileNameView)!
-
-        await ImageUtility.loadSVG(metadata: metadata!, imagePath: imagePath, iconPath: iconPath, previewPath: previewPath)
+        await ImageUtility.loadSVG(metadata: metadata, imagePath: imagePath, iconPath: iconPath, previewPath: previewPath)
     }
 
     func iconPreviewCheck(metadata: Metadata) -> Bool {
@@ -426,8 +416,8 @@ nonisolated final class DataService: NSObject, Sendable {
         }
     }
 
-    func getDirectDownload(metadata: Metadata) async -> URL? {
-        return await nextcloudService.getDirectDownload(metadata: metadata) //should pass in account?
+    func getDirectDownload(metadata: Metadata, account: String) async -> URL? {
+        return await nextcloudService.getDirectDownload(fileId: metadata.fileId, account: account)
     }
 
     // MARK: -

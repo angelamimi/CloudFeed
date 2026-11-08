@@ -45,7 +45,7 @@ nonisolated protocol NextcloudKitServiceProtocol: AnyObject, Sendable {
     func download(account: String, metadata: Metadata, serverUrlFileName: String, fileNameLocalPath: String, progressHandler: @Sendable @escaping (_ metadata: Metadata, _ progress: Progress) -> Void) async
     func downloadPreview(account: String, fileId: String, previewPath: String, iconPath: String, etag: String) async
     func downloadAvatar(account: String, userId: String, fileNameLocalPath: String, etag: String?, avatarSize: Int) async -> String?
-    func getDirectDownload(metadata: Metadata) async -> URL?
+    func getDirectDownload(fileId: String, account: String) async -> URL?
 
     func search(account: String, userId: String, urlBase: String, mediaPath: String, fromDate: Date, toDate: Date,
                 update: @concurrent @Sendable @escaping (_ metadatas: [Metadata], _ syncFromDate: Date?, _ syncToDate: Date?, _ fromDate: Date?, _ toDate: Date?) async -> Void,
@@ -285,31 +285,24 @@ nonisolated final class NextcloudKitService: NextcloudKitServiceProtocol {
                                                                     sizeImage: avatarSize,
                                                                     etagResource: etag,
                                                                     account: account)
-        if  results.error == .success,
-            let etagResult = results.etag,
-            etagResult != etag {
+        if results.error == .success,
+           let etagResult = results.etag,
+           etagResult != etag {
             return etagResult
         } else {
             return nil
         }
     }
 
-    func getDirectDownload(metadata: Metadata) async -> URL? {
+    func getDirectDownload(fileId: String, account: String) async -> URL? {
 
-        return await withCheckedContinuation { continuation in
+        let result = await NextcloudKit.shared.getDirectDownloadAsync(fileId: fileId, account: account)
 
-            NextcloudKit.shared.getDirectDownload(fileId: metadata.fileId, account: metadata.account) { _, url, _, error in
-                if error == .success && url != nil {
-                    if let url = URL(string: url!) {
-                        continuation.resume(returning: url)
-                    } else {
-                        continuation.resume(returning: nil)
-                    }
-                } else {
-                    continuation.resume(returning: nil)
-                }
-            }
+        if result.error == .success, let url = result.url {
+            return URL(string: url)
         }
+
+        return nil
     }
 
     // MARK: -

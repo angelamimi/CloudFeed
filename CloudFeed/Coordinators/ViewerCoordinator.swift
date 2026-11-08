@@ -36,7 +36,7 @@ final class ViewerCoordinator {
 
         guard let viewerMedia = UIStoryboard(name: "Viewer", bundle: nil).instantiateViewController(identifier: "ViewerController") as? ViewerController else { return nil }
 
-        let viewModel = ViewerViewModel(coordinator: self, dataService: dataService, metadata: metadata)
+        let viewModel = ViewerViewModel(coordinator: self, dataService: dataService, metadata: metadata, delegate: viewerMedia)
 
         viewerMedia.index = index
         viewerMedia.metadata = metadata

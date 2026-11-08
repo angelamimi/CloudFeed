@@ -124,7 +124,7 @@ class ViewerController: UIViewController {
             activityIndicator.color = .white
             loadVideo()
         } else {
-            reloadImage()
+            downloadImage()
         }
     }
 
@@ -204,10 +204,8 @@ class ViewerController: UIViewController {
             }
         } else {
 
-            if !details {
-                if metadata.video {
-                    videoSetupForDetails()
-                }
+            if !details, metadata.video {
+                videoSetupForDetails()
             }
 
             showDetails(animate: true, reset: false, recenter: false)
@@ -363,57 +361,19 @@ class ViewerController: UIViewController {
         }
     }
 
-    private func loadVideo(autoPlay: Bool = false) {
+    private func loadVideo() {
 
         activityIndicator.startAnimating()
 
-        Task { [weak self] in
-
-            guard let metadata = self?.metadata, let videoURL = await self?.viewModel.getVideoURL(metadata: metadata)
-            else {
-                //Unable to access Nextcloud. VLC doesn't report an error state if stopped because of
-                //a failed connection, so allowing to fail here as a check for access upon video reload.
-                //https://code.videolan.org/videolan/VLCKit/-/issues/720
-                self?.delegate?.videoError()
-
-                self?.activityIndicator.stopAnimating()
-
-                if self?.controlsView != nil, let view = self?.view, self?.controlsView!.isDescendant(of: view) == true {
-                    self?.controlsView?.enable() //make sure enabled so user can try again
-                    self?.controlsView?.reset()
-                }
-
-                return
-            }
-            self?.detailView?.url = videoURL
-            self?.path = videoURL.absoluteString
-            self?.videoURL = videoURL
-
-            if let path = self?.path, self?.currentStatus() == .details {
-                self?.updateDetailsForPath(path)
-            }
-
-            await self?.showFrame(url: videoURL)
-
-            self?.setupVideoControls()
-            self?.activityIndicator.stopAnimating()
-        }
+        viewModel.loadVideoURL(metadata: metadata)
     }
 
-    private func showFrame(url: URL) async {
+    private func showFrame(url: URL) {
 
-        if let image = await viewModel.downloadVideoFrame(metadata: metadata, url: url, size: imageView.frame.size) {
-            await setImage(image: image)
-        } else {
-            setupVideoController(autoPlay: false)
-            if let media = mediaPlayer?.media {
-                let thumbnailer = VLCMediaThumbnailer(media: media, andDelegate: self)
-                thumbnailer.snapshotPosition = 0.05
-                thumbnailer.thumbnailWidth = imageView.frame.width
-                thumbnailer.thumbnailHeight = imageView.frame.height
-                thumbnailer.fetchThumbnail()
-            }
-        }
+        guard let videoMetadata = metadata else { return }
+        let size = imageView.frame.size
+
+        viewModel.downloadVideoFrame(metadata: videoMetadata, url: url, size: size)
     }
 
     private func setupVideoControls() {
@@ -521,47 +481,11 @@ class ViewerController: UIViewController {
         }
     }
 
-    private func reloadImage() {
+    private func downloadImage() {
 
-        guard let account = Environment.current.currentUser?.account else { return }
-        let ocId = metadata.ocId
+        activityIndicator.startAnimating()
 
-        Task.detached { [weak self] in
-
-            if let metadata = await self?.viewModel.getMetadataFromOcId(ocId) {
-
-                await MainActor.run { [weak self] in
-                    self?.metadata = metadata
-                    self?.activityIndicator.startAnimating()
-                }
-
-                await self?.loadImage(account: account, metadata: metadata)
-            }
-        }
-    }
-
-    @concurrent private func loadImage(account: String, metadata: Metadata) async {
-
-        let image = await viewModel.loadImage(account: account, metadata: metadata)
-
-        Task { @MainActor [weak self] in
-
-            self?.path = self?.viewModel.getCachePath(metadata)
-
-            if let imagePath = self?.path, self?.currentStatus() == .details {
-                self?.updateDetailsForPath(imagePath)
-            }
-
-            if image == nil {
-                self?.imageView.image = UIImage(systemName: "photo")
-            }
-
-            if image != nil && metadata.ocId == self?.metadata.ocId && self?.imageView.layer.sublayers?.count == nil {
-                await self?.setImage(image: image!)
-            }
-
-            self?.activityIndicator.stopAnimating()
-        }
+        viewModel.downloadImage(ocId: metadata.ocId)
     }
 
     private func updateDetailsForPath(_ path: String) {
@@ -630,20 +554,30 @@ class ViewerController: UIViewController {
 
     private func videoSetupForDetails() {
 
-        if mediaPlayer != nil && mediaPlayer!.isPlaying {
-            mediaPlayer!.stop()
-        }
-
-        guard let image = viewModel.getVideoFrame(metadata: metadata) else { return }
-
-        Task { [weak self] in
-            await self?.setImage(image: image)
+        if mediaPlayer?.isPlaying == true {
+            mediaPlayer?.stop()
         }
     }
 
     private func setImage(image: UIImage) async {
 
         imageView.image = await image.byPreparingForDisplay()
+
+        let detailsVisible = currentStatus() == .details
+
+        if isPad() == false && detailsVisible {
+
+            if isPortrait() {
+                showVerticalDetails(animate: false, reset: true)
+            } else {
+                showHorizontalDetails(animate: false, reset: true)
+            }
+        }
+    }
+
+    private func setImage(image: UIImage) {
+
+        imageView.image = image
 
         let detailsVisible = currentStatus() == .details
 
@@ -1586,6 +1520,96 @@ class ViewerController: UIViewController {
     private func updateContentMode(contentMode: UIView.ContentMode) {
         imageView.contentMode = contentMode
     }
+
+    private func handleVideoLoad(metadata: Metadata, url: URL?) {
+
+        if let videoURL = url {
+            detailView?.url = videoURL
+            path = videoURL.absoluteString
+            self.videoURL = videoURL
+
+            if currentStatus() == .details {
+                updateDetailsForPath(path!)
+            }
+
+            showFrame(url: videoURL)
+
+            setupVideoControls()
+            activityIndicator.stopAnimating()
+
+        } else {
+            //Unable to access Nextcloud. VLC doesn't report an error state if stopped because of
+            //a failed connection, so allowing to fail here as a check for access upon video reload.
+            //https://code.videolan.org/videolan/VLCKit/-/issues/720
+            delegate?.videoError()
+
+            activityIndicator.stopAnimating()
+
+            if controlsView?.isDescendant(of: view) == true {
+                controlsView?.enable() //make sure enabled so user can try again
+                controlsView?.reset()
+            }
+        }
+    }
+
+    private func handleVideoFrameDownloaded(metadata: Metadata) {
+
+        if viewModel.previewExists(metadata),
+           let image = UIImage(contentsOfFile: viewModel.getPreviewPath(metadata)) {
+            setImage(image: image)
+            return
+        }
+
+        setupVideoController(autoPlay: false)
+        if let media = mediaPlayer?.media {
+            let thumbnailer = VLCMediaThumbnailer(media: media, andDelegate: self)
+            thumbnailer.snapshotPosition = 0.05
+            thumbnailer.thumbnailWidth = size.width
+            thumbnailer.thumbnailHeight = size.height
+            thumbnailer.fetchThumbnail()
+        }
+    }
+
+    private func handleImageDownloadStart(metadata: Metadata) {
+        self.metadata = metadata
+    }
+
+    private func handleImageDownloaded(metadata: Metadata?) {
+
+        if let updatedMetadata = metadata {
+
+            self.path = viewModel.getCachePath(updatedMetadata)
+
+            if let imagePath = self.path, currentStatus() == .details {
+                updateDetailsForPath(imagePath)
+            }
+
+            loadImage(metadata: updatedMetadata)
+
+        } else {
+            imageView.image = UIImage(systemName: "photo")
+        }
+    }
+
+    private func loadImage(metadata: Metadata) {
+
+        Task.detached { [weak self] in
+
+            if let image = await self?.viewModel.loadImage(metadata: metadata) {
+                await MainActor.run { [weak self] in
+                    if metadata.ocId == self?.metadata.ocId && self?.imageView.layer.sublayers?.count == nil {
+                        self?.setImage(image: image)
+                    }
+                    self?.activityIndicator.stopAnimating()
+                }
+            } else {
+                await MainActor.run { [weak self] in
+                    self?.imageView.image = UIImage(systemName: "photo")
+                    self?.activityIndicator.stopAnimating()
+                }
+            }
+        }
+    }
 }
 
 extension ViewerController: ControlsDelegate {
@@ -1739,5 +1763,32 @@ extension ViewerController: VLCMediaThumbnailerDelegate {
                 self?.viewModel.saveVideoPreview(metadata: metadata, image: image)
             }
         }
+    }
+}
+
+extension ViewerController: ViewerViewModelDelegate {
+
+    func playLiveVideo(url: URL) {
+
+    }
+
+    func previewDownloaded(metadata: Metadata, path: String?) {
+
+    }
+
+    func imageDownloadStart(metadata: Metadata) {
+        handleImageDownloadStart(metadata: metadata)
+    }
+
+    func imageDownloaded(metadata: Metadata?) {
+        handleImageDownloaded(metadata: metadata)
+    }
+
+    func loadVideoFromUrl(metadata: Metadata, url: URL?) {
+        handleVideoLoad(metadata: metadata, url: url)
+    }
+
+    func videoFrameDownloaded(metadata: Metadata) {
+        handleVideoFrameDownloaded(metadata: metadata)
     }
 }

@@ -55,7 +55,9 @@ nonisolated class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable 
                 return
             }
 
-            await self?.download()
+            if let metadata = self?.metadata {
+                await self?.download(metadata: metadata)
+            }
 
             if self?.isCancelled ?? true {
                 self?.finish()
@@ -79,14 +81,16 @@ nonisolated class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable 
         task = nil
     }
 
-    nonisolated private func download() async {
+    nonisolated private func download(metadata: Metadata) async {
 
-        if metadata?.video ?? false {
-            await dataService?.downloadVideoPreview(metadata: metadata)
-        } else if metadata?.svg ?? false {
-            await dataService?.downloadSVGPreview(account: account!, metadata: metadata)
-        } else if metadata != nil && account != nil {
-            await dataService?.downloadPreview(account: account!, metadata: metadata)
+        guard let currentAccount = self.account else { return }
+
+        if metadata.video {
+            await dataService?.downloadVideoPreview(account: currentAccount, metadata: metadata)
+        } else if metadata.svg {
+            await dataService?.downloadSVGPreview(account: currentAccount, metadata: metadata)
+        } else {
+            await dataService?.downloadPreview(account: currentAccount, metadata: metadata)
         }
     }
 }

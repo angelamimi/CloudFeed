@@ -59,17 +59,20 @@ final class DetailViewModel: NSObject {
 
         let imageSourceURL = URL(fileURLWithPath: path)
 
-        guard let originalSource = CGImageSourceCreateWithURL(imageSourceURL as CFURL, nil) else { return }
-        guard let fileProperties = CGImageSourceCopyProperties(originalSource, nil) else { return }
+        Task.detached { [weak self] in
 
-        Task { [weak self] in
+            guard let originalSource = CGImageSourceCreateWithURL(imageSourceURL as CFURL, nil) else { return }
+            guard let fileProperties = CGImageSourceCopyProperties(originalSource, nil) else { return }
+
             if let detailDict = await self?.buildExif(originalSource: originalSource, fileProperties: fileProperties) {
-                self?.appendData(data: detailDict)
+                await MainActor.run { [weak self] in
+                    self?.appendData(data: detailDict)
+                }
             }
         }
     }
 
-    private func buildExif(originalSource: CGImageSource, fileProperties: CFDictionary) async -> NSMutableDictionary {
+    @concurrent private func buildExif(originalSource: CGImageSource, fileProperties: CFDictionary) async -> NSMutableDictionary {
 
         let details = NSMutableDictionary()
         let properties = NSMutableDictionary(dictionary: fileProperties)

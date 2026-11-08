@@ -45,6 +45,7 @@ class PreviewController: UIViewController {
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFit
         imageView.backgroundColor = .clear
+        imageView.tintColor = .label
 
         activityIndicator.hidesWhenStopped = true
         activityIndicator.color = .label
@@ -77,38 +78,16 @@ class PreviewController: UIViewController {
         } else if metadata.livePhoto {
             loadLiveVideo()
         } else if metadata.image {
-            viewImage(metadata: metadata)
+            previewImage(metadata: metadata)
         }
     }
 
     private func loadVideo() {
-
-        Task { [weak self] in
-
-            guard let metadata = self?.metadata,
-                  let videoURL = await self?.viewModel.getVideoURL(metadata: metadata) else {
-                self?.activityIndicator.stopAnimating()
-                return
-            }
-
-            let player = AVPlayer(url: videoURL)
-            let avpController = AVPlayerViewController()
-
-            player.playImmediately(atRate: 1.0)
-            player.automaticallyWaitsToMinimizeStalling = false
-
-            avpController.player = player
-            avpController.showsPlaybackControls = false
-
-            self?.setupVideoController(avpController: avpController, autoPlay: true)
-        }
+        viewModel.loadVideoURL(metadata: metadata)
     }
 
     private func loadLiveVideo() {
-
-        guard let currentMetadata = metadata else { return }
-
-        viewModel.playLiveVideo(metadata: currentMetadata)
+        viewModel.playLiveVideo(metadata: metadata)
     }
 
     private func setupVideoController(avpController: AVPlayerViewController, autoPlay: Bool) {
@@ -137,35 +116,17 @@ class PreviewController: UIViewController {
         }
     }
 
-    private func viewImage(metadata: Metadata) {
+    private func previewImage(metadata: Metadata) {
 
-        if metadata.svg || metadata.gif {
-            loadImageFromMetadata(metadata: metadata)
-            return
-        }
-
-        if viewModel.previewExists(metadata) {
+        if !metadata.gif && viewModel.previewExists(metadata) {
             if let image = UIImage(contentsOfFile: viewModel.getPreviewPath(metadata)) {
                 imageView.image = image
                 showImage()
             }
+        } else if metadata.svg || metadata.gif {
+            viewModel.downloadImage(ocId: metadata.ocId)
         } else {
             viewModel.downloadPreview(metadata)
-        }
-    }
-
-    private func loadImageFromMetadata(metadata: Metadata) {
-
-        guard let account = Environment.current.currentUser?.account else { return }
-
-        Task.detached { [weak self] in
-
-            guard let image = await self?.viewModel.loadImage(account: account, metadata: metadata) else { return }
-
-            await MainActor.run { [weak self] in
-                self?.imageView.image = image
-                self?.showImage()
-            }
         }
     }
 
@@ -195,16 +156,27 @@ class PreviewController: UIViewController {
         setupVideoController(avpController: avpController, autoPlay: true)
         activityIndicator.stopAnimating()
     }
-}
 
-extension PreviewController: ViewerViewModelDelegate {
+    func handleImageDownloaded(metadata: Metadata?) {
 
-    func playLiveVideo(url: URL) {
-        handlePlayLivePhoto(url)
+        guard metadata?.svg == true || metadata?.gif == true else {
+            activityIndicator.stopAnimating()
+            return
+        }
+
+        Task.detached { [weak self] in
+
+            if let image = await self?.viewModel.loadImage(metadata: metadata!) {
+
+                await MainActor.run { [weak self] in
+                    self?.imageView.image = image
+                    self?.showImage()
+                }
+            }
+        }
     }
 
-    func previewDownloaded(metadata: Metadata, path: String?) {
-
+    private func handlePreviewDownloaded(metadata: Metadata, path: String?) {
         if let previewPath = path,
            let image = UIImage(contentsOfFile: previewPath) {
             imageView.image = image
@@ -212,5 +184,54 @@ extension PreviewController: ViewerViewModelDelegate {
         } else {
             activityIndicator.stopAnimating() //load failed. stop the spinner
         }
+    }
+
+    private func handleVideoLoad(metadata: Metadata, url: URL?) {
+
+        guard let videoURL = url else {
+            imageView.image = UIImage(systemName: "play.slash")
+            showImage()
+            return
+        }
+
+        activityIndicator.stopAnimating()
+
+        let player = AVPlayer(url: videoURL)
+        let avpController = AVPlayerViewController()
+
+        player.playImmediately(atRate: 1.0)
+        player.automaticallyWaitsToMinimizeStalling = false
+
+        avpController.player = player
+        avpController.showsPlaybackControls = false
+
+        setupVideoController(avpController: avpController, autoPlay: true)
+    }
+}
+
+extension PreviewController: ViewerViewModelDelegate {
+
+    func videoFrameDownloaded(metadata: Metadata) {
+
+    }
+
+    func imageDownloadStart(metadata: Metadata) {
+
+    }
+
+    func loadVideoFromUrl(metadata: Metadata, url: URL?) {
+        handleVideoLoad(metadata: metadata, url: url)
+    }
+
+    func imageDownloaded(metadata: Metadata?) {
+        handleImageDownloaded(metadata: metadata)
+    }
+
+    func playLiveVideo(url: URL) {
+        handlePlayLivePhoto(url)
+    }
+
+    func previewDownloaded(metadata: Metadata, path: String?) {
+        handlePreviewDownloaded(metadata: metadata, path: path)
     }
 }

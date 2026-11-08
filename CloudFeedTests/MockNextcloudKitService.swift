@@ -56,7 +56,7 @@ final class MockNextcloudKitService: NextcloudKitServiceProtocol {
     func setupAccount(account: String, user: String, userId: String, password: String, urlBase: String) {
     }
 
-    func getDirectDownload(metadata: CloudFeed.Metadata) async -> URL? {
+    func getDirectDownload(fileId: String, account: String) async -> URL? {
         return nil
     }
 

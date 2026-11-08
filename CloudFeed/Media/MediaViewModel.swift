@@ -35,6 +35,7 @@ protocol MediaDelegate: AnyObject {
     func videoPlay(indexPath: IndexPath)
     func syncComplete()
     func liveLoadComplete(videoMetadata: Metadata, indexPath: IndexPath)
+    func loadVideoFromUrl(metadata: Metadata, url: URL?)
 }
 
 @MainActor
@@ -346,13 +347,23 @@ final class MediaViewModel {
         }
     }
 
-    func getVideoURL(metadata: Metadata) async -> URL? {
+    func loadVideoURL(metadata: Metadata) {
 
-        if let url = await dataService.getDirectDownload(metadata: metadata) {
-            return url
+        guard let account = Environment.current.currentUser?.account else { return }
+
+        Task.detached { [weak self] in
+
+            let url = await self?.dataService.getDirectDownload(metadata: metadata, account: account)
+
+            await MainActor.run { [weak self] in
+                self?.delegate?.loadVideoFromUrl(metadata: metadata, url: url)
+            }
         }
+    }
 
-        return nil
+    func getVideoURL(metadata: Metadata) async -> URL? {
+        guard let account = Environment.current.currentUser?.account else { return nil }
+        return await dataService.getDirectDownload(metadata: metadata, account: account)
     }
 
     func getVideoPath(_ metadata: Metadata) -> String? {

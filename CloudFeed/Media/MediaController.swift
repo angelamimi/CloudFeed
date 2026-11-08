@@ -595,14 +595,17 @@ extension MediaController: MediaDelegate {
 
         tableCleanup()
 
-        Task { [weak self] in
+        if let metadata = viewModel.getItemAtIndexPath(indexPath) {
+            viewModel.loadVideoURL(metadata: metadata)
+        }
+    }
 
-            if let metadata = self?.viewModel.getItemAtIndexPath(indexPath),
-               let videoURL = await self?.viewModel.getVideoURL(metadata: metadata),
-               let cell = self?.tableView.cellForRow(at: indexPath) as? TableCell {
+    func loadVideoFromUrl(metadata: Metadata, url: URL?) {
 
-                self?.playVideo(videoURL, cell)
-            }
+        if let videoUrl = url,
+            let indexPath = viewModel.getIndexPathForMetadata(metadata: metadata),
+            let cell = tableView.cellForRow(at: indexPath) as? TableCell {
+            cell.playVideo(videoUrl)
         }
     }
 
