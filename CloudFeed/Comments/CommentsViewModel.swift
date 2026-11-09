@@ -63,16 +63,12 @@ final class CommentsViewModel {
 
         let fileId = metadata.fileId
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
-            let comments = await self?.dataService.getComments(fileId: fileId, account: account)
-
-            await MainActor.run { [weak self] in
-                if comments == nil {
-                    self?.delegate.loadComplete(count: nil)
-                } else {
-                    self?.showComments(comments!)
-                }
+            if let comments = await self?.dataService.getComments(fileId: fileId, account: account) {
+                self?.showComments(comments)
+            } else {
+                self?.delegate.loadComplete(count: nil)
             }
         }
     }
@@ -87,17 +83,14 @@ final class CommentsViewModel {
         let fileId = metadata.fileId
         let account = metadata.account
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             let error = await self?.dataService.addComment(fileId: fileId, account: account, message: text)
 
-            await MainActor.run { [weak self] in
-
-                if error == nil || error == true {
-                    self?.delegate.addComplete(error: true)
-                } else {
-                    self?.delegate.addComplete(error: false)
-                }
+            if error == nil || error == true {
+                self?.delegate.addComplete(error: true)
+            } else {
+                self?.delegate.addComplete(error: false)
             }
         }
     }
@@ -112,17 +105,14 @@ final class CommentsViewModel {
         let fileId = metadata.fileId
         let account = metadata.account
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             let error = await self?.dataService.updateComment(fileId: fileId, account: account, messageId: commentId, message: text)
 
-            await MainActor.run { [weak self] in
-
-                if error == nil || error == true {
-                    self?.delegate.updateComplete(error: true)
-                } else {
-                    self?.delegate.updateComplete(error: false)
-                }
+            if error == nil || error == true {
+                self?.delegate.updateComplete(error: true)
+            } else {
+                self?.delegate.updateComplete(error: false)
             }
         }
     }
@@ -269,16 +259,14 @@ final class CommentsViewModel {
 
         delegate.deleteBegin()
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             let error = await self?.dataService.deleteComment(fileId: fileId, account: account, messageId: commentId)
 
-            await MainActor.run { [weak self] in
-                if error == nil || error == true {
-                    self?.delegate.deleteComplete(error: true)
-                } else {
-                    self?.delegate.deleteComplete(error: false)
-                }
+            if error == nil || error == true {
+                self?.delegate.deleteComplete(error: true)
+            } else {
+                self?.delegate.deleteComplete(error: false)
             }
         }
     }

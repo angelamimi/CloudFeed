@@ -257,7 +257,7 @@ class DetailView: UIView {
 
         layoutIfNeeded()
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
             await self?.populateVideoDetailsFromUrl(url: fileUrl, metadata: metadata)
         }
     }
@@ -287,7 +287,7 @@ class DetailView: UIView {
             return
         }
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
             await self?.populateImageDetailsFromUrl(url: fileUrl, metadata: metadata)
         }
     }
@@ -409,9 +409,7 @@ class DetailView: UIView {
         let results = calculateLocationFromProperties(latitude: latitudeValue, longitude: longitudeValue,
                                                       latitudeReference: latitudeReferencValue, longitudeReference: longitudeReferenceValue)
 
-        Task.detached { [weak self] in
-            await self?.showLocation(latitudeValue: results.latitude, longitudeValue: results.longitude)
-        }
+        showLocation(latitudeValue: results.latitude, longitudeValue: results.longitude)
     }
 
     private func calculateLocationFromProperties(latitude: Double?, longitude: Double?, latitudeReference: String?, longitudeReference: String?) -> (latitude: Double?, longitude: Double?) {
@@ -656,133 +654,105 @@ class DetailView: UIView {
         let videoLengthLabel = Strings.DetailVideoLength
         let videoSpeedLabel = Strings.DetailVideoSpeed
 
-        Task.detached { [weak self] in
-
-            let duration = try? await asset.load(.duration)
-
-            let seconds = duration?.seconds
-            var titles: [Int: ExifTitle] = [:]
-
-            if seconds == nil || seconds! == 0 {
-                titles[0] = ExifTitle(title: "-")
-            } else {
-                let duration = Duration.seconds(seconds!)
-                let formatted = duration.formatted(.units(allowed: [.hours, .minutes, .seconds], width: .narrow))
-                //let formatted = duration.formatted(.time(pattern: .hourMinuteSecond(padHourToLength: 1, fractionalSecondsLength: 0)))
-
-                titles[0] = ExifTitle(title: formatted, accessibilityLabel: videoLengthLabel, accessibilityValue: formatted)
-            }
-
-            titles[1] = ExifTitle(title: "|")
-
-            if let videoTrack = try? await asset.loadTracks(withMediaType: .video).first {
-
-                let frameRate = try? await videoTrack.load(.nominalFrameRate)
-
-                if frameRate != nil && frameRate! > 0 {
-                    let displayFrameRate = Float(round(100 * frameRate!) / 100)
-                    let formatted = "\(displayFrameRate) FPS"
-
-                    titles[2] = ExifTitle(title: formatted, accessibilityLabel: videoSpeedLabel, accessibilityValue: formatted)
-                }
-
-                await self?.populateVideoSize(metadata: metadata, videoTrack: videoTrack)
-            } else {
-                titles[2] = ExifTitle(title: "-")
-            }
-
-            await MainActor.run { [weak self] in
-                self?.exifTitles = titles
-                self?.bind()
-            }
+        Task { [weak self] in
+            await self?.populateVideoDetail(metadata: metadata, asset: asset, videoLengthLabel: videoLengthLabel, videoSpeedLabel: videoSpeedLabel)
         }
     }
 
     private func populateVideoMetadata(asset: AVAsset) {
 
-        Task.detached { [weak self] in
-
-            guard let track = try? await asset.loadTracks(withMediaType: .video).first else { return }
-
-            var lens: String?
-
-            if #available(iOS 26, *),
-               let metadata = try? await track.load(.metadata),
-               let first = metadata.first(where: { $0.identifier == .quickTimeMetadataCameraLensModel }) {
-
-                lens = try? await first.load(.stringValue)
-            }
-
-            await MainActor.run { [weak self] in
-                self?.populateVideoLens(lens: lens)
-            }
-
-            if let descriptions = try? await track.load(.formatDescriptions), let desc = descriptions.first {
-
-                var codec: String?
-                let code = CMFormatDescriptionGetMediaSubType(desc)
-
-                switch code {
-                case kCMVideoCodecType_HEVC: codec = "HEVC"
-                case kCMVideoCodecType_HEVCWithAlpha: codec = "HEVC"
-                case kCMVideoCodecType_DolbyVisionHEVC: codec = "HEVC"
-                case kCMVideoCodecType_H264: codec = "H.264"
-                case kCMVideoCodecType_VP9: codec = "VP9"
-                case kCMVideoCodecType_AV1: codec = "AV1"
-                case kCMVideoCodecType_MPEG2Video: codec = "MPEG-2"
-                case kCMVideoCodecType_MPEG4Video: codec = "MPEG-4"
-                default:
-                    let b3 = UInt8((code >> 24) & 0xFF)
-                    let b2 = UInt8((code >> 16) & 0xFF)
-                    let b1 = UInt8((code >> 8) & 0xFF)
-                    let b0 = UInt8(code & 0xFF)
-                    codec = String(bytes: [b3, b2, b1, b0], encoding: .ascii)?.trimmingCharacters(in: .whitespaces)
-                }
-
-                if codec != nil && codec?.isEmpty == false {
-                    await MainActor.run { [weak self] in
-                        self?.typeLabel.text = codec
-                        self?.typeLabel.accessibilityValue = codec
-                    }
-                }
-            }
+        Task { [weak self] in
+            await self?.populateVideoMetadataFromTrack(asset: asset)
         }
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
+            await self?.populateVideoMetadataFromVideoMetadata(asset: asset)
+        }
+    }
 
-            guard let avMetadataItems: [AVMetadataItem]? = try? await asset.load(.metadata) else { return }
-            var make: String?
-            var model: String?
-            var location: CLLocation?
+    @concurrent private func populateVideoMetadataFromTrack(asset: AVAsset) async {
 
-            for item in avMetadataItems! {
+        guard let track = try? await asset.loadTracks(withMediaType: .video).first else { return }
 
-                guard let keyName = item.commonKey else { continue }
+        var lens: String?
 
-                switch keyName {
-                case .commonKeyLocation:
-                    location = await self?.parseLocation(item: item)
-                case .quickTimeMetadataKeyMake:
-                    make = try? await item.load(.stringValue)
-                case .commonKeyMake:
-                    make = try? await item.load(.stringValue)
-                case .quickTimeMetadataKeyModel:
-                    model = try? await item.load(.stringValue)
-                case .commonKeyModel:
-                    model = try? await item.load(.stringValue)
-                default:
-                    continue
-                }
+        if #available(iOS 26, *),
+           let metadata = try? await track.load(.metadata),
+           let first = metadata.first(where: { $0.identifier == .quickTimeMetadataCameraLensModel }) {
+
+            lens = try? await first.load(.stringValue)
+        }
+
+        await MainActor.run { [weak self] in
+            self?.populateVideoLens(lens: lens)
+        }
+
+        if let descriptions = try? await track.load(.formatDescriptions), let desc = descriptions.first {
+
+            var codec: String?
+            let code = CMFormatDescriptionGetMediaSubType(desc)
+
+            switch code {
+            case kCMVideoCodecType_HEVC: codec = "HEVC"
+            case kCMVideoCodecType_HEVCWithAlpha: codec = "HEVC"
+            case kCMVideoCodecType_DolbyVisionHEVC: codec = "HEVC"
+            case kCMVideoCodecType_H264: codec = "H.264"
+            case kCMVideoCodecType_VP9: codec = "VP9"
+            case kCMVideoCodecType_AV1: codec = "AV1"
+            case kCMVideoCodecType_MPEG2Video: codec = "MPEG-2"
+            case kCMVideoCodecType_MPEG4Video: codec = "MPEG-4"
+            default:
+                let b3 = UInt8((code >> 24) & 0xFF)
+                let b2 = UInt8((code >> 16) & 0xFF)
+                let b1 = UInt8((code >> 8) & 0xFF)
+                let b0 = UInt8(code & 0xFF)
+                codec = String(bytes: [b3, b2, b1, b0], encoding: .ascii)?.trimmingCharacters(in: .whitespaces)
             }
 
-            await MainActor.run { [weak self] in
-                self?.populateVideoCameraMakeModel(make: make, model: model)
-                self?.populateVideoLocation(location: location)
+            if codec != nil && codec?.isEmpty == false {
+                await MainActor.run { [weak self] in
+                    self?.typeLabel.text = codec
+                    self?.typeLabel.accessibilityValue = codec
+                }
             }
         }
     }
 
-    private func parseLocation(item: AVMetadataItem) async -> CLLocation? {
+    @concurrent private func populateVideoMetadataFromVideoMetadata(asset: AVAsset) async {
+
+        guard let avMetadataItems: [AVMetadataItem] = try? await asset.load(.metadata) else { return }
+
+        var make: String?
+        var model: String?
+        var location: CLLocation?
+
+        for item in avMetadataItems {
+
+            guard let keyName = item.commonKey else { continue }
+
+            switch keyName {
+            case .commonKeyLocation:
+                location = await parseLocation(item: item)
+            case .quickTimeMetadataKeyMake:
+                make = try? await item.load(.stringValue)
+            case .commonKeyMake:
+                make = try? await item.load(.stringValue)
+            case .quickTimeMetadataKeyModel:
+                model = try? await item.load(.stringValue)
+            case .commonKeyModel:
+                model = try? await item.load(.stringValue)
+            default:
+                continue
+            }
+        }
+
+        await MainActor.run { [weak self] in
+            self?.populateVideoCameraMakeModel(make: make, model: model)
+            self?.populateVideoLocation(location: location)
+        }
+    }
+
+    @concurrent private func parseLocation(item: AVMetadataItem) async -> CLLocation? {
 
         if let locationString = try? await item.load(.stringValue) {
 
@@ -798,6 +768,47 @@ class DetailView: UIView {
         }
 
         return nil
+    }
+
+    @concurrent private func populateVideoDetail(metadata: Metadata, asset: AVAsset, videoLengthLabel: String, videoSpeedLabel: String) async {
+
+        let duration = try? await asset.load(.duration)
+
+        let seconds = duration?.seconds
+        var titles: [Int: ExifTitle] = [:]
+
+        if seconds == nil || seconds! == 0 {
+            titles[0] = ExifTitle(title: "-")
+        } else {
+            let duration = Duration.seconds(seconds!)
+            let formatted = duration.formatted(.units(allowed: [.hours, .minutes, .seconds], width: .narrow))
+            //let formatted = duration.formatted(.time(pattern: .hourMinuteSecond(padHourToLength: 1, fractionalSecondsLength: 0)))
+
+            titles[0] = ExifTitle(title: formatted, accessibilityLabel: videoLengthLabel, accessibilityValue: formatted)
+        }
+
+        titles[1] = ExifTitle(title: "|")
+
+        if let videoTrack = try? await asset.loadTracks(withMediaType: .video).first {
+
+            let frameRate = try? await videoTrack.load(.nominalFrameRate)
+
+            if frameRate != nil && frameRate! > 0 {
+                let displayFrameRate = Float(round(100 * frameRate!) / 100)
+                let formatted = "\(displayFrameRate) FPS"
+
+                titles[2] = ExifTitle(title: formatted, accessibilityLabel: videoSpeedLabel, accessibilityValue: formatted)
+            }
+
+            await populateVideoSize(metadata: metadata, videoTrack: videoTrack)
+        } else {
+            titles[2] = ExifTitle(title: "-")
+        }
+
+        await MainActor.run { [weak self] in
+            self?.exifTitles = titles
+            self?.bind()
+        }
     }
 
     @concurrent private func populateVideoSize(metadata: Metadata, videoTrack: AVAssetTrack) async {
@@ -951,13 +962,11 @@ class DetailView: UIView {
             }
         }
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             await self?.addMapAnnotation(latitude: latitude, longitude: longitude)
 
-            await MainActor.run { [weak self] in
-                self?.delegate?.detailsLoaded()
-            }
+            self?.delegate?.detailsLoaded()
         }
     }
 

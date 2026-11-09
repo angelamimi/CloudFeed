@@ -605,19 +605,19 @@ nonisolated final class DataService: NSObject, Sendable {
 
     // MARK: -
     // MARK: Comments
-    func getComments(fileId: String, account: String) async -> [FileComment]? {
+    @concurrent func getComments(fileId: String, account: String) async -> [FileComment]? {
         return await nextcloudService.getComments(fileId: fileId, account: account)
     }
 
-    func addComment(fileId: String, account: String, message: String) async -> Bool {
+    @concurrent func addComment(fileId: String, account: String, message: String) async -> Bool {
         return await nextcloudService.addComment(fileId: fileId, account: account, message: message)
     }
 
-    func updateComment(fileId: String, account: String, messageId: String, message: String) async -> Bool {
+    @concurrent func updateComment(fileId: String, account: String, messageId: String, message: String) async -> Bool {
         return await nextcloudService.updateComment(fileId: fileId, account: account, messageId: messageId, message: message)
     }
 
-    func deleteComment(fileId: String, account: String, messageId: String) async -> Bool {
+    @concurrent func deleteComment(fileId: String, account: String, messageId: String) async -> Bool {
         return await nextcloudService.deleteComment(fileId: fileId, account: account, messageId: messageId)
     }
 }

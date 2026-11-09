@@ -42,8 +42,8 @@ protocol ViewerViewModelDelegate: AnyObject {
 @MainActor
 final class ViewerViewModel {
 
-    let metadata: Metadata
-    let dataService: DataService
+    private let metadata: Metadata
+    private nonisolated let dataService: DataService
     private weak var coordinator: DownloadableCoordinator?
     private weak var delegate: ViewerViewModelDelegate?
 
