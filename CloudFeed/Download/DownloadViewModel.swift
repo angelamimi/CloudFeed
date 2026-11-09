@@ -82,13 +82,9 @@ extension DownloadViewModel: DownloadOperationDelegate {
 
     func downloaded(metadata: Metadata) {
 
-        Task.detached { [weak self] in
-
+        Task { [weak self] in
             await self?.dataService.savePreview(metadata: metadata)
-
-            await MainActor.run { [weak self] in
-                self?.coordinator.downloadComplete()
-            }
+            self?.coordinator.downloadComplete()
         }
     }
 }

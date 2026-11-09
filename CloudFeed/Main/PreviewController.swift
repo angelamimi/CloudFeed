@@ -164,14 +164,11 @@ class PreviewController: UIViewController {
             return
         }
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             if let image = await self?.viewModel.loadImage(metadata: metadata!) {
-
-                await MainActor.run { [weak self] in
-                    self?.imageView.image = image
-                    self?.showImage()
-                }
+                self?.imageView.image = image
+                self?.showImage()
             }
         }
     }
