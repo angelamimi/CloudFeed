@@ -559,22 +559,6 @@ class ViewerController: UIViewController {
         }
     }
 
-    private func setImage(image: UIImage) async {
-
-        imageView.image = await image.byPreparingForDisplay()
-
-        let detailsVisible = currentStatus() == .details
-
-        if isPad() == false && detailsVisible {
-
-            if isPortrait() {
-                showVerticalDetails(animate: false, reset: true)
-            } else {
-                showHorizontalDetails(animate: false, reset: true)
-            }
-        }
-    }
-
     private func setImage(image: UIImage) {
 
         imageView.image = image
@@ -1557,10 +1541,12 @@ class ViewerController: UIViewController {
         if viewModel.previewExists(metadata),
            let image = UIImage(contentsOfFile: viewModel.getPreviewPath(metadata)) {
             setImage(image: image)
+            activityIndicator.stopAnimating()
             return
         }
 
         setupVideoController(autoPlay: false)
+
         if let media = mediaPlayer?.media {
             let thumbnailer = VLCMediaThumbnailer(media: media, andDelegate: self)
             thumbnailer.snapshotPosition = 0.05
@@ -1593,20 +1579,16 @@ class ViewerController: UIViewController {
 
     private func loadImage(metadata: Metadata) {
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             if let image = await self?.viewModel.loadImage(metadata: metadata) {
-                await MainActor.run { [weak self] in
-                    if metadata.ocId == self?.metadata.ocId && self?.imageView.layer.sublayers?.count == nil {
-                        self?.setImage(image: image)
-                    }
-                    self?.activityIndicator.stopAnimating()
+                if metadata.ocId == self?.metadata.ocId && self?.imageView.layer.sublayers?.count == nil {
+                    self?.setImage(image: image)
                 }
+                self?.activityIndicator.stopAnimating()
             } else {
-                await MainActor.run { [weak self] in
-                    self?.imageView.image = UIImage(systemName: "photo")
-                    self?.activityIndicator.stopAnimating()
-                }
+                self?.imageView.image = UIImage(systemName: "photo")
+                self?.activityIndicator.stopAnimating()
             }
         }
     }
@@ -1758,9 +1740,13 @@ extension ViewerController: VLCMediaThumbnailerDelegate {
         let image = UIImage(cgImage: thumbnail)
 
         Task { @MainActor [weak self] in
+
             if let metadata = self?.metadata {
-                self?.imageView.image = image
-                self?.viewModel.saveVideoPreview(metadata: metadata, image: image)
+
+                self?.setImage(image: image)
+                self?.activityIndicator.stopAnimating()
+
+                await self?.viewModel.saveVideoPreview(metadata: metadata, image: image)
             }
         }
     }

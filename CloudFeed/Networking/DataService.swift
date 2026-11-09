@@ -340,7 +340,7 @@ nonisolated final class DataService: NSObject, Sendable {
         return nil
     }
 
-    func downloadVideoFrame(metadata: Metadata, url: URL, size: CGSize) async {
+    @concurrent func downloadVideoFrame(metadata: Metadata, url: URL, size: CGSize) async {
 
         let path = store.getImagePath(metadata.ocId, metadata.etag)
 
@@ -359,7 +359,7 @@ nonisolated final class DataService: NSObject, Sendable {
         }
     }
 
-    func saveVideoPreview(metadata: Metadata, image: UIImage) async {
+    @concurrent func saveVideoPreview(metadata: Metadata, image: UIImage) async {
 
         let path = store.getImagePath(metadata.ocId, metadata.etag)
         try? image.jpegData(compressionQuality: 0.7)?.write(to: URL(fileURLWithPath: path))
@@ -370,7 +370,7 @@ nonisolated final class DataService: NSObject, Sendable {
         await ImageUtility.saveImageAtPaths(image: image, previewPath: previewPath, iconPath: iconPath)
     }
 
-    func downloadVideoPreview(account: String, metadata: Metadata) async {
+    @concurrent func downloadVideoPreview(account: String, metadata: Metadata) async {
 
         let iconPath = store.getIconPath(metadata.ocId, metadata.etag)
         let previewPath = store.getPreviewPath(metadata.ocId, metadata.etag)
@@ -416,7 +416,7 @@ nonisolated final class DataService: NSObject, Sendable {
         }
     }
 
-    func getDirectDownload(metadata: Metadata, account: String) async -> URL? {
+    @concurrent func getDirectDownload(metadata: Metadata, account: String) async -> URL? {
         return await nextcloudService.getDirectDownload(fileId: metadata.fileId, account: account)
     }
 

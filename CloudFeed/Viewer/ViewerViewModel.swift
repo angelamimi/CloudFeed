@@ -76,13 +76,9 @@ final class ViewerViewModel {
 
         guard let account = Environment.current.currentUser?.account else { return }
 
-        Task.detached { [weak self] in
-
+        Task { [weak self] in
             let url = await self?.dataService.getDirectDownload(metadata: metadata, account: account)
-
-            await MainActor.run { [weak self] in
-                self?.delegate?.loadVideoFromUrl(metadata: metadata, url: url)
-            }
+            self?.delegate?.loadVideoFromUrl(metadata: metadata, url: url)
         }
     }
 
@@ -98,15 +94,12 @@ final class ViewerViewModel {
 
         guard let account = Environment.current.currentUser?.account else { return }
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             await self?.dataService.downloadPreview(account: account, metadata: metadata)
 
             let path = self?.dataService.store.getPreviewPath(metadata.ocId, metadata.etag)
-
-            await MainActor.run { [weak self] in
-                self?.delegate?.previewDownloaded(metadata: metadata, path: path)
-            }
+            self?.delegate?.previewDownloaded(metadata: metadata, path: path)
         }
     }
 
@@ -114,24 +107,18 @@ final class ViewerViewModel {
 
         guard let account = Environment.current.currentUser?.account else { return }
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             if let metadata = await self?.getMetadataFromOcId(ocId) {
 
-                await MainActor.run { [weak self] in
-                    self?.delegate?.imageDownloadStart(metadata: metadata)
-                }
+                self?.delegate?.imageDownloadStart(metadata: metadata)
 
                 await self?.downloadImage(account: account, metadata: metadata)
 
-                await MainActor.run { [weak self] in
-                    self?.delegate?.imageDownloaded(metadata: metadata)
-                }
+                self?.delegate?.imageDownloaded(metadata: metadata)
 
             } else {
-                await MainActor.run { [weak self] in
-                    self?.delegate?.imageDownloaded(metadata: nil)
-                }
+                self?.delegate?.imageDownloaded(metadata: nil)
             }
         }
     }
@@ -201,10 +188,8 @@ final class ViewerViewModel {
         }
     }
 
-    func saveVideoPreview(metadata: Metadata, image: UIImage) {
-        Task.detached { [weak self] in
-            await self?.dataService.saveVideoPreview(metadata: metadata, image: image)
-        }
+    func saveVideoPreview(metadata: Metadata, image: UIImage) async {
+        await dataService.saveVideoPreview(metadata: metadata, image: image)
     }
 
     func getVideoFrame(metadata: Metadata) -> UIImage? {
@@ -213,13 +198,9 @@ final class ViewerViewModel {
 
     func downloadVideoFrame(metadata: Metadata, url: URL, size: CGSize) {
 
-        Task.detached { [weak self] in
-
+        Task { [weak self] in
             await self?.dataService.downloadVideoFrame(metadata: metadata, url: url, size: size)
-
-            await MainActor.run { [weak self] in
-                self?.delegate?.videoFrameDownloaded(metadata: metadata)
-            }
+            self?.delegate?.videoFrameDownloaded(metadata: metadata)
         }
     }
 
@@ -253,38 +234,38 @@ final class ViewerViewModel {
 
     func playLiveVideo(metadata: Metadata) {
 
-        let currentAccount = Environment.current.currentUser?.account
+        guard let account = Environment.current.currentUser?.account else { return }
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
-            if let videoMetadata = await self?.dataService.getMetadataLivePhoto(metadata: metadata) {
+            if let videoUrl = await self?.getLivePhotoVideoUrl(metadata: metadata, account: account) {
+                self?.delegate?.playLiveVideo(url: videoUrl)
+            }
+        }
+    }
 
-                var url: URL?
+    @concurrent private func getLivePhotoVideoUrl(metadata: Metadata, account: String) async -> URL? {
 
-                if self?.dataService.store.fileExists(videoMetadata) == true {
+        var url: URL?
 
-                    if let cachePath = self?.dataService.store.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
-                        url = URL(fileURLWithPath: cachePath)
-                    }
-                } else {
+        if let videoMetadata = await dataService.getMetadataLivePhoto(metadata: metadata) {
 
-                    if let account = currentAccount {
+            if dataService.store.fileExists(videoMetadata) {
 
-                        await self?.downloadLivePhotoVideo(account: account, metadata: videoMetadata)
-
-                        if self?.dataService.store.fileExists(videoMetadata) == true,
-                           let cachePath = self?.dataService.store.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
-                            url = URL(fileURLWithPath: cachePath)
-                        }
-                    }
+                if let cachePath = dataService.store.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
+                    url = URL(fileURLWithPath: cachePath)
                 }
+            } else {
 
-                if let videoUrl = url {
-                    await MainActor.run { [weak self] in
-                        self?.delegate?.playLiveVideo(url: videoUrl)
-                    }
+                await downloadLivePhotoVideo(account: account, metadata: videoMetadata)
+
+                if dataService.store.fileExists(videoMetadata) == true,
+                   let cachePath = dataService.store.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
+                    url = URL(fileURLWithPath: cachePath)
                 }
             }
         }
+
+        return url
     }
 }
