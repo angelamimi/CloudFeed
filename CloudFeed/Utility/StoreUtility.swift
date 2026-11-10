@@ -508,7 +508,7 @@ nonisolated struct StoreUtility: Sendable {
         return totalSize
     }
 
-    func cleanupFileCache() async {
+    @concurrent func cleanupFileCache() async {
 
         guard let cachePath = getFileCachePath(), let fileCacheDirectory = URL(string: cachePath) else { return }
         let maxFileCache = 1000 * 1000 * Global.shared.fileCacheLimit

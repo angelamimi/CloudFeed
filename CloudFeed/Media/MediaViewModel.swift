@@ -136,7 +136,7 @@ final class MediaViewModel {
     }
 
     func cleanupFileCache() {
-        Task.detached { [weak self] in
+        Task { [weak self] in
             await self?.dataService.store.cleanupFileCache()
         }
     }
@@ -207,7 +207,7 @@ final class MediaViewModel {
     }
 
     func handleLivePhoto(metadata: Metadata, account: String) {
-        Task.detached { [weak self] in
+        Task { [weak self] in
             await self?.loadLivePhoto(metadata: metadata, account: account)
         }
     }
@@ -351,13 +351,9 @@ final class MediaViewModel {
 
         guard let account = Environment.current.currentUser?.account else { return }
 
-        Task.detached { [weak self] in
-
+        Task { [weak self] in
             let url = await self?.dataService.getDirectDownload(metadata: metadata, account: account)
-
-            await MainActor.run { [weak self] in
-                self?.delegate?.loadVideoFromUrl(metadata: metadata, url: url)
-            }
+            self?.delegate?.loadVideoFromUrl(metadata: metadata, url: url)
         }
     }
 
@@ -500,35 +496,28 @@ final class MediaViewModel {
 
     func toggleFavorite(metadata: Metadata) {
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
-            let result = await self?.dataService.toggleFavoriteMetadata(metadata)
+            if let result = await self?.dataService.toggleFavoriteMetadata(metadata) {
 
-            if result == nil {
-                await MainActor.run { [weak self] in
-                    self?.delegate.favoriteUpdated(error: true)
-                    self?.coordinator.showFavoriteUpdateFailedError()
+                self?.metadatas[metadata.id]?.favorite = result.favorite
+
+                if self?.tableMode == false, var snapshot = self?.dataSource.snapshot() {
+                    snapshot.reconfigureItems([metadata.id])
+
+                    self?.applyGrid(snapshot: snapshot, animate: false, notify: false)
+                    self?.delegate.favoriteUpdated(error: false)
+                }
+
+                if self?.tableMode == true, var snapshot = self?.tableDataSource.snapshot() {
+                    snapshot.reconfigureItems([metadata.id])
+
+                    self?.applyTable(snapshot: snapshot, animate: false, notify: false)
+                    self?.delegate.favoriteUpdated(error: false)
                 }
             } else {
-
-                await MainActor.run { [weak self] in
-
-                    self?.metadatas[metadata.id]?.favorite = result!.favorite
-
-                    if self?.tableMode == false, var snapshot = self?.dataSource.snapshot() {
-                        snapshot.reconfigureItems([metadata.id])
-
-                        self?.applyGrid(snapshot: snapshot, animate: false, notify: false)
-                        self?.delegate.favoriteUpdated(error: false)
-                    }
-
-                    if self?.tableMode == true, var snapshot = self?.tableDataSource.snapshot() {
-                        snapshot.reconfigureItems([metadata.id])
-
-                        self?.applyTable(snapshot: snapshot, animate: false, notify: false)
-                        self?.delegate.favoriteUpdated(error: false)
-                    }
-                }
+                self?.delegate.favoriteUpdated(error: true)
+                self?.coordinator.showFavoriteUpdateFailedError()
             }
         }
     }
@@ -915,16 +904,13 @@ final class MediaViewModel {
 
             if FileManager.default.fileExists(atPath: path) {
 
-                Task.detached { [weak self] in
+                Task { [weak self] in
 
-                    let image = await self?.loadImage(path)
-
-                    await MainActor.run { [weak self] in
+                    if let image = await self?.loadImage(path) {
                         cell.setPreviewImage(image)
-
-                        if image != nil {
-                            self?.cacheManager.cache(metadata: metadata, image: image!)
-                        }
+                        self?.cacheManager.cache(metadata: metadata, image: image)
+                    } else {
+                        cell.setPreviewImage(nil)
                     }
                 }
 

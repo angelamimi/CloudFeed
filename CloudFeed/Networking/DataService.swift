@@ -237,7 +237,7 @@ nonisolated final class DataService: NSObject, Sendable {
 
     // MARK: -
     // MARK: Favorites
-    func toggleFavoriteMetadata(_ metadata: Metadata) async -> Metadata? {
+    @concurrent func toggleFavoriteMetadata(_ metadata: Metadata) async -> Metadata? {
 
         if let videoMetadata = await databaseManager.getMetadataLivePhoto(metadata: metadata) {
             if videoMetadata.favorite == metadata.favorite {
@@ -255,7 +255,7 @@ nonisolated final class DataService: NSObject, Sendable {
         }
     }
 
-    private func toggleFavorite(metadata: Metadata) async -> Metadata? {
+    @concurrent private func toggleFavorite(metadata: Metadata) async -> Metadata? {
 
         let fileName = buildFileNamePath(metadataFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)
         let favorite = !metadata.favorite

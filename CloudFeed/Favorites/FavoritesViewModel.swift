@@ -145,7 +145,7 @@ final class FavoritesViewModel {
     }
 
     func cleanupFileCache() {
-        Task.detached { [weak self] in
+        Task { [weak self] in
             await self?.dataService.store.cleanupFileCache()
         }
     }
