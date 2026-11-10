@@ -22,17 +22,19 @@
 import UIKit
 import os.log
 
-nonisolated protocol DownloadAvatarOperationDelegate: AnyObject {
+@MainActor
+protocol DownloadAvatarOperationDelegate: AnyObject {
     func avatarDownloaded(id: String)
 }
 
 nonisolated class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
 
     private var task: Task<Void, Never>?
-    private var objectId: String //associated object. could be a commentId or metadataId
-    private var userId: String
-    private var urlBase: String
-    private var account: String
+    private let objectId: String //associated object. could be a commentId or metadataId
+    private let userId: String
+    private let urlBase: String
+    private let account: String
+    private let screenScale: CGFloat
     private weak var dataService: DataService?
     private weak var delegate: DownloadAvatarOperationDelegate?
 
@@ -41,18 +43,19 @@ nonisolated class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
         category: String(describing: DownloadAvatarOperation.self)
     )
 
-    init(objectId: String, userId: String, urlBase: String, account: String, dataService: DataService, delegate: DownloadAvatarOperationDelegate) {
+    init(objectId: String, userId: String, urlBase: String, account: String, screenScale: CGFloat, dataService: DataService, delegate: DownloadAvatarOperationDelegate) {
         self.objectId = objectId
         self.userId = userId
         self.urlBase = urlBase
         self.account = account
+        self.screenScale = screenScale
         self.dataService = dataService
         self.delegate = delegate
     }
 
     override func main() {
 
-        task = Task.detached { [weak self] in
+        task = Task { [weak self] in
 
             if self?.isCancelled ?? true {
                 self?.finish()
@@ -84,6 +87,6 @@ nonisolated class DownloadAvatarOperation: AsyncOperation, @unchecked Sendable {
     }
 
     private func download() async {
-        await dataService?.downloadAvatar(userId: userId, urlBase: urlBase, account: account, screenScale: 1.0)
+        await dataService?.downloadAvatar(userId: userId, urlBase: urlBase, account: account, screenScale: screenScale)
     }
 }

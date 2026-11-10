@@ -22,7 +22,8 @@
 import UIKit
 import os.log
 
-nonisolated protocol DownloadOperationDelegate: AnyObject {
+@MainActor
+protocol DownloadOperationDelegate: AnyObject {
     func downloaded(metadata: Metadata)
     func progress(metadata: Metadata, progress: Progress)
 }
@@ -30,8 +31,8 @@ nonisolated protocol DownloadOperationDelegate: AnyObject {
 nonisolated class DownloadOperation: AsyncOperation, @unchecked Sendable {
 
     private var task: Task<Void, Never>?
-    private var account: String?
-    private var metadata: Metadata?
+    private let account: String
+    private let metadata: Metadata
     private weak var dataService: DataService?
     private weak var delegate: DownloadOperationDelegate?
 
@@ -49,7 +50,7 @@ nonisolated class DownloadOperation: AsyncOperation, @unchecked Sendable {
 
     override func main() {
 
-        task = Task.detached { [weak self] in
+        task = Task { [weak self] in
 
             if self?.isCancelled ?? true {
                 self?.finish()
@@ -81,7 +82,7 @@ nonisolated class DownloadOperation: AsyncOperation, @unchecked Sendable {
     }
 
     private func download() async {
-        await dataService?.download(account: account!, metadata: metadata!, progressHandler: { [weak self] metadata, progress in
+        await dataService?.download(account: account, metadata: metadata, progressHandler: { [weak self] metadata, progress in
             Task { @MainActor [weak self] in
                 self?.delegate?.progress(metadata: metadata, progress: progress)
             }

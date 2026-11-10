@@ -22,15 +22,16 @@
 import UIKit
 import os.log
 
-nonisolated protocol DownloadPreviewOperationDelegate: AnyObject {
+@MainActor
+protocol DownloadPreviewOperationDelegate: AnyObject {
     func previewDownloaded(metadata: Metadata)
 }
 
 nonisolated class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable {
 
     private var task: Task<Void, Never>?
-    private var metadata: Metadata?
-    private var account: String?
+    private let metadata: Metadata
+    private let account: String
     private weak var dataService: DataService?
     private weak var delegate: DownloadPreviewOperationDelegate?
 
@@ -48,7 +49,7 @@ nonisolated class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable 
 
     override func main() {
 
-        task = Task.detached { [weak self] in
+        task = Task { [weak self] in
 
             if self?.isCancelled ?? true {
                 self?.finish()
@@ -83,14 +84,12 @@ nonisolated class DownloadPreviewOperation: AsyncOperation, @unchecked Sendable 
 
     nonisolated private func download(metadata: Metadata) async {
 
-        guard let currentAccount = self.account else { return }
-
         if metadata.video {
-            await dataService?.downloadVideoPreview(account: currentAccount, metadata: metadata)
+            await dataService?.downloadVideoPreview(account: account, metadata: metadata)
         } else if metadata.svg {
-            await dataService?.downloadSVGPreview(account: currentAccount, metadata: metadata)
+            await dataService?.downloadSVGPreview(account: account, metadata: metadata)
         } else {
-            await dataService?.downloadPreview(account: currentAccount, metadata: metadata)
+            await dataService?.downloadPreview(account: account, metadata: metadata)
         }
     }
 }

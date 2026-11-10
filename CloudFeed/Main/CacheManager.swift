@@ -90,7 +90,8 @@ final class CacheManager {
     }
 
     func download(objectId: String, userId: String, urlBase: String, account: String, delegate: DownloadAvatarOperationDelegate) {
-        let operation = DownloadAvatarOperation(objectId: objectId, userId: userId, urlBase: urlBase, account: account, dataService: dataService, delegate: delegate)
+        let operation = DownloadAvatarOperation(objectId: objectId, userId: userId, urlBase: urlBase, account: account,
+                                                screenScale: UIScreen.main.scale, dataService: dataService, delegate: delegate)
         queue.addOperation(operation)
     }
 
