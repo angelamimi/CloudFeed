@@ -59,12 +59,10 @@ class ProfileViewModel {
             return
         }
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             guard let account = await self?.dataService.getActiveAccount() else {
-                await MainActor.run { [weak self] in
-                    self?.delegate.profileResultReceived(profile: Profile(name: "", email: "", quotaUsed: nil, quotaTotal: nil))
-                }
+                self?.delegate.profileResultReceived(profile: Profile(name: "", email: "", quotaUsed: nil, quotaTotal: nil))
                 return
             }
 
@@ -73,20 +71,17 @@ class ProfileViewModel {
                 await self?.downloadAvatar(account: account, user: currentUser.user)
                 let image = await self?.loadAvatar(account: account)
 
-                let profile = Profile(name: profileResult.name, email: profileResult.email, image: image, mediaPath: account.mediaPath, quotaUsed: profileResult.quotaUsed, quotaTotal: profileResult.quotaTotal)
+                let profile = Profile(name: profileResult.name, email: profileResult.email, image: image, mediaPath: account.mediaPath,
+                                      quotaUsed: profileResult.quotaUsed, quotaTotal: profileResult.quotaTotal)
 
-                await MainActor.run { [weak self] in
-                    self?.delegate?.profileResultReceived(profile: profile)
-                }
+                self?.delegate?.profileResultReceived(profile: profile)
             } else {
-                await MainActor.run { [weak self] in
-                    self?.delegate.profileResultReceived(profile: Profile(name: "", email: "", quotaUsed: nil, quotaTotal: nil))
-                }
+                self?.delegate.profileResultReceived(profile: Profile(name: "", email: "", quotaUsed: nil, quotaTotal: nil))
             }
         }
     }
 
-    func downloadAvatar(account: Account, user: String) async {
+    @concurrent func downloadAvatar(account: Account, user: String) async {
 
         let userBaseUrl = buildUserBaseUrl(account)
         let fileName = userBaseUrl + "-" + user + ".png"
@@ -94,11 +89,11 @@ class ProfileViewModel {
         await dataService.downloadAvatar(fileName: fileName, account: account, screenScale: UIScreen.main.scale)
     }
 
-    private func buildUserBaseUrl(_ account: Account) -> String {
+    nonisolated private func buildUserBaseUrl(_ account: Account) -> String {
         return account.user + "-" + (URL(string: account.urlBase)?.host ?? "")
     }
 
-    func loadAvatar(account: Account) async -> UIImage? {
+    @concurrent func loadAvatar(account: Account) async -> UIImage? {
 
         let userBaseUrl = buildUserBaseUrl(account)
         let image = loadUserImage(for: account.userId, userBaseUrl: userBaseUrl)
@@ -106,7 +101,7 @@ class ProfileViewModel {
         return image
     }
 
-    private func loadUserImage(for user: String, userBaseUrl: String) -> UIImage? {
+    nonisolated private func loadUserImage(for user: String, userBaseUrl: String) -> UIImage? {
 
         let fileName = userBaseUrl + "-" + user + ".png"
         let localFilePath = dataService.store.getUserDirectory() + "/" + fileName
@@ -141,21 +136,17 @@ class ProfileViewModel {
 
         delegate?.beginSwitchingAccounts()
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             await self?.dataService.removeAccount(account)
 
             if let accounts = await self?.dataService.getAccountsOrdered() {
 
                 if accounts.isEmpty {
-                    await MainActor.run { [weak self] in
-                        Environment.current.clear()
-                        self?.delegate.noAccountsFound()
-                    }
-                } else {
-                    await MainActor.run { [weak self] in
-                        self?.changeAccount(account: accounts.first!.account)
-                    }
+                    Environment.current.clear()
+                    self?.delegate.noAccountsFound()
+                } else if let first = accounts.first {
+                    self?.changeAccount(account: first.account)
                 }
             }
         }
@@ -163,30 +154,26 @@ class ProfileViewModel {
 
     func changeAccount(account: String) {
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             guard let tableAccount = await self?.dataService.setActiveAccount(account) else {
-                await MainActor.run { [weak self] in
-                    self?.accountDelegate.userChangeError()
-                }
+                self?.accountDelegate.userChangeError()
                 return
             }
 
-            await Environment.current.setCurrentUser(account: account, user: tableAccount.user, userId: tableAccount.userId)
+            Environment.current.setCurrentUser(account: account, user: tableAccount.user, userId: tableAccount.userId)
 
-            if let currentUser = await Environment.current.currentUser {
+            if let currentUser = Environment.current.currentUser {
 
                 await self?.dataService.appendSession(account: currentUser.account, user: currentUser.user, userId: currentUser.userId, urlBase: tableAccount.urlBase)
                 await self?.dataService.updateAccount(account: currentUser.account)
 
                 let version = await self?.dataService.getServerVersion(account: currentUser.account)
-                await Environment.current.setCurrentServer(urlBase: tableAccount.urlBase, version: version ?? "")
+                Environment.current.setCurrentServer(urlBase: tableAccount.urlBase, version: version ?? "")
 
                 self?.dataService.clearWidgetData()
 
-                await MainActor.run { [weak self] in
-                    self?.accountDelegate.userChanged()
-                }
+                self?.accountDelegate.userChanged()
             }
         }
     }
@@ -197,14 +184,12 @@ class ProfileViewModel {
 
     func applicationReset() {
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             await self?.dataService.reset()
 
-            await MainActor.run { [weak self] in
-                Environment.current.clear()
-                self?.resetDelegate.reset()
-            }
+            Environment.current.clear()
+            self?.resetDelegate.reset()
         }
     }
 }

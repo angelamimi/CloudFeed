@@ -67,7 +67,7 @@ nonisolated final class DataService: NSObject, Sendable {
         nextcloudService.setup()
     }
 
-    func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)? {
+    @concurrent func loginPoll(token: String, endpoint: String) async -> (urlBase: String, user: String, appPassword: String)? {
         return await nextcloudService.loginPoll(token: token, endpoint: endpoint)
     }
 
@@ -79,7 +79,7 @@ nonisolated final class DataService: NSObject, Sendable {
         return await nextcloudService.checkServerStatus(url: url)
     }
 
-    func appendSession(account: String, user: String, userId: String, urlBase: String) async {
+    @concurrent func appendSession(account: String, user: String, userId: String, urlBase: String) async {
 
         let password = store.getPassword(account) ?? ""
 
@@ -107,11 +107,11 @@ nonisolated final class DataService: NSObject, Sendable {
 
     // MARK: -
     // MARK: Account Management
-    func getActiveAccount() async -> Account? {
+    @concurrent func getActiveAccount() async -> Account? {
         return await databaseManager.getActiveAccount()
     }
 
-    func setActiveAccount(_ account: String) async -> Account? {
+    @concurrent func setActiveAccount(_ account: String) async -> Account? {
         return await databaseManager.setActiveAccount(account)
     }
 
@@ -123,7 +123,7 @@ nonisolated final class DataService: NSObject, Sendable {
         await databaseManager.deleteAccount(account)
     }
 
-    func removeAccount(_ account: String) async {
+    @concurrent func removeAccount(_ account: String) async {
         await clearDatabase(account: account, removeAccount: true)
         removeSession(account: account)
         store.setPassword(account, password: nil)
@@ -139,11 +139,11 @@ nonisolated final class DataService: NSObject, Sendable {
         store.setPassword(account, password: password)
     }
 
-    func getAccountsOrdered() async -> [Account] {
+    @concurrent func getAccountsOrdered() async -> [Account] {
         return await databaseManager.getAccountsOrdered()
     }
 
-    func updateAccount(account: String) async {
+    @concurrent func updateAccount(account: String) async {
         let profile = await getUserProfile(account: account)
         await databaseManager.updateAccount(account: account, displayName: profile?.name ?? "")
     }
@@ -559,11 +559,11 @@ nonisolated final class DataService: NSObject, Sendable {
 
     // MARK: -
     // MARK: Profile
-    func getUserProfile(account: String) async -> Profile? {
+    @concurrent func getUserProfile(account: String) async -> Profile? {
         return await nextcloudService.getUserProfile(account: account)
     }
 
-    func getServerVersion(account: String) async -> String? {
+    @concurrent func getServerVersion(account: String) async -> String? {
         return await nextcloudService.getCapabilitiesServerVersion(account)
     }
 
@@ -589,7 +589,7 @@ nonisolated final class DataService: NSObject, Sendable {
         return buildHomeServer(urlBase: urlBase, userId: userId)
     }
 
-    func reset() async {
+    @concurrent func reset() async {
         await store.clearCache()
         await store.removeDirectories()
         store.removeUserDefaults()

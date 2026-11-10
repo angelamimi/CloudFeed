@@ -92,7 +92,7 @@ class LoginWebController: UIViewController {
 
         guard let token = self.token, let endpoint = self.endpoint else { return }
 
-        timerTask = Task.detached { [weak self] in
+        timerTask = Task { [weak self] in
 
             while !Task.isCancelled {
 
