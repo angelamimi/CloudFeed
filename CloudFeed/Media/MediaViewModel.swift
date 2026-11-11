@@ -395,7 +395,7 @@ final class MediaViewModel {
         guard let currentUser = Environment.current.currentUser,
               let currentServer = Environment.current.currentServer else { return }
 
-        fetchTask = Task.detached { [weak self] in
+        fetchTask = Task { [weak self] in
             await self?.sync(type: type, fromDate: fromDate, toDate: toDate, user: currentUser, server: currentServer)
         }
     }

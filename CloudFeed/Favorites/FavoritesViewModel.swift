@@ -192,7 +192,7 @@ final class FavoritesViewModel {
 
         delegate.fetching()
 
-        syncTask = Task.detached { [weak self] in
+        syncTask = Task { [weak self] in
             await self?.sync(type: type, from: from, to: to, refresh: refresh, user: currentUser, server: currentServer)
         }
     }
