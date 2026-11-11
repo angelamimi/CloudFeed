@@ -41,7 +41,7 @@ final class SettingsViewModel: ProfileViewModel {
         return await dataService.getAccountsOrdered()
     }
 
-    func getAccount() async -> Account? {
+    @concurrent func getAccount() async -> Account? {
         return await dataService.getActiveAccount()
     }
 
@@ -53,7 +53,7 @@ final class SettingsViewModel: ProfileViewModel {
 
         guard let account = Environment.current.currentUser?.account else { return }
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             await self?.dataService.clearDatabase(account: account, removeAccount: false)
 
@@ -64,24 +64,20 @@ final class SettingsViewModel: ProfileViewModel {
                     await self?.updateServer()
                 }
 
-                await MainActor.run { [weak self] in
-                    self?.coordinator.cacheCleared()
-                    self?.settingsDelegate.cacheCleared()
-                }
+                self?.coordinator.cacheCleared()
+                self?.settingsDelegate.cacheCleared()
             }
         }
     }
 
     func reset() {
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             await self?.dataService.reset()
 
-            await MainActor.run { [weak self] in
-                Environment.current.clear()
-                self?.resetDelegate.reset()
-            }
+            Environment.current.clear()
+            self?.resetDelegate.reset()
         }
     }
 
@@ -95,14 +91,12 @@ final class SettingsViewModel: ProfileViewModel {
 
     func calculateCacheSize() {
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             if let dir = self?.dataService.store.cacheDirectory,
                let totalSize = await self?.dataService.store.getDirectorySize(directory: dir) {
 
-                await MainActor.run { [weak self] in
-                    self?.settingsDelegate.cacheCalculated(cacheSize: totalSize)
-                }
+                self?.settingsDelegate.cacheCalculated(cacheSize: totalSize)
             }
         }
     }
@@ -137,10 +131,12 @@ final class SettingsViewModel: ProfileViewModel {
         coordinator.showRemovePasscode()
     }
 
-    private func updateServer() async {
+    @concurrent private func updateServer() async {
         if let userAccount = await getAccount(),
            let version = await dataService.getServerVersion(account: userAccount.account) {
-            Environment.current.setCurrentServer(urlBase: userAccount.urlBase, version: version)
+            await MainActor.run {
+                Environment.current.setCurrentServer(urlBase: userAccount.urlBase, version: version)
+            }
         }
     }
 }

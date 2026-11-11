@@ -82,11 +82,11 @@ final class PagerViewModel: NSObject {
         pagerCoordinator?.showComments(metadata: metadata)
     }
 
-    func fileExists(_ metadata: Metadata) -> Bool {
+    nonisolated func fileExists(_ metadata: Metadata) -> Bool {
         return dataService.store.fileExists(metadata)
     }
 
-    func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
+    @concurrent func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
         return await dataService.getMetadataLivePhoto(metadata: metadata)
     }
 
@@ -112,13 +112,13 @@ final class PagerViewModel: NSObject {
 
     func playLiveVideo(metadata: Metadata) {
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
-            if let videoMetadata = await self?.dataService.getMetadataLivePhoto(metadata: metadata) {
+            if let videoMetadata = await self?.getMetadataLivePhoto(metadata: metadata) {
 
                 var url: URL?
 
-                if self?.dataService.store.fileExists(videoMetadata) == true {
+                if self?.fileExists(videoMetadata) == true {
 
                     if let cachePath = self?.dataService.store.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
                         url = URL(fileURLWithPath: cachePath)
@@ -127,16 +127,14 @@ final class PagerViewModel: NSObject {
 
                     await self?.downloadLivePhotoVideo(metadata: videoMetadata)
 
-                    if self?.dataService.store.fileExists(videoMetadata) == true,
+                    if self?.fileExists(videoMetadata) == true,
                        let cachePath = self?.dataService.store.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
                         url = URL(fileURLWithPath: cachePath)
                     }
                 }
 
                 if let videoUrl = url {
-                    await MainActor.run { [weak self] in
-                        self?.delegate?.playLiveVideo(url: videoUrl)
-                    }
+                    self?.delegate?.playLiveVideo(url: videoUrl)
                 }
             }
         }

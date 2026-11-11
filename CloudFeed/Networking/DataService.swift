@@ -148,7 +148,7 @@ nonisolated final class DataService: NSObject, Sendable {
         await databaseManager.updateAccount(account: account, displayName: profile?.name ?? "")
     }
 
-    func updateAccountMediaPath(account: String, mediaPath: String) async {
+    @concurrent func updateAccountMediaPath(account: String, mediaPath: String) async {
         await databaseManager.updateAccountMediaPath(account: account, mediaPath: mediaPath)
     }
 
@@ -174,7 +174,7 @@ nonisolated final class DataService: NSObject, Sendable {
 
     // MARK: -
     // MARK: Database Management
-    func clearDatabase(account: String?, removeAccount: Bool) async {
+    @concurrent func clearDatabase(account: String?, removeAccount: Bool) async {
         await databaseManager.clearDatabase(account: account, removeAccount: removeAccount)
     }
 
@@ -188,7 +188,7 @@ nonisolated final class DataService: NSObject, Sendable {
         return await databaseManager.getMetadataFromOcId(ocId)
     }
 
-    func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
+    @concurrent func getMetadataLivePhoto(metadata: Metadata) async -> Metadata? {
         return await databaseManager.getMetadataLivePhoto(metadata: metadata)
     }
 

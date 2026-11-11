@@ -486,7 +486,7 @@ nonisolated struct StoreUtility: Sendable {
         return false
     }
 
-    func getDirectorySize(directory: String) async -> Int64 {
+    @concurrent func getDirectorySize(directory: String) async -> Int64 {
 
         let url = URL(fileURLWithPath: directory)
         let manager = FileManager.default
@@ -571,7 +571,7 @@ nonisolated struct StoreUtility: Sendable {
         }
     }
 
-    func clearCache() async {
+    @concurrent func clearCache() async {
 
         let fileManager = FileManager.default
         let cachesDirectory = getCacheDirectoryURL()

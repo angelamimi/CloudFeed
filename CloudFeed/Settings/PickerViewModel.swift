@@ -51,7 +51,7 @@ class PickerViewModel {
             return
         }
 
-        Task.detached { [weak self] in
+        Task { [weak self] in
 
             if let folderLocation = self?.dataService.getHomeServer(urlBase: server.urlBase, userId: user.userId) {
 
@@ -60,9 +60,7 @@ class PickerViewModel {
                 if let metadata = results?.metadatas.first,
                    let folderResults = await self?.readFolder(user.account, folderLocation, metadata.fileId, depth: "1") {
 
-                    await MainActor.run { [weak self] in
-                        self?.delegate?.rootLoaded(metadata: metadata, folderLocation: folderLocation, metadatas: folderResults.metadatas, mediaFileCount: folderResults.mediaFileCount)
-                    }
+                    self?.delegate?.rootLoaded(metadata: metadata, folderLocation: folderLocation, metadatas: folderResults.metadatas, mediaFileCount: folderResults.mediaFileCount)
                 }
             }
         }
@@ -78,13 +76,9 @@ class PickerViewModel {
 
         let homeServer = dataService.getHomeServer(urlBase: server.urlBase, userId: user.userId)
 
-        Task.detached { [weak self] in
-
+        Task { [weak self] in
             let results = await self?.readFolder(user.account, folderLocation, fileId, depth: "1")
-
-            await MainActor.run { [weak self] in
-                self?.delegate?.folderLoaded(isHome: folderLocation == homeServer, metadatas: results?.metadatas, mediaFileCount: results?.mediaFileCount)
-            }
+            self?.delegate?.folderLoaded(isHome: folderLocation == homeServer, metadatas: results?.metadatas, mediaFileCount: results?.mediaFileCount)
         }
     }
 
@@ -95,16 +89,11 @@ class PickerViewModel {
         }
 
         let homeServer = dataService.getHomeServer(urlBase: server.urlBase, userId: user.userId)
+        let mediaPath = serverUrl.replacingOccurrences(of: homeServer, with: "")
 
-        Task.detached { [weak self] in
-
-            let mediaPath = serverUrl.replacingOccurrences(of: homeServer, with: "")
-
+        Task { [weak self] in
             await self?.dataService.updateAccountMediaPath(account: account, mediaPath: mediaPath)
-
-            await MainActor.run { [weak self] in
-                self?.delegate?.mediaPathUpdated()
-            }
+            self?.delegate?.mediaPathUpdated()
         }
     }
 
