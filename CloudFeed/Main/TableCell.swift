@@ -252,7 +252,8 @@ class TableCell: UITableViewCell {
 
         UIView.animate(withDuration: 0.4, animations: { [weak self] in
             self?.livePhotoImageView.isHidden = true
-        }, completion: { _ in
+        }, completion: { [weak self] _ in
+            self?.activityIndicator.isHidden = true
             player.play()
         })
     }
@@ -265,8 +266,6 @@ class TableCell: UITableViewCell {
         }
 
         avpLayer = nil
-
-        livePhotoImageView.isHidden = false
     }
 
     private func initActions() {

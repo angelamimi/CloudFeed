@@ -64,6 +64,10 @@ extension FavoritesCoordinator {
         filterController.modalPresentationStyle = pad ? .popover : .formSheet
         filterController.preferredContentSize = CGSize(width: 400, height: 500)
 
+        if #available(iOS 26.1, *) { //forces an opaque background rather than glass effect
+            filterController.presentationController?.backgroundEffect = UIColorEffect(color: .systemBackground)
+        }
+
         if pad {
             //for some reason formSheet is not presented in the center. added this to force centering along with popover modalPresentationStyle
             filterController.popoverPresentationController?.permittedArrowDirections = []

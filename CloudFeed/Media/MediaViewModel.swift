@@ -35,6 +35,7 @@ protocol MediaDelegate: AnyObject {
     func videoPlay(indexPath: IndexPath)
     func syncComplete()
     func liveLoadComplete(videoMetadata: Metadata, indexPath: IndexPath)
+    func liveLoadError(metadata: Metadata)
     func loadVideoFromUrl(metadata: Metadata, url: URL?)
 }
 
@@ -221,6 +222,7 @@ final class MediaViewModel {
                 await MainActor.run { [weak self] in
                     if let indexPath = self?.tableDataSource.indexPath(for: metadata.id) {
                         self?.delegate.liveLoadComplete(videoMetadata: videoMetadata, indexPath: indexPath)
+                        return
                     }
                 }
             } else {
@@ -230,9 +232,14 @@ final class MediaViewModel {
                 await MainActor.run { [weak self] in
                     if let indexPath = self?.tableDataSource.indexPath(for: metadata.id) {
                         self?.delegate.liveLoadComplete(videoMetadata: videoMetadata, indexPath: indexPath)
+                        return
                     }
                 }
             }
+        }
+
+        await MainActor.run { [weak self] in
+            self?.delegate.liveLoadError(metadata: metadata)
         }
     }
 

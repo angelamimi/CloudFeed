@@ -289,6 +289,7 @@ class MediaController: CollectionController {
                 DispatchQueue.main.async {
                     if metadata.livePhoto {
                         cell.stopLiveVideo()
+                        cell.livePhotoImageView.isHidden = false
                     }
                 }
             }
@@ -309,6 +310,9 @@ class MediaController: CollectionController {
     }
 
     private func handleLongPressLivePhoto(_ metadata: Metadata, _ cell: TableCell) {
+
+        cell.activityIndicator.isHidden = false
+
         guard let account = Environment.current.currentUser?.account else { return }
         viewModel.handleLivePhoto(metadata: metadata, account: account)
     }
@@ -318,16 +322,9 @@ class MediaController: CollectionController {
     }
 
     private func playLiveVideo(_ videoMetadata: Metadata, _ cell: TableCell) {
-
-        var videoUrl: URL?
-
         if viewModel.fileExists(videoMetadata) == true,
            let path = viewModel.getCachePath(videoMetadata.ocId, videoMetadata.fileNameView) {
-            videoUrl = URL(fileURLWithPath: path)
-        }
-
-        if let url = videoUrl {
-            cell.playLiveVideo(url)
+            cell.playLiveVideo(URL(fileURLWithPath: path))
         }
     }
 
@@ -614,6 +611,13 @@ extension MediaController: MediaDelegate {
             playLiveVideo(videoMetadata, cell)
         }
     }
+
+    func liveLoadError(metadata: Metadata) {
+        if let indexPath = viewModel.getIndexPathForMetadata(metadata: metadata),
+           let cell = tableView.cellForRow(at: indexPath) as? TableCell {
+            cell.activityIndicator.isHidden = true
+        }
+    }
 }
 
 extension MediaController: UITableViewDelegate {
@@ -621,6 +625,7 @@ extension MediaController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if let current = cell as? TableCell {
             current.stopVideo()
+            current.stopLiveVideo()
         }
     }
 
