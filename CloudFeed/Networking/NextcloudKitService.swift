@@ -337,7 +337,6 @@ nonisolated final class NextcloudKitService: NextcloudKitServiceProtocol {
         while true {
 
             if Task.isCancelled {
-                await finish(false)
                 break
             }
 
@@ -351,7 +350,6 @@ nonisolated final class NextcloudKitService: NextcloudKitServiceProtocol {
                                                                 includeHiddenFiles: [], account: account, options: options, taskHandler: { _ in })
 
             if Task.isCancelled {
-                await finish(false)
                 break
             }
 

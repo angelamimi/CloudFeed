@@ -579,7 +579,7 @@ final class MediaViewModel {
 
         guard !add.isEmpty || !update.isEmpty || !delete.isEmpty else {
             Self.logger.debug("No changes to apply to datasource.")
-            delegate.dataSourceUpdated()
+            //delegate.dataSourceUpdated()
             return
         }
 

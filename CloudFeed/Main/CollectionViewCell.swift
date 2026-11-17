@@ -42,6 +42,7 @@ class CollectionViewCell: UICollectionViewCell {
     }
 
     override func prepareForReuse() {
+        super.prepareForReuse()
         initCell()
     }
 
@@ -97,7 +98,7 @@ class CollectionViewCell: UICollectionViewCell {
             backgroundColor = .systemBackground
         }
 
-        UIView.transition(with: imageView,
+        UIView.transition(with: self,
                           duration: 0.5,
                           options: .transitionCrossDissolve,
                           animations: { [weak self] in self?.imageView.image = image },

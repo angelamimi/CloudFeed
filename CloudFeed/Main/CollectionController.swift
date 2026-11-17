@@ -144,14 +144,10 @@ class CollectionController: UIViewController {
 
         navigationItem.title = title
 
-        if tableMode {
-            navigationItem.largeTitleDisplayMode = .never
-        } else {
-            navigationItem.largeTitleDisplayMode = title.isEmpty ? .automatic : .always
-        }
-
-        navigationController?.navigationBar.prefersLargeTitles = title.isEmpty ? false : true
+        navigationController?.navigationBar.prefersLargeTitles = tableMode ? false : true
         navigationController?.navigationBar.sizeToFit()
+        navigationController?.view.setNeedsLayout()
+        navigationController?.view.layoutIfNeeded()
     }
 
     func resetFilter() {

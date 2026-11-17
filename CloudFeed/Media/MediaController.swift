@@ -50,7 +50,11 @@ class MediaController: CollectionController {
         initTitle(allowEdit: false, allowSelect: tableMode == false, layoutType: viewModel.getLayoutType())
         initEmptyView(imageSystemName: "photo", title: Strings.MediaEmptyTitle, description: Strings.MediaEmptyDescription)
 
-        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
 
         setTitle()
     }
@@ -74,11 +78,12 @@ class MediaController: CollectionController {
         }
     }
 
-    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    /*override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        super.scrollViewDidEndDragging(scrollView, willDecelerate: decelerate)
         if !decelerate {
             refreshVisibleItems()
         }
-    }
+    }*/
 
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         super.scrollViewDidEndDecelerating(scrollView)
@@ -247,6 +252,8 @@ class MediaController: CollectionController {
 
     override func switchToGrid() {
 
+        viewModel.cancel()
+
         tableCleanup()
 
         viewModel.resetDataSource()
@@ -261,6 +268,8 @@ class MediaController: CollectionController {
     }
 
     override func switchToSocial() {
+
+        viewModel.cancel()
 
         viewModel.resetDataSource()
 
@@ -500,22 +509,26 @@ extension MediaController: CollectionDelegate {
 
     func setTitle() {
 
-        if tableMode {
-            navigationItem.largeTitleDisplayMode = .never
+        if tableMode && navigationController?.navigationBar.prefersLargeTitles == true {
+
             navigationController?.navigationBar.prefersLargeTitles = false
-            return
-        }
+            navigationController?.navigationBar.sizeToFit()
+            navigationController?.view.setNeedsLayout()
+            navigationController?.view.layoutIfNeeded()
 
-        let visibleIndexes = collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
-        guard let indexPath = visibleIndexes?.first else {
-            setTitle("")
-            return
-        }
+        } else if !tableMode {
 
-        if let metadata = viewModel.getItemAtIndexPath(indexPath) {
-            setTitle(getFormattedDate(metadata.date))
-        } else {
-            setTitle("")
+            let visibleIndexes = collectionView?.indexPathsForVisibleItems.sorted(by: { $0.row < $1.row })
+            guard let indexPath = visibleIndexes?.first else {
+                setTitle("")
+                return
+            }
+
+            if let metadata = viewModel.getItemAtIndexPath(indexPath) {
+                setTitle(getFormattedDate(metadata.date))
+            } else {
+                setTitle("")
+            }
         }
     }
 
